@@ -34,12 +34,6 @@ if "%MODE%"=="bench" (
     exit /b !errorlevel!
 )
 
-if "%MODE%"=="benchmark" (
-    echo [QALLOW] Running benchmark...
-    call build\qallow.exe bench %2 %3 %4 %5
-    exit /b !errorlevel!
-)
-
 if "%MODE%"=="govern" (
     echo [QALLOW] Running governance audit...
     call build\qallow.exe govern %2 %3 %4 %5
