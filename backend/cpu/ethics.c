@@ -1,7 +1,18 @@
 #include "ethics.h"
 #include <string.h>
+#include <stdlib.h>
 
 // Ethics and Safety module - E = S + C + H framework
+
+// Helper: read float from environment variable, fallback to default
+static float read_envf(const char* var, float def) {
+    const char* val = getenv(var);
+    if (val) {
+        float f = (float)atof(val);
+        return f;
+    }
+    return def;
+}
 
 CUDA_CALLABLE void ethics_init(ethics_monitor_t* ethics) {
     if (!ethics) return;
@@ -102,8 +113,11 @@ CUDA_CALLABLE float ethics_calculate_clarity_score(const qallow_state_t* state, 
 CUDA_CALLABLE float ethics_calculate_human_benefit_score(const qallow_state_t* state, ethics_monitor_t* ethics) {
     if (!state || !ethics) return 0.0f;
     
-    // Human benefit based on system stability
-    float benefit = 0.6f + state->global_coherence * 0.4f;
+    // Read human weight from QALLOW_H env var (default 0.8)
+    float H_weight = read_envf("QALLOW_H", 0.8f);
+    
+    // Human benefit based on system stability, scaled by H weight
+    float benefit = (0.6f + state->global_coherence * 0.4f) * H_weight;
     
     // Update human benefit factors
     for (int i = 0; i < 3; i++) {

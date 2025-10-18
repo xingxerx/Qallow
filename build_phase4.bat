@@ -88,6 +88,21 @@ if errorlevel 1 exit /b 1
 cl /O2 /W4 "/I%INC_DIR%" /DCUDA_ENABLED=1 /c "%CPU_DIR%\phase7_core.c" "/Fo%CPU_DIR%\phase7_core.obj"
 if errorlevel 1 exit /b 1
 
+REM Phase V, VI, and 12 modules
+echo.
+echo [1/3] Compiling governance and support modules...
+cl /O2 /W4 "/I%INC_DIR%" /DCUDA_ENABLED=1 /c "%CPU_DIR%\govern.c" "/Fo%CPU_DIR%\govern.obj"
+if errorlevel 1 exit /b 1
+
+cl /O2 /W4 "/I%INC_DIR%" /DCUDA_ENABLED=1 /c "%CPU_DIR%\adaptive.c" "/Fo%CPU_DIR%\adaptive.obj"
+if errorlevel 1 exit /b 1
+
+cl /O2 /W4 "/I%INC_DIR%" /DCUDA_ENABLED=1 /c "%CPU_DIR%\telemetry.c" "/Fo%CPU_DIR%\telemetry.obj"
+if errorlevel 1 exit /b 1
+
+cl /O2 /W4 "/I%INC_DIR%" /DCUDA_ENABLED=1 /c "%CPU_DIR%\phase12_elasticity.c" "/Fo%CPU_DIR%\phase12_elasticity.obj"
+if errorlevel 1 exit /b 1
+
 REM Interface files
 echo.
 echo [1/3] Compiling interface...
@@ -137,6 +152,10 @@ echo --------------------------------
     "%CPU_DIR%\transfer_engine.obj" ^
     "%CPU_DIR%\self_reflection.obj" ^
     "%CPU_DIR%\phase7_core.obj" ^
+    "%CPU_DIR%\govern.obj" ^
+    "%CPU_DIR%\adaptive.obj" ^
+    "%CPU_DIR%\telemetry.obj" ^
+    "%CPU_DIR%\phase12_elasticity.obj" ^
     "%CPU_DIR%\launcher.obj" ^
     "%CUDA_DIR%\ppai_kernels.obj" ^
     "%CUDA_DIR%\qcp_kernels.obj" ^

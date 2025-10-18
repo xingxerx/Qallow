@@ -236,3 +236,33 @@ void govern_run_audit_loop(govern_state_t* gov, qallow_state_t* state,
     printf("\n[GOVERN] Autonomous governance loop completed successfully\n");
 }
 
+// CLI handler for governance controls
+void govern_cli(int argc, char** argv) {
+    printf("[GOVERN] Processing governance commands...\n");
+    
+    for (int i = 1; i < argc; ++i) {
+        if (strncmp(argv[i], "--adjust", 8) == 0 && i + 1 < argc) {
+            ++i;
+            char* arg = argv[i];
+            if (arg[0] == 'H' && arg[1] == '=') {
+                float H_val = (float)atof(arg + 2);
+                if (H_val < 0.0f) H_val = 0.0f;
+                if (H_val > 1.0f) H_val = 1.0f;
+                
+                // Set QALLOW_H environment variable
+                char buf[128];
+                snprintf(buf, sizeof(buf), "QALLOW_H=%.3f", H_val);
+                char* env_str = strdup(buf);
+                if (env_str) {
+                    putenv(env_str);
+                    printf("[GOVERN] Set Human(H)=%.3f via env QALLOW_H\n", H_val);
+                }
+            } else {
+                printf("[GOVERN] Unknown parameter: %s\n", arg);
+            }
+        }
+    }
+    
+    printf("[GOVERN] Commands processed.\n");
+}
+

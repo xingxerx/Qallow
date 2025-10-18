@@ -59,5 +59,8 @@ void govern_load_state(govern_state_t* gov, adaptive_state_t* adaptive);
 void govern_print_audit_report(const govern_state_t* gov);
 void govern_print_governance_summary(const govern_state_t* gov, float final_ethics_score);
 
+// CLI interface for runtime governance controls
+void govern_cli(int argc, char** argv);
+
 #endif // GOVERN_H
 

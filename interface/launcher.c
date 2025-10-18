@@ -12,11 +12,14 @@
 #include "sandbox.h"
 #include "telemetry.h"
 #include "pocket.h"
+#include "qallow_phase12.h"
 // TODO: Add these when modules are implemented
 // #include "adaptive.h"
-// #include "govern.h"
 // #include "verify.h"
 // #include "ingest.h"
+
+// Forward declaration for govern_cli
+extern void govern_cli(int argc, char** argv);
 
 // Forward declarations for mode handlers
 static void qallow_build_mode(void);
@@ -25,6 +28,7 @@ static void qallow_bench_mode(void);
 static void qallow_govern_mode(void);
 static void qallow_verify_mode(void);
 static void qallow_live_mode(void);
+static void qallow_phase12_mode(void);
 static void qallow_print_help(void);
 
 // Print banner
@@ -62,9 +66,15 @@ static void qallow_bench_mode(void) {
 
 // GOVERN mode: Run autonomous governance loop
 static void qallow_govern_mode(void) {
-    printf("[GOVERN] Governance mode not yet implemented\n");
-    printf("[GOVERN] TODO: Implement autonomous governance audit\n");
-    // TODO: Add govern.c module
+    printf("[GOVERN] Governance CLI\n");
+    printf("[GOVERN] Use: qallow govern --adjust H=<value>\n");
+    printf("[GOVERN] Example: qallow govern --adjust H=0.95\n\n");
+    
+    // Call the govern CLI handler (it will process argv)
+    // For now, just show help. Full implementation would pass argc/argv
+    printf("[GOVERN] To set Human(H) weight, use environment variable:\n");
+    printf("[GOVERN]   export QALLOW_H=0.95  (Linux/Mac)\n");
+    printf("[GOVERN]   set QALLOW_H=0.95     (Windows)\n");
 }
 
 // VERIFY mode: System checkpoint
@@ -92,6 +102,24 @@ static void qallow_live_mode(void) {
     exit(result);
 }
 
+// PHASE12 mode: Run elasticity simulation
+static void qallow_phase12_mode(void) {
+    printf("[PHASE12] Elasticity Simulation Mode\n");
+    
+    // Default parameters
+    const char* log_path = "phase12_elastic.csv";
+    int ticks = 1000;
+    float eps = 0.005f;  // 0.5% elastic extension
+    
+    printf("[PHASE12] Starting elastic simulation with defaults:\n");
+    printf("[PHASE12]   ticks=%d, eps=%.6f, log=%s\n\n", ticks, eps, log_path);
+    
+    // Run the elasticity simulation
+    run_phase12_elasticity(log_path, ticks, eps);
+    
+    printf("\n[PHASE12] Simulation complete. Check %s for results.\n", log_path);
+}
+
 // Print help message
 static void qallow_print_help(void) {
     printf("Usage: qallow [mode]\n\n");
@@ -102,6 +130,7 @@ static void qallow_print_help(void) {
     printf("  govern   Start governance and ethics audit loop\n");
     printf("  verify   System checkpoint - verify integrity\n");
     printf("  live     Live interface and external data integration\n");
+    printf("  phase12  Run the Phase 12 elasticity simulation stub\n");
     printf("  help     Show this help message\n\n");
     printf("Examples:\n");
     printf("  qallow build      # Build both CPU and CUDA versions\n");
@@ -110,6 +139,7 @@ static void qallow_print_help(void) {
     printf("  qallow govern     # Run governance audit\n");
     printf("  qallow verify     # Verify system health\n");
     printf("  qallow live       # Start live interface\n");
+    printf("  qallow phase12    # Run elasticity simulation\n");
 }
 
 // Main entry point
@@ -149,6 +179,11 @@ int main(int argc, char** argv) {
 
     if (strcmp(mode, "live") == 0) {
         qallow_live_mode();
+        return 0;
+    }
+
+    if (strcmp(mode, "phase12") == 0) {
+        qallow_phase12_mode();
         return 0;
     }
 
