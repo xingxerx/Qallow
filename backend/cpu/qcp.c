@@ -1,6 +1,10 @@
 #include "qcp.h"
 #include <math.h>
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 // Quantum Co-Processor module - CPU implementation
 
 CUDA_CALLABLE void qcp_init(qcp_state_t* qcp) {

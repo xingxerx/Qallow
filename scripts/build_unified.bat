@@ -49,8 +49,7 @@ if "%BUILD_TYPE%"=="cuda" (
     
     REM Link everything together
     nvcc -O2 -arch=sm_89 ^
-        main.obj qallow_kernel.obj overlay.obj ethics.obj pocket_dimension.obj ^
-        ppai.obj qcp.obj ^
+        *.obj ^
         -L"%CUDA_PATH%\lib\x64" ^
         -lcudart -lcurand ^
         -o qallow_vm.exe

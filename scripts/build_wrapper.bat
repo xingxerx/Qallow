@@ -11,40 +11,35 @@ REM Setup Visual Studio environment
 call "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvars64.bat" >nul 2>&1
 
 set BUILD_DIR=build
-set QALLOW_VM_DIR=qallow_vm
-set INCLUDE_DIR=%QALLOW_VM_DIR%\include
-set SRC_DIR=%QALLOW_VM_DIR%\src
-set KERNEL_DIR=%QALLOW_VM_DIR%\kernel
-set OVERLAYS_DIR=%QALLOW_VM_DIR%\overlays
-set MODULES_DIR=%QALLOW_VM_DIR%\modules
-set SANDBOX_DIR=%QALLOW_VM_DIR%\sandbox
+set INCLUDE_DIR=qallow_vm\include
+set BACKEND_CPU=backend\cpu
+set BACKEND_CUDA=backend\cuda
+set INTERFACE_DIR=interface
 
 if not exist %BUILD_DIR% mkdir %BUILD_DIR%
 
 if "%MODE%"=="CUDA" (
     echo [CUDA] Compiling CUDA-enabled version...
 
-    REM Compile C files
+    REM Compile C files (excluding ppai.c and qcp.c which have CUDA versions)
     cl /c /O2 /DCUDA_ENABLED=1 "/I%INCLUDE_DIR%" ^
-        "%SRC_DIR%\main.c" ^
-        "%KERNEL_DIR%\qallow_kernel.c" ^
-        "%OVERLAYS_DIR%\overlay.c" ^
-        "%MODULES_DIR%\ethics.c" ^
-        "%MODULES_DIR%\ppai.c" ^
-        "%MODULES_DIR%\qcp.c" ^
-        "%SANDBOX_DIR%\pocket_dimension.c"
+        "%INTERFACE_DIR%\main.c" ^
+        "%BACKEND_CPU%\qallow_kernel.c" ^
+        "%BACKEND_CPU%\overlay.c" ^
+        "%BACKEND_CPU%\ethics.c" ^
+        "%BACKEND_CPU%\pocket_dimension.c"
 
     if errorlevel 1 exit /b 1
 
     REM Move object files to build directory
     if not exist %BUILD_DIR% mkdir %BUILD_DIR%
     move *.obj %BUILD_DIR%\ >nul 2>&1
-    
-    REM Compile CUDA files
+
+    REM Compile CUDA files (includes ppai.cu and qcp.cu)
     set CUDA_PATH=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v13.0
     "%CUDA_PATH%\bin\nvcc.exe" -c -O2 -arch=sm_89 -I%INCLUDE_DIR% ^
-        "%MODULES_DIR%\ppai.cu" ^
-        "%MODULES_DIR%\qcp.cu"
+        "%BACKEND_CUDA%\ppai.cu" ^
+        "%BACKEND_CUDA%\qcp.cu"
 
     if errorlevel 1 exit /b 1
 
@@ -63,22 +58,22 @@ if "%MODE%"=="CUDA" (
         %BUILD_DIR%\pocket_dimension.obj ^
         -L"%CUDA_PATH%\lib\x64" -lcudart -lcurand ^
         -o "%BUILD_DIR%\qallow_cuda.exe"
-    
+
     if errorlevel 1 exit /b 1
-    
+
     echo [SUCCESS] CUDA build completed: %BUILD_DIR%\qallow_cuda.exe
     
 ) else (
     echo [CPU] Compiling CPU-only version...
 
     cl /O2 "/I%INCLUDE_DIR%" "/Fe%BUILD_DIR%\qallow.exe" ^
-        "%SRC_DIR%\main.c" ^
-        "%KERNEL_DIR%\qallow_kernel.c" ^
-        "%OVERLAYS_DIR%\overlay.c" ^
-        "%MODULES_DIR%\ethics.c" ^
-        "%MODULES_DIR%\ppai.c" ^
-        "%MODULES_DIR%\qcp.c" ^
-        "%SANDBOX_DIR%\pocket_dimension.c"
+        "%INTERFACE_DIR%\main.c" ^
+        "%BACKEND_CPU%\qallow_kernel.c" ^
+        "%BACKEND_CPU%\overlay.c" ^
+        "%BACKEND_CPU%\ethics.c" ^
+        "%BACKEND_CPU%\ppai.c" ^
+        "%BACKEND_CPU%\qcp.c" ^
+        "%BACKEND_CPU%\pocket_dimension.c"
 
     if errorlevel 1 exit /b 1
 
