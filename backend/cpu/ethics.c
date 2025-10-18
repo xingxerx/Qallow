@@ -15,6 +15,13 @@ CUDA_CALLABLE void ethics_init(ethics_monitor_t* ethics) {
     
     memset(ethics, 0, sizeof(ethics_monitor_t));
     
+    // Initialize human weight from environment variable (non-CUDA only)
+#ifndef __CUDA_ARCH__
+    ethics->human_weight = envf("QALLOW_H", 0.8f);
+#else
+    ethics->human_weight = 0.8f;  // Default for CUDA
+#endif
+    
     // Initialize safety scores
     for (int i = 0; i < SAFETY_COUNT; i++) {
         ethics->safety_scores[i] = 0.8f;
@@ -44,9 +51,8 @@ CUDA_CALLABLE bool ethics_evaluate_state(const qallow_state_t* state, ethics_mon
     float clarity = ethics_calculate_clarity_score(state, ethics);
     float human_benefit = ethics_calculate_human_benefit_score(state, ethics);
     
-    // Apply runtime weighting - read Human factor from environment
-    float human_weight = envf("QALLOW_H", 0.8f);
-    float weighted_human = human_benefit * human_weight / 0.8f; // Scale to maintain expected range
+    // Apply runtime weighting - use stored human_weight
+    float weighted_human = human_benefit * ethics->human_weight / 0.8f; // Scale to maintain expected range
     
     // E = S + C + H (with weighted H)
     ethics->total_ethics_score = safety + clarity + weighted_human;

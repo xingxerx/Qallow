@@ -28,6 +28,7 @@ typedef struct {
     
     // Monitoring state
     float total_ethics_score;
+    float human_weight;  // Runtime adjustable human factor weight
     bool no_replication_rule_active;
     bool safety_override_engaged;
     int ethics_violations_count;

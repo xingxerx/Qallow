@@ -1,4 +1,5 @@
 #include "qallow_kernel.h"
+#include "ethics.h"
 #include <string.h>
 
 // Qallow Kernel - Core VM implementation
@@ -99,15 +100,26 @@ void qallow_print_status(const qallow_state_t* state, int tick) {
 bool qallow_ethics_check(const qallow_state_t* state, ethics_state_t* ethics) {
     if (!state || !ethics) return false;
     
-    // Basic ethics check: coherence should be above minimum
-    ethics->safety_score = state->global_coherence;
-    ethics->clarity_score = 1.0f - state->decoherence_level;
-    ethics->human_benefit_score = 0.8f; // Placeholder
+    // Use the full ethics module for proper evaluation
+    static ethics_monitor_t ethics_monitor;
+    static bool ethics_initialized = false;
     
-    ethics->total_ethics_score = ethics->safety_score + ethics->clarity_score + ethics->human_benefit_score;
-    ethics->safety_check_passed = ethics->total_ethics_score >= 2.0f;
+    if (!ethics_initialized) {
+        ethics_init(&ethics_monitor);
+        ethics_initialized = true;
+    }
     
-    return ethics->safety_check_passed;
+    // Evaluate using the full ethics module
+    bool passed = ethics_evaluate_state(state, &ethics_monitor);
+    
+    // Copy results to the simple ethics_state_t structure
+    ethics->safety_score = ethics_calculate_safety_score(state, &ethics_monitor);
+    ethics->clarity_score = ethics_calculate_clarity_score(state, &ethics_monitor);
+    ethics->human_benefit_score = ethics_calculate_human_benefit_score(state, &ethics_monitor);
+    ethics->total_ethics_score = ethics_monitor.total_ethics_score;
+    ethics->safety_check_passed = passed;
+    
+    return passed;
 }
 
 void qallow_cpu_process_overlays(qallow_state_t* state) {
