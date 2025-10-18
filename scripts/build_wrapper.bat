@@ -15,6 +15,7 @@ set INCLUDE_DIR=core\include
 set BACKEND_CPU=backend\cpu
 set BACKEND_CUDA=backend\cuda
 set INTERFACE_DIR=interface
+set IO_DIR=io\adapters
 
 if not exist %BUILD_DIR% mkdir %BUILD_DIR%
 
@@ -36,7 +37,11 @@ if "%MODE%"=="CUDA" (
         "%BACKEND_CPU%\telemetry.c" ^
         "%BACKEND_CPU%\adaptive.c" ^
         "%BACKEND_CPU%\pocket.c" ^
-        "%BACKEND_CPU%\govern.c"
+        "%BACKEND_CPU%\govern.c" ^
+        "%BACKEND_CPU%\ingest.c" ^
+        "%BACKEND_CPU%\verify.c" ^
+        "%IO_DIR%\net_adapter.c" ^
+        "%IO_DIR%\sim_adapter.c"
 
     if errorlevel 1 exit /b 1
 
@@ -92,7 +97,11 @@ if "%MODE%"=="CUDA" (
         "%BACKEND_CPU%\telemetry.c" ^
         "%BACKEND_CPU%\adaptive.c" ^
         "%BACKEND_CPU%\pocket.c" ^
-        "%BACKEND_CPU%\govern.c"
+        "%BACKEND_CPU%\govern.c" ^
+        "%BACKEND_CPU%\ingest.c" ^
+        "%BACKEND_CPU%\verify.c" ^
+        "%IO_DIR%\net_adapter.c" ^
+        "%IO_DIR%\sim_adapter.c"
 
     if errorlevel 1 exit /b 1
 

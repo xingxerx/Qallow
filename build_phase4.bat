@@ -70,15 +70,21 @@ if errorlevel 1 exit /b 1
 cl /O2 /W4 "/I%INC_DIR%" /DCUDA_ENABLED=1 /c "%CPU_DIR%\chronometric.c" "/Fo%CPU_DIR%\chronometric.obj"
 if errorlevel 1 exit /b 1
 
+REM Main program
+echo.
+echo [1/3] Compiling main program...
+cl /O2 /W4 "/I%INC_DIR%" /DCUDA_ENABLED=1 /c "interface\main.c" "/Fo%CPU_DIR%\main.obj"
+if errorlevel 1 exit /b 1
+
 REM Compile CUDA kernel files
 echo.
 echo [2/3] Compiling CUDA kernels (sm_89 for RTX 5080)...
 echo --------------------------------
 
-"%NVCC%" -O2 -arch=sm_89 "-I%INC_DIR%" -DCUDA_ENABLED=1 -c "%CUDA_DIR%\ppai.cu" -o "%CUDA_DIR%\ppai.obj"
+"%NVCC%" -O2 -arch=sm_89 "-I%INC_DIR%" -DCUDA_ENABLED=1 -c "%CUDA_DIR%\ppai_kernels.cu" -o "%CUDA_DIR%\ppai_kernels.obj"
 if errorlevel 1 exit /b 1
 
-"%NVCC%" -O2 -arch=sm_89 "-I%INC_DIR%" -DCUDA_ENABLED=1 -c "%CUDA_DIR%\qcp.cu" -o "%CUDA_DIR%\qcp.obj"
+"%NVCC%" -O2 -arch=sm_89 "-I%INC_DIR%" -DCUDA_ENABLED=1 -c "%CUDA_DIR%\qcp_kernels.cu" -o "%CUDA_DIR%\qcp_kernels.obj"
 if errorlevel 1 exit /b 1
 
 "%NVCC%" -O2 -arch=sm_89 "-I%INC_DIR%" -DCUDA_ENABLED=1 -c "%CUDA_DIR%\photonic.cu" -o "%CUDA_DIR%\photonic.obj"
@@ -87,12 +93,16 @@ if errorlevel 1 exit /b 1
 "%NVCC%" -O2 -arch=sm_89 "-I%INC_DIR%" -DCUDA_ENABLED=1 -c "%CUDA_DIR%\quantum.cu" -o "%CUDA_DIR%\quantum.obj"
 if errorlevel 1 exit /b 1
 
+"%NVCC%" -O2 -arch=sm_89 "-I%INC_DIR%" -DCUDA_ENABLED=1 -c "%CUDA_DIR%\pocket.cu" -o "%CUDA_DIR%\pocket.obj"
+if errorlevel 1 exit /b 1
+
 REM Link everything
 echo.
 echo [3/3] Linking qallow.exe...
 echo --------------------------------
 
 "%NVCC%" -o qallow.exe ^
+    "%CPU_DIR%\main.obj" ^
     "%CPU_DIR%\qallow_kernel.obj" ^
     "%CPU_DIR%\overlay.obj" ^
     "%CPU_DIR%\ppai.obj" ^
@@ -101,10 +111,11 @@ echo --------------------------------
     "%CPU_DIR%\pocket_dimension.obj" ^
     "%CPU_DIR%\multi_pocket.obj" ^
     "%CPU_DIR%\chronometric.obj" ^
-    "%CUDA_DIR%\ppai.obj" ^
-    "%CUDA_DIR%\qcp.obj" ^
+    "%CUDA_DIR%\ppai_kernels.obj" ^
+    "%CUDA_DIR%\qcp_kernels.obj" ^
     "%CUDA_DIR%\photonic.obj" ^
     "%CUDA_DIR%\quantum.obj" ^
+    "%CUDA_DIR%\pocket.obj" ^
     -lcurand
 
 if errorlevel 1 (

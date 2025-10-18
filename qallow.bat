@@ -58,6 +58,18 @@ if "%MODE%"=="govern" (
     exit /b !errorlevel!
 )
 
+if "%MODE%"=="verify" (
+    echo [QALLOW] Running system verification...
+    call build\qallow.exe verify %2 %3 %4 %5
+    exit /b !errorlevel!
+)
+
+if "%MODE%"=="live" (
+    echo [QALLOW] Starting Phase 6 live interface...
+    call build\qallow.exe live %2 %3 %4 %5
+    exit /b !errorlevel!
+)
+
 if "%MODE%"=="help" (
     call build\qallow.exe help
     exit /b 0

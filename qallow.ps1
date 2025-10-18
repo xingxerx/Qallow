@@ -1,30 +1,23 @@
 #Requires -Version 5.0
 <#
 .SYNOPSIS
-    Qallow Unified Command Interface
-    
+    Qallow Unified Command Interface (Phase V)
+
 .DESCRIPTION
     Master command for building, running, and managing the Qallow VM system.
-    
+    Routes to the unified qallow binary.
+
 .EXAMPLE
-    ./qallow build cpu
-    ./qallow run cuda
-    ./qallow bench all
-    ./qallow telemetry stream
-    ./qallow status
+    ./qallow build
+    ./qallow run
+    ./qallow bench
+    ./qallow govern
+    ./qallow help
 #>
 
-param(
-    [Parameter(Position=0)]
-    [ValidateSet('build', 'run', 'bench', 'benchmark', 'telemetry', 'status', 'clean', 'help', '')]
-    [string]$Command = '',
-    
-    [Parameter(Position=1)]
-    [string]$Target = '',
-    
-    [Parameter(ValueFromRemainingArguments=$true)]
-    [string[]]$Args
-)
+# Get command from arguments
+$Command = if ($args.Count -gt 0) { $args[0] } else { 'help' }
+$RemainingArgs = if ($args.Count -gt 1) { $args[1..($args.Count-1)] } else { @() }
 
 # Color definitions
 $ColorSuccess = 'Green'
@@ -36,235 +29,147 @@ $ColorHeader = 'Magenta'
 function Write-Header {
     param([string]$Text)
     Write-Host ""
-    Write-Host "╔════════════════════════════════════════╗" -ForegroundColor $ColorHeader
-    Write-Host "║ $($Text.PadRight(38)) ║" -ForegroundColor $ColorHeader
-    Write-Host "╚════════════════════════════════════════╝" -ForegroundColor $ColorHeader
+    Write-Host "[$Text]" -ForegroundColor $ColorHeader
     Write-Host ""
 }
 
 function Write-Success {
     param([string]$Text)
-    Write-Host "✅ $Text" -ForegroundColor $ColorSuccess
+    Write-Host "[OK] $Text" -ForegroundColor $ColorSuccess
 }
 
 function Write-ErrorCustom {
     param([string]$Text)
-    Write-Host "❌ $Text" -ForegroundColor $ColorError
+    Write-Host "[ERROR] $Text" -ForegroundColor $ColorError
 }
 
 function Write-InfoMsg {
     param([string]$Text)
-    Write-Host "ℹ️  $Text" -ForegroundColor $ColorInfo
+    Write-Host "[INFO] $Text" -ForegroundColor $ColorInfo
 }
 
 function Show-Help {
-    param([string]$Topic = '')
-
-    if ($Topic -eq '' -or $Topic -eq 'help') {
-        Write-Header "QALLOW UNIFIED COMMAND"
-        Write-Host "Usage: ./qallow <command> [target] [options]" -ForegroundColor $ColorInfo
-        Write-Host ""
-        Write-Host "COMMANDS:" -ForegroundColor $ColorHeader
-        Write-Host ""
-        Write-Host "  build [cpu|cuda|all]      Build the Qallow system" -ForegroundColor White
-        Write-Host "  run [cpu|cuda]            Run simulation" -ForegroundColor White
-        Write-Host "  bench [cpu|cuda|all]      Run benchmarks (3 runs)" -ForegroundColor White
-        Write-Host "  telemetry [stream|bench]  View telemetry data" -ForegroundColor White
-        Write-Host "  status                    Show system status" -ForegroundColor White
-        Write-Host "  clean                     Clean build artifacts" -ForegroundColor White
-        Write-Host "  help [command]            Show this help" -ForegroundColor White
-        Write-Host ""
-        Write-Host "EXAMPLES:" -ForegroundColor $ColorHeader
-        Write-Host ""
-        Write-Host "  ./qallow build cpu        # Build CPU version" -ForegroundColor Gray
-        Write-Host "  ./qallow build all        # Build both CPU and CUDA" -ForegroundColor Gray
-        Write-Host "  ./qallow run cuda         # Run CUDA version" -ForegroundColor Gray
-        Write-Host "  ./qallow bench all        # Benchmark both versions" -ForegroundColor Gray
-        Write-Host "  ./qallow telemetry stream # View real-time data" -ForegroundColor Gray
-        Write-Host "  ./qallow status           # Show system status" -ForegroundColor Gray
-        Write-Host ""
-    }
+    Write-Header "QALLOW UNIFIED COMMAND (Phase V)"
+    Write-Host "Usage: ./qallow [command]" -ForegroundColor $ColorInfo
+    Write-Host ""
+    Write-Host "COMMANDS:" -ForegroundColor $ColorHeader
+    Write-Host ""
+    Write-Host "  build      Detect toolchain and compile CPU + CUDA backends" -ForegroundColor White
+    Write-Host "  run        Execute current binary (auto-selects CPU/CUDA)" -ForegroundColor White
+    Write-Host "  bench      Run HITL benchmark with logging" -ForegroundColor White
+    Write-Host "  visual     Open live dashboard" -ForegroundColor White
+    Write-Host "  govern     Start autonomous governance and ethics audit loop" -ForegroundColor White
+    Write-Host "  help       Show this help message" -ForegroundColor White
+    Write-Host ""
+    Write-Host "EXAMPLES:" -ForegroundColor $ColorHeader
+    Write-Host ""
+    Write-Host "  ./qallow build      # Build both CPU and CUDA versions" -ForegroundColor Gray
+    Write-Host "  ./qallow run        # Run the VM" -ForegroundColor Gray
+    Write-Host "  ./qallow bench      # Run benchmark" -ForegroundColor Gray
+    Write-Host "  ./qallow govern     # Run governance audit" -ForegroundColor Gray
+    Write-Host ""
 }
 
 function Invoke-Build {
-    param([string]$Mode = 'cpu')
-    
-    if ($Mode -eq 'all') {
-        Write-Header "BUILDING CPU VERSION"
-        & powershell -ExecutionPolicy Bypass -File scripts/build.ps1 -Mode CPU
-        
-        Write-Header "BUILDING CUDA VERSION"
-        & powershell -ExecutionPolicy Bypass -File scripts/build.ps1 -Mode CUDA
-    } else {
-        Write-Header "BUILDING $($Mode.ToUpper()) VERSION"
-        & powershell -ExecutionPolicy Bypass -File scripts/build.ps1 -Mode $Mode
+    Write-Header "BUILDING QALLOW"
+    if (-not (Test-Path "build\qallow.exe") -and -not (Test-Path "build\qallow_cuda.exe")) {
+        Write-ErrorCustom "Qallow executable not found. Cannot build."
+        exit 1
     }
+    $exe = if (Test-Path "build\qallow_cuda.exe") { "build\qallow_cuda.exe" } else { "build\qallow.exe" }
+    & $exe build @RemainingArgs
 }
 
 function Invoke-Run {
-    param([string]$Mode = 'cpu')
-
-    $exe = if ($Mode -eq 'cuda') { 'build/qallow_cuda.exe' } else { 'build/qallow.exe' }
-
-    if (-not (Test-Path $exe)) {
-        Write-ErrorCustom "Executable not found: $exe"
-        Write-InfoMsg "Run './qallow build $Mode' first"
-        return
+    Write-Header "RUNNING QALLOW"
+    if (-not (Test-Path "build\qallow.exe") -and -not (Test-Path "build\qallow_cuda.exe")) {
+        Write-ErrorCustom "Qallow executable not found. Run './qallow build' first."
+        exit 1
     }
-
-    Write-Header "RUNNING $($Mode.ToUpper()) VERSION"
-    & $exe
+    $exe = if (Test-Path "build\qallow_cuda.exe") { "build\qallow_cuda.exe" } else { "build\qallow.exe" }
+    & $exe run @RemainingArgs
 }
 
 function Invoke-Benchmark {
-    param([string]$Mode = 'cpu')
-    
-    if ($Mode -eq 'all') {
-        Write-Header "BENCHMARKING CPU VERSION"
-        & powershell -ExecutionPolicy Bypass -File scripts/benchmark.ps1 -Exe .\build\qallow.exe -Runs 3
-        
-        Write-Header "BENCHMARKING CUDA VERSION"
-        & powershell -ExecutionPolicy Bypass -File scripts/benchmark.ps1 -Exe .\build\qallow_cuda.exe -Runs 3
-    } else {
-        $exe = if ($Mode -eq 'cuda') { '.\build\qallow_cuda.exe' } else { '.\build\qallow.exe' }
-        Write-Header "BENCHMARKING $($Mode.ToUpper()) VERSION"
-        & powershell -ExecutionPolicy Bypass -File scripts/benchmark.ps1 -Exe $exe -Runs 3
+    Write-Header "RUNNING BENCHMARK"
+    if (-not (Test-Path "build\qallow.exe") -and -not (Test-Path "build\qallow_cuda.exe")) {
+        Write-ErrorCustom "Qallow executable not found. Run './qallow build' first."
+        exit 1
     }
+    $exe = if (Test-Path "build\qallow_cuda.exe") { "build\qallow_cuda.exe" } else { "build\qallow.exe" }
+    & $exe bench @RemainingArgs
 }
 
 function Show-Telemetry {
-    param([string]$Type = 'stream')
-
     Write-Header "TELEMETRY DATA"
-
-    if ($Type -eq 'stream' -or $Type -eq 'all') {
-        if (Test-Path 'qallow_stream.csv') {
-            Write-Host "📊 Real-time Stream (qallow_stream.csv):" -ForegroundColor $ColorInfo
-            Get-Content 'qallow_stream.csv' | Select-Object -Last 10
-            Write-Host ""
-        } else {
-            Write-InfoMsg "No stream data yet. Run './qallow run' first."
-        }
-    }
-
-    if ($Type -eq 'bench' -or $Type -eq 'all') {
-        if (Test-Path 'qallow_bench.log') {
-            Write-Host "📈 Benchmark Log (qallow_bench.log):" -ForegroundColor $ColorInfo
-            Get-Content 'qallow_bench.log'
-            Write-Host ""
-        } else {
-            Write-InfoMsg "No benchmark data yet. Run './qallow bench' first."
-        }
-    }
-
-    if ($Type -eq 'adapt' -or $Type -eq 'all') {
-        if (Test-Path 'adapt_state.json') {
-            Write-Host "🧠 Adaptive State (adapt_state.json):" -ForegroundColor $ColorInfo
-            Get-Content 'adapt_state.json' | ConvertFrom-Json | Format-List
-            Write-Host ""
-        } else {
-            Write-InfoMsg "No adaptive state yet. Run './qallow run' first."
-        }
-    }
+    Write-InfoMsg "Stream data: qallow_stream.csv"
+    Write-InfoMsg "Benchmark log: qallow_bench.log"
+    Write-InfoMsg "Adaptive state: adapt_state.json"
 }
 
 function Show-Status {
     Write-Header "QALLOW SYSTEM STATUS"
-
     Write-Host "Build Status:" -ForegroundColor $ColorHeader
-    if (Test-Path 'build/qallow.exe') {
-        $size = [math]::Round((Get-Item 'build/qallow.exe').Length / 1024, 1)
-        Write-Host "✅ CPU build ready ($size KB)" -ForegroundColor $ColorSuccess
+    if (Test-Path 'build\qallow.exe') {
+        Write-Success "CPU build ready"
     } else {
-        Write-Host "❌ CPU build not found" -ForegroundColor $ColorError
+        Write-ErrorCustom "CPU build not found"
     }
-
-    if (Test-Path 'build/qallow_cuda.exe') {
-        $size = [math]::Round((Get-Item 'build/qallow_cuda.exe').Length / 1024, 1)
-        Write-Host "✅ CUDA build ready ($size KB)" -ForegroundColor $ColorSuccess
+    if (Test-Path 'build\qallow_cuda.exe') {
+        Write-Success "CUDA build ready"
     } else {
-        Write-Host "❌ CUDA build not found" -ForegroundColor $ColorError
+        Write-InfoMsg "CUDA build not found"
     }
-
-    Write-Host ""
-    Write-Host "Telemetry Files:" -ForegroundColor $ColorHeader
-    if (Test-Path 'qallow_stream.csv') {
-        $lines = (Get-Content 'qallow_stream.csv' | Measure-Object -Line).Lines
-        Write-Host "✅ Stream data: $lines lines" -ForegroundColor $ColorSuccess
-    } else {
-        Write-Host "ℹ️  Stream data: Not generated" -ForegroundColor $ColorInfo
-    }
-
-    if (Test-Path 'qallow_bench.log') {
-        $lines = (Get-Content 'qallow_bench.log' | Measure-Object -Line).Lines
-        Write-Host "✅ Benchmark log: $lines lines" -ForegroundColor $ColorSuccess
-    } else {
-        Write-Host "ℹ️  Benchmark log: Not generated" -ForegroundColor $ColorInfo
-    }
-
-    if (Test-Path 'adapt_state.json') {
-        Write-Host "✅ Adaptive state: Configured" -ForegroundColor $ColorSuccess
-    } else {
-        Write-Host "ℹ️  Adaptive state: Not configured" -ForegroundColor $ColorInfo
-    }
-
-    Write-Host ""
-    Write-Host "System Info:" -ForegroundColor $ColorHeader
-    Write-Host "ℹ️  CPU: $(Get-CimInstance Win32_Processor | Select-Object -ExpandProperty Name)" -ForegroundColor $ColorInfo
-    Write-Host "ℹ️  Cores: $(Get-CimInstance Win32_Processor | Select-Object -ExpandProperty NumberOfCores)" -ForegroundColor $ColorInfo
-    Write-Host "ℹ️  RAM: $([math]::Round((Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory / 1GB, 1)) GB" -ForegroundColor $ColorInfo
-
-    $gpu = Get-CimInstance Win32_VideoController | Where-Object { $_.Name -like '*NVIDIA*' }
-    if ($gpu) {
-        Write-Host "✅ GPU: $($gpu.Name)" -ForegroundColor $ColorSuccess
-    } else {
-        Write-Host "ℹ️  GPU: Not detected" -ForegroundColor $ColorInfo
-    }
-
-    Write-Host ""
 }
 
-function Invoke-Clean {
-    Write-Header "CLEANING BUILD ARTIFACTS"
-
-    if (Test-Path 'build') {
-        Remove-Item 'build' -Recurse -Force
-        Write-Host "✅ Removed build directory" -ForegroundColor $ColorSuccess
+function Invoke-Govern {
+    Write-Header "RUNNING GOVERNANCE AUDIT"
+    if (-not (Test-Path "build\qallow.exe") -and -not (Test-Path "build\qallow_cuda.exe")) {
+        Write-ErrorCustom "Qallow executable not found. Run './qallow build' first."
+        exit 1
     }
+    $exe = if (Test-Path "build\qallow_cuda.exe") { "build\qallow_cuda.exe" } else { "build\qallow.exe" }
+    & $exe govern @RemainingArgs
+}
 
-    Write-Host "✅ Clean complete" -ForegroundColor $ColorSuccess
+function Invoke-Visual {
+    Write-Header "OPENING DASHBOARD"
+    if (-not (Test-Path "build\qallow.exe") -and -not (Test-Path "build\qallow_cuda.exe")) {
+        Write-ErrorCustom "Qallow executable not found. Run './qallow build' first."
+        exit 1
+    }
+    $exe = if (Test-Path "build\qallow_cuda.exe") { "build\qallow_cuda.exe" } else { "build\qallow.exe" }
+    & $exe visual @RemainingArgs
 }
 
 # Main command routing
 switch ($Command.ToLower()) {
     'build' {
-        $mode = if ($Target -eq '') { 'cpu' } else { $Target.ToLower() }
-        Invoke-Build $mode
+        Invoke-Build
     }
     'run' {
-        $mode = if ($Target -eq '') { 'cpu' } else { $Target.ToLower() }
-        Invoke-Run $mode
+        Invoke-Run
     }
     'bench' {
-        $mode = if ($Target -eq '') { 'cpu' } else { $Target.ToLower() }
-        Invoke-Benchmark $mode
+        Invoke-Benchmark
     }
     'benchmark' {
-        $mode = if ($Target -eq '') { 'cpu' } else { $Target.ToLower() }
-        Invoke-Benchmark $mode
+        Invoke-Benchmark
     }
-    'telemetry' {
-        $type = if ($Target -eq '') { 'stream' } else { $Target.ToLower() }
-        Show-Telemetry $type
+    'govern' {
+        Invoke-Govern
+    }
+    'visual' {
+        Invoke-Visual
+    }
+    'dashboard' {
+        Invoke-Visual
     }
     'status' {
         Show-Status
     }
-    'clean' {
-        Invoke-Clean
-    }
     'help' {
-        Show-Help $Target
+        Show-Help
     }
     default {
         Show-Help
