@@ -33,19 +33,19 @@ if "%BUILD_TYPE%"=="cuda" (
     
     REM Compile C files with CUDA support
     cl /c /O2 /DCUDA_ENABLED=1 ^
-        /I"qallow_vm\include" ^
+        /I"include" ^
         /I"%CUDA_PATH%\include" ^
-        qallow_vm\src\main.c ^
-        qallow_vm\kernel\qallow_kernel.c ^
-        qallow_vm\overlays\overlay.c ^
-        qallow_vm\modules\ethics.c ^
-        qallow_vm\sandbox\pocket_dimension.c
+        src\main.c ^
+        kernel\qallow_kernel.c ^
+        overlays\overlay.c ^
+        modules\ethics.c ^
+        sandbox\pocket_dimension.c
     
     REM Compile CUDA files
     nvcc -c -O2 -arch=sm_89 ^
-        -I"qallow_vm\include" ^
-        qallow_vm\modules\ppai.cu ^
-        qallow_vm\modules\qcp.cu
+        -I"include" ^
+        modules\ppai.cu ^
+        modules\qcp.cu
     
     REM Link everything together
     nvcc -O2 -arch=sm_89 ^
@@ -65,14 +65,14 @@ if "%BUILD_TYPE%"=="cuda" (
     
     REM Compile CPU-only version
     cl /O2 /Fe:qallow_vm_cpu.exe ^
-        /I"qallow_vm\include" ^
-        qallow_vm\src\main.c ^
-        qallow_vm\kernel\qallow_kernel.c ^
-        qallow_vm\overlays\overlay.c ^
-        qallow_vm\modules\ppai.c ^
-        qallow_vm\modules\qcp.c ^
-        qallow_vm\modules\ethics.c ^
-        qallow_vm\sandbox\pocket_dimension.c
+        /I"include" ^
+        src\main.c ^
+        kernel\qallow_kernel.c ^
+        overlays\overlay.c ^
+        modules\ppai.c ^
+        modules\qcp.c ^
+        modules\ethics.c ^
+        sandbox\pocket_dimension.c
     
     if exist qallow_vm_cpu.exe (
         echo [SUCCESS] CPU build completed: qallow_vm_cpu.exe
