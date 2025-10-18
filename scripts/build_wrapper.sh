@@ -63,18 +63,9 @@ nvcc -c -O2 -arch=sm_89 -I"$INCLUDE_DIR" "$BACKEND_CUDA/qcp_kernels.cu" -o "$BUI
 
 # Link all C and CUDA object files together
     nvcc -O2 -arch=sm_89 \
-    "${EXISTING_C_FILES[@]}" \
-    "$BUILD_DIR/ppai_kernels.o" \
-    "$BUILD_DIR/qcp_kernels.o" \
-    -I"$INCLUDE_DIR" \
-    -L/usr/local/cuda/lib64 -lcudart -lcurand -lm \
-    -o "$BUILD_DIR/qallow_unified"
-
-
-    # Link CUDA executable with all C files and CUDA object files
-    nvcc -O2 -arch=sm_89 \
         "${EXISTING_C_FILES[@]}" \
-        "$BUILD_DIR/cuda_kernels.o" \
+        "$BUILD_DIR/ppai_kernels.o" \
+        "$BUILD_DIR/qcp_kernels.o" \
         -I"$INCLUDE_DIR" \
         -L/usr/local/cuda/lib64 -lcudart -lcurand -lm \
         -o "$BUILD_DIR/qallow_unified"
