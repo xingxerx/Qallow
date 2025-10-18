@@ -1,0 +1,89 @@
+{
+  "version": "1.0",
+  "description": "Qallow Phase 6 - Sensor and Data Stream Configuration",
+  "streams": [
+    {
+      "name": "telemetry_primary",
+      "type": "telemetry",
+      "endpoint": "http://localhost:9000/telemetry",
+      "adapter": "net_adapter",
+      "enabled": true,
+      "poll_interval_ms": 100,
+      "timeout_ms": 5000,
+      "description": "Primary telemetry stream from local service"
+    },
+    {
+      "name": "sensor_coherence",
+      "type": "sensor",
+      "endpoint": "http://localhost:9001/coherence",
+      "adapter": "net_adapter",
+      "enabled": true,
+      "poll_interval_ms": 500,
+      "timeout_ms": 5000,
+      "description": "Coherence measurement from quantum sensor"
+    },
+    {
+      "name": "sensor_decoherence",
+      "type": "sensor",
+      "endpoint": "http://localhost:9002/decoherence",
+      "adapter": "net_adapter",
+      "enabled": true,
+      "poll_interval_ms": 500,
+      "timeout_ms": 5000,
+      "description": "Decoherence measurement from quantum sensor"
+    },
+    {
+      "name": "feedback_hitl",
+      "type": "feedback",
+      "endpoint": "http://localhost:9003/feedback",
+      "adapter": "net_adapter",
+      "enabled": true,
+      "poll_interval_ms": 1000,
+      "timeout_ms": 5000,
+      "description": "Human-in-the-loop feedback scores"
+    },
+    {
+      "name": "control_override",
+      "type": "control",
+      "endpoint": "http://localhost:9004/control",
+      "adapter": "net_adapter",
+      "enabled": true,
+      "poll_interval_ms": 100,
+      "timeout_ms": 5000,
+      "description": "Operator control and override commands"
+    },
+    {
+      "name": "sim_adapter_test",
+      "type": "telemetry",
+      "endpoint": "sim://internal_test",
+      "adapter": "sim_adapter",
+      "enabled": false,
+      "poll_interval_ms": 100,
+      "timeout_ms": 1000,
+      "description": "Internal simulation adapter for testing"
+    }
+  ],
+  "pipeline": {
+    "description": "Data flow through Qallow Phase 6",
+    "stages": [
+      "ingest.c - Normalize incoming streams",
+      "adapters/* - Convert format to JSON",
+      "pocket.cu - CUDA short-cycle simulations",
+      "ethics_core.c - Ethics evaluation",
+      "telemetry.csv - Log results"
+    ]
+  },
+  "audit": {
+    "interval_seconds": 60,
+    "log_directory": "logs/",
+    "snapshot_directory": "snapshots/",
+    "hash_algorithm": "sha256"
+  },
+  "thresholds": {
+    "coherence_min": 0.995,
+    "decoherence_max": 0.001,
+    "ethics_min": 2.99,
+    "stability_duration_seconds": 300
+  }
+}
+
