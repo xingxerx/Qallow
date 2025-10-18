@@ -11,7 +11,7 @@ REM Setup Visual Studio environment
 call "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvars64.bat" >nul 2>&1
 
 set BUILD_DIR=build
-set INCLUDE_DIR=qallow_vm\include
+set INCLUDE_DIR=core\include
 set BACKEND_CPU=backend\cpu
 set BACKEND_CUDA=backend\cuda
 set INTERFACE_DIR=interface

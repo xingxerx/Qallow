@@ -156,31 +156,3 @@ CUDA_CALLABLE float ppai_calculate_interference(const ppai_state_t* ppai, int wa
 CUDA_CALLABLE void ppai_apply_quantum_noise(ppai_state_t* ppai, float noise_factor) {
     ppai->quantum_noise_level = fmaxf(0.001f, fminf(0.1f, noise_factor));
 }
-
-// CPU fallback implementation
-void ppai_cpu_process_photons(ppai_state_t* ppai, overlay_t* overlays, int num_overlays) {
-    if (!ppai || !overlays) return;
-
-    for (int overlay_idx = 0; overlay_idx < num_overlays; overlay_idx++) {
-        overlay_t* overlay = &overlays[overlay_idx];
-
-        for (int node = 0; node < overlay->node_count; node++) {
-            // Simulate photonic interference
-            float photon_intensity = ppai->photon_intensity[node % PPAI_MAX_PHOTONS];
-            float interference_factor = sinf(photon_intensity * 2.0f * M_PI) * 0.1f;
-
-            // Add quantum noise
-            float quantum_noise = ((float)rand() / RAND_MAX - 0.5f) * ppai->quantum_noise_level;
-
-            // Apply effects
-            overlay->values[node] += interference_factor + quantum_noise;
-
-            // Clamp to valid range
-            if (overlay->values[node] < 0.0f) overlay->values[node] = 0.0f;
-            if (overlay->values[node] > 1.0f) overlay->values[node] = 1.0f;
-        }
-
-        // Update stability
-        overlay->stability = qallow_calculate_stability(overlay);
-    }
-}
