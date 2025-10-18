@@ -1,61 +1,79 @@
 #include <cuda_runtime.h>
-#include <cstdio>
-#include <cmath>
+#include <curand_kernel.h>
+#include <cstdint>
+#include <stdio.h>
+extern "C" {
+#include "qallow.h"
 #include "pocket.h"
-
-#define CUDA_OK(x) do{auto e=(x); if(e!=cudaSuccess){ \
-  fprintf(stderr,"CUDA error %s:%d: %s\n",__FILE__,__LINE__,cudaGetErrorString(e)); return -1;}}while(0)
-
-static int    G_P=0, G_N=0;
-static double *d_orb=nullptr, *d_riv=nullptr, *d_myc=nullptr;              // [P*N]
-static double *d_orb_mean=nullptr, *d_riv_mean=nullptr, *d_myc_mean=nullptr; // [N]
-
-// simple per-thread RNG: LCG
-__device__ inline double lcg(uint32_t &s){
-  s = 1664525u*s + 1013904223u;
-  return (double)(s & 0x00FFFFFF) / (double)0x01000000; // [0,1)
 }
 
-// init pocket states
-__global__ void k_init(double* O, double* R, double* M, int P, int N){
-  int i = blockIdx.x*blockDim.x + threadIdx.x;   // node
-  int p = blockIdx.y*blockDim.y + threadIdx.y;   // pocket
-  if(p>=P||i>=N) return;
-  int idx = p*N + i;
-  O[idx] = 0.9342;  // seed near your observed bands
-  R[idx] = 0.9991;
-  M[idx] = 1.0000;
+// CUDA error checking macro
+#define CUDA_OK(call) do { \
+    cudaError_t e = (call); \
+    if(e != cudaSuccess) { \
+        fprintf(stderr, "CUDA error %s:%d: %s\n", __FILE__, __LINE__, cudaGetErrorString(e)); \
+        return -1; \
+    } \
+} while(0)
+
+// Global state
+static double *d_orb = nullptr, *d_riv = nullptr, *d_myc = nullptr;
+static double *d_orb_mean = nullptr, *d_riv_mean = nullptr, *d_myc_mean = nullptr;
+static int G_P = 0, G_N = 0;
+
+/* simple linear congruential generator */
+static __device__ __inline__ double lcg(uint32_t* s){
+    *s = (*s * 1664525u + 1013904223u);
+    return ((*s >> 8) & 0xFFFFFF) / double(0xFFFFFF);
 }
 
-// one tick update
-__global__ void k_update(double* O, double* R, double* M, int P, int N, double jitter, int t){
-  int i = blockIdx.x*blockDim.x + threadIdx.x;
-  int p = blockIdx.y*blockDim.y + threadIdx.y;
-  if(p>=P||i>=N) return;
-  int idx = p*N + i;
-  // cheap stochastic dynamics
-  uint32_t seed = (1234567u ^ (p*73856093u) ^ (i*19349663u) ^ (t*83492791u));
-  double j = (lcg(seed)-0.5)*2.0*jitter;   // [-jitter, +jitter]
-  double o = O[idx] + j*0.8;
-  double r = R[idx] - 0.0002 + j*0.1;
-  double m = M[idx] - 0.00001 + j*0.05;
-  // clamp
-  o = fmin(fmax(o, 0.90), 0.95);
-  r = fmin(fmax(r, 0.995),1.000);
-  m = fmin(fmax(m, 0.9995),1.0000);
-  O[idx]=o; R[idx]=r; M[idx]=m;
+/* initialization kernel */
+__global__ void k_init(double* orb, double* riv, double* myc, int P, int N){
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    int p = blockIdx.y;
+    if(i < N && p < P){
+        int idx = p * N + i;
+        uint32_t seed = (uint32_t)(clock64() + idx);
+        orb[idx] = 0.9 + 0.05 * lcg(&seed);
+        riv[idx] = 0.995 + 0.005 * lcg(&seed);
+        myc[idx] = 0.9995 + 0.0005 * lcg(&seed);
+    }
+}
+
+/* update kernel - simulates pocket evolution */
+__global__ void k_update(double* O, double* R, double* M, int P, int N, double jitter, int tick){
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    int p = blockIdx.y;
+    if(i < N && p < P){
+        int idx = p * N + i;
+        uint32_t seed = (uint32_t)(clock64() + idx + tick);
+        double j = (lcg(&seed) - 0.5) * jitter;
+        
+        double o = O[idx] + 0.0001 + j*0.02;
+        double r = R[idx] - 0.0002 + j*0.1;
+        double m = M[idx] - 0.00001 + j*0.05;
+        
+        // clamp
+        o = fmin(fmax(o, 0.90), 0.95);
+        r = fmin(fmax(r, 0.995), 1.000);
+        m = fmin(fmax(m, 0.9995), 1.0000);
+        
+        O[idx] = o;
+        R[idx] = r;
+        M[idx] = m;
+    }
 }
 
 // reduction: mean over pockets for each node
 __global__ void k_mean_over_pockets(const double* __restrict__ X, double* __restrict__ OUT, int P, int N){
-  int i = blockIdx.x*blockDim.x + threadIdx.x; // node
-  if(i>=N) return;
-  double acc=0.0;
-  for(int p=0;p<P;++p) acc += X[p*N + i];
-  OUT[i] = acc / (double)P;
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    if(i >= N) return;
+    double acc = 0.0;
+    for(int p = 0; p < P; ++p) acc += X[p * N + i];
+    OUT[i] = acc / (double)P;
 }
 
-int pocket_spawn_and_run(const pocket_cfg_t* cfg){
+extern "C" int pocket_spawn_and_run(const pocket_cfg_t* cfg){
   if(!cfg || cfg->pockets<=0 || cfg->nodes<=0 || cfg->steps<=0) return -1;
   G_P = cfg->pockets; G_N = cfg->nodes;
 
@@ -92,7 +110,7 @@ int pocket_spawn_and_run(const pocket_cfg_t* cfg){
   return 0;
 }
 
-int pocket_merge_to_host(double* orbital, double* river, double* mycelial){
+extern "C" int pocket_merge_to_host(double* orbital, double* river, double* mycelial){
   if(!d_orb_mean||!d_riv_mean||!d_myc_mean) return -1;
   CUDA_OK(cudaMemcpy(orbital,  d_orb_mean, G_N*sizeof(double), cudaMemcpyDeviceToHost));
   CUDA_OK(cudaMemcpy(river,    d_riv_mean, G_N*sizeof(double), cudaMemcpyDeviceToHost));
@@ -100,7 +118,7 @@ int pocket_merge_to_host(double* orbital, double* river, double* mycelial){
   return 0;
 }
 
-int pocket_release(){
+extern "C" int pocket_release(){
   if(d_orb)       cudaFree(d_orb), d_orb=nullptr;
   if(d_riv)       cudaFree(d_riv), d_riv=nullptr;
   if(d_myc)       cudaFree(d_myc), d_myc=nullptr;
