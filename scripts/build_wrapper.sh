@@ -42,6 +42,18 @@ C_FILES=(
     "$IO_DIR/sim_adapter.c"
 )
 
+# Filter C_FILES to only include files that actually exist. Print warnings for missing files.
+EXISTING_C_FILES=()
+for f in "${C_FILES[@]}"; do
+    if [ -f "$f" ]; then
+        EXISTING_C_FILES+=("$f")
+    else
+        echo "[WARN] Source file not found, skipping: $f"
+    fi
+done
+
+# Use EXISTING_C_FILES for compilation commands
+
 if [ "$MODE" == "CUDA" ] && [ -x "$(command -v nvcc)" ]; then
     echo "[CUDA] Compiling CUDA-enabled version..."
 
@@ -50,8 +62,8 @@ nvcc -c -O2 -arch=sm_89 -I"$INCLUDE_DIR" "$BACKEND_CUDA/ppai_kernels.cu" -o "$BU
 nvcc -c -O2 -arch=sm_89 -I"$INCLUDE_DIR" "$BACKEND_CUDA/qcp_kernels.cu" -o "$BUILD_DIR/qcp_kernels.o"
 
 # Link all C and CUDA object files together
-nvcc -O2 -arch=sm_89 \
-    "${C_FILES[@]}" \
+    nvcc -O2 -arch=sm_89 \
+    "${EXISTING_C_FILES[@]}" \
     "$BUILD_DIR/ppai_kernels.o" \
     "$BUILD_DIR/qcp_kernels.o" \
     -I"$INCLUDE_DIR" \
@@ -61,7 +73,7 @@ nvcc -O2 -arch=sm_89 \
 
     # Link CUDA executable with all C files and CUDA object files
     nvcc -O2 -arch=sm_89 \
-        "${C_FILES[@]}" \
+        "${EXISTING_C_FILES[@]}" \
         "$BUILD_DIR/cuda_kernels.o" \
         -I"$INCLUDE_DIR" \
         -L/usr/local/cuda/lib64 -lcudart -lcurand -lm \
@@ -76,7 +88,7 @@ else
     echo "[CPU] Compiling CPU-only version..."
 
     gcc -O2 -Wall -Wextra -g -I"$INCLUDE_DIR" -o "$BUILD_DIR/qallow_unified" \
-        "${C_FILES[@]}" \
+        "${EXISTING_C_FILES[@]}" \
         -lm
 
     echo "[SUCCESS] CPU build completed: $BUILD_DIR/qallow_unified"
