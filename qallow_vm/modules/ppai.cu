@@ -3,6 +3,10 @@
 // Photonic-Probabilistic AI module implementation
 // CUDA kernels for photonic simulation
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846f
+#endif
+
 #if CUDA_ENABLED
 #include <curand_kernel.h>
 
