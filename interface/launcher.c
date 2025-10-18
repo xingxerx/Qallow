@@ -13,9 +13,9 @@
 #include "telemetry.h"
 #include "pocket.h"
 #include "phase12.h"
+#include "govern.h"
 // TODO: Add these when modules are implemented
 // #include "adaptive.h"
-// #include "govern.h"
 // #include "verify.h"
 // #include "ingest.h"
 
@@ -23,7 +23,7 @@
 static void qallow_build_mode(void);
 static void qallow_run_mode(void);
 static void qallow_bench_mode(void);
-static void qallow_govern_mode(void);
+static void qallow_govern_mode(int argc, char** argv);
 static void qallow_verify_mode(void);
 static void qallow_live_mode(void);
 static void qallow_phase12_mode(int argc, char** argv);
@@ -63,10 +63,8 @@ static void qallow_bench_mode(void) {
 }
 
 // GOVERN mode: Run autonomous governance loop
-static void qallow_govern_mode(void) {
-    printf("[GOVERN] Governance mode not yet implemented\n");
-    printf("[GOVERN] TODO: Implement autonomous governance audit\n");
-    // TODO: Add govern.c module
+static void qallow_govern_mode(int argc, char** argv) {
+    govern_cli(argc, argv);
 }
 
 // VERIFY mode: System checkpoint
@@ -172,7 +170,7 @@ int main(int argc, char** argv) {
     }
 
     if (strcmp(mode, "govern") == 0) {
-        qallow_govern_mode();
+        qallow_govern_mode(argc, argv);
         return 0;
     }
 

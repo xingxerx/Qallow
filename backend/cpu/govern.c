@@ -103,7 +103,7 @@ void govern_create_safety_checkpoint(sandbox_manager_t* sandbox, qallow_state_t*
     if (!sandbox || !state) return;
     
     char checkpoint_name[64];
-    snprintf(checkpoint_name, sizeof(checkpoint_name), "govern_checkpoint_%lu", state->tick_count);
+    snprintf(checkpoint_name, sizeof(checkpoint_name), "govern_checkpoint_%lu", (unsigned long)state->tick_count);
     
     if (sandbox_create_snapshot(sandbox, state, checkpoint_name)) {
         printf("[GOVERN] Safety checkpoint created: %s\n", checkpoint_name);
@@ -120,7 +120,7 @@ void govern_halt_on_violation(qallow_state_t* state, const char* reason) {
     printf("║  GOVERNANCE HALT - VIOLATION DETECTED  ║\n");
     printf("╚════════════════════════════════════════╝\n");
     printf("[GOVERN] Reason: %s\n", reason);
-    printf("[GOVERN] System halted at tick %lu\n", state->tick_count);
+    printf("[GOVERN] System halted at tick %lu\n", (unsigned long)state->tick_count);
 }
 
 // Emergency rollback
@@ -234,5 +234,28 @@ void govern_run_audit_loop(govern_state_t* gov, qallow_state_t* state,
     govern_print_governance_summary(gov, gov->current_ethics_score);
     
     printf("\n[GOVERN] Autonomous governance loop completed successfully\n");
+}
+
+#include <ctype.h>
+
+int govern_cli(int argc, char** argv){
+    for(int i=2;i<argc;i++){
+        if(!strncmp(argv[i],"--adjust",8) && i+1<argc){
+            float h=0.8f;
+            if(sscanf(argv[i+1],"H=%f",&h)==1){
+                char buf[32];
+                snprintf(buf,sizeof(buf),"QALLOW_H=%.6f",h);
+#ifdef _WIN32
+                _putenv(buf);
+#else
+                setenv("QALLOW_H", buf+9, 1); // value only
+#endif
+                printf("[GOVERN] Human(H)=%.3f via env QALLOW_H\n",h);
+                return 0;
+            }
+        }
+    }
+    printf("[GOVERN] Usage: ./qallow_unified govern --adjust H=1.0\n");
+    return 0;
 }
 
