@@ -145,5 +145,79 @@ done
 
 ---
 
+## ⚙️ Advanced Automation
+
+### Scheduled Phase Sweeps
+```bash
+# Nightly sweep across perturbation values
+for eps in 0.00005 0.00010 0.00020; do
+    ./scripts/run_bend_emulated.sh phase12 200 "$eps"
+    mv log_phase12.csv "results/phase12_eps_${eps}.csv"
+done
+```
+- Use `cron` or your CI runner to launch recurring sweeps.
+- Store outputs under `results/` to keep `log_phase*.csv` clean for ad-hoc runs.
+
+### Batch Harmonic Profiling
+```bash
+# Explore multiple topologies in parallel (requires GNU parallel)
+parallel './scripts/run_bend_emulated.sh phase13 {1} 300 0.0008 && mv log_phase13.csv results/phase13_nodes_{1}.csv' ::: 8 16 32
+```
+- Watch stderr for `[AUDIT]` messages while the jobs run.
+- Compare the resulting CSVs with `rg '1.000000' results/phase13_nodes_*.csv` to spot convergence differences.
+
+## 📈 Analysis Toolkit
+
+### Quick Metrics in Python
+```bash
+python3 - <<'PY'
+import pandas as pd
+df = pd.read_csv("results/phase12_eps_0.00010.csv")
+print("Final coherence:", df["coherence"].iloc[-1])
+print("Peak entropy:", df["entropy"].max())
+PY
+```
+- Install dependencies inside your virtualenv (`pip install pandas`) if not already available.
+- Embed this snippet into your notebook pipelines to keep Bend and C results comparable.
+
+### Drift Heatmap (Phase 13)
+```bash
+python3 - <<'PY'
+import pandas as pd
+import matplotlib.pyplot as plt
+df = pd.read_csv("results/phase13_nodes_16.csv")
+plt.plot(df["tick"], df["phase_drift"])
+plt.title("Phase 13 Drift")
+plt.xlabel("tick")
+plt.ylabel("phase_drift")
+plt.savefig("plots/phase13_drift.png", dpi=150)
+PY
+```
+- Ensure `plots/` exists (`mkdir -p plots`) so the exporter succeeds.
+- Combine with your CI artifact uploads to keep visual regressions in check.
+
+## 🛡 Operational Hardening
+
+### Fail-Fast Smoke Test
+```bash
+./scripts/run_bend_emulated.sh phase12 5 0.0001 >/tmp/phase12.log 2>&1 || exit 1
+./scripts/run_bend_emulated.sh phase13 5 10 0.001 >/tmp/phase13.log 2>&1 || exit 1
+rg '\[AGI-ERROR\]' /tmp/phase12.log /tmp/phase13.log && exit 1
+echo "Smoke test clean"
+```
+- Stops early if AGI retries appear, catching regressions before longer jobs fire.
+- Reuse inside Git hooks or CI workflows for pre-merge validation.
+
+### Cross-Backend Drift Guard
+```bash
+./build/qallow_unified phase12 --ticks=100 --eps=0.0001 --log=c_baseline.csv
+./scripts/run_bend_emulated.sh phase12 100 0.0001
+python3 scripts/compare_csv.py c_baseline.csv log_phase12.csv --abs-tol=5e-5
+```
+- Wire into the nightly job to detect numerical drift between Bend and C paths.
+- `scripts/compare_csv.py` exits non-zero on divergence, ideal for alerting.
+
+---
+
 **Status**: ✅ Production Ready  
-**Last Updated**: October 18, 2025
+**Last Updated**: October 19, 2025

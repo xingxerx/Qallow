@@ -1,0 +1,12 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Qallow Phase13",
+      "type": "shell",
+      "command": "./qallow --threads=auto --watch=${workspaceFolder}",
+      "isBackground": true,
+      "problemMatcher": []
+    }
+  ]
+}

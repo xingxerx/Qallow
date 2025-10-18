@@ -1,0 +1,11 @@
+{
+  "files.watcherExclude": {
+    "**/.git/**": true,
+    "**/node_modules/**": true,
+    "**/build/**": true
+  },
+  "codeActionsOnSave": {
+    "source.fixAll": "always"
+  },
+  "terminal.integrated.defaultProfile.linux": "bash"
+}
