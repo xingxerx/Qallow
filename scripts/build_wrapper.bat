@@ -21,12 +21,14 @@ if not exist %BUILD_DIR% mkdir %BUILD_DIR%
 if "%MODE%"=="CUDA" (
     echo [CUDA] Compiling CUDA-enabled version...
 
-    REM Compile C files (excluding ppai.c and qcp.c which have CUDA versions)
+    REM Compile C files
     cl /c /O2 /DCUDA_ENABLED=1 "/I%INCLUDE_DIR%" ^
         "%INTERFACE_DIR%\main.c" ^
         "%BACKEND_CPU%\qallow_kernel.c" ^
         "%BACKEND_CPU%\overlay.c" ^
         "%BACKEND_CPU%\ethics.c" ^
+        "%BACKEND_CPU%\ppai.c" ^
+        "%BACKEND_CPU%\qcp.c" ^
         "%BACKEND_CPU%\pocket_dimension.c"
 
     if errorlevel 1 exit /b 1
@@ -35,11 +37,11 @@ if "%MODE%"=="CUDA" (
     if not exist %BUILD_DIR% mkdir %BUILD_DIR%
     move *.obj %BUILD_DIR%\ >nul 2>&1
 
-    REM Compile CUDA files (includes ppai.cu and qcp.cu)
+    REM Compile CUDA files (includes ppai_kernels.cu and qcp_kernels.cu)
     set CUDA_PATH=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v13.0
     "%CUDA_PATH%\bin\nvcc.exe" -c -O2 -arch=sm_89 -I%INCLUDE_DIR% ^
-        "%BACKEND_CUDA%\ppai.cu" ^
-        "%BACKEND_CUDA%\qcp.cu"
+        "%BACKEND_CUDA%\ppai_kernels.cu" ^
+        "%BACKEND_CUDA%\qcp_kernels.cu"
 
     if errorlevel 1 exit /b 1
 
