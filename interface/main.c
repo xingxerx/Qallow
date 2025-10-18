@@ -44,7 +44,8 @@ static void print_system_info(const qallow_state_t* state) {
     printf("\n");
 }
 
-int main(void) {
+// VM execution function (called from launcher)
+int qallow_vm_main(void) {
     print_banner();
 
     // Start timing
@@ -113,6 +114,26 @@ int main(void) {
 #endif
             qcp_cpu_process_qubits(&qcp, state.overlays, NUM_OVERLAYS);
 #if CUDA_ENABLED
+        }
+#endif
+
+        // CUDA-accelerated pocket dimension simulation
+#if CUDA_ENABLED
+        if (state.cuda_enabled && tick > 0 && tick % 400 == 0) {
+            printf("[CUDA] Spawning accelerated pocket dimension simulation...\n");
+            pocket_cfg_t pcfg = {.pockets=32, .nodes=256, .steps=200, .jitter=0.0005};
+            if(pocket_spawn_and_run(&pcfg)==0){
+                // merge back to host arrays (length=nodes)
+                double *O = (double*)malloc(pcfg.nodes*sizeof(double));
+                double *R = (double*)malloc(pcfg.nodes*sizeof(double));
+                double *M = (double*)malloc(pcfg.nodes*sizeof(double));
+                pocket_merge_to_host(O,R,M);
+                // integrate O/R/M means into your global coherence, telemetry, E=S+C+H, etc.
+                // For now, just printing a placeholder message
+                printf("[CUDA] Pocket dimension results merged to host.\n");
+                free(O); free(R); free(M);
+                pocket_release();
+            }
         }
 #endif
 

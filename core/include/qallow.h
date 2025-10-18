@@ -39,5 +39,8 @@ void runQuantumOptimizer(double* hostData, int n);
 }
 #endif
 
+/* VM execution entry point */
+int qallow_vm_main(void);
+
 #endif
 

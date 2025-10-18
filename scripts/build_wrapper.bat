@@ -18,11 +18,14 @@ set INTERFACE_DIR=interface
 
 if not exist %BUILD_DIR% mkdir %BUILD_DIR%
 
+echo [BUILD] Compiling unified launcher and governance core...
+
 if "%MODE%"=="CUDA" (
     echo [CUDA] Compiling CUDA-enabled version...
 
     REM Compile C files
     cl /c /O2 /DCUDA_ENABLED=1 "/I%INCLUDE_DIR%" ^
+        "%INTERFACE_DIR%\launcher.c" ^
         "%INTERFACE_DIR%\main.c" ^
         "%BACKEND_CPU%\qallow_kernel.c" ^
         "%BACKEND_CPU%\overlay.c" ^
@@ -32,7 +35,8 @@ if "%MODE%"=="CUDA" (
         "%BACKEND_CPU%\pocket_dimension.c" ^
         "%BACKEND_CPU%\telemetry.c" ^
         "%BACKEND_CPU%\adaptive.c" ^
-        "%BACKEND_CPU%\pocket.c"
+        "%BACKEND_CPU%\pocket.c" ^
+        "%BACKEND_CPU%\govern.c"
 
     if errorlevel 1 exit /b 1
 
@@ -54,10 +58,12 @@ if "%MODE%"=="CUDA" (
 
     REM Link CUDA executable
     "%CUDA_PATH%\bin\nvcc.exe" -O2 -arch=sm_89 ^
+        %BUILD_DIR%\launcher.obj ^
         %BUILD_DIR%\main.obj ^
         %BUILD_DIR%\qallow_kernel.obj ^
         %BUILD_DIR%\overlay.obj ^
         %BUILD_DIR%\ethics.obj ^
+        %BUILD_DIR%\govern.obj ^
         %BUILD_DIR%\ppai.obj ^
         %BUILD_DIR%\qcp.obj ^
         %BUILD_DIR%\pocket_dimension.obj ^
@@ -75,6 +81,7 @@ if "%MODE%"=="CUDA" (
     echo [CPU] Compiling CPU-only version...
 
     cl /O2 "/I%INCLUDE_DIR%" "/Fe%BUILD_DIR%\qallow.exe" ^
+        "%INTERFACE_DIR%\launcher.c" ^
         "%INTERFACE_DIR%\main.c" ^
         "%BACKEND_CPU%\qallow_kernel.c" ^
         "%BACKEND_CPU%\overlay.c" ^
@@ -84,7 +91,8 @@ if "%MODE%"=="CUDA" (
         "%BACKEND_CPU%\pocket_dimension.c" ^
         "%BACKEND_CPU%\telemetry.c" ^
         "%BACKEND_CPU%\adaptive.c" ^
-        "%BACKEND_CPU%\pocket.c"
+        "%BACKEND_CPU%\pocket.c" ^
+        "%BACKEND_CPU%\govern.c"
 
     if errorlevel 1 exit /b 1
 

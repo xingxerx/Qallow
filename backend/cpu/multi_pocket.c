@@ -32,7 +32,6 @@ void multi_pocket_init(multi_pocket_scheduler_t* scheduler, int num_pockets) {
         printf("[MULTI-POCKET] CUDA not available, using CPU execution\n");
     }
 #else
-    scheduler->streams_initialized = false;
     printf("[MULTI-POCKET] CPU-only build\n");
 #endif
     
@@ -236,13 +235,9 @@ void multi_pocket_execute_all(multi_pocket_scheduler_t* scheduler,
     if (!scheduler || !initial_state) return;
     
 #if CUDA_ENABLED
-    if (scheduler->streams_initialized) {
-        multi_pocket_execute_cuda(scheduler, initial_state, num_ticks);
-    } else {
-#endif
-        multi_pocket_execute_cpu(scheduler, initial_state, num_ticks);
-#if CUDA_ENABLED
-    }
+    multi_pocket_execute_cuda(scheduler, initial_state, num_ticks);
+#else
+    multi_pocket_execute_cpu(scheduler, initial_state, num_ticks);
 #endif
 }
 
