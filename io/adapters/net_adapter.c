@@ -76,8 +76,8 @@ int net_adapter_convert(const char* endpoint, const char* response,
     packet->type = INGEST_TYPE_TELEMETRY;
     packet->value = value;
     packet->confidence = 0.95;
-    strncpy(packet->source, source, sizeof(packet->source) - 1);
-    strncpy(packet->metadata, endpoint, sizeof(packet->metadata) - 1);
+    snprintf(packet->source, sizeof(packet->source), "%s", source);
+    snprintf(packet->metadata, sizeof(packet->metadata), "%s", endpoint);
     
     return 0;
 }
@@ -126,4 +126,3 @@ void net_adapter_init(void) {
 void net_adapter_cleanup(void) {
     printf("[NET_ADAPTER] Network adapter cleaned up\n");
 }
-

@@ -1,4 +1,3 @@
-// src/qallow_phase13.c
 #define _GNU_SOURCE
 #include <pthread.h>
 #include <sys/mman.h>
@@ -13,6 +12,19 @@
 #include <stdatomic.h>
 #include <errno.h>
 #include <time.h>
+#include <stdbool.h>
+
+#ifdef __has_include
+#  if __has_include("phase13_accelerator.h")
+#    include "phase13_accelerator.h"
+#  elif __has_include("../core/include/phase13_accelerator.h")
+#    include "../core/include/phase13_accelerator.h"
+#  else
+#    error "phase13_accelerator.h not found"
+#  endif
+#else
+#  include "phase13_accelerator.h"
+#endif
 
 #ifndef QALLOW_CACHE_ENTRIES
 #define QALLOW_CACHE_ENTRIES 2048
@@ -23,210 +35,427 @@
 #define QALLOW_EVENT_BUFSZ (64 * 1024)
 
 typedef struct {
-  atomic_uint_least64_t tag;     // 0 = empty, else hash
-  char key[QALLOW_KEY_MAX];      // path|mtime
-  char val[QALLOW_VAL_MAX];      // cached “analysis”
+    atomic_uint_least64_t tag;     // 0 = empty, else hash
+    char key[QALLOW_KEY_MAX];      // path|mtime
+    char val[QALLOW_VAL_MAX];      // cached “analysis”
 } cache_entry_t;
 
 typedef struct {
-  cache_entry_t slots[QALLOW_CACHE_ENTRIES];
+    cache_entry_t slots[QALLOW_CACHE_ENTRIES];
 } cache_t;
+
+typedef struct job_s {
+    char path[512];
+    time_t mtime;
+} job_t;
+
+typedef struct node_s {
+    job_t job;
+    struct node_s* next;
+} node_t;
 
 static cache_t* g_cache = NULL;
 static size_t g_threads = 0;
-
-static uint64_t fnv1a64(const void* data, size_t len){
-  const uint8_t* p = (const uint8_t*)data;
-  uint64_t h = 1469598103934665603ull;
-  for(size_t i=0;i<len;i++){ h ^= p[i]; h *= 1099511628211ull; }
-  return h;
-}
-
-static cache_t* cache_attach(void){
-  int fd = shm_open(QALLOW_SHM_NAME, O_CREAT|O_RDWR, 0600);
-  if(fd < 0){ perror("shm_open"); exit(1); }
-  size_t sz = sizeof(cache_t);
-  if(ftruncate(fd, sz) < 0){ perror("ftruncate"); exit(1); }
-  void* p = mmap(NULL, sz, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
-  if(p == MAP_FAILED){ perror("mmap"); exit(1); }
-  close(fd);
-  return (cache_t*)p;
-}
-
-// linear-probe insert/find
-static int cache_get(const char* key, char* out, size_t out_sz){
-  uint64_t h = fnv1a64(key, strlen(key));
-  size_t idx = h % QALLOW_CACHE_ENTRIES;
-  for(size_t i=0;i<QALLOW_CACHE_ENTRIES;i++){
-    size_t j = (idx + i) % QALLOW_CACHE_ENTRIES;
-    uint64_t tag = atomic_load_explicit(&g_cache->slots[j].tag, memory_order_acquire);
-    if(tag == 0) return 0; // stop at empty
-    if(tag == h && strncmp(g_cache->slots[j].key, key, QALLOW_KEY_MAX)==0){
-      strncpy(out, g_cache->slots[j].val, out_sz-1); out[out_sz-1]=0;
-      return 1;
-    }
-  }
-  return 0;
-}
-
-static void cache_put(const char* key, const char* val){
-  uint64_t h = fnv1a64(key, strlen(key));
-  size_t idx = h % QALLOW_CACHE_ENTRIES;
-  for(size_t i=0;i<QALLOW_CACHE_ENTRIES;i++){
-    size_t j = (idx + i) % QALLOW_CACHE_ENTRIES;
-    uint64_t expect = 0;
-    if(atomic_compare_exchange_strong(&g_cache->slots[j].tag, &expect, h)){
-      strncpy(g_cache->slots[j].key, key, QALLOW_KEY_MAX-1);
-      g_cache->slots[j].key[QALLOW_KEY_MAX-1]=0;
-      strncpy(g_cache->slots[j].val, val, QALLOW_VAL_MAX-1);
-      g_cache->slots[j].val[QALLOW_VAL_MAX-1]=0;
-      atomic_thread_fence(memory_order_release);
-      return;
-    }
-    if(expect == h && strncmp(g_cache->slots[j].key, key, QALLOW_KEY_MAX)==0){
-      strncpy(g_cache->slots[j].val, val, QALLOW_VAL_MAX-1);
-      g_cache->slots[j].val[QALLOW_VAL_MAX-1]=0;
-      atomic_thread_fence(memory_order_release);
-      return;
-    }
-  }
-}
-
-typedef struct job_s { char path[512]; time_t mtime; } job_t;
-
-typedef struct node_s {
-  job_t job; struct node_s* next;
-} node_t;
-
 static node_t* q_head = NULL;
 static node_t* q_tail = NULL;
 static pthread_mutex_t q_mu = PTHREAD_MUTEX_INITIALIZER;
-static pthread_cond_t  q_cv = PTHREAD_COND_INITIALIZER;
+static pthread_cond_t q_cv = PTHREAD_COND_INITIALIZER;
 static atomic_int stop_flag = 0;
+static atomic_uint pending_jobs = 0;
 
-static void queue_push(job_t j){
-  node_t* n = (node_t*)malloc(sizeof(node_t));
-  n->job = j; n->next = NULL;
-  pthread_mutex_lock(&q_mu);
-  if(q_tail) q_tail->next = n; else q_head = n;
-  q_tail = n;
-  pthread_cond_signal(&q_cv);
-  pthread_mutex_unlock(&q_mu);
+static uint64_t fnv1a64(const void* data, size_t len) {
+    const uint8_t* p = (const uint8_t*)data;
+    uint64_t h = 1469598103934665603ull;
+    for (size_t i = 0; i < len; i++) {
+        h ^= p[i];
+        h *= 1099511628211ull;
+    }
+    return h;
 }
 
-static int queue_pop(job_t* out){
-  pthread_mutex_lock(&q_mu);
-  while(!q_head && !atomic_load(&stop_flag)) pthread_cond_wait(&q_cv, &q_mu);
-  if(!q_head){ pthread_mutex_unlock(&q_mu); return 0; }
-  node_t* n = q_head; q_head = n->next; if(!q_head) q_tail = NULL;
-  *out = n->job; free(n);
-  pthread_mutex_unlock(&q_mu);
-  return 1;
+static cache_t* cache_attach(void) {
+    int fd = shm_open(QALLOW_SHM_NAME, O_CREAT | O_RDWR, 0600);
+    if (fd < 0) {
+        perror("shm_open");
+        return NULL;
+    }
+    size_t sz = sizeof(cache_t);
+    if (ftruncate(fd, sz) < 0) {
+        perror("ftruncate");
+        close(fd);
+        return NULL;
+    }
+    void* p = mmap(NULL, sz, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+    if (p == MAP_FAILED) {
+        perror("mmap");
+        close(fd);
+        return NULL;
+    }
+    close(fd);
+    return (cache_t*)p;
+}
+
+// linear-probe insert/find
+static int cache_get(const char* key, char* out, size_t out_sz) {
+    uint64_t h = fnv1a64(key, strlen(key));
+    size_t idx = h % QALLOW_CACHE_ENTRIES;
+    for (size_t i = 0; i < QALLOW_CACHE_ENTRIES; i++) {
+        size_t j = (idx + i) % QALLOW_CACHE_ENTRIES;
+        uint64_t tag = atomic_load_explicit(&g_cache->slots[j].tag, memory_order_acquire);
+        if (tag == 0) return 0; // stop at empty
+        if (tag == h && strncmp(g_cache->slots[j].key, key, QALLOW_KEY_MAX) == 0) {
+            strncpy(out, g_cache->slots[j].val, out_sz - 1);
+            out[out_sz - 1] = 0;
+            return 1;
+        }
+    }
+    return 0;
+}
+
+static void cache_put(const char* key, const char* val) {
+    uint64_t h = fnv1a64(key, strlen(key));
+    size_t idx = h % QALLOW_CACHE_ENTRIES;
+    for (size_t i = 0; i < QALLOW_CACHE_ENTRIES; i++) {
+        size_t j = (idx + i) % QALLOW_CACHE_ENTRIES;
+        uint64_t expect = 0;
+        if (atomic_compare_exchange_strong(&g_cache->slots[j].tag, &expect, h)) {
+            strncpy(g_cache->slots[j].key, key, QALLOW_KEY_MAX - 1);
+            g_cache->slots[j].key[QALLOW_KEY_MAX - 1] = 0;
+            strncpy(g_cache->slots[j].val, val, QALLOW_VAL_MAX - 1);
+            g_cache->slots[j].val[QALLOW_VAL_MAX - 1] = 0;
+            atomic_thread_fence(memory_order_release);
+            return;
+        }
+        if (expect == h && strncmp(g_cache->slots[j].key, key, QALLOW_KEY_MAX) == 0) {
+            strncpy(g_cache->slots[j].val, val, QALLOW_VAL_MAX - 1);
+            g_cache->slots[j].val[QALLOW_VAL_MAX - 1] = 0;
+            atomic_thread_fence(memory_order_release);
+            return;
+        }
+    }
+}
+
+static void queue_reset(void) {
+    pthread_mutex_lock(&q_mu);
+    node_t* cur = q_head;
+    while (cur) {
+        node_t* next = cur->next;
+        free(cur);
+        cur = next;
+    }
+    q_head = q_tail = NULL;
+    pthread_mutex_unlock(&q_mu);
+}
+
+static void queue_push(job_t j) {
+    node_t* n = (node_t*)malloc(sizeof(node_t));
+    if (!n) {
+        perror("malloc");
+        return;
+    }
+    n->job = j;
+    n->next = NULL;
+
+    pthread_mutex_lock(&q_mu);
+    if (q_tail) {
+        q_tail->next = n;
+    } else {
+        q_head = n;
+    }
+    q_tail = n;
+    pthread_cond_signal(&q_cv);
+    pthread_mutex_unlock(&q_mu);
+
+    atomic_fetch_add_explicit(&pending_jobs, 1, memory_order_release);
+}
+
+static int queue_pop(job_t* out) {
+    pthread_mutex_lock(&q_mu);
+    while (!q_head && !atomic_load(&stop_flag)) {
+        pthread_cond_wait(&q_cv, &q_mu);
+    }
+    if (!q_head) {
+        pthread_mutex_unlock(&q_mu);
+        return 0;
+    }
+    node_t* n = q_head;
+    q_head = n->next;
+    if (!q_head) q_tail = NULL;
+    *out = n->job;
+    free(n);
+    pthread_mutex_unlock(&q_mu);
+    return 1;
 }
 
 // Simulated “analysis”: hash + short sleep to emulate heavy work
-static void analyze_and_cache(const char* path, time_t mt){
-  char key[QALLOW_KEY_MAX]; snprintf(key, sizeof(key), "%s|%ld", path, (long)mt);
-  char hit[QALLOW_VAL_MAX];
-  if(cache_get(key, hit, sizeof(hit))){
-    printf("[Qallow] cache hit: %s -> %s\n", path, hit);
-    return;
-  }
-  // heavy work placeholder
-  struct timespec ts = {.tv_sec=0, .tv_nsec=50*1000*1000}; // 50 ms
-  nanosleep(&ts, NULL);
-  char val[QALLOW_VAL_MAX];
-  snprintf(val, sizeof(val), "hint:%08lx", (unsigned long)fnv1a64(path, strlen(path)));
-  cache_put(key, val);
-  printf("[Qallow] cached: %s -> %s\n", path, val);
-}
-
-static void* worker(void* arg){
-  (void)arg;
-  job_t j;
-  while(queue_pop(&j)){
-    analyze_and_cache(j.path, j.mtime);
-  }
-  return NULL;
-}
-
-static time_t path_mtime(const char* path){
-  struct stat st;
-  if(stat(path, &st)==0) return st.st_mtime;
-  return 0;
-}
-
-static void usage(const char* argv0){
-  fprintf(stderr, "Usage: %s [--threads=N] [--watch=DIR] [--file=PATH]*\n", argv0);
-}
-
-int main(int argc, char** argv){
-  const char* watch_dir = NULL;
-  g_threads = sysconf(_SC_NPROCESSORS_ONLN);
-  if(g_threads < 2) g_threads = 2;
-
-  for(int i=1;i<argc;i++){
-    if(strncmp(argv[i], "--threads=",10)==0) g_threads = strtoul(argv[i]+10,NULL,10);
-    else if(strncmp(argv[i], "--watch=",8)==0) watch_dir = argv[i]+8;
-    else if(strncmp(argv[i], "--file=",7)==0){
-      job_t j; memset(&j,0,sizeof(j));
-      strncpy(j.path, argv[i]+7, sizeof(j.path)-1);
-      j.mtime = path_mtime(j.path);
-      queue_push(j);
-    } else { usage(argv[0]); }
-  }
-
-  g_cache = cache_attach();
-
-  // start workers
-  pthread_t* th = (pthread_t*)malloc(sizeof(pthread_t)*g_threads);
-  for(size_t t=0;t<g_threads;t++) pthread_create(&th[t], NULL, worker, NULL);
-
-  // optional watch mode
-  int ifd = -1, wd = -1;
-  char* evbuf = NULL;
-  if(watch_dir){
-    ifd = inotify_init1(IN_NONBLOCK);
-    if(ifd < 0){ perror("inotify_init1"); }
-    else {
-      wd = inotify_add_watch(ifd, watch_dir, IN_CLOSE_WRITE | IN_MOVED_TO);
-      if(wd < 0) perror("inotify_add_watch");
-      evbuf = (char*)malloc(QALLOW_EVENT_BUFSZ);
-      printf("[Qallow] watching: %s\n", watch_dir);
+static void analyze_and_cache(const char* path, time_t mt) {
+    char key[QALLOW_KEY_MAX];
+    snprintf(key, sizeof(key), "%s|%ld", path, (long)mt);
+    char hit[QALLOW_VAL_MAX];
+    if (cache_get(key, hit, sizeof(hit))) {
+        printf("[Qallow] cache hit: %s -> %s\n", path, hit);
+        return;
     }
-  }
-
-  // event loop
-  while(1){
-    if(ifd >= 0){
-      int rd = read(ifd, evbuf, QALLOW_EVENT_BUFSZ);
-      if(rd > 0){
-        int off = 0;
-        while(off < rd){
-          struct inotify_event* ev = (struct inotify_event*)(evbuf + off);
-          if(ev->len && (ev->mask & (IN_CLOSE_WRITE|IN_MOVED_TO))){
-            char path[768];
-            snprintf(path, sizeof(path), "%s/%s", watch_dir, ev->name);
-            job_t j; memset(&j,0,sizeof(j));
-            strncpy(j.path, path, sizeof(j.path)-1);
-            j.mtime = path_mtime(j.path);
-            queue_push(j);
-          }
-          off += sizeof(struct inotify_event) + ev->len;
-        }
-      }
-    }
-    // small idle
-    struct timespec ts = {.tv_sec=0, .tv_nsec=20*1000*1000};
+    // heavy work placeholder
+    struct timespec ts = {.tv_sec = 0, .tv_nsec = 50 * 1000 * 1000}; // 50 ms
     nanosleep(&ts, NULL);
-  }
-
-  // never reached in typical service mode
-  atomic_store(&stop_flag, 1);
-  pthread_cond_broadcast(&q_cv);
-  for(size_t t=0;t<g_threads;t++) pthread_join(th[t], NULL);
-  free(th);
-  if(evbuf) free(evbuf);
-  if(ifd>=0){ if(wd>=0) inotify_rm_watch(ifd, wd); close(ifd); }
-  return 0;
+    char val[QALLOW_VAL_MAX];
+    snprintf(val, sizeof(val), "hint:%08lx", (unsigned long)fnv1a64(path, strlen(path)));
+    cache_put(key, val);
+    printf("[Qallow] cached: %s -> %s\n", path, val);
 }
+
+static void* worker(void* arg) {
+    (void)arg;
+    job_t j;
+    while (queue_pop(&j)) {
+        analyze_and_cache(j.path, j.mtime);
+        atomic_fetch_sub_explicit(&pending_jobs, 1, memory_order_acq_rel);
+    }
+    return NULL;
+}
+
+static time_t path_mtime(const char* path) {
+    struct stat st;
+    if (stat(path, &st) == 0) return st.st_mtime;
+    return 0;
+}
+
+static size_t resolve_thread_count(size_t requested) {
+    size_t threads = requested;
+    if (threads == 0) {
+        threads = (size_t)sysconf(_SC_NPROCESSORS_ONLN);
+    }
+    if (threads < 2) threads = 2;
+    return threads;
+}
+
+static void enqueue_files(const phase13_accel_config_t* cfg) {
+    if (!cfg || !cfg->files || cfg->file_count == 0) return;
+    for (size_t i = 0; i < cfg->file_count; i++) {
+        const char* path = cfg->files[i];
+        if (!path || !*path) continue;
+        job_t j;
+        memset(&j, 0, sizeof(j));
+        strncpy(j.path, path, sizeof(j.path) - 1);
+        j.mtime = path_mtime(j.path);
+        queue_push(j);
+    }
+}
+
+static int accelerator_run(const phase13_accel_config_t* cfg) {
+    if (!cfg) {
+        errno = EINVAL;
+        return -1;
+    }
+
+    queue_reset();
+    atomic_store(&stop_flag, 0);
+    atomic_store(&pending_jobs, 0);
+
+    g_threads = resolve_thread_count(cfg->thread_count);
+
+    g_cache = cache_attach();
+    if (!g_cache) {
+        return -1;
+    }
+
+    pthread_t* th = (pthread_t*)malloc(sizeof(pthread_t) * g_threads);
+    if (!th) {
+        perror("malloc");
+        return -1;
+    }
+
+    size_t launched = 0;
+    for (size_t t = 0; t < g_threads; t++) {
+        if (pthread_create(&th[t], NULL, worker, NULL) != 0) {
+            perror("pthread_create");
+            atomic_store(&stop_flag, 1);
+            pthread_cond_broadcast(&q_cv);
+            for (size_t j = 0; j < launched; j++) pthread_join(th[j], NULL);
+            free(th);
+            return -1;
+        }
+        launched++;
+    }
+
+    enqueue_files(cfg);
+
+    const char* watch_dir = (cfg->watch_dir && cfg->watch_dir[0]) ? cfg->watch_dir : NULL;
+    int ifd = -1;
+    int wd = -1;
+    char* evbuf = NULL;
+
+    if (watch_dir) {
+        ifd = inotify_init1(IN_NONBLOCK);
+        if (ifd < 0) {
+            perror("inotify_init1");
+            watch_dir = NULL;
+        } else {
+            wd = inotify_add_watch(ifd, watch_dir, IN_CLOSE_WRITE | IN_MOVED_TO);
+            if (wd < 0) {
+                perror("inotify_add_watch");
+                close(ifd);
+                ifd = -1;
+                watch_dir = NULL;
+            } else {
+                evbuf = (char*)malloc(QALLOW_EVENT_BUFSZ);
+                if (!evbuf) {
+                    perror("malloc");
+                    inotify_rm_watch(ifd, wd);
+                    close(ifd);
+                    ifd = -1;
+                    watch_dir = NULL;
+                } else {
+                    printf("[Qallow] watching: %s\n", watch_dir);
+                }
+            }
+        }
+    }
+
+    const int keep_running = cfg->keep_running || (watch_dir != NULL);
+    const struct timespec idle = {.tv_sec = 0, .tv_nsec = 20 * 1000 * 1000};
+
+    while (keep_running || atomic_load_explicit(&pending_jobs, memory_order_acquire) > 0) {
+        if (watch_dir && ifd >= 0) {
+            int rd = read(ifd, evbuf, QALLOW_EVENT_BUFSZ);
+            if (rd > 0) {
+                int off = 0;
+                while (off < rd) {
+                    struct inotify_event* ev = (struct inotify_event*)(evbuf + off);
+                    if (ev->len && (ev->mask & (IN_CLOSE_WRITE | IN_MOVED_TO))) {
+                        char path[768];
+                        snprintf(path, sizeof(path), "%s/%s", watch_dir, ev->name);
+                        job_t j;
+                        memset(&j, 0, sizeof(j));
+                        strncpy(j.path, path, sizeof(j.path) - 1);
+                        j.mtime = path_mtime(j.path);
+                        queue_push(j);
+                    }
+                    off += (int)(sizeof(struct inotify_event) + ev->len);
+                }
+            }
+        }
+
+        if (!keep_running && atomic_load_explicit(&pending_jobs, memory_order_acquire) == 0) {
+            break;
+        }
+
+        nanosleep(&idle, NULL);
+    }
+
+    atomic_store(&stop_flag, 1);
+    pthread_cond_broadcast(&q_cv);
+    for (size_t t = 0; t < launched; t++) {
+        pthread_join(th[t], NULL);
+    }
+    free(th);
+
+    if (evbuf) free(evbuf);
+    if (ifd >= 0) {
+        if (wd >= 0) inotify_rm_watch(ifd, wd);
+        close(ifd);
+    }
+
+    return 0;
+}
+
+int qallow_phase13_accel_start(const phase13_accel_config_t* config) {
+    return accelerator_run(config);
+}
+
+static void usage(const char* argv0) {
+    fprintf(stderr,
+            "Usage: %s [--threads=N|auto] [--watch=DIR] [--no-watch] [--file=PATH]...\n",
+            argv0);
+}
+
+int qallow_phase13_main(int argc, char** argv) {
+    phase13_accel_config_t cfg = {
+        .thread_count = 0,
+        .watch_dir = NULL,
+        .files = NULL,
+        .file_count = 0,
+        .keep_running = 0,
+    };
+
+    const char* file_args[argc > 1 ? (size_t)argc : 1];
+    size_t file_count = 0;
+
+    for (int i = 1; i < argc; i++) {
+        const char* arg = argv[i];
+        if (strncmp(arg, "--threads=", 10) == 0) {
+            const char* value = arg + 10;
+            if (strcmp(value, "auto") == 0) {
+                cfg.thread_count = 0;
+            } else {
+                char* end = NULL;
+                unsigned long v = strtoul(value, &end, 10);
+                if (!end || *end != '\0') {
+                    fprintf(stderr, "[ERROR] Invalid --threads value: %s\n", value);
+                    return 1;
+                }
+                cfg.thread_count = (size_t)v;
+            }
+        } else if (strcmp(arg, "--threads") == 0) {
+            if (i + 1 >= argc) {
+                fprintf(stderr, "[ERROR] Missing value for --threads\n");
+                return 1;
+            }
+            const char* value = argv[++i];
+            if (strcmp(value, "auto") == 0) {
+                cfg.thread_count = 0;
+            } else {
+                char* end = NULL;
+                unsigned long v = strtoul(value, &end, 10);
+                if (!end || *end != '\0') {
+                    fprintf(stderr, "[ERROR] Invalid --threads value: %s\n", value);
+                    return 1;
+                }
+                cfg.thread_count = (size_t)v;
+            }
+        } else if (strncmp(arg, "--watch=", 8) == 0) {
+            cfg.watch_dir = arg + 8;
+        } else if (strcmp(arg, "--watch") == 0) {
+            if (i + 1 >= argc) {
+                fprintf(stderr, "[ERROR] Missing value for --watch\n");
+                return 1;
+            }
+            cfg.watch_dir = argv[++i];
+        } else if (strcmp(arg, "--no-watch") == 0) {
+            cfg.watch_dir = NULL;
+            cfg.keep_running = 0;
+        } else if (strncmp(arg, "--file=", 7) == 0) {
+            file_args[file_count++] = arg + 7;
+        } else if (strcmp(arg, "--file") == 0) {
+            if (i + 1 >= argc) {
+                fprintf(stderr, "[ERROR] Missing value for --file\n");
+                return 1;
+            }
+            file_args[file_count++] = argv[++i];
+        } else if (strcmp(arg, "-h") == 0 || strcmp(arg, "--help") == 0) {
+            usage(argv[0]);
+            return 0;
+        } else if (strncmp(arg, "--", 2) == 0) {
+            fprintf(stderr, "[ERROR] Unknown option: %s\n", arg);
+            usage(argv[0]);
+            return 1;
+        } else {
+            file_args[file_count++] = arg;
+        }
+    }
+
+    if (cfg.watch_dir) {
+        cfg.keep_running = 1;
+    }
+    cfg.files = file_args;
+    cfg.file_count = file_count;
+
+    return qallow_phase13_accel_start(&cfg);
+}
+
+#ifndef QALLOW_PHASE13_EMBEDDED
+int main(int argc, char** argv) {
+    return qallow_phase13_main(argc, argv);
+}
+#endif

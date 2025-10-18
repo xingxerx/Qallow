@@ -113,15 +113,12 @@ int qallow_phase13_runner(int argc, char** argv) {
 
 int qallow_vm_main(void) {
     print_banner();
-    printf("[SYSTEM] Qallow VM initialized\n");
-    printf("[SYSTEM] Execution mode: CPU\n");
-    printf("[KERNEL] Node count: 256 per overlay\n");
-    printf("[KERNEL] Max ticks: 1000\n\n");
-    printf("[MAIN] Starting VM execution loop...\n\n");
 
     // Initialize state
     qallow_state_t state;
     qallow_kernel_init(&state);
+    print_system_info(&state);
+    printf("[MAIN] Starting VM execution loop...\n\n");
 
     // Initialize CSV logging from environment
     const char* csv_log_path = getenv("QALLOW_LOG");

@@ -19,16 +19,12 @@ void src_shutdown(self_reflection_t* src) {
     if (src) memset(src, 0, sizeof(self_reflection_t));
 }
 
-static void generate_run_id(char* out, int max_len) {
-    snprintf(out, max_len, "RUN_%lld", (long long)time(NULL));
-}
-
 int src_review(self_reflection_t* src, const char* run_id, const plan_t* plan, 
                const void* outcome, reflection_result_t* out) {
     if (!src || !run_id || !plan || !out) return -1;
     
     memset(out, 0, sizeof(reflection_result_t));
-    strncpy(out->run_id, run_id, sizeof(out->run_id) - 1);
+    snprintf(out->run_id, sizeof(out->run_id), "%s", run_id);
     
     // Analyze plan execution
     out->confidence = plan->expected_success_prob;
@@ -74,6 +70,7 @@ double src_score(const self_reflection_t* src, const char* run_id,
 int src_detect_flaws(const plan_t* plan, const void* outcome, 
                      reflection_flaw_t* out_flaws, int max_flaws) {
     if (!plan || !out_flaws || max_flaws <= 0) return 0;
+    (void)outcome;
     
     int flaw_count = 0;
     
@@ -82,8 +79,8 @@ int src_detect_flaws(const plan_t* plan, const void* outcome,
         if (flaw_count < max_flaws) {
             reflection_flaw_t* flaw = &out_flaws[flaw_count++];
             snprintf(flaw->run_id, sizeof(flaw->run_id), "FLAW_%d", flaw_count);
-            strncpy(flaw->plan_id, plan->plan_id, sizeof(flaw->plan_id) - 1);
-            strncpy(flaw->goal_id, plan->goal_id, sizeof(flaw->goal_id) - 1);
+            snprintf(flaw->plan_id, sizeof(flaw->plan_id), "%s", plan->plan_id);
+            snprintf(flaw->goal_id, sizeof(flaw->goal_id), "%s", plan->goal_id);
             snprintf(flaw->flaw_description, sizeof(flaw->flaw_description),
                     "Low expected utility: %.3f", plan->expected_utility);
             snprintf(flaw->suggested_fix, sizeof(flaw->suggested_fix),
@@ -173,7 +170,14 @@ int src_improve_plan(const plan_t* original, const reflection_result_t* reflecti
     }
     
     // Update plan ID
-    snprintf(improved->plan_id, sizeof(improved->plan_id), "%s_v2", original->plan_id);
+    size_t max_base = sizeof(improved->plan_id);
+    if (max_base > 4) {
+        max_base -= 4; // Reserve for "_v2" and terminator
+    } else {
+        max_base = 0;
+    }
+    snprintf(improved->plan_id, sizeof(improved->plan_id),
+             "%.*s_v2", (int)max_base, original->plan_id);
     improved->created_ts = (uint64_t)time(NULL);
     
     return 0;

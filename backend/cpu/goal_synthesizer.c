@@ -225,6 +225,7 @@ int gs_commit(goal_synthesizer_t* gs, const char* goal_id, const void* ethics_st
 
 int gs_reject(goal_synthesizer_t* gs, const char* goal_id, const char* reason) {
     if (!gs || !goal_id) return -1;
+    (void)reason;
     
     for (int i = 0; i < gs->goal_count; i++) {
         if (strcmp(gs->goals[i].id, goal_id) == 0) {
@@ -270,6 +271,7 @@ int gs_complete(goal_synthesizer_t* gs, const char* goal_id, double outcome_scor
 
 int gs_fail(goal_synthesizer_t* gs, const char* goal_id, const char* reason) {
     if (!gs || !goal_id) return -1;
+    (void)reason;
     
     for (int i = 0; i < gs->goal_count; i++) {
         if (strcmp(gs->goals[i].id, goal_id) == 0) {
@@ -302,9 +304,11 @@ int gs_list_goals(const goal_synthesizer_t* gs, goal_status_t status,
                   goal_t* out_goals, int max_goals) {
     if (!gs || !out_goals || max_goals <= 0) return -1;
     
+    const bool list_all = ((int)status == -1);
+    
     int count = 0;
     for (int i = 0; i < gs->goal_count && count < max_goals; i++) {
-        if (status == gs->goals[i].status || status == -1) {  // -1 = all
+        if (status == gs->goals[i].status || list_all) {  // -1 = all
             memcpy(&out_goals[count++], &gs->goals[i], sizeof(goal_t));
         }
     }

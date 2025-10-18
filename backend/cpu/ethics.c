@@ -207,6 +207,7 @@ CUDA_CALLABLE bool ethics_trigger_safety_override(ethics_monitor_t* ethics, qall
 
 CUDA_CALLABLE void ethics_emergency_shutdown(qallow_state_t* state, const char* reason) {
     if (!state) return;
+    (void)reason;
     
     // Graceful shutdown
     state->global_coherence = 0.0f;

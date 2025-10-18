@@ -5,6 +5,7 @@
 
 void overlay_init(overlay_t* overlay, overlay_type_t type, int node_count) {
     if (!overlay) return;
+    (void)type;
     
     memset(overlay, 0, sizeof(overlay_t));
     
@@ -143,6 +144,7 @@ CUDA_CALLABLE void overlay_calculate_interactions(overlay_extended_t* overlays, 
 
 void overlay_cpu_process_all(overlay_t* overlays, int num_overlays, int nodes) {
     if (!overlays) return;
+    (void)nodes;
     
     for (int i = 0; i < num_overlays; i++) {
         overlay_update(&overlays[i], (overlay_type_t)i);
@@ -170,7 +172,7 @@ const char* overlay_type_name(overlay_type_t type) {
 #if CUDA_ENABLED
 void overlay_cuda_process_all(overlay_t* overlays, int num_overlays, int nodes) {
     if (!overlays) return;
+    (void)nodes;
     // CUDA processing stub
 }
 #endif
-
