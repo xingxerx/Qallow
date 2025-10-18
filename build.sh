@@ -38,6 +38,13 @@ if [ -f src/qallow_phase13.c ]; then
     C_FILES="$C_FILES src/qallow_phase13.c"
 fi
 
+for src in algorithms/ethics_core.c algorithms/ethics_learn.c algorithms/ethics_bayes.c; do
+    if [ -f "$src" ]; then
+        echo "  → $(basename $src)"
+        C_FILES="$C_FILES $src"
+    fi
+done
+
 CU_FILES=""
 if [ $CUDA_AVAILABLE -eq 1 ]; then
     echo ""

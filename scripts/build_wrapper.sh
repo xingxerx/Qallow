@@ -84,6 +84,18 @@ if [ -f "$ACCELERATOR_SRC" ]; then
     echo -e "${GREEN}  →${NC} $(basename "$ACCELERATOR_SRC")"
 fi
 
+ALGO_SOURCES=(
+    "algorithms/ethics_core.c"
+    "algorithms/ethics_learn.c"
+    "algorithms/ethics_bayes.c"
+)
+for algo in "${ALGO_SOURCES[@]}"; do
+    if [ -f "$algo" ]; then
+        C_FILES+=("$algo")
+        echo -e "${GREEN}  →${NC} $(basename "$algo")"
+    fi
+done
+
 if [ ${#C_FILES[@]} -eq 0 ]; then
     echo -e "${RED}[ERROR]${NC} No C source files found"
     exit 1

@@ -104,6 +104,13 @@ if [ -f "$ACCELERATOR_SRC" ]; then
     COMPILE_CMD="$COMPILE_CMD $ACCELERATOR_SRC"
 fi
 
+for src in algorithms/ethics_core.c algorithms/ethics_learn.c algorithms/ethics_bayes.c; do
+    if [ -f "$src" ]; then
+        echo -e "${GREEN}  →${NC} $(basename $src)"
+        COMPILE_CMD="$COMPILE_CMD $src"
+    fi
+done
+
 # Add CUDA files if available
 if [ $CUDA_AVAILABLE -eq 1 ]; then
     echo ""

@@ -32,12 +32,18 @@ file(GLOB INTERFACE_SOURCES "interface/*.c")
 # Backend sources
 file(GLOB CPU_BACKEND_SOURCES "backend/cpu/*.c")
 
+set(ALGORITHMS_SOURCES
+    algorithms/ethics_core.c
+    algorithms/ethics_learn.c
+    algorithms/ethics_bayes.c
+)
+
 if(QALLOW_ENABLE_CUDA AND CMAKE_CUDA_COMPILER)
     message(STATUS "CUDA backend is enabled.")
     file(GLOB CUDA_BACKEND_SOURCES "backend/cuda/*.cu")
     
     # Add sources for the CUDA build
-    add_executable(qallow ${INTERFACE_SOURCES} ${CPU_BACKEND_SOURCES} ${CUDA_BACKEND_SOURCES})
+    add_executable(qallow ${INTERFACE_SOURCES} ${CPU_BACKEND_SOURCES} ${ALGORITHMS_SOURCES} ${CUDA_BACKEND_SOURCES})
     
     # Link CUDA libraries
     target_link_libraries(qallow PRIVATE ${CMAKE_CUDA_LIBRARIES})
@@ -49,7 +55,7 @@ else()
     message(STATUS "CUDA backend is disabled or not available. Building CPU-only version.")
     
     # Add sources for the CPU-only build
-    add_executable(qallow ${INTERFACE_SOURCES} ${CPU_BACKEND_SOURCES})
+    add_executable(qallow ${INTERFACE_SOURCES} ${CPU_BACKEND_SOURCES} ${ALGORITHMS_SOURCES})
     
 endif()
 

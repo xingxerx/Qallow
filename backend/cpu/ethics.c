@@ -1,6 +1,8 @@
 #include "ethics.h"
+#include "ethics_core.h"
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <math.h>
 
 // Ethics and Safety module - E = S + C + H framework
@@ -45,6 +47,21 @@ static void refresh_human_weight(ethics_monitor_t* ethics) {
 #endif
 }
 
+#ifndef __CUDA_ARCH__
+static ethics_model_t g_ethics_model;
+static int g_ethics_model_loaded = 0;
+
+static void ensure_ethics_model_loaded(void) {
+    if (g_ethics_model_loaded) return;
+    if (ethics_model_load(&g_ethics_model,
+                          "config/weights.json",
+                          "config/thresholds.json") != 0) {
+        ethics_model_default(&g_ethics_model);
+    }
+    g_ethics_model_loaded = 1;
+}
+#endif
+
 CUDA_CALLABLE void ethics_init(ethics_monitor_t* ethics) {
     if (!ethics) return;
     
@@ -52,6 +69,9 @@ CUDA_CALLABLE void ethics_init(ethics_monitor_t* ethics) {
     
     ethics->human_weight = 0.8f;
     refresh_human_weight(ethics);
+#ifndef __CUDA_ARCH__
+    ensure_ethics_model_loaded();
+#endif
     
     // Initialize safety scores
     for (int i = 0; i < SAFETY_COUNT; i++) {
@@ -82,9 +102,21 @@ CUDA_CALLABLE bool ethics_evaluate_state(const qallow_state_t* state, ethics_mon
     float clarity = ethics_calculate_clarity_score(state, ethics);
     float human_benefit = ethics_calculate_human_benefit_score(state, ethics);
     
+#ifndef __CUDA_ARCH__
+    ensure_ethics_model_loaded();
+    ethics_metrics_t metrics = {
+        .safety = safety,
+        .clarity = clarity,
+        .human = human_benefit
+    };
+    ethics_score_details_t details;
+    double total = ethics_score_core(&g_ethics_model, &metrics, &details);
+    ethics->total_ethics_score = (float)total;
+#else
     // E = S + C + H (human term already scaled)
     ethics->total_ethics_score = safety + clarity + human_benefit;
-    
+#endif
+
     // Check decoherence limit
     if (!ethics_check_decoherence_limit(state, ethics)) {
         ethics->ethics_violations_count++;
@@ -95,10 +127,14 @@ CUDA_CALLABLE bool ethics_evaluate_state(const qallow_state_t* state, ethics_mon
     ethics_update_trends(ethics, state);
     
     // Check minimum thresholds
+#ifndef __CUDA_ARCH__
+    bool passed = ethics_score_pass(&g_ethics_model, &metrics, &details) != 0;
+#else
     bool passed = (safety >= ETHICS_MIN_SAFETY &&
                    clarity >= ETHICS_MIN_CLARITY &&
                    human_benefit >= ETHICS_MIN_HUMAN_BENEFIT &&
                    ethics->total_ethics_score >= ETHICS_MIN_TOTAL);
+#endif
     
     if (!passed) {
         ethics->ethics_violations_count++;
