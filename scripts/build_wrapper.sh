@@ -78,6 +78,12 @@ for f in "$INTERFACE_DIR"/*.c "$BACKEND_CPU"/*.c "$IO_DIR"/*.c; do
     fi
 done
 
+ACCELERATOR_SRC="src/qallow_phase13.c"
+if [ -f "$ACCELERATOR_SRC" ]; then
+    C_FILES+=("$ACCELERATOR_SRC")
+    echo -e "${GREEN}  →${NC} $(basename "$ACCELERATOR_SRC")"
+fi
+
 if [ ${#C_FILES[@]} -eq 0 ]; then
     echo -e "${RED}[ERROR]${NC} No C source files found"
     exit 1
@@ -110,7 +116,11 @@ for c_file in "${C_FILES[@]}"; do
     obj_name=$(echo "${c_file%.c}" | sed 's/[^A-Za-z0-9_]/_/g')
     obj_file="$BUILD_DIR/${obj_name}.o"
     echo -e "${GREEN}  →${NC} $(basename "$c_file")"
-    gcc -c -O2 -Wall -Wextra -g -I"$INCLUDE_DIR" "$c_file" -o "$obj_file"
+    extra_flags=()
+    if [ "$c_file" = "$ACCELERATOR_SRC" ]; then
+        extra_flags+=("-DQALLOW_PHASE13_EMBEDDED")
+    fi
+    gcc -c -O2 -Wall -Wextra -g -I"$INCLUDE_DIR" "${extra_flags[@]}" "$c_file" -o "$obj_file"
     C_OBJECTS+=("$obj_file")
 done
 

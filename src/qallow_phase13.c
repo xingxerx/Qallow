@@ -29,7 +29,7 @@
 #ifndef QALLOW_CACHE_ENTRIES
 #define QALLOW_CACHE_ENTRIES 2048
 #endif
-#define QALLOW_KEY_MAX 128
+#define QALLOW_KEY_MAX 1280
 #define QALLOW_VAL_MAX 256
 #define QALLOW_SHM_NAME "/qallow_cache_v1"
 #define QALLOW_EVENT_BUFSZ (64 * 1024)
@@ -45,7 +45,7 @@ typedef struct {
 } cache_t;
 
 typedef struct job_s {
-    char path[512];
+    char path[1024];
     time_t mtime;
 } job_t;
 
@@ -104,8 +104,9 @@ static int cache_get(const char* key, char* out, size_t out_sz) {
         uint64_t tag = atomic_load_explicit(&g_cache->slots[j].tag, memory_order_acquire);
         if (tag == 0) return 0; // stop at empty
         if (tag == h && strncmp(g_cache->slots[j].key, key, QALLOW_KEY_MAX) == 0) {
-            strncpy(out, g_cache->slots[j].val, out_sz - 1);
-            out[out_sz - 1] = 0;
+            if (out_sz > 0) {
+                snprintf(out, out_sz, "%s", g_cache->slots[j].val);
+            }
             return 1;
         }
     }
@@ -117,18 +118,15 @@ static void cache_put(const char* key, const char* val) {
     size_t idx = h % QALLOW_CACHE_ENTRIES;
     for (size_t i = 0; i < QALLOW_CACHE_ENTRIES; i++) {
         size_t j = (idx + i) % QALLOW_CACHE_ENTRIES;
-        uint64_t expect = 0;
-        if (atomic_compare_exchange_strong(&g_cache->slots[j].tag, &expect, h)) {
-            strncpy(g_cache->slots[j].key, key, QALLOW_KEY_MAX - 1);
-            g_cache->slots[j].key[QALLOW_KEY_MAX - 1] = 0;
-            strncpy(g_cache->slots[j].val, val, QALLOW_VAL_MAX - 1);
-            g_cache->slots[j].val[QALLOW_VAL_MAX - 1] = 0;
+    uint64_t expect = 0;
+    if (atomic_compare_exchange_strong(&g_cache->slots[j].tag, &expect, h)) {
+            snprintf(g_cache->slots[j].key, QALLOW_KEY_MAX, "%s", key);
+            snprintf(g_cache->slots[j].val, QALLOW_VAL_MAX, "%s", val);
             atomic_thread_fence(memory_order_release);
             return;
         }
         if (expect == h && strncmp(g_cache->slots[j].key, key, QALLOW_KEY_MAX) == 0) {
-            strncpy(g_cache->slots[j].val, val, QALLOW_VAL_MAX - 1);
-            g_cache->slots[j].val[QALLOW_VAL_MAX - 1] = 0;
+            snprintf(g_cache->slots[j].val, QALLOW_VAL_MAX, "%s", val);
             atomic_thread_fence(memory_order_release);
             return;
         }
@@ -237,7 +235,7 @@ static void enqueue_files(const phase13_accel_config_t* cfg) {
         if (!path || !*path) continue;
         job_t j;
         memset(&j, 0, sizeof(j));
-        strncpy(j.path, path, sizeof(j.path) - 1);
+        snprintf(j.path, sizeof(j.path), "%s", path);
         j.mtime = path_mtime(j.path);
         queue_push(j);
     }
@@ -328,7 +326,7 @@ static int accelerator_run(const phase13_accel_config_t* cfg) {
                         snprintf(path, sizeof(path), "%s/%s", watch_dir, ev->name);
                         job_t j;
                         memset(&j, 0, sizeof(j));
-                        strncpy(j.path, path, sizeof(j.path) - 1);
+                        snprintf(j.path, sizeof(j.path), "%s", path);
                         j.mtime = path_mtime(j.path);
                         queue_push(j);
                     }

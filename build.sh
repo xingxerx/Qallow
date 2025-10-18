@@ -33,6 +33,11 @@ for src in backend/cpu/*.c interface/*.c io/adapters/*.c; do
     fi
 done
 
+if [ -f src/qallow_phase13.c ]; then
+    echo "  → qallow_phase13.c"
+    C_FILES="$C_FILES src/qallow_phase13.c"
+fi
+
 CU_FILES=""
 if [ $CUDA_AVAILABLE -eq 1 ]; then
     echo ""
@@ -51,14 +56,14 @@ echo "--------------------------------"
 
 if [ $CUDA_AVAILABLE -eq 1 ] && [ ! -z "$CU_FILES" ]; then
     echo "[BUILD] Using NVCC (CUDA enabled)"
-    nvcc -O2 -arch=sm_89 -Icore/include -Xcompiler -Wall $C_FILES $CU_FILES -lcurand -lm -o qallow_unified
+    nvcc -O2 -arch=sm_89 -Icore/include -DQALLOW_PHASE13_EMBEDDED -Xcompiler -Wall $C_FILES $CU_FILES -lcurand -lm -o qallow_unified
     echo ""
     echo "================================"
     echo "BUILD SUCCESSFUL (CUDA)"
     echo "================================"
 else
     echo "[BUILD] Using GCC (CPU-only)"
-    gcc -O2 -Wall -Icore/include $C_FILES -lm -o qallow_unified
+    gcc -O2 -Wall -Icore/include -DQALLOW_PHASE13_EMBEDDED $C_FILES -lm -o qallow_unified
     echo ""
     echo "================================"
     echo "BUILD SUCCESSFUL (CPU)"

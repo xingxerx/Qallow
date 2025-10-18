@@ -3,10 +3,20 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-BIN="${ROOT}/qallow"
-if [[ ! -x "$BIN" ]]; then
-  echo "[ERROR] qallow binary not found at $BIN" >&2
-  echo "Build it with: gcc -O3 -march=native -flto -pthread src/qallow_phase13.c -o qallow" >&2
+BIN=""
+cmd_prefix=()
+
+if [[ -x "${ROOT}/build/qallow_unified" ]]; then
+  BIN="${ROOT}/build/qallow_unified"
+  cmd_prefix=("run" "--accelerator")
+elif [[ -x "${ROOT}/qallow" ]]; then
+  BIN="${ROOT}/qallow"
+  cmd_prefix=()
+else
+  echo "[ERROR] Could not find a Qallow executable." >&2
+  echo "Build the unified binary via ./scripts/build_wrapper.sh CUDA" >&2
+  echo "or compile the standalone accelerator with:" >&2
+  echo "  gcc -O3 -march=native -flto -pthread src/qallow_phase13.c -o qallow" >&2
   exit 1
 fi
 
@@ -71,5 +81,6 @@ for f in "${files[@]}"; do
   args+=("--file=${f}")
 done
 
-echo "[RUN] ${BIN} ${args[*]}"
-exec "${BIN}" "${args[@]}"
+full_cmd=("${cmd_prefix[@]}" "${args[@]}")
+echo "[RUN] ${BIN} ${full_cmd[*]}"
+exec "${BIN}" "${full_cmd[@]}"

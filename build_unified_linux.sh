@@ -72,7 +72,7 @@ echo -e "${BLUE}[1/2] Compiling all modules...${NC}"
 echo "--------------------------------"
 
 # Compile all C files
-COMPILE_CMD="gcc -O2 -Wall -I$INC_DIR"
+COMPILE_CMD="gcc -O2 -Wall -I$INC_DIR -DQALLOW_PHASE13_EMBEDDED"
 
 # Add all CPU source files
 for src in $CPU_DIR/*.c; do
@@ -98,6 +98,12 @@ for src in $IO_DIR/*.c; do
     fi
 done
 
+ACCELERATOR_SRC="src/qallow_phase13.c"
+if [ -f "$ACCELERATOR_SRC" ]; then
+    echo -e "${GREEN}  →${NC} $(basename $ACCELERATOR_SRC)"
+    COMPILE_CMD="$COMPILE_CMD $ACCELERATOR_SRC"
+fi
+
 # Add CUDA files if available
 if [ $CUDA_AVAILABLE -eq 1 ]; then
     echo ""
@@ -108,7 +114,7 @@ if [ $CUDA_AVAILABLE -eq 1 ]; then
             COMPILE_CMD="$COMPILE_CMD $src"
         fi
     done
-    COMPILE_CMD="nvcc -O2 -arch=sm_89 -I$INC_DIR $COMPILE_CMD -lcurand -lm"
+    COMPILE_CMD="nvcc -O2 -arch=sm_89 -I$INC_DIR -DQALLOW_PHASE13_EMBEDDED $COMPILE_CMD -lcurand -lm"
 else
     COMPILE_CMD="$COMPILE_CMD -lm"
 fi
@@ -150,4 +156,3 @@ else
     echo -e "${RED}================================${NC}"
     exit 1
 fi
-

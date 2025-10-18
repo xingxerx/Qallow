@@ -10,9 +10,9 @@ With all Bend artifacts removed and the threaded/shared-memory Phase-13 accelera
 - [x] Provide a public header describing the accelerator config and return codes.
 - [x] Harden CLI parsing (threads/watch/file) for reuse by both the standalone binary and launcher integration.
 
-### 2. Integrate with Qallow Launcher (Planned)
-- [ ] Add an `accelerator` (or similar) mode to `interface/launcher.c` that dispatches into the Phase-13 engine.
-- [ ] Extend build scripts to optionally embed the accelerator object file when building the unified CUDA binary.
+### 2. Integrate with Qallow Launcher (In Progress)
+- [x] Add an `accelerator` (or similar) mode to `interface/launcher.c` that dispatches into the Phase-13 engine.
+- [x] Extend build scripts to optionally embed the accelerator object file when building the unified CUDA binary.
 - [ ] Gate accelerator launch behind a capability check (inotify availability, shm permissions) with clear diagnostics.
 
 ### 3. Telemetry & Observability (Planned)
