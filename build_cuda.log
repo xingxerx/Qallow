@@ -1,0 +1,17 @@
+════════════════════════════════════════════════════
+   Qallow Unified Build - CUDA + Ethics
+════════════════════════════════════════════════════
+
+[0;34m[1/7][0m Checking dependencies...
+[0;32m      ✓[0m gcc found: gcc (GCC) 15.2.1 20250813
+[0;32m      ✓[0m nvcc found: CUDA 13.0
+[0;32m      ✓[0m python3 found: Python 3.13.7
+
+[0;34m[2/7][0m Compiling ethics system (CPU)...
+[0;32m      ✓[0m ethics_core.c
+[0;32m      ✓[0m ethics_learn.c
+[0;32m      ✓[0m ethics_bayes.c
+[0;32m      ✓[0m ethics_feed.c
+
+[0;34m[3/7][0m Compiling CPU backend...
+[0;32m      ✓[0m adaptive.c
