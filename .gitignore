@@ -1,0 +1,43 @@
+# Build artifacts
+build/
+*.o
+*.obj
+*.a
+*.lib
+*.so
+*.dylib
+*.dll
+*.exe
+
+# Executables
+qallow_unified
+qallow
+qallow.exe
+qallow_vm
+qallow_vm.exe
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.log
+*.csv
+*.db
+
+# Data
+data/snapshots/
+*.json
+
+# Python
+__pycache__/
+*.pyc
+*.pyo

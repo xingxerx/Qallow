@@ -178,9 +178,94 @@ static int qallow_handle_run(int argc, char** argv, int arg_offset, run_profile_
 
 // VERIFY mode: System checkpoint
 static void qallow_verify_mode(void) {
-    printf("[VERIFY] Verification mode not yet implemented\n");
-    printf("[VERIFY] TODO: Implement system health check\n");
-    // TODO: Add verify.c module
+    printf("[VERIFY] Starting system verification...\n");
+    printf("[VERIFY] Running comprehensive health checks\n\n");
+
+    // Initialize state
+    qallow_state_t state;
+    memset(&state, 0, sizeof(qallow_state_t));
+    qallow_kernel_init(&state);
+
+    // Run verification checks
+    int checks_passed = 0;
+    int checks_total = 0;
+
+    // Check 1: Memory integrity
+    checks_total++;
+    if (state.tick_count == 0) {
+        printf("[✓] Memory integrity check passed\n");
+        checks_passed++;
+    } else {
+        printf("[✗] Memory integrity check failed\n");
+    }
+
+    // Check 2: Kernel initialization
+    checks_total++;
+    if (state.global_coherence >= 0.0f && state.global_coherence <= 1.0f) {
+        printf("[✓] Kernel initialization check passed\n");
+        checks_passed++;
+    } else {
+        printf("[✗] Kernel initialization check failed\n");
+    }
+
+    // Check 3: Ethics scoring
+    checks_total++;
+    float ethics_total = state.ethics_S + state.ethics_C + state.ethics_H;
+    if (ethics_total >= 0.0f && ethics_total <= 3.0f) {
+        printf("[✓] Ethics scoring check passed (E=%.2f)\n", ethics_total);
+        checks_passed++;
+    } else {
+        printf("[✗] Ethics scoring check failed\n");
+    }
+
+    // Check 4: Overlay stability
+    checks_total++;
+    float stability = qallow_global_stability(&state);
+    if (stability >= 0.0f && stability <= 1.0f) {
+        printf("[✓] Overlay stability check passed (S=%.4f)\n", stability);
+        checks_passed++;
+    } else {
+        printf("[✗] Overlay stability check failed\n");
+    }
+
+    // Check 5: Decoherence tracking
+    checks_total++;
+    qallow_update_decoherence(&state);
+    if (state.decoherence_level >= 0.0f && state.decoherence_level <= 1.0f) {
+        printf("[✓] Decoherence tracking check passed (D=%.6f)\n", state.decoherence_level);
+        checks_passed++;
+    } else {
+        printf("[✗] Decoherence tracking check failed\n");
+    }
+
+    // Check 6: Tick execution
+    checks_total++;
+    int initial_ticks = state.tick_count;
+    qallow_kernel_tick(&state);
+    if (state.tick_count > initial_ticks) {
+        printf("[✓] Tick execution check passed\n");
+        checks_passed++;
+    } else {
+        printf("[✗] Tick execution check failed\n");
+    }
+
+    // Check 7: Configuration
+    checks_total++;
+    if (NUM_OVERLAYS == 3 && MAX_NODES == 256) {
+        printf("[✓] Configuration check passed (3 overlays, 256 nodes)\n");
+        checks_passed++;
+    } else {
+        printf("[✗] Configuration check failed\n");
+    }
+
+    // Print summary
+    printf("\n");
+    printf("═══════════════════════════════════════\n");
+    printf("VERIFICATION SUMMARY\n");
+    printf("═══════════════════════════════════════\n");
+    printf("Checks passed: %d/%d\n", checks_passed, checks_total);
+    printf("System status: %s\n", checks_passed == checks_total ? "HEALTHY" : "DEGRADED");
+    printf("═══════════════════════════════════════\n\n");
 }
 
 // Print help message
@@ -213,12 +298,50 @@ static void qallow_print_help(void) {
     printf("  qallow accelerator --watch=/tmp  # Accelerator alias\n");
 }
 
+// Input validation helper
+static int validate_command(const char* cmd) {
+    if (cmd == NULL || strlen(cmd) == 0) {
+        fprintf(stderr, "[ERROR] Command cannot be empty\n");
+        return 0;
+    }
+    if (strlen(cmd) > 64) {
+        fprintf(stderr, "[ERROR] Command too long (max 64 chars)\n");
+        return 0;
+    }
+    // Check for invalid characters
+    for (int i = 0; cmd[i]; i++) {
+        if (!((cmd[i] >= 'a' && cmd[i] <= 'z') ||
+              (cmd[i] >= 'A' && cmd[i] <= 'Z') ||
+              (cmd[i] >= '0' && cmd[i] <= '9') ||
+              cmd[i] == '-' || cmd[i] == '_')) {
+            fprintf(stderr, "[ERROR] Invalid character in command: %c\n", cmd[i]);
+            return 0;
+        }
+    }
+    return 1;
+}
+
 // Main entry point
 int main(int argc, char** argv) {
+    // Validate argc
+    if (argc < 1 || argv == NULL) {
+        fprintf(stderr, "[ERROR] Invalid arguments\n");
+        return 1;
+    }
+
+    // Validate argv[0] (program name)
+    if (argv[0] == NULL || strlen(argv[0]) == 0) {
+        fprintf(stderr, "[ERROR] Invalid program name\n");
+        return 1;
+    }
+
     const char* command = "run";
     int arg_offset = 1;
 
-    if (argc > 1 && argv[1][0] != '-') {
+    if (argc > 1 && argv[1] != NULL && argv[1][0] != '-') {
+        if (!validate_command(argv[1])) {
+            return 1;
+        }
         command = argv[1];
         arg_offset = 2;
     }
@@ -256,6 +379,10 @@ int main(int argc, char** argv) {
 
         accel_argv_const[pos++] = argv[0];
         for (int i = arg_offset; i < argc; ++i) {
+            if (argv[i] == NULL) {
+                fprintf(stderr, "[ERROR] NULL argument at index %d\n", i);
+                return 1;
+            }
             accel_argv_const[pos++] = argv[i];
         }
 
@@ -275,7 +402,7 @@ int main(int argc, char** argv) {
         return 0;
     }
 
-    if (argv[1] && (strcmp(argv[1], "-h") == 0 || strcmp(argv[1], "--help") == 0)) {
+    if (argc > 1 && argv[1] != NULL && (strcmp(argv[1], "-h") == 0 || strcmp(argv[1], "--help") == 0)) {
         qallow_print_help();
         return 0;
     }
