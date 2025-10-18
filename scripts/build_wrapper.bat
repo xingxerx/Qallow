@@ -29,7 +29,10 @@ if "%MODE%"=="CUDA" (
         "%BACKEND_CPU%\ethics.c" ^
         "%BACKEND_CPU%\ppai.c" ^
         "%BACKEND_CPU%\qcp.c" ^
-        "%BACKEND_CPU%\pocket_dimension.c"
+        "%BACKEND_CPU%\pocket_dimension.c" ^
+        "%BACKEND_CPU%\telemetry.c" ^
+        "%BACKEND_CPU%\adaptive.c" ^
+        "%BACKEND_CPU%\pocket.c"
 
     if errorlevel 1 exit /b 1
 
@@ -58,6 +61,9 @@ if "%MODE%"=="CUDA" (
         %BUILD_DIR%\ppai.obj ^
         %BUILD_DIR%\qcp.obj ^
         %BUILD_DIR%\pocket_dimension.obj ^
+        %BUILD_DIR%\telemetry.obj ^
+        %BUILD_DIR%\adaptive.obj ^
+        %BUILD_DIR%\pocket.obj ^
         -L"%CUDA_PATH%\lib\x64" -lcudart -lcurand ^
         -o "%BUILD_DIR%\qallow_cuda.exe"
 
@@ -75,7 +81,10 @@ if "%MODE%"=="CUDA" (
         "%BACKEND_CPU%\ethics.c" ^
         "%BACKEND_CPU%\ppai.c" ^
         "%BACKEND_CPU%\qcp.c" ^
-        "%BACKEND_CPU%\pocket_dimension.c"
+        "%BACKEND_CPU%\pocket_dimension.c" ^
+        "%BACKEND_CPU%\telemetry.c" ^
+        "%BACKEND_CPU%\adaptive.c" ^
+        "%BACKEND_CPU%\pocket.c"
 
     if errorlevel 1 exit /b 1
 
