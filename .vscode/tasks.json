@@ -1,0 +1,154 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build qallow (original)",
+            "type": "shell",
+            "command": "gcc",
+            "args": [
+                "-Wall",
+                "-O2",
+                "-g",
+                "qallow_vm/src/main.c",
+                "qallow_vm/kernel/qallow_kernel.c",
+                "qallow_vm/overlays/overlay.c",
+                "qallow_vm/modules/ppai.c",
+                "qallow_vm/modules/qcp.c",
+                "qallow_vm/modules/ethics.c",
+                "qallow_vm/sandbox/pocket_dimension.c",
+                "-Iqallow_vm/include",
+                "-lm",
+                "-o",
+                "qallow_vm.exe"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "build qallow unified (CUDA)",
+            "type": "shell",
+            "command": "qallow_vm\\build_unified.bat",
+            "args": ["cuda"],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "build qallow unified (CPU)",
+            "type": "shell",
+            "command": "qallow_vm\\build_unified.bat",
+            "args": ["cpu"],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "run qallow (original)",
+            "type": "shell",
+            "command": ".\\qallow_vm.exe",
+            "dependsOn": "build qallow (original)",
+            "group": {
+                "kind": "test",
+                "isDefault": false
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "run qallow unified (CUDA)",
+            "type": "shell",
+            "command": ".\\qallow_vm\\qallow_vm.exe",
+            "dependsOn": "build qallow unified (CUDA)",
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "run qallow unified (CPU)",
+            "type": "shell",
+            "command": ".\\qallow_vm\\qallow_vm_cpu.exe",
+            "dependsOn": "build qallow unified (CPU)",
+            "group": "test",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "clean all",
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "-Command",
+                "Remove-Item -Path qallow_vm.exe,qallow_vm\\qallow_vm.exe,qallow_vm\\qallow_vm_cpu.exe,qallow.exe -ErrorAction SilentlyContinue; Write-Host 'Clean complete'"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "run original CUDA version",
+            "type": "shell", 
+            "command": ".\\qallow.exe",
+            "dependsOn": "build original CUDA",
+            "group": "test",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "build original CUDA",
+            "type": "shell",
+            "command": ".\\build.bat",
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always", 
+                "focus": false,
+                "panel": "shared"
+            }
+        }
+    ]
+}
