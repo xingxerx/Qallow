@@ -13,6 +13,7 @@
 #include "telemetry.h"
 #include "pocket.h"
 #include "govern.h"
+#include "bend_bridge.h"
 #include "qallow_phase12.h"
 #include "qallow_phase13.h"
 // TODO: Add these when modules are implemented
@@ -98,6 +99,8 @@ static void qallow_print_help(void) {
     printf("  live     Live interface and external data integration\n");
     printf("  phase12  Run Phase 12 elasticity simulation\n");
     printf("  phase13  Run Phase 13 harmonic propagation\n");
+    printf("  bend12   Run Bend phase 12 via IPC\n");
+    printf("  bend13   Run Bend phase 13 via IPC\n");
     printf("  help     Show this help message\n\n");
     printf("Examples:\n");
     printf("  qallow build      # Build both CPU and CUDA versions\n");
@@ -108,6 +111,8 @@ static void qallow_print_help(void) {
     printf("  qallow live       # Start live interface\n");
     printf("  qallow phase12 --ticks=100 --eps=0.0001 --log=phase12.csv\n");
     printf("  qallow phase13 --nodes=8 --ticks=500 --k=0.001 --log=phase13.csv\n");
+    printf("  qallow bend12 --ticks=100 --eps=0.0001 --log=phase12_bend.csv\n");
+    printf("  qallow bend13 --nodes=16 --ticks=500 --k=0.001 --log=phase13_bend.csv\n");
 }
 
 // Main entry point
@@ -155,6 +160,51 @@ int main(int argc, char** argv) {
 
     if (strcmp(mode, "phase13") == 0) {
         return qallow_phase13_runner(argc, argv);
+    }
+
+    if (strcmp(mode, "bend12") == 0) {
+        int ticks = 100;
+        float eps = 0.0001f;
+        const char* log = "phase12_bend.csv";
+        const char* bend = "bend";
+        for (int i = 2; i < argc; ++i) {
+            if (strncmp(argv[i], "--ticks=", 8) == 0) {
+                ticks = atoi(argv[i] + 8);
+            } else if (strncmp(argv[i], "--eps=", 6) == 0) {
+                eps = (float)atof(argv[i] + 6);
+            } else if (strncmp(argv[i], "--log=", 6) == 0) {
+                log = argv[i] + 6;
+            } else if (strncmp(argv[i], "--bin=", 6) == 0) {
+                bend = argv[i] + 6;
+            }
+        }
+        int rc = bend_phase12_csv(bend, log, ticks, eps);
+        printf(rc == 0 ? "[BEND12] OK\n" : "[BEND12] FAIL\n");
+        return rc;
+    }
+
+    if (strcmp(mode, "bend13") == 0) {
+        int nodes = 16;
+        int ticks = 500;
+        float k = 0.001f;
+        const char* log = "phase13_bend.csv";
+        const char* bend = "bend";
+        for (int i = 2; i < argc; ++i) {
+            if (strncmp(argv[i], "--nodes=", 8) == 0) {
+                nodes = atoi(argv[i] + 8);
+            } else if (strncmp(argv[i], "--ticks=", 8) == 0) {
+                ticks = atoi(argv[i] + 8);
+            } else if (strncmp(argv[i], "--k=", 4) == 0) {
+                k = (float)atof(argv[i] + 4);
+            } else if (strncmp(argv[i], "--log=", 6) == 0) {
+                log = argv[i] + 6;
+            } else if (strncmp(argv[i], "--bin=", 6) == 0) {
+                bend = argv[i] + 6;
+            }
+        }
+        int rc = bend_phase13_csv(bend, log, nodes, ticks, k);
+        printf(rc == 0 ? "[BEND13] OK\n" : "[BEND13] FAIL\n");
+        return rc;
     }
 
     if (strcmp(mode, "help") == 0 || strcmp(mode, "-h") == 0 || strcmp(mode, "--help") == 0) {

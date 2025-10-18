@@ -78,6 +78,22 @@ for f in "$INTERFACE_DIR"/*.c "$BACKEND_CPU"/*.c "$IO_DIR"/*.c; do
     fi
 done
 
+# Ensure Bend bridge is compiled even if glob patterns change
+BEND_BRIDGE_SRC="$INTERFACE_DIR/bend_bridge.c"
+if [ -f "$BEND_BRIDGE_SRC" ]; then
+    already_listed=0
+    for src in "${C_FILES[@]}"; do
+        if [ "$src" = "$BEND_BRIDGE_SRC" ]; then
+            already_listed=1
+            break
+        fi
+    done
+    if [ $already_listed -eq 0 ]; then
+        C_FILES+=("$BEND_BRIDGE_SRC")
+        echo -e "${GREEN}  →${NC} $(basename "$BEND_BRIDGE_SRC")"
+    fi
+fi
+
 if [ ${#C_FILES[@]} -eq 0 ]; then
     echo -e "${RED}[ERROR]${NC} No C source files found"
     exit 1
