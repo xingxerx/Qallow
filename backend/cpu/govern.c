@@ -1,8 +1,11 @@
+#define _POSIX_C_SOURCE 200112L
+
 #include "govern.h"
 #include <stdio.h>
 #include <time.h>
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 // Initialize governance state
 void govern_init(govern_state_t* gov) {
