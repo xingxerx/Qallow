@@ -237,25 +237,90 @@ void govern_run_audit_loop(govern_state_t* gov, qallow_state_t* state,
 }
 
 #include <ctype.h>
+#include <errno.h>
 
-int govern_cli(int argc, char** argv){
-    for(int i=2;i<argc;i++){
-        if(!strncmp(argv[i],"--adjust",8) && i+1<argc){
-            float h=0.8f;
-            if(sscanf(argv[i+1],"H=%f",&h)==1){
-                char buf[32];
-                snprintf(buf,sizeof(buf),"QALLOW_H=%.6f",h);
-#ifdef _WIN32
-                _putenv(buf);
-#else
-                setenv("QALLOW_H", buf+9, 1); // value only
-#endif
-                printf("[GOVERN] Human(H)=%.3f via env QALLOW_H\n",h);
-                return 0;
-            }
-        }
+static int persist_h_override(float human_weight) {
+    const char* path = "data/govern_override.cfg";
+    FILE* f = fopen(path, "w");
+    if (!f) {
+        fprintf(stderr, "[GOVERN] Failed to persist override to %s: %s\n", path, strerror(errno));
+        return -1;
     }
-    printf("[GOVERN] Usage: ./qallow_unified govern --adjust H=1.0\n");
+    fprintf(f, "%.6f\n", human_weight);
+    fflush(f);
+    fclose(f);
+    printf("[GOVERN] Persisted human override to %s\n", path);
     return 0;
 }
 
+int govern_cli(int argc, char** argv) {
+    bool adjust_set = false;
+    float human_override = 0.8f;
+    int warmup_ticks = 32;
+
+    for (int i = 2; i < argc; ++i) {
+        const char* arg = argv[i];
+        if (strncmp(arg, "--adjust", 8) == 0) {
+            const char* payload = NULL;
+            if (arg[8] == '=') {
+                payload = arg + 9;
+            } else if (i + 1 < argc) {
+                payload = argv[++i];
+            }
+            if (payload && sscanf(payload, "H=%f", &human_override) == 1) {
+                adjust_set = true;
+            } else {
+                fprintf(stderr, "[GOVERN] Invalid adjustment syntax. Use --adjust H=<value>\n");
+                return 1;
+            }
+        } else if (strncmp(arg, "--ticks=", 8) == 0) {
+            warmup_ticks = atoi(arg + 8);
+            if (warmup_ticks < 1) warmup_ticks = 1;
+            if (warmup_ticks > 512) warmup_ticks = 512;
+        }
+    }
+
+    if (adjust_set) {
+        char buf[32];
+        snprintf(buf, sizeof(buf), "QALLOW_H=%.6f", human_override);
+#ifdef _WIN32
+        _putenv(buf);
+#else
+        setenv("QALLOW_H", buf + 9, 1);
+#endif
+        printf("[GOVERN] Human(H) override set to %.3f via QALLOW_H\n", human_override);
+        if (persist_h_override(human_override) != 0) {
+            return 2;
+        }
+    }
+
+    qallow_state_t state;
+    qallow_kernel_init(&state);
+    for (int i = 0; i < warmup_ticks; ++i) {
+        qallow_kernel_tick(&state);
+    }
+
+    govern_state_t gov;
+    govern_init(&gov);
+
+    adaptive_state_t adaptive;
+    adaptive_load(&adaptive);
+
+    sandbox_manager_t sandbox;
+    sandbox_init(&sandbox);
+
+    ethics_monitor_t ethics;
+    ethics_init(&ethics);
+
+    govern_run_audit_loop(&gov, &state, &ethics, &sandbox, &adaptive);
+    ethics_evaluate_state(&state, &ethics);
+    ethics_print_report(&ethics);
+    sandbox_cleanup(&sandbox);
+
+    if (!adjust_set) {
+        printf("[GOVERN] Tip: use --adjust H=<value> to tune the human factor.\n");
+        printf("[GOVERN] Example: ./qallow_unified govern --adjust H=1.0\n");
+    }
+
+    return 0;
+}

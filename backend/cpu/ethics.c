@@ -1,13 +1,48 @@
 #include "ethics.h"
 #include <string.h>
 #include <stdlib.h>
+#include <math.h>
 
 // Ethics and Safety module - E = S + C + H framework
 
-// Helper function to read environment variable as float with default
-static float envf(const char* k, float d) {
-    const char* v = getenv(k);
-    return v && *v ? (float)atof(v) : d;
+static float clampf(float v, float lo, float hi) {
+    return v < lo ? lo : (v > hi ? hi : v);
+}
+
+static float load_human_weight(float fallback) {
+#ifndef __CUDA_ARCH__
+    float w = fallback;
+    const char* env = getenv("QALLOW_H");
+    if (env && *env) {
+        w = (float)atof(env);
+    } else {
+        FILE* f = fopen("data/govern_override.cfg", "r");
+        if (f) {
+            char buf[64];
+            if (fgets(buf, sizeof(buf), f)) {
+                w = (float)atof(buf);
+            }
+            fclose(f);
+        }
+    }
+    if (!isfinite(w)) {
+        w = fallback;
+    }
+    return clampf(w, 0.1f, 4.0f);
+#else
+    (void)fallback;
+    return 0.8f;
+#endif
+}
+
+static void refresh_human_weight(ethics_monitor_t* ethics) {
+#ifndef __CUDA_ARCH__
+    if (!ethics) return;
+    float base = ethics->human_weight > 0.0f ? ethics->human_weight : 0.8f;
+    ethics->human_weight = load_human_weight(base);
+#else
+    (void)ethics;
+#endif
 }
 
 CUDA_CALLABLE void ethics_init(ethics_monitor_t* ethics) {
@@ -15,12 +50,8 @@ CUDA_CALLABLE void ethics_init(ethics_monitor_t* ethics) {
     
     memset(ethics, 0, sizeof(ethics_monitor_t));
     
-    // Initialize human weight from environment variable (non-CUDA only)
-#ifndef __CUDA_ARCH__
-    ethics->human_weight = envf("QALLOW_H", 0.8f);
-#else
-    ethics->human_weight = 0.8f;  // Default for CUDA
-#endif
+    ethics->human_weight = 0.8f;
+    refresh_human_weight(ethics);
     
     // Initialize safety scores
     for (int i = 0; i < SAFETY_COUNT; i++) {
@@ -51,11 +82,8 @@ CUDA_CALLABLE bool ethics_evaluate_state(const qallow_state_t* state, ethics_mon
     float clarity = ethics_calculate_clarity_score(state, ethics);
     float human_benefit = ethics_calculate_human_benefit_score(state, ethics);
     
-    // Apply runtime weighting - use stored human_weight
-    float weighted_human = human_benefit * ethics->human_weight / 0.8f; // Scale to maintain expected range
-    
-    // E = S + C + H (with weighted H)
-    ethics->total_ethics_score = safety + clarity + weighted_human;
+    // E = S + C + H (human term already scaled)
+    ethics->total_ethics_score = safety + clarity + human_benefit;
     
     // Check decoherence limit
     if (!ethics_check_decoherence_limit(state, ethics)) {
@@ -122,12 +150,19 @@ CUDA_CALLABLE float ethics_calculate_human_benefit_score(const qallow_state_t* s
     // Human benefit based on system stability
     float benefit = 0.6f + state->global_coherence * 0.4f;
     
+#ifndef __CUDA_ARCH__
+    float weight = ethics->human_weight > 0.0f ? ethics->human_weight : 0.8f;
+#else
+    float weight = 0.8f;
+#endif
+    float scaled = clampf(benefit * (weight / 0.8f), 0.0f, 1.0f);
+    
     // Update human benefit factors
     for (int i = 0; i < 3; i++) {
-        ethics->human_benefit_factors[i] = benefit;
+        ethics->human_benefit_factors[i] = scaled;
     }
     
-    return benefit;
+    return scaled;
 }
 
 CUDA_CALLABLE bool ethics_check_decoherence_limit(const qallow_state_t* state, ethics_monitor_t* ethics) {
@@ -181,11 +216,20 @@ CUDA_CALLABLE void ethics_emergency_shutdown(qallow_state_t* state, const char* 
 void ethics_print_report(const ethics_monitor_t* ethics) {
     if (!ethics) return;
     
+    float safety = ethics->safety_scores[0];
+    float clarity = ethics->clarity_metrics[0];
+    float base_human = ethics->human_benefit_factors[0];
+    float weight = ethics->human_weight > 0.0f ? ethics->human_weight : 0.8f;
+    float weighted_human = base_human;
+    float total = safety + clarity + weighted_human;
+    
     printf("╔════════════════════════════════════════╗\n");
     printf("║     ETHICS MONITORING REPORT           ║\n");
     printf("╚════════════════════════════════════════╝\n\n");
     
-    printf("Total Ethics Score (E=S+C+H): %.4f\n", ethics->total_ethics_score);
+    printf("Total Ethics Score (E=S+C+H): %.4f\n", total);
+    printf("Human Weight Factor: %.3f\n", weight);
+    printf("Weighted Human Contribution: %.4f\n", weighted_human);
     printf("Ethics Violations: %d\n", ethics->ethics_violations_count);
     printf("Safety Override Engaged: %s\n", ethics->safety_override_engaged ? "YES" : "NO");
     printf("No-Replication Rule Active: %s\n\n", ethics->no_replication_rule_active ? "YES" : "NO");
@@ -211,4 +255,3 @@ void ethics_log_violation(const ethics_monitor_t* ethics, const char* violation_
     
     printf("[ETHICS] Violation logged: %s\n", violation_type);
 }
-

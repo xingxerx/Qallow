@@ -74,7 +74,7 @@ C_FILES=()
 for f in "$INTERFACE_DIR"/*.c "$BACKEND_CPU"/*.c "$IO_DIR"/*.c; do
     if [ -f "$f" ]; then
         C_FILES+=("$f")
-        echo -e "${GREEN}  →${NC} $(basename $f)"
+        echo -e "${GREEN}  →${NC} $(basename "$f")"
     fi
 done
 
@@ -87,8 +87,7 @@ echo ""
 echo -e "${BLUE}[2/3] Compiling...${NC}"
 echo "--------------------------------"
 
-# Build command
-BUILD_CMD=""
+C_OBJECTS=()
 CUDA_OBJECTS=()
 
 if [ "$MODE" == "CUDA" ]; then
@@ -97,19 +96,27 @@ if [ "$MODE" == "CUDA" ]; then
     # Compile CUDA kernels
     for cu_file in "$BACKEND_CUDA"/*.cu; do
         if [ -f "$cu_file" ]; then
-            obj_file="$BUILD_DIR/$(basename ${cu_file%.cu}).o"
-            echo -e "${GREEN}  →${NC} $(basename $cu_file)"
+            obj_name=$(echo "${cu_file%.cu}" | sed 's/[^A-Za-z0-9_]/_/g')
+            obj_file="$BUILD_DIR/${obj_name}.o"
+            echo -e "${GREEN}  →${NC} $(basename "$cu_file")"
             nvcc -c -O2 -arch=sm_89 -I"$INCLUDE_DIR" "$cu_file" -o "$obj_file"
             CUDA_OBJECTS+=("$obj_file")
         fi
     done
+fi
 
-    # Link with CUDA
-    BUILD_CMD="nvcc -O2 -arch=sm_89 -I\"$INCLUDE_DIR\" ${C_FILES[@]} ${CUDA_OBJECTS[@]} -L/usr/local/cuda/lib64 -lcudart -lcurand -lm -o \"$OUTPUT\""
+# Compile C sources
+for c_file in "${C_FILES[@]}"; do
+    obj_name=$(echo "${c_file%.c}" | sed 's/[^A-Za-z0-9_]/_/g')
+    obj_file="$BUILD_DIR/${obj_name}.o"
+    echo -e "${GREEN}  →${NC} $(basename "$c_file")"
+    gcc -c -O2 -Wall -Wextra -g -I"$INCLUDE_DIR" "$c_file" -o "$obj_file"
+    C_OBJECTS+=("$obj_file")
+done
+
+if [ "$MODE" == "CUDA" ]; then
     echo -e "${GREEN}[CUDA]${NC} Linking with CUDA support..."
 else
-    # Link with GCC (CPU-only)
-    BUILD_CMD="gcc -O2 -Wall -Wextra -g -I\"$INCLUDE_DIR\" ${C_FILES[@]} -lm -o \"$OUTPUT\""
     echo -e "${GREEN}[CPU]${NC} Linking CPU-only version..."
 fi
 
@@ -117,8 +124,13 @@ echo ""
 echo -e "${BLUE}[3/3] Building executable...${NC}"
 echo "--------------------------------"
 
-# Execute build command
-if eval "$BUILD_CMD"; then
+if [ "$MODE" == "CUDA" ]; then
+    nvcc -O2 -arch=sm_89 -I"$INCLUDE_DIR" "${C_OBJECTS[@]}" "${CUDA_OBJECTS[@]}" -L/usr/local/cuda/lib64 -lcudart -lcurand -lm -o "$OUTPUT"
+else
+    gcc -O2 -Wall -Wextra -g -I"$INCLUDE_DIR" "${C_OBJECTS[@]}" -lm -o "$OUTPUT"
+fi
+
+if [ $? -eq 0 ]; then
     echo ""
     echo -e "${GREEN}================================${NC}"
     echo -e "${GREEN}BUILD SUCCESSFUL${NC}"

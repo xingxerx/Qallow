@@ -12,8 +12,9 @@
 #include "sandbox.h"
 #include "telemetry.h"
 #include "pocket.h"
-#include "phase12.h"
 #include "govern.h"
+#include "qallow_phase12.h"
+#include "qallow_phase13.h"
 // TODO: Add these when modules are implemented
 // #include "adaptive.h"
 // #include "verify.h"
@@ -23,10 +24,8 @@
 static void qallow_build_mode(void);
 static void qallow_run_mode(void);
 static void qallow_bench_mode(void);
-static void qallow_govern_mode(int argc, char** argv);
 static void qallow_verify_mode(void);
 static void qallow_live_mode(void);
-static void qallow_phase12_mode(int argc, char** argv);
 static void qallow_print_help(void);
 
 // Print banner
@@ -62,11 +61,6 @@ static void qallow_bench_mode(void) {
     qallow_run_mode();
 }
 
-// GOVERN mode: Run autonomous governance loop
-static void qallow_govern_mode(int argc, char** argv) {
-    govern_cli(argc, argv);
-}
-
 // VERIFY mode: System checkpoint
 static void qallow_verify_mode(void) {
     printf("[VERIFY] Verification mode not yet implemented\n");
@@ -92,36 +86,6 @@ static void qallow_live_mode(void) {
     exit(result);
 }
 
-// PHASE12 mode: Run Phase 12 elasticity simulation
-static void qallow_phase12_mode(int argc, char** argv) {
-    // Default parameters
-    int ticks = 1000;
-    float eps = 0.0001f;
-    const char* log_path = NULL;
-    
-    // Parse command line arguments
-    for (int i = 2; i < argc; i++) {
-        if (strncmp(argv[i], "--ticks=", 8) == 0) {
-            ticks = atoi(argv[i] + 8);
-        } else if (strncmp(argv[i], "--eps=", 6) == 0) {
-            eps = atof(argv[i] + 6);
-        } else if (strncmp(argv[i], "--log=", 6) == 0) {
-            log_path = argv[i] + 6;
-        }
-    }
-    
-    printf("[PHASE12] Starting elasticity simulation\n");
-    printf("[PHASE12] Parameters: ticks=%d, eps=%.6f\n", ticks, eps);
-    if (log_path) {
-        printf("[PHASE12] Logging to: %s\n", log_path);
-    }
-    printf("\n");
-    
-    // Run the phase12 elasticity simulation
-    int result = run_phase12_elasticity(log_path, ticks, eps);
-    exit(result);
-}
-
 // Print help message
 static void qallow_print_help(void) {
     printf("Usage: qallow [mode]\n\n");
@@ -133,6 +97,7 @@ static void qallow_print_help(void) {
     printf("  verify   System checkpoint - verify integrity\n");
     printf("  live     Live interface and external data integration\n");
     printf("  phase12  Run Phase 12 elasticity simulation\n");
+    printf("  phase13  Run Phase 13 harmonic propagation\n");
     printf("  help     Show this help message\n\n");
     printf("Examples:\n");
     printf("  qallow build      # Build both CPU and CUDA versions\n");
@@ -142,6 +107,7 @@ static void qallow_print_help(void) {
     printf("  qallow verify     # Verify system health\n");
     printf("  qallow live       # Start live interface\n");
     printf("  qallow phase12 --ticks=100 --eps=0.0001 --log=phase12.csv\n");
+    printf("  qallow phase13 --nodes=8 --ticks=500 --k=0.001 --log=phase13.csv\n");
 }
 
 // Main entry point
@@ -170,8 +136,7 @@ int main(int argc, char** argv) {
     }
 
     if (strcmp(mode, "govern") == 0) {
-        qallow_govern_mode(argc, argv);
-        return 0;
+        return govern_cli(argc, argv);
     }
 
     if (strcmp(mode, "verify") == 0) {
@@ -185,8 +150,11 @@ int main(int argc, char** argv) {
     }
 
     if (strcmp(mode, "phase12") == 0) {
-        qallow_phase12_mode(argc, argv);
-        return 0;  // Note: qallow_phase12_mode calls exit()
+        return qallow_phase12_runner(argc, argv);
+    }
+
+    if (strcmp(mode, "phase13") == 0) {
+        return qallow_phase13_runner(argc, argv);
     }
 
     if (strcmp(mode, "help") == 0 || strcmp(mode, "-h") == 0 || strcmp(mode, "--help") == 0) {
@@ -198,4 +166,3 @@ int main(int argc, char** argv) {
     qallow_print_help();
     return 1;
 }
-

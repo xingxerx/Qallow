@@ -8,7 +8,12 @@
 #include "adaptive.h"
 #include "pocket.h"
 #include "phase7.h"
+#include "phase12.h"
+#include "qallow_phase12.h"
+#include "qallow_phase13.h"
 #include <time.h>
+#include <string.h>
+#include <stdlib.h>
 
 // Main application entry point for Qallow VM
 // Supports both CUDA and CPU execution with unified telemetry and adaptive learning
@@ -48,6 +53,64 @@ static void print_system_info(const qallow_state_t* state) {
 }
 
 // VM execution function (called from launcher)
+int qallow_phase12_runner(int argc, char** argv) {
+    int ticks = 1000;
+    float eps = 0.0001f;
+    const char* log_path = NULL;
+
+    for (int i = 2; i < argc; ++i) {
+        const char* arg = argv[i];
+        if (strncmp(arg, "--ticks=", 8) == 0) {
+            ticks = atoi(arg + 8);
+            if (ticks < 1) ticks = 1;
+        } else if (strncmp(arg, "--eps=", 6) == 0) {
+            eps = (float)atof(arg + 6);
+            if (eps < 0.0f) eps = 0.0f;
+        } else if (strncmp(arg, "--log=", 6) == 0) {
+            log_path = arg + 6;
+        }
+    }
+
+    printf("[PHASE12] Elasticity simulation\n");
+    printf("[PHASE12] ticks=%d eps=%.6f\n", ticks, eps);
+    if (log_path) {
+        printf("[PHASE12] log=%s\n", log_path);
+    }
+
+    return run_phase12_elasticity(log_path, ticks, eps);
+}
+
+int qallow_phase13_runner(int argc, char** argv) {
+    int nodes = 8;
+    int ticks = 400;
+    float coupling = 0.001f;
+    const char* log_path = NULL;
+
+    for (int i = 2; i < argc; ++i) {
+        const char* arg = argv[i];
+        if (strncmp(arg, "--nodes=", 8) == 0) {
+            nodes = atoi(arg + 8);
+            if (nodes < 2) nodes = 2;
+        } else if (strncmp(arg, "--ticks=", 8) == 0) {
+            ticks = atoi(arg + 8);
+            if (ticks < 1) ticks = 1;
+        } else if (strncmp(arg, "--k=", 4) == 0) {
+            coupling = (float)atof(arg + 4);
+            if (coupling <= 0.0f) coupling = 0.0001f;
+        } else if (strncmp(arg, "--log=", 6) == 0) {
+            log_path = arg + 6;
+        }
+    }
+
+    printf("[PHASE13] Harmonic propagation\n");
+    printf("[PHASE13] nodes=%d ticks=%d k=%.6f\n", nodes, ticks, coupling);
+    if (log_path) {
+        printf("[PHASE13] log=%s\n", log_path);
+    }
+
+    return run_phase13_harmonic(log_path, nodes, ticks, coupling);
+}
+
 int qallow_vm_main(void) {
     print_banner();
     printf("[SYSTEM] Qallow VM initialized\n");
