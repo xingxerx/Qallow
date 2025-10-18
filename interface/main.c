@@ -11,7 +11,6 @@
 #include "phase12.h"
 #include "qallow_phase12.h"
 #include "qallow_phase13.h"
-#include "bend_bridge.h"
 #include <time.h>
 #include <string.h>
 #include <stdlib.h>

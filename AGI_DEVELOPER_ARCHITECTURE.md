@@ -7,7 +7,7 @@ Transform Qallow into the **best AGI software developer** by integrating:
 - **Code Analysis & Verification** - Analyze, optimize, and verify generated code
 - **Automated Testing** - Generate and execute comprehensive test suites
 - **Self-Improvement Loop** - Learn from code patterns and improve generation quality
-- **Parallel Development** - Use Bend's functional parallelism for concurrent tasks
+- **Parallel Development** - Leverage Phase-13 accelerator threading for concurrent tasks
 - **Ethics-Driven Development** - Ensure all generated code meets ethical standards
 
 ---
@@ -69,7 +69,7 @@ Qallow AGI Developer
 
 3. **Code Generator**
    - Generate C/CUDA code
-   - Generate Bend functional code
+   - Generate accelerator harness code
    - Generate test stubs
 
 4. **Optimization Engine**
@@ -79,7 +79,7 @@ Qallow AGI Developer
 
 ### Key Features
 
-- Multi-language support (C, CUDA, Bend, Python)
+- Multi-language support (C, CUDA, Python)
 - Constraint-aware generation
 - Ethics-compliant code patterns
 - Automatic documentation generation
@@ -229,5 +229,4 @@ qallow telemetry show --metric=code_quality
 2. Implement specification parser
 3. Build code generation templates
 4. Create test suite for code generator
-5. Integrate with Bend for parallel generation
-
+5. Integrate the Phase-13 accelerator for parallel generation
