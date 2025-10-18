@@ -1,88 +1,139 @@
 #!/bin/bash
 # Build wrapper script for Qallow VM on Linux
-# Sets up environment and compiles for CPU or CUDA
+# Unified build system for CPU and CUDA compilation
+# Usage: ./build_wrapper.sh [CPU|CUDA|AUTO]
 
 set -e # Exit on error
 
-MODE=${1:-CPU}
+# Configuration
+MODE=${1:-AUTO}
 BUILD_DIR="build"
 INCLUDE_DIR="core/include"
 BACKEND_CPU="backend/cpu"
 BACKEND_CUDA="backend/cuda"
 INTERFACE_DIR="interface"
 IO_DIR="io/adapters"
+OUTPUT="$BUILD_DIR/qallow_unified"
 
+# ANSI color codes
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Create build directory
 mkdir -p "$BUILD_DIR"
 
-echo "[BUILD] Compiling unified launcher and governance core..."
+echo -e "${BLUE}================================${NC}"
+echo -e "${BLUE}Qallow Unified Build System${NC}"
+echo -e "${BLUE}================================${NC}"
+echo ""
 
-# List of all C source files
-C_FILES=(
-    "$INTERFACE_DIR/launcher.c"
-    "$INTERFACE_DIR/main.c"
-    "$BACKEND_CPU/qallow_kernel.c"
-    "$BACKEND_CPU/overlay.c"
-    "$BACKEND_CPU/ethics.c"
-    "$BACKEND_CPU/ppai.c"
-    "$BACKEND_CPU/qcp.c"
-    "$BACKEND_CPU/pocket_dimension.c"
-    "$BACKEND_CPU/telemetry.c"
-    "$BACKEND_CPU/adaptive.c"
-    "$BACKEND_CPU/pocket.c"
-    "$BACKEND_CPU/govern.c"
-    "$BACKEND_CPU/ingest.c"
-    "$BACKEND_CPU/verify.c"
-    "$BACKEND_CPU/semantic_memory.c"
-    "$BACKEND_CPU/goal_synthesizer.c"
-    "$BACKEND_CPU/transfer_engine.c"
-    "$BACKEND_CPU/self_reflection.c"
-    "$BACKEND_CPU/phase7_core.c"
-    "$BACKEND_CPU/phase12_elasticity.c" # Added new file
-    "$IO_DIR/net_adapter.c"
-    "$IO_DIR/sim_adapter.c"
-)
+# Detect CUDA availability
+CUDA_AVAILABLE=0
+if command -v nvcc &> /dev/null; then
+    CUDA_AVAILABLE=1
+    CUDA_VERSION=$(nvcc --version | grep release | awk '{print $5}' | tr -d ',')
+    echo -e "${GREEN}[INFO]${NC} CUDA detected: $CUDA_VERSION"
+else
+    echo -e "${YELLOW}[INFO]${NC} CUDA not found - CPU-only mode available"
+fi
 
-# Filter C_FILES to only include files that actually exist. Print warnings for missing files.
-EXISTING_C_FILES=()
-for f in "${C_FILES[@]}"; do
-    if [ -f "$f" ]; then
-        EXISTING_C_FILES+=("$f")
+# Determine build mode
+if [ "$MODE" == "AUTO" ]; then
+    if [ $CUDA_AVAILABLE -eq 1 ]; then
+        MODE="CUDA"
+        echo -e "${GREEN}[AUTO]${NC} Using CUDA mode"
     else
-        echo "[WARN] Source file not found, skipping: $f"
+        MODE="CPU"
+        echo -e "${YELLOW}[AUTO]${NC} Using CPU-only mode"
+    fi
+fi
+
+# Validate mode
+if [ "$MODE" != "CPU" ] && [ "$MODE" != "CUDA" ]; then
+    echo -e "${RED}[ERROR]${NC} Invalid mode: $MODE"
+    echo "Usage: $0 [CPU|CUDA|AUTO]"
+    exit 1
+fi
+
+# Check if CUDA is requested but not available
+if [ "$MODE" == "CUDA" ] && [ $CUDA_AVAILABLE -eq 0 ]; then
+    echo -e "${RED}[ERROR]${NC} CUDA requested but nvcc not found"
+    echo "Install CUDA or use CPU mode"
+    exit 1
+fi
+
+echo ""
+echo -e "${BLUE}[1/3] Collecting source files...${NC}"
+echo "--------------------------------"
+
+# Collect C source files
+C_FILES=()
+for f in "$INTERFACE_DIR"/*.c "$BACKEND_CPU"/*.c "$IO_DIR"/*.c; do
+    if [ -f "$f" ]; then
+        C_FILES+=("$f")
+        echo -e "${GREEN}  →${NC} $(basename $f)"
     fi
 done
 
-# Use EXISTING_C_FILES for compilation commands
+if [ ${#C_FILES[@]} -eq 0 ]; then
+    echo -e "${RED}[ERROR]${NC} No C source files found"
+    exit 1
+fi
 
-if [ "$MODE" == "CUDA" ] && [ -x "$(command -v nvcc)" ]; then
-    echo "[CUDA] Compiling CUDA-enabled version..."
+echo ""
+echo -e "${BLUE}[2/3] Compiling...${NC}"
+echo "--------------------------------"
 
-    # Compile CUDA kernels separately
-nvcc -c -O2 -arch=sm_89 -I"$INCLUDE_DIR" "$BACKEND_CUDA/ppai_kernels.cu" -o "$BUILD_DIR/ppai_kernels.o"
-nvcc -c -O2 -arch=sm_89 -I"$INCLUDE_DIR" "$BACKEND_CUDA/qcp_kernels.cu" -o "$BUILD_DIR/qcp_kernels.o"
+# Build command
+BUILD_CMD=""
+CUDA_OBJECTS=()
 
-# Link all C and CUDA object files together
-    nvcc -O2 -arch=sm_89 \
-        "${EXISTING_C_FILES[@]}" \
-        "$BUILD_DIR/ppai_kernels.o" \
-        "$BUILD_DIR/qcp_kernels.o" \
-        -I"$INCLUDE_DIR" \
-        -L/usr/local/cuda/lib64 -lcudart -lcurand -lm \
-        -o "$BUILD_DIR/qallow_unified"
+if [ "$MODE" == "CUDA" ]; then
+    echo -e "${GREEN}[CUDA]${NC} Compiling CUDA kernels..."
 
-    echo "[SUCCESS] CUDA build completed: $BUILD_DIR/qallow_unified"
+    # Compile CUDA kernels
+    for cu_file in "$BACKEND_CUDA"/*.cu; do
+        if [ -f "$cu_file" ]; then
+            obj_file="$BUILD_DIR/$(basename ${cu_file%.cu}).o"
+            echo -e "${GREEN}  →${NC} $(basename $cu_file)"
+            nvcc -c -O2 -arch=sm_89 -I"$INCLUDE_DIR" "$cu_file" -o "$obj_file"
+            CUDA_OBJECTS+=("$obj_file")
+        fi
+    done
 
+    # Link with CUDA
+    BUILD_CMD="nvcc -O2 -arch=sm_89 -I\"$INCLUDE_DIR\" ${C_FILES[@]} ${CUDA_OBJECTS[@]} -L/usr/local/cuda/lib64 -lcudart -lcurand -lm -o \"$OUTPUT\""
+    echo -e "${GREEN}[CUDA]${NC} Linking with CUDA support..."
 else
-    if [ "$MODE" == "CUDA" ]; then
-        echo "[WARN] nvcc not found. Falling back to CPU-only build."
-    fi
-    echo "[CPU] Compiling CPU-only version..."
+    # Link with GCC (CPU-only)
+    BUILD_CMD="gcc -O2 -Wall -Wextra -g -I\"$INCLUDE_DIR\" ${C_FILES[@]} -lm -o \"$OUTPUT\""
+    echo -e "${GREEN}[CPU]${NC} Linking CPU-only version..."
+fi
 
-    gcc -O2 -Wall -Wextra -g -I"$INCLUDE_DIR" -o "$BUILD_DIR/qallow_unified" \
-        "${EXISTING_C_FILES[@]}" \
-        -lm
+echo ""
+echo -e "${BLUE}[3/3] Building executable...${NC}"
+echo "--------------------------------"
 
-    echo "[SUCCESS] CPU build completed: $BUILD_DIR/qallow_unified"
+# Execute build command
+if eval "$BUILD_CMD"; then
+    echo ""
+    echo -e "${GREEN}================================${NC}"
+    echo -e "${GREEN}BUILD SUCCESSFUL${NC}"
+    echo -e "${GREEN}================================${NC}"
+    echo ""
+    echo -e "Mode:       ${YELLOW}$MODE${NC}"
+    echo -e "Output:     ${YELLOW}$OUTPUT${NC}"
+    echo -e "Size:       ${YELLOW}$(du -h $OUTPUT | cut -f1)${NC}"
+    echo ""
+else
+    echo ""
+    echo -e "${RED}================================${NC}"
+    echo -e "${RED}BUILD FAILED${NC}"
+    echo -e "${RED}================================${NC}"
+    exit 1
 fi
 
 echo "[BUILD] Build process completed successfully"
