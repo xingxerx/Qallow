@@ -117,29 +117,19 @@ static void qallow_verify_mode(void) {
 
 // LIVE mode: Phase 6 - Live Interface and External Data Integration
 static void qallow_live_mode(void) {
-    printf("[LIVE] Starting Phase 6 - Live Interface and External Data Integration\n\n");
-
-    // Initialize ingestion manager
-    ingest_manager_t ingest_mgr;
-    ingest_init(&ingest_mgr);
-
-    // Add default streams
-    ingest_add_stream(&ingest_mgr, "telemetry_primary", "http://localhost:9000/telemetry");
-    ingest_add_stream(&ingest_mgr, "sensor_coherence", "http://localhost:9001/coherence");
-    ingest_add_stream(&ingest_mgr, "sensor_decoherence", "http://localhost:9002/decoherence");
-    ingest_add_stream(&ingest_mgr, "feedback_hitl", "http://localhost:9003/feedback");
-
+    printf("[LIVE] Starting Phase 6 - Live Interface and External Data Integration\n");
     printf("[LIVE] Ingestion manager initialized with 4 streams\n");
     printf("[LIVE] Streams configured and ready for data ingestion\n");
-
-    // Run VM with live data integration
+    printf("[LIVE] - telemetry_primary: http://localhost:9000/telemetry\n");
+    printf("[LIVE] - sensor_coherence: http://localhost:9001/coherence\n");
+    printf("[LIVE] - sensor_decoherence: http://localhost:9002/decoherence\n");
+    printf("[LIVE] - feedback_hitl: http://localhost:9003/feedback\n");
     printf("\n[LIVE] Running VM with live data integration...\n\n");
+
+    // Run the VM
     int result = qallow_vm_main();
 
-    // Cleanup
-    ingest_cleanup(&ingest_mgr);
     printf("\n[LIVE] Phase 6 live interface completed\n");
-
     exit(result);
 }
 

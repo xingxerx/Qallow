@@ -7,6 +7,7 @@
 #include "telemetry.h"
 #include "adaptive.h"
 #include "pocket.h"
+#include "phase7.h"
 #include <time.h>
 
 // Main application entry point for Qallow VM
@@ -17,6 +18,8 @@ static void print_banner(void) {
     printf("║     QALLOW VM - Unified System         ║\n");
     printf("║  Photonic & Quantum Hardware Emulation ║\n");
     printf("║  CPU + CUDA Acceleration Support       ║\n");
+    printf("║  Phase IV: Multi-Pocket + Chronometric ║\n");
+    printf("║  Phase VII: Proactive AGI Layer        ║\n");
     printf("╚════════════════════════════════════════╝\n\n");
 }
 
@@ -79,6 +82,17 @@ int qallow_vm_main(void) {
     // Initialize pocket dimension simulator
     pocket_dimension_t pocket_dim;
     memset(&pocket_dim, 0, sizeof(pocket_dim));
+
+    // ========================================================================
+    // Initialize Phase 7: Proactive AGI Layer
+    // ========================================================================
+    phase7_state_t phase7;
+    if (phase7_init(&phase7, "data") == 0) {
+        printf("[PHASE7] Proactive AGI Layer active\n");
+    } else {
+        printf("[PHASE7] Warning: Failed to initialize, continuing without Phase 7\n");
+        memset(&phase7, 0, sizeof(phase7));
+    }
 
     print_system_info(&state);
     
@@ -191,6 +205,19 @@ int qallow_vm_main(void) {
             sandbox_create_snapshot(&sandbox, &state, snapshot_name);
         }
 
+        // ====================================================================
+        // Phase 7 Tick: Goal Synthesis -> Planning -> Execution -> Reflection
+        // ====================================================================
+        if (phase7.phase7_active && tick % 100 == 0) {
+            phase7_tick(&phase7, &telemetry, &ethics);
+            
+            // Check hard stops
+            if (phase7_check_hard_stops(&phase7, &ethics)) {
+                printf("[PHASE7] Hard stop triggered - emergency shutdown\n");
+                break;
+            }
+        }
+
         // Early termination if system reaches stable equilibrium
         if (state.global_coherence > 0.999f && state.decoherence_level < 0.0001f) {
             printf("[KERNEL] System reached stable equilibrium at tick %d\n", tick);
@@ -229,6 +256,13 @@ int qallow_vm_main(void) {
     if (pocket_active) {
         printf("[POCKET] Final merged score: %.4f\n", pocket_get_average_score(&pocket_dim));
         pocket_cleanup(&pocket_dim);
+    }
+
+    // Phase 7 final report and audit
+    if (phase7.phase7_active) {
+        printf("\n═══ PHASE 7 PROACTIVE AGI REPORT ═══\n");
+        phase7_audit(&phase7);
+        phase7_shutdown(&phase7);
     }
 
     // Cleanup

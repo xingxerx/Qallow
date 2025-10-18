@@ -70,6 +70,24 @@ if errorlevel 1 exit /b 1
 cl /O2 /W4 "/I%INC_DIR%" /DCUDA_ENABLED=1 /c "%CPU_DIR%\chronometric.c" "/Fo%CPU_DIR%\chronometric.obj"
 if errorlevel 1 exit /b 1
 
+REM Phase VII modules
+echo.
+echo [1/3] Compiling Phase VII AGI modules...
+cl /O2 /W4 "/I%INC_DIR%" /DCUDA_ENABLED=1 /c "%CPU_DIR%\semantic_memory.c" "/Fo%CPU_DIR%\semantic_memory.obj"
+if errorlevel 1 exit /b 1
+
+cl /O2 /W4 "/I%INC_DIR%" /DCUDA_ENABLED=1 /c "%CPU_DIR%\goal_synthesizer.c" "/Fo%CPU_DIR%\goal_synthesizer.obj"
+if errorlevel 1 exit /b 1
+
+cl /O2 /W4 "/I%INC_DIR%" /DCUDA_ENABLED=1 /c "%CPU_DIR%\transfer_engine.c" "/Fo%CPU_DIR%\transfer_engine.obj"
+if errorlevel 1 exit /b 1
+
+cl /O2 /W4 "/I%INC_DIR%" /DCUDA_ENABLED=1 /c "%CPU_DIR%\self_reflection.c" "/Fo%CPU_DIR%\self_reflection.obj"
+if errorlevel 1 exit /b 1
+
+cl /O2 /W4 "/I%INC_DIR%" /DCUDA_ENABLED=1 /c "%CPU_DIR%\phase7_core.c" "/Fo%CPU_DIR%\phase7_core.obj"
+if errorlevel 1 exit /b 1
+
 REM Main program
 echo.
 echo [1/3] Compiling main program...
@@ -111,6 +129,11 @@ echo --------------------------------
     "%CPU_DIR%\pocket_dimension.obj" ^
     "%CPU_DIR%\multi_pocket.obj" ^
     "%CPU_DIR%\chronometric.obj" ^
+    "%CPU_DIR%\semantic_memory.obj" ^
+    "%CPU_DIR%\goal_synthesizer.obj" ^
+    "%CPU_DIR%\transfer_engine.obj" ^
+    "%CPU_DIR%\self_reflection.obj" ^
+    "%CPU_DIR%\phase7_core.obj" ^
     "%CUDA_DIR%\ppai_kernels.obj" ^
     "%CUDA_DIR%\qcp_kernels.obj" ^
     "%CUDA_DIR%\photonic.obj" ^
@@ -132,11 +155,13 @@ echo BUILD SUCCESSFUL
 echo ================================
 echo Executable: qallow.exe
 echo.
-echo Phase IV Features:
+echo Phase IV + VII Features:
 echo   - Multi-Pocket Scheduler (16 parallel worldlines)
 echo   - Chronometric Prediction Layer
-echo   - Temporal Time Bank
-echo   - Drift Detection
+echo   - Semantic Memory Grid (SMG)
+echo   - Goal Synthesizer with Ethics Gate
+echo   - Transfer Engine for cross-domain planning
+echo   - Self-Reflection Core with drift detection
 echo.
 echo Run with: qallow.exe
 echo ================================
