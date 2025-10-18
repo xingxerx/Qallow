@@ -11,17 +11,17 @@
 #include "overlay.h"
 #include "sandbox.h"
 #include "telemetry.h"
-#include "adaptive.h"
 #include "pocket.h"
-#include "govern.h"
-#include "verify.h"
-#include "ingest.h"
+// TODO: Add these when modules are implemented
+// #include "adaptive.h"
+// #include "govern.h"
+// #include "verify.h"
+// #include "ingest.h"
 
 // Forward declarations for mode handlers
 static void qallow_build_mode(void);
 static void qallow_run_mode(void);
 static void qallow_bench_mode(void);
-static void qallow_visual_mode(void);
 static void qallow_govern_mode(void);
 static void qallow_verify_mode(void);
 static void qallow_live_mode(void);
@@ -30,8 +30,8 @@ static void qallow_print_help(void);
 // Print banner
 static void print_banner(void) {
     printf("╔════════════════════════════════════════╗\n");
-    printf("║     QALLOW - Unified Command System    ║\n");
-    printf("║  Autonomous Governance & Optimization  ║\n");
+    printf("║          QALLOW - Unified VM           ║\n");
+    printf("║    Photonic & Quantum Emulation        ║\n");
     printf("╚════════════════════════════════════════╝\n\n");
 }
 
@@ -60,64 +60,23 @@ static void qallow_bench_mode(void) {
     qallow_run_mode();
 }
 
-// VISUAL mode: Open live dashboard
-static void qallow_visual_mode(void) {
-    printf("[VISUAL] Opening live dashboard...\n");
-    printf("[VISUAL] Dashboard URL: http://localhost:8080\n");
-    printf("[VISUAL] Note: Dashboard server not yet implemented\n");
-    printf("[VISUAL] For now, view telemetry data in qallow_stream.csv\n");
-}
-
 // GOVERN mode: Run autonomous governance loop
 static void qallow_govern_mode(void) {
-    printf("[GOVERN] Starting autonomous governance loop...\n\n");
-
-    // Initialize all subsystems
-    govern_state_t gov;
-    govern_init(&gov);
-
-    qallow_state_t state;
-    qallow_kernel_init(&state);
-
-    ethics_monitor_t ethics;
-    ethics_init(&ethics);
-
-    sandbox_manager_t sandbox;
-    sandbox_init(&sandbox);
-
-    adaptive_state_t adaptive;
-    adaptive_load(&adaptive);
-
-    // Run the governance loop
-    govern_run_audit_loop(&gov, &state, &ethics, &sandbox, &adaptive);
-
-    // Cleanup
-    sandbox_cleanup(&sandbox);
-
-    printf("\n[GOVERN] Autonomous governance completed\n");
+    printf("[GOVERN] Governance mode not yet implemented\n");
+    printf("[GOVERN] TODO: Implement autonomous governance audit\n");
+    // TODO: Add govern.c module
 }
 
-// VERIFY mode: System checkpoint for Phase 6
+// VERIFY mode: System checkpoint
 static void qallow_verify_mode(void) {
-    printf("[VERIFY] Running system checkpoint...\n\n");
-
-    verify_report_t report;
-    int result = verify_system(&report);
-
-    verify_print_report(&report);
-
-    if (verify_is_healthy(&report)) {
-        printf("[VERIFY] System is healthy and ready for Phase 6 expansion\n");
-        exit(0);
-    } else {
-        printf("[VERIFY] System issues detected - Phase 6 expansion blocked\n");
-        exit(1);
-    }
+    printf("[VERIFY] Verification mode not yet implemented\n");
+    printf("[VERIFY] TODO: Implement system health check\n");
+    // TODO: Add verify.c module
 }
 
-// LIVE mode: Phase 6 - Live Interface and External Data Integration
+// LIVE mode: Live Interface and External Data Integration
 static void qallow_live_mode(void) {
-    printf("[LIVE] Starting Phase 6 - Live Interface and External Data Integration\n");
+    printf("[LIVE] Starting Live Interface and External Data Integration\n");
     printf("[LIVE] Ingestion manager initialized with 4 streams\n");
     printf("[LIVE] Streams configured and ready for data ingestion\n");
     printf("[LIVE] - telemetry_primary: http://localhost:9000/telemetry\n");
@@ -129,7 +88,7 @@ static void qallow_live_mode(void) {
     // Run the VM
     int result = qallow_vm_main();
 
-    printf("\n[LIVE] Phase 6 live interface completed\n");
+    printf("\n[LIVE] Live interface completed\n");
     exit(result);
 }
 
@@ -138,12 +97,11 @@ static void qallow_print_help(void) {
     printf("Usage: qallow [mode]\n\n");
     printf("Modes:\n");
     printf("  build    Detect toolchain and compile CPU + CUDA backends\n");
-    printf("  run      Execute current binary (auto-selects CPU/CUDA)\n");
-    printf("  bench    Run HITL benchmark with logging\n");
-    printf("  visual   Open live dashboard\n");
-    printf("  govern   Start autonomous governance and ethics audit loop\n");
-    printf("  verify   System checkpoint - verify integrity before Phase 6\n");
-    printf("  live     Phase 6 - Live interface and external data integration\n");
+    printf("  run      Execute the VM (auto-selects CPU/CUDA)\n");
+    printf("  bench    Run benchmark with logging\n");
+    printf("  govern   Start governance and ethics audit loop\n");
+    printf("  verify   System checkpoint - verify integrity\n");
+    printf("  live     Live interface and external data integration\n");
     printf("  help     Show this help message\n\n");
     printf("Examples:\n");
     printf("  qallow build      # Build both CPU and CUDA versions\n");
@@ -151,14 +109,14 @@ static void qallow_print_help(void) {
     printf("  qallow bench      # Run benchmark\n");
     printf("  qallow govern     # Run governance audit\n");
     printf("  qallow verify     # Verify system health\n");
-    printf("  qallow live       # Start Phase 6 live interface\n");
+    printf("  qallow live       # Start live interface\n");
 }
 
 // Main entry point
 int main(int argc, char** argv) {
     const char* mode = (argc > 1) ? argv[1] : "run";
 
-    // Only print banner for run, bench, govern, visual, verify, and live modes
+    // Only print banner for run, bench, govern, verify, and live modes
     if (strcmp(mode, "build") != 0 && strcmp(mode, "help") != 0 &&
         strcmp(mode, "-h") != 0 && strcmp(mode, "--help") != 0) {
         print_banner();
@@ -176,11 +134,6 @@ int main(int argc, char** argv) {
 
     if (strcmp(mode, "bench") == 0 || strcmp(mode, "benchmark") == 0) {
         qallow_bench_mode();
-        return 0;
-    }
-
-    if (strcmp(mode, "visual") == 0 || strcmp(mode, "dashboard") == 0) {
-        qallow_visual_mode();
         return 0;
     }
 

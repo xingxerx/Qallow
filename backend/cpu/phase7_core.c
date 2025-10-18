@@ -216,7 +216,7 @@ int phase7_log_reflection(phase7_state_t* state, const reflection_result_t* resu
     if (!state || !result || !state->telemetry_phase7) return -1;
     
     fprintf(state->telemetry_phase7, "%lld,%s,0.0,%.3f,0.0,0,0,%.3f,%.3f\n",
-            (long long)time(NULL), result->goal_id, result->drift,
+            (long long)time(NULL), result->run_id, result->drift,
             result->outcome_score, result->confidence);
     fflush(state->telemetry_phase7);
     
@@ -276,14 +276,8 @@ bool phase7_check_hard_stops(const phase7_state_t* state, const void* ethics_sta
     
     const ethics_state_t* eth = (const ethics_state_t*)ethics_state;
     
-    // Calculate E = S + C + H
-    double E = 0.0;
-    for (int i = 0; i < 3; i++) {
-        E += eth->safety_scores[i] + eth->human_benefit_factors[i];
-    }
-    for (int i = 0; i < 4; i++) {
-        E += eth->clarity_metrics[i];
-    }
+    // Calculate E = S + C + H using standard ethics_state_t structure
+    double E = eth->safety_score + eth->clarity_score + eth->human_benefit_score;
     
     // Hard stop: E < 2.95
     if (E < 2.95) {

@@ -1,5 +1,5 @@
 @echo off
-REM Build script for Qallow Phase IV with Multi-Pocket and Chronometric modules
+REM Build script for Qallow with Multi-Pocket and Chronometric modules
 REM Handles CUDA compilation with Visual Studio 2022 BuildTools
 
 setlocal enabledelayedexpansion
@@ -35,7 +35,7 @@ if "%1"=="clean" (
 )
 
 echo ================================
-echo Building Qallow Phase IV
+echo Building Qallow VM
 echo ================================
 
 REM Compile CPU implementation files
@@ -88,10 +88,13 @@ if errorlevel 1 exit /b 1
 cl /O2 /W4 "/I%INC_DIR%" /DCUDA_ENABLED=1 /c "%CPU_DIR%\phase7_core.c" "/Fo%CPU_DIR%\phase7_core.obj"
 if errorlevel 1 exit /b 1
 
-REM Main program
+REM Interface files
 echo.
-echo [1/3] Compiling main program...
+echo [1/3] Compiling interface...
 cl /O2 /W4 "/I%INC_DIR%" /DCUDA_ENABLED=1 /c "interface\main.c" "/Fo%CPU_DIR%\main.obj"
+if errorlevel 1 exit /b 1
+
+cl /O2 /W4 "/I%INC_DIR%" /DCUDA_ENABLED=1 /c "interface\launcher.c" "/Fo%CPU_DIR%\launcher.obj"
 if errorlevel 1 exit /b 1
 
 REM Compile CUDA kernel files
@@ -134,6 +137,7 @@ echo --------------------------------
     "%CPU_DIR%\transfer_engine.obj" ^
     "%CPU_DIR%\self_reflection.obj" ^
     "%CPU_DIR%\phase7_core.obj" ^
+    "%CPU_DIR%\launcher.obj" ^
     "%CUDA_DIR%\ppai_kernels.obj" ^
     "%CUDA_DIR%\qcp_kernels.obj" ^
     "%CUDA_DIR%\photonic.obj" ^
@@ -155,7 +159,7 @@ echo BUILD SUCCESSFUL
 echo ================================
 echo Executable: qallow.exe
 echo.
-echo Phase IV + VII Features:
+echo Features:
 echo   - Multi-Pocket Scheduler (16 parallel worldlines)
 echo   - Chronometric Prediction Layer
 echo   - Semantic Memory Grid (SMG)

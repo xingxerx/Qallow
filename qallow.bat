@@ -1,5 +1,5 @@
 @echo off
-REM Qallow Unified Command Wrapper (Phase V)
+REM Qallow Unified Command Wrapper
 REM Routes commands to the unified qallow binary
 
 setlocal enabledelayedexpansion
@@ -37,18 +37,6 @@ if "%MODE%"=="bench" (
 if "%MODE%"=="benchmark" (
     echo [QALLOW] Running benchmark...
     call build\qallow.exe bench %2 %3 %4 %5
-    exit /b !errorlevel!
-)
-
-if "%MODE%"=="visual" (
-    echo [QALLOW] Opening dashboard...
-    call build\qallow.exe visual %2 %3 %4 %5
-    exit /b !errorlevel!
-)
-
-if "%MODE%"=="dashboard" (
-    echo [QALLOW] Opening dashboard...
-    call build\qallow.exe visual %2 %3 %4 %5
     exit /b !errorlevel!
 )
 

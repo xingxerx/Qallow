@@ -40,6 +40,11 @@ if "%MODE%"=="CUDA" (
         "%BACKEND_CPU%\govern.c" ^
         "%BACKEND_CPU%\ingest.c" ^
         "%BACKEND_CPU%\verify.c" ^
+        "%BACKEND_CPU%\semantic_memory.c" ^
+        "%BACKEND_CPU%\goal_synthesizer.c" ^
+        "%BACKEND_CPU%\transfer_engine.c" ^
+        "%BACKEND_CPU%\self_reflection.c" ^
+        "%BACKEND_CPU%\phase7_core.c" ^
         "%IO_DIR%\net_adapter.c" ^
         "%IO_DIR%\sim_adapter.c"
 
@@ -75,6 +80,15 @@ if "%MODE%"=="CUDA" (
         %BUILD_DIR%\telemetry.obj ^
         %BUILD_DIR%\adaptive.obj ^
         %BUILD_DIR%\pocket.obj ^
+        %BUILD_DIR%\ingest.obj ^
+        %BUILD_DIR%\verify.obj ^
+        %BUILD_DIR%\semantic_memory.obj ^
+        %BUILD_DIR%\goal_synthesizer.obj ^
+        %BUILD_DIR%\transfer_engine.obj ^
+        %BUILD_DIR%\self_reflection.obj ^
+        %BUILD_DIR%\phase7_core.obj ^
+        %BUILD_DIR%\net_adapter.obj ^
+        %BUILD_DIR%\sim_adapter.obj ^
         -L"%CUDA_PATH%\lib\x64" -lcudart -lcurand ^
         -o "%BUILD_DIR%\qallow_cuda.exe"
 
@@ -100,6 +114,11 @@ if "%MODE%"=="CUDA" (
         "%BACKEND_CPU%\govern.c" ^
         "%BACKEND_CPU%\ingest.c" ^
         "%BACKEND_CPU%\verify.c" ^
+        "%BACKEND_CPU%\semantic_memory.c" ^
+        "%BACKEND_CPU%\goal_synthesizer.c" ^
+        "%BACKEND_CPU%\transfer_engine.c" ^
+        "%BACKEND_CPU%\self_reflection.c" ^
+        "%BACKEND_CPU%\phase7_core.c" ^
         "%IO_DIR%\net_adapter.c" ^
         "%IO_DIR%\sim_adapter.c"
 

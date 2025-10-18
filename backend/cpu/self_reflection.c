@@ -29,8 +29,6 @@ int src_review(self_reflection_t* src, const char* run_id, const plan_t* plan,
     
     memset(out, 0, sizeof(reflection_result_t));
     strncpy(out->run_id, run_id, sizeof(out->run_id) - 1);
-    strncpy(out->plan_id, plan->plan_id, sizeof(out->plan_id) - 1);
-    strncpy(out->goal_id, plan->goal_id, sizeof(out->goal_id) - 1);
     
     // Analyze plan execution
     out->confidence = plan->expected_success_prob;

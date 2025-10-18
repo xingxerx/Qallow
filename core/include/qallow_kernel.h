@@ -45,6 +45,10 @@ typedef struct {
     int tick_count;
     bool cuda_enabled;
     int gpu_device_id;
+    // Phase 8-10: Adaptive-Predictive-Temporal components
+    float ethics_S;  // Safety score
+    float ethics_C;  // Clarity score
+    float ethics_H;  // Human benefit score
 } qallow_state_t;
 
 // Ethics monitoring
@@ -59,8 +63,39 @@ typedef struct {
 // Function declarations
 CUDA_CALLABLE void qallow_kernel_init(qallow_state_t* state);
 CUDA_CALLABLE void qallow_kernel_tick(qallow_state_t* state);
-CUDA_CALLABLE float qallow_calculate_stability(const overlay_t* overlay);
 CUDA_CALLABLE void qallow_update_decoherence(qallow_state_t* state);
+
+// Inline implementation for CUDA compatibility
+static CUDA_CALLABLE inline float qallow_calculate_stability(const overlay_t* overlay) {
+    if (!overlay || overlay->node_count == 0) return 0.0f;
+    
+    // Calculate variance (lower variance = higher stability)
+    float mean = 0.0f;
+    for (int i = 0; i < overlay->node_count; i++) {
+        mean += overlay->values[i];
+    }
+    mean /= overlay->node_count;
+    
+    float variance = 0.0f;
+    for (int i = 0; i < overlay->node_count; i++) {
+        float diff = overlay->values[i] - mean;
+        variance += diff * diff;
+    }
+    variance /= overlay->node_count;
+    
+    // Stability = 1 / (1 + variance)
+    return 1.0f / (1.0f + variance);
+}
+
+// VM main execution function
+int qallow_vm_main(void);
+
+// Phase 8-10: Adaptive-Predictive-Temporal functions
+float qallow_global_stability(const qallow_state_t* state);
+void adaptive_governance(qallow_state_t* state);
+double foresight_predict(double now);
+void predictive_control(qallow_state_t* state);
+void temporal_alignment(qallow_state_t* state, double predicted, double actual);
 
 // CUDA-specific functions
 #if CUDA_ENABLED
@@ -75,5 +110,14 @@ void qallow_cpu_process_overlays(qallow_state_t* state);
 // Utility functions
 void qallow_print_status(const qallow_state_t* state, int tick);
 bool qallow_ethics_check(const qallow_state_t* state, ethics_state_t* ethics);
+
+// ASCII Dashboard functions
+void qallow_print_dashboard(const qallow_state_t* state, const ethics_state_t* ethics);
+void qallow_print_bar(const char* label, double value, int width);
+
+// CSV Logging functions
+void qallow_csv_log_init(const char* filepath);
+void qallow_csv_log_tick(const qallow_state_t* state, const ethics_state_t* ethics);
+void qallow_csv_log_close(void);
 
 #endif // QALLOW_KERNEL_H

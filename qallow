@@ -1,6 +1,6 @@
 #!/bin/bash
 # Qallow Unified Command Interface
-# Handles all Phase IV operations
+# Handles all VM operations
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
@@ -16,28 +16,44 @@ NC='\033[0m'
 CPU_DIR="backend/cpu"
 CUDA_DIR="backend/cuda"
 INC_DIR="core/include"
+INTERFACE_DIR="interface"
 BUILD_DIR="build"
 OUTPUT="qallow_phase4"
 
+# CUDA architecture (override with SM=sm_89 make-style)
+SM="${SM:-sm_89}"
+
 show_help() {
-    echo -e "${BLUE}Qallow Phase IV - Unified Command Interface${NC}"
+    echo -e "${BLUE}Qallow - Unified Command Interface${NC}"
     echo ""
     echo "Usage: ./qallow <command>"
     echo ""
     echo "Commands:"
     echo "  build      Build both CPU + CUDA"
-    echo "  run        Execute unified runtime"
-    echo "  bench      Run HITL benchmark"
-    echo "  govern     Run autonomous governance audit"
+    echo "  run        Execute VM"
+    echo "  bench      Run benchmark"
+    echo "  govern     Run governance audit"
     echo "  visual     Open live dashboard"
+    echo "  verify     System verification"
+    echo "  live       Live data integration"
     echo "  clean      Remove build artifacts"
     echo "  help       Show this help"
+    echo ""
+    echo "Environment Variables:"
+    echo "  SM            CUDA architecture (default: sm_89)"
+    echo "                Examples: sm_86 (Ampere), sm_89 (Ada), sm_90 (Hopper)"
+    echo "  QALLOW_LOG    CSV log file path (e.g., QALLOW_LOG=data.csv ./qallow run)"
+    echo ""
+    echo "Examples:"
+    echo "  ./qallow build                    # Build with default sm_89"
+    echo "  SM=sm_86 ./qallow build          # Build for Ampere (RTX 30xx)"
+    echo "  QALLOW_LOG=run.csv ./qallow run  # Run with CSV logging"
     echo ""
 }
 
 cmd_build() {
     echo -e "${BLUE}================================${NC}"
-    echo -e "${BLUE}Building Qallow Phase IV${NC}"
+    echo -e "${BLUE}Building Qallow VM${NC}"
     echo -e "${BLUE}================================${NC}"
     echo ""
     
@@ -49,6 +65,7 @@ cmd_build() {
     
     echo -e "${GREEN}[INFO]${NC} CUDA: $(nvcc --version | grep release | awk '{print $5}' | tr -d ',')"
     echo -e "${GREEN}[INFO]${NC} GCC: $(gcc --version | head -n1 | awk '{print $3}')"
+    echo -e "${GREEN}[INFO]${NC} Architecture: $SM"
     echo ""
     
     # Create build directory
@@ -75,16 +92,20 @@ cmd_build() {
         if [ -f "$src" ]; then
             obj="$BUILD_DIR/$(basename $src .cu)_cu.o"
             echo -e "${GREEN}  →${NC} $(basename $src)"
-            nvcc -O2 -arch=sm_89 -I$INC_DIR -DCUDA_ENABLED=1 -c "$src" -o "$obj" || exit 1
+            nvcc -O2 -arch=$SM -std=c++14 -I$INC_DIR -DCUDA_ENABLED=1 -c "$src" -o "$obj" || exit 1
         fi
     done
     
-    # Compile demo if it exists
-    if [ -f "phase4_demo.c" ]; then
-        echo ""
-        echo -e "${YELLOW}[DEMO]${NC} Compiling phase4_demo.c..."
-        gcc -O2 -Wall -I$INC_DIR -DCUDA_ENABLED=1 -c "phase4_demo.c" -o "$BUILD_DIR/phase4_demo.o" || exit 1
-    fi
+    # Compile interface files
+    echo ""
+    echo -e "${BLUE}[2.5/3] Compiling interface...${NC}"
+    for src in interface/*.c; do
+        if [ -f "$src" ]; then
+            obj="$BUILD_DIR/$(basename $src .c).o"
+            echo -e "${GREEN}  →${NC} $(basename $src)"
+            gcc -O2 -Wall -I$INC_DIR -DCUDA_ENABLED=1 -c "$src" -o "$obj" || exit 1
+        fi
+    done
     
     echo ""
     echo -e "${BLUE}[3/3] Linking...${NC}"
@@ -106,24 +127,59 @@ cmd_run() {
         exit 1
     fi
     
-    echo -e "${BLUE}Running Qallow Phase IV...${NC}"
+    echo -e "${BLUE}Running Qallow VM...${NC}"
     echo ""
     ./$OUTPUT "$@"
 }
 
 cmd_bench() {
-    echo -e "${YELLOW}HITL Benchmark not yet implemented${NC}"
-    echo "TODO: Run human-in-the-loop benchmark"
+    echo -e "${BLUE}Running benchmark...${NC}"
+    if [ -f "$OUTPUT" ]; then
+        ./$OUTPUT bench
+    else
+        echo -e "${RED}Error: $OUTPUT not found. Run './qallow build' first.${NC}"
+        exit 1
+    fi
 }
 
 cmd_govern() {
-    echo -e "${YELLOW}Governance audit not yet implemented${NC}"
-    echo "TODO: Run autonomous governance check"
+    echo -e "${BLUE}Running governance audit...${NC}"
+    if [ -f "$OUTPUT" ]; then
+        ./$OUTPUT govern
+    else
+        echo -e "${RED}Error: $OUTPUT not found. Run './qallow build' first.${NC}"
+        exit 1
+    fi
 }
 
 cmd_visual() {
-    echo -e "${YELLOW}Visual dashboard not yet implemented${NC}"
-    echo "TODO: Launch ImGui/matplotlib dashboard"
+    echo -e "${BLUE}Opening dashboard...${NC}"
+    if [ -f "$OUTPUT" ]; then
+        ./$OUTPUT visual
+    else
+        echo -e "${RED}Error: $OUTPUT not found. Run './qallow build' first.${NC}"
+        exit 1
+    fi
+}
+
+cmd_verify() {
+    echo -e "${BLUE}Running system verification...${NC}"
+    if [ -f "$OUTPUT" ]; then
+        ./$OUTPUT verify
+    else
+        echo -e "${RED}Error: $OUTPUT not found. Run './qallow build' first.${NC}"
+        exit 1
+    fi
+}
+
+cmd_live() {
+    echo -e "${BLUE}Starting live interface...${NC}"
+    if [ -f "$OUTPUT" ]; then
+        ./$OUTPUT live
+    else
+        echo -e "${RED}Error: $OUTPUT not found. Run './qallow build' first.${NC}"
+        exit 1
+    fi
 }
 
 cmd_clean() {
@@ -151,6 +207,12 @@ case "$1" in
         ;;
     visual)
         cmd_visual
+        ;;
+    verify)
+        cmd_verify
+        ;;
+    live)
+        cmd_live
         ;;
     clean)
         cmd_clean

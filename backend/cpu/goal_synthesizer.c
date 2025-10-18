@@ -200,16 +200,8 @@ int gs_commit(goal_synthesizer_t* gs, const char* goal_id, const void* ethics_st
         const ethics_state_t* eth = (const ethics_state_t*)ethics_state;
         
         // Check total ethics score E = S + C + H
-        double E = 0.0;
-        for (int i = 0; i < 3; i++) {
-            E += eth->safety_scores[i];
-        }
-        for (int i = 0; i < 4; i++) {
-            E += eth->clarity_metrics[i];
-        }
-        for (int i = 0; i < 3; i++) {
-            E += eth->human_benefit_factors[i];
-        }
+        // Using standard ethics_state_t structure
+        double E = eth->safety_score + eth->clarity_score + eth->human_benefit_score;
         
         // Hard stop: E < 2.95
         if (E < 2.95) {
