@@ -21,6 +21,9 @@ typedef struct phase13_accel_config_s {
     const char* const* files;
     size_t file_count;
     int keep_running;
+    int remote_sync_enabled;
+    const char* remote_sync_endpoint;
+    unsigned int remote_sync_interval_sec;
 } phase13_accel_config_t;
 
 /**
@@ -38,4 +41,3 @@ int qallow_phase13_accel_start(const phase13_accel_config_t* config);
 #endif
 
 #endif /* QALLOW_PHASE13_ACCELERATOR_H */
-

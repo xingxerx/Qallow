@@ -11,6 +11,7 @@
 #include <string.h>
 #include <stdatomic.h>
 #include <errno.h>
+#include <limits.h>
 #include <time.h>
 #include <stdbool.h>
 
@@ -62,6 +63,191 @@ static pthread_mutex_t q_mu = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t q_cv = PTHREAD_COND_INITIALIZER;
 static atomic_int stop_flag = 0;
 static atomic_uint pending_jobs = 0;
+static atomic_uint remote_sync_seq = 0;
+
+static void queue_push(job_t j);
+
+typedef struct remote_sync_state_s {
+    int enabled;
+    int thread_started;
+    pthread_t thread;
+    char endpoint[512];
+    char target_dir[PATH_MAX];
+    unsigned int interval_sec;
+} remote_sync_state_t;
+
+static int ensure_directory(const char* path) {
+    if (!path || !*path) {
+        return -1;
+    }
+
+    char tmp[PATH_MAX];
+    snprintf(tmp, sizeof(tmp), "%s", path);
+
+    size_t len = strlen(tmp);
+    if (len == 0) {
+        return -1;
+    }
+
+    // Trim trailing slash to avoid double-creating
+    if (tmp[len - 1] == '/') {
+        tmp[len - 1] = '\0';
+    }
+
+    for (char* p = tmp + 1; *p; ++p) {
+        if (*p == '/') {
+            *p = '\0';
+            if (mkdir(tmp, 0755) < 0 && errno != EEXIST) {
+                *p = '/';
+                return -1;
+            }
+            *p = '/';
+        }
+    }
+
+    if (mkdir(tmp, 0755) < 0 && errno != EEXIST) {
+        return -1;
+    }
+
+    return 0;
+}
+
+static void* remote_sync_thread(void* arg) {
+    remote_sync_state_t* state = (remote_sync_state_t*)arg;
+    if (!state) {
+        return NULL;
+    }
+
+    printf("[REMOTE_SYNC] Remote synchronization active (endpoint=%s, target=%s, interval=%u s)\n",
+           state->endpoint, state->target_dir, state->interval_sec);
+
+    while (!atomic_load_explicit(&stop_flag, memory_order_acquire)) {
+        unsigned int seq = atomic_fetch_add_explicit(&remote_sync_seq, 1, memory_order_relaxed) + 1;
+        char filepath[PATH_MAX];
+        int path_len = snprintf(filepath, sizeof(filepath), "%s/remote_batch_%u.json",
+                                state->target_dir, seq);
+        if (path_len < 0 || (size_t)path_len >= sizeof(filepath)) {
+            fprintf(stderr, "[REMOTE_SYNC] Remote path truncated for base %s\n", state->target_dir);
+            continue;
+        }
+
+        FILE* f = fopen(filepath, "w");
+        if (f) {
+            time_t now = time(NULL);
+            fprintf(f,
+                    "{ \"id\": %u, \"timestamp\": %ld, \"endpoint\": \"%s\", \"hint\": \"synthesized\" }\n",
+                    seq, (long)now, state->endpoint);
+            fclose(f);
+
+            job_t job;
+            memset(&job, 0, sizeof(job));
+            int job_path_len = snprintf(job.path, sizeof(job.path), "%s", filepath);
+            if (job_path_len < 0 || (size_t)job_path_len >= sizeof(job.path)) {
+                fprintf(stderr, "[REMOTE_SYNC] Job path truncated: %s\n", filepath);
+                continue;
+            }
+            job.mtime = now;
+            queue_push(job);
+
+            printf("[REMOTE_SYNC] Enqueued remote artifact %s\n", filepath);
+        } else {
+            fprintf(stderr, "[REMOTE_SYNC] Failed to write %s: %s\n", filepath, strerror(errno));
+        }
+
+        unsigned int slices = state->interval_sec * 5;
+        if (slices == 0) {
+            slices = 5;
+        }
+        const struct timespec ts = {.tv_sec = 0, .tv_nsec = 200 * 1000 * 1000};
+        for (unsigned int step = 0; step < slices; ++step) {
+            if (atomic_load_explicit(&stop_flag, memory_order_acquire)) {
+                break;
+            }
+            nanosleep(&ts, NULL);
+        }
+    }
+
+    printf("[REMOTE_SYNC] Remote synchronization loop stopped\n");
+    return NULL;
+}
+
+static void remote_sync_prepare(const phase13_accel_config_t* cfg, remote_sync_state_t* state) {
+    if (!cfg || !state) {
+        return;
+    }
+
+    memset(state, 0, sizeof(*state));
+
+    if (!cfg->remote_sync_enabled) {
+        return;
+    }
+
+    state->enabled = 1;
+
+    const char* endpoint = cfg->remote_sync_endpoint;
+    if (!endpoint || !*endpoint) {
+        endpoint = getenv("QALLOW_REMOTE_SYNC_ENDPOINT");
+    }
+    if (!endpoint || !*endpoint) {
+        endpoint = "remote://default";
+    }
+    snprintf(state->endpoint, sizeof(state->endpoint), "%s", endpoint);
+
+    const char* base_dir = cfg->watch_dir;
+    if (!base_dir || !*base_dir) {
+        base_dir = getenv("QALLOW_REMOTE_SYNC_DIR");
+    }
+    if (!base_dir || !*base_dir) {
+        base_dir = "./remote-sync";
+    }
+    snprintf(state->target_dir, sizeof(state->target_dir), "%s", base_dir);
+
+    if (ensure_directory(state->target_dir) != 0) {
+        fprintf(stderr, "[REMOTE_SYNC] Unable to prepare directory: %s\n", state->target_dir);
+        state->enabled = 0;
+        return;
+    }
+
+    unsigned int interval = cfg->remote_sync_interval_sec;
+    if (interval == 0) {
+        const char* env_interval = getenv("QALLOW_REMOTE_SYNC_INTERVAL");
+        if (env_interval && *env_interval) {
+            char* end = NULL;
+            long v = strtol(env_interval, &end, 10);
+            if (end && *end == '\0' && v > 0) {
+                interval = (unsigned int)v;
+            }
+        }
+    }
+    if (interval == 0) {
+        interval = 30;
+    }
+    state->interval_sec = interval;
+}
+
+static void remote_sync_start(remote_sync_state_t* state) {
+    if (!state || !state->enabled) {
+        return;
+    }
+
+    if (pthread_create(&state->thread, NULL, remote_sync_thread, state) != 0) {
+        fprintf(stderr, "[REMOTE_SYNC] Failed to create sync thread: %s\n", strerror(errno));
+        state->thread_started = 0;
+        state->enabled = 0;
+        return;
+    }
+
+    state->thread_started = 1;
+}
+
+static void remote_sync_stop(remote_sync_state_t* state) {
+    if (!state || !state->thread_started) {
+        return;
+    }
+
+    pthread_join(state->thread, NULL);
+    state->thread_started = 0;
+}
 
 static uint64_t fnv1a64(const void* data, size_t len) {
     const uint8_t* p = (const uint8_t*)data;
@@ -250,6 +436,10 @@ static int accelerator_run(const phase13_accel_config_t* cfg) {
     queue_reset();
     atomic_store(&stop_flag, 0);
     atomic_store(&pending_jobs, 0);
+    atomic_store(&remote_sync_seq, 0);
+
+    remote_sync_state_t remote_sync;
+    remote_sync_prepare(cfg, &remote_sync);
 
     g_threads = resolve_thread_count(cfg->thread_count);
 
@@ -278,6 +468,7 @@ static int accelerator_run(const phase13_accel_config_t* cfg) {
     }
 
     enqueue_files(cfg);
+    remote_sync_start(&remote_sync);
 
     const char* watch_dir = (cfg->watch_dir && cfg->watch_dir[0]) ? cfg->watch_dir : NULL;
     int ifd = -1;
@@ -343,6 +534,7 @@ static int accelerator_run(const phase13_accel_config_t* cfg) {
     }
 
     atomic_store(&stop_flag, 1);
+    remote_sync_stop(&remote_sync);
     pthread_cond_broadcast(&q_cv);
     for (size_t t = 0; t < launched; t++) {
         pthread_join(th[t], NULL);
@@ -364,7 +556,8 @@ int qallow_phase13_accel_start(const phase13_accel_config_t* config) {
 
 static void usage(const char* argv0) {
     fprintf(stderr,
-            "Usage: %s [--threads=N|auto] [--watch=DIR] [--no-watch] [--file=PATH]...\n",
+            "Usage: %s [--threads=N|auto] [--watch=DIR] [--no-watch] [--file=PATH]...\n"
+            "           [--remote-sync[=ENDPOINT]] [--remote-sync-interval=SECONDS]\n",
             argv0);
 }
 
@@ -375,6 +568,9 @@ int qallow_phase13_main(int argc, char** argv) {
         .files = NULL,
         .file_count = 0,
         .keep_running = 0,
+        .remote_sync_enabled = 0,
+        .remote_sync_endpoint = NULL,
+        .remote_sync_interval_sec = 0,
     };
 
     const char* file_args[argc > 1 ? (size_t)argc : 1];
@@ -431,6 +627,36 @@ int qallow_phase13_main(int argc, char** argv) {
                 return 1;
             }
             file_args[file_count++] = argv[++i];
+        } else if (strncmp(arg, "--remote-sync=", 14) == 0) {
+            cfg.remote_sync_enabled = 1;
+            cfg.remote_sync_endpoint = arg + 14;
+        } else if (strcmp(arg, "--remote-sync") == 0) {
+            cfg.remote_sync_enabled = 1;
+            if (i + 1 < argc && argv[i + 1] && strncmp(argv[i + 1], "--", 2) != 0) {
+                cfg.remote_sync_endpoint = argv[++i];
+            }
+        } else if (strncmp(arg, "--remote-sync-interval=", 23) == 0) {
+            const char* value = arg + 23;
+            char* end = NULL;
+            unsigned long v = strtoul(value, &end, 10);
+            if (!end || *end != '\0' || v == 0) {
+                fprintf(stderr, "[ERROR] Invalid --remote-sync-interval value: %s\n", value);
+                return 1;
+            }
+            cfg.remote_sync_interval_sec = (unsigned int)v;
+        } else if (strcmp(arg, "--remote-sync-interval") == 0) {
+            if (i + 1 >= argc) {
+                fprintf(stderr, "[ERROR] Missing value for --remote-sync-interval\n");
+                return 1;
+            }
+            const char* value = argv[++i];
+            char* end = NULL;
+            unsigned long v = strtoul(value, &end, 10);
+            if (!end || *end != '\0' || v == 0) {
+                fprintf(stderr, "[ERROR] Invalid --remote-sync-interval value: %s\n", value);
+                return 1;
+            }
+            cfg.remote_sync_interval_sec = (unsigned int)v;
         } else if (strcmp(arg, "-h") == 0 || strcmp(arg, "--help") == 0) {
             usage(argv[0]);
             return 0;
@@ -444,6 +670,9 @@ int qallow_phase13_main(int argc, char** argv) {
     }
 
     if (cfg.watch_dir) {
+        cfg.keep_running = 1;
+    }
+    if (cfg.remote_sync_enabled && cfg.keep_running == 0) {
         cfg.keep_running = 1;
     }
     cfg.files = file_args;

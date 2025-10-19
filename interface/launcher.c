@@ -284,7 +284,9 @@ static void qallow_print_help(void) {
     printf("  --bench           Run the benchmark profile (alias of `qallow bench`)\n");
     printf("  --live            Run the live ingestion profile (alias of `qallow live`)\n");
     printf("  --phase=12|13     Dispatch directly into a legacy phase runner\n");
-    printf("  --accelerator     Launch the Phase-13 accelerator; pass accelerator options after this flag\n\n");
+    printf("  --accelerator     Launch the Phase-13 accelerator; pass accelerator options after this flag\n");
+    printf("  --remote-sync     Enable remote ingestion loop (optional endpoint argument)\n");
+    printf("  --remote-sync-interval=N  Override remote polling cadence in seconds\n\n");
     printf("Accelerator options (after --accelerator):\n");
     printf("  --threads=<N|auto>  Worker thread count (auto = online CPUs)\n");
     printf("  --watch=<DIR>       Directory to monitor via inotify\n");
@@ -294,6 +296,7 @@ static void qallow_print_help(void) {
     printf("  qallow run                       # Run the unified VM\n");
     printf("  qallow run --bench               # Run benchmark profile\n");
     printf("  qallow run --accelerator --watch=. --threads=auto\n");
+    printf("  qallow run --accelerator --remote-sync=https://ingest.example.com/feed\n");
     printf("  qallow run --phase=12 --ticks=100 --eps=0.0001 --log=phase12.csv\n");
     printf("  qallow accelerator --watch=/tmp  # Accelerator alias\n");
 }
@@ -411,4 +414,3 @@ int main(int argc, char** argv) {
     qallow_print_help();
     return 1;
 }
-

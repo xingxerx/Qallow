@@ -31,6 +31,14 @@ spec:
           env:
             - name: QALLOW_METRICS_PORT
               value: "8080"
+            - name: NVIDIA_VISIBLE_DEVICES
+              value: all
+            - name: NVIDIA_DRIVER_CAPABILITIES
+              value: compute,utility
+            - name: CUDA_VISIBLE_DEVICES
+              value: "0"
+            - name: QALLOW_ENABLE_CUDA
+              value: auto
           resources:
             limits:
               cpu: "6"

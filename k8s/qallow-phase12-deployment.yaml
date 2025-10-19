@@ -27,7 +27,7 @@ metadata:
   namespace: qallow
   labels:
     app: qallow-phase12
-    phase: 12
+    phase: "12"
     component: elasticity
 spec:
   replicas: 3
@@ -43,7 +43,7 @@ spec:
     metadata:
       labels:
         app: qallow-phase12
-        phase: 12
+        phase: "12"
         component: elasticity
       annotations:
         prometheus.io/scrape: "true"
@@ -150,7 +150,7 @@ metadata:
   namespace: qallow
   labels:
     app: qallow-phase12
-    phase: 12
+    phase: "12"
 spec:
   type: ClusterIP
   selector:
@@ -166,7 +166,7 @@ spec:
     protocol: TCP
 
 ---
-apiVersion: autoscaling.k8s.io/v2
+apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: qallow-phase12-hpa

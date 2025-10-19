@@ -13,4 +13,4 @@ data:
       - job_name: qallow
         static_configs:
           - targets:
-              - qallow-service:8080
+            - qallow-service:8080
