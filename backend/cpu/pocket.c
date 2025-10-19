@@ -73,8 +73,6 @@ double pocket_merge(pocket_dimension_t* pd) {
     double total_memory = 0.0;
     double peak_memory = 0.0;
 
-    printf("[POCKET] Merging %d pocket results...\n", pd->count);
-
     for (int i = 0; i < pd->count; i++) {
         if (!pd->pockets[i].active) continue;
 
@@ -97,12 +95,6 @@ double pocket_merge(pocket_dimension_t* pd) {
     if (peak_memory > pd->memory_peak_mb) {
         pd->memory_peak_mb = peak_memory;
     }
-
-    printf("[POCKET] Merged score: %.4f\n", pd->merged_score);
-    printf("[POCKET] Average coherence: %.4f\n", pd->average_coherence);
-    printf("[POCKET] Average decoherence: %.5f\n", pd->average_decoherence);
-    printf("[POCKET] Memory usage: %.2f MB (peak %.2f MB)\n",
-           pd->memory_usage_mb, pd->memory_peak_mb);
 
     return pd->merged_score;
 }
