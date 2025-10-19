@@ -1,0 +1,27 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: qallow-alert-rules
+  labels:
+    prometheus: k8s
+    role: alert-rules
+spec:
+  groups:
+    - name: qallow.rules
+      rules:
+        - alert: QallowEthicsBreach
+          expr: qallow_ethics_integrity < 0.98
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Qallow ethics integrity below threshold"
+            description: "Ethics integrity has fallen below 0.98 for more than 2 minutes."
+        - alert: QallowHighEntropy
+          expr: qallow_entropy_factor > 2.5
+          for: 2m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Qallow entropy factor high"
+            description: "Entropy factor exceeded 2.5 for more than 2 minutes."

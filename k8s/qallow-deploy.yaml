@@ -1,0 +1,87 @@
+# kubectl apply -f https://raw.githubusercontent.com/NVIDIA/k8s-device-plugin/v0.16.0/nvidia-device-plugin.yml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: qallow-core
+  labels:
+    app: qallow-core
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: qallow-core
+  template:
+    metadata:
+      labels:
+        app: qallow-core
+    spec:
+      containers:
+        - name: qallow-core
+          image: qallow/unified:latest
+          imagePullPolicy: IfNotPresent
+          command:
+            - ./build/qallow_unified_cuda
+            - --accelerator
+            - --audit
+          ports:
+            - containerPort: 8080
+          env:
+            - name: QALLOW_METRICS_PORT
+              value: "8080"
+          resources:
+            limits:
+              cpu: "6"
+              memory: 12Gi
+              nvidia.com/gpu: "1"
+            requests:
+              cpu: "6"
+              memory: 12Gi
+              nvidia.com/gpu: "1"
+          volumeMounts:
+            - name: qallow-logs
+              mountPath: /logs
+      volumes:
+        - name: qallow-logs
+          persistentVolumeClaim:
+            claimName: qallow-logs-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: qallow-service
+  labels:
+    app: qallow-core
+spec:
+  selector:
+    app: qallow-core
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+  type: ClusterIP
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: qallow-telemetry-upload
+spec:
+  schedule: "*/30 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: telemetry-uploader
+              image: qallow/unified:latest
+              command:
+                - python3
+                - python/collect_signals.py
+                - --upload
+              volumeMounts:
+                - name: telemetry-logs
+                  mountPath: /workspace/data
+          volumes:
+            - name: telemetry-logs
+              persistentVolumeClaim:
+                claimName: qallow-logs-pvc
