@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdatomic.h>
+#include <stdarg.h>
 #include <errno.h>
 #include <limits.h>
 #include <time.h>
@@ -64,6 +65,7 @@ static pthread_cond_t q_cv = PTHREAD_COND_INITIALIZER;
 static atomic_int stop_flag = 0;
 static atomic_uint pending_jobs = 0;
 static atomic_uint remote_sync_seq = 0;
+static int g_quiet = 0;
 
 static void queue_push(job_t j);
 
@@ -75,6 +77,16 @@ typedef struct remote_sync_state_s {
     char target_dir[PATH_MAX];
     unsigned int interval_sec;
 } remote_sync_state_t;
+
+static void qallow_infof(const char* fmt, ...) {
+    if (g_quiet) {
+        return;
+    }
+    va_list args;
+    va_start(args, fmt);
+    vfprintf(stdout, fmt, args);
+    va_end(args);
+}
 
 static int ensure_directory(const char* path) {
     if (!path || !*path) {
@@ -114,12 +126,12 @@ static int ensure_directory(const char* path) {
 
 static void* remote_sync_thread(void* arg) {
     remote_sync_state_t* state = (remote_sync_state_t*)arg;
-    if (!state) {
+   if (!state) {
         return NULL;
     }
 
-    printf("[REMOTE_SYNC] Remote synchronization active (endpoint=%s, target=%s, interval=%u s)\n",
-           state->endpoint, state->target_dir, state->interval_sec);
+    qallow_infof("[REMOTE_SYNC] Remote synchronization active (endpoint=%s, target=%s, interval=%u s)\n",
+                 state->endpoint, state->target_dir, state->interval_sec);
 
     while (!atomic_load_explicit(&stop_flag, memory_order_acquire)) {
         unsigned int seq = atomic_fetch_add_explicit(&remote_sync_seq, 1, memory_order_relaxed) + 1;
@@ -149,7 +161,7 @@ static void* remote_sync_thread(void* arg) {
             job.mtime = now;
             queue_push(job);
 
-            printf("[REMOTE_SYNC] Enqueued remote artifact %s\n", filepath);
+            qallow_infof("[REMOTE_SYNC] Enqueued remote artifact %s\n", filepath);
         } else {
             fprintf(stderr, "[REMOTE_SYNC] Failed to write %s: %s\n", filepath, strerror(errno));
         }
@@ -167,7 +179,7 @@ static void* remote_sync_thread(void* arg) {
         }
     }
 
-    printf("[REMOTE_SYNC] Remote synchronization loop stopped\n");
+    qallow_infof("[REMOTE_SYNC] Remote synchronization loop stopped\n");
     return NULL;
 }
 
@@ -377,7 +389,7 @@ static void analyze_and_cache(const char* path, time_t mt) {
     snprintf(key, sizeof(key), "%s|%ld", path, (long)mt);
     char hit[QALLOW_VAL_MAX];
     if (cache_get(key, hit, sizeof(hit))) {
-        printf("[Qallow] cache hit: %s -> %s\n", path, hit);
+        qallow_infof("[Qallow] cache hit: %s -> %s\n", path, hit);
         return;
     }
     // heavy work placeholder
@@ -386,7 +398,7 @@ static void analyze_and_cache(const char* path, time_t mt) {
     char val[QALLOW_VAL_MAX];
     snprintf(val, sizeof(val), "hint:%08lx", (unsigned long)fnv1a64(path, strlen(path)));
     cache_put(key, val);
-    printf("[Qallow] cached: %s -> %s\n", path, val);
+    qallow_infof("[Qallow] cached: %s -> %s\n", path, val);
 }
 
 static void* worker(void* arg) {
@@ -496,7 +508,7 @@ static int accelerator_run(const phase13_accel_config_t* cfg) {
                     ifd = -1;
                     watch_dir = NULL;
                 } else {
-                    printf("[Qallow] watching: %s\n", watch_dir);
+                    qallow_infof("[Qallow] watching: %s\n", watch_dir);
                 }
             }
         }
@@ -557,7 +569,7 @@ int qallow_phase13_accel_start(const phase13_accel_config_t* config) {
 static void usage(const char* argv0) {
     fprintf(stderr,
             "Usage: %s [--threads=N|auto] [--watch=DIR] [--no-watch] [--file=PATH]...\n"
-            "           [--remote-sync[=ENDPOINT]] [--remote-sync-interval=SECONDS]\n",
+            "           [--remote-sync[=ENDPOINT]] [--remote-sync-interval=SECONDS] [--quiet]\n",
             argv0);
 }
 
@@ -572,6 +584,11 @@ int qallow_phase13_main(int argc, char** argv) {
         .remote_sync_endpoint = NULL,
         .remote_sync_interval_sec = 0,
     };
+
+    const char* quiet_env = getenv("QALLOW_QUIET");
+    if (quiet_env && quiet_env[0] != '\0' && quiet_env[0] != '0') {
+        g_quiet = 1;
+    }
 
     const char* file_args[argc > 1 ? (size_t)argc : 1];
     size_t file_count = 0;
@@ -657,6 +674,8 @@ int qallow_phase13_main(int argc, char** argv) {
                 return 1;
             }
             cfg.remote_sync_interval_sec = (unsigned int)v;
+        } else if (strcmp(arg, "--quiet") == 0 || strcmp(arg, "-q") == 0) {
+            g_quiet = 1;
         } else if (strcmp(arg, "-h") == 0 || strcmp(arg, "--help") == 0) {
             usage(argv[0]);
             return 0;

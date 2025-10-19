@@ -63,6 +63,8 @@ set(QALLOW_BACKEND_CPU_SOURCES
     backend/cpu/ingest.c
     backend/cpu/multi_pocket.c
     backend/cpu/overlay.c
+    backend/cpu/phase14_entanglement.c
+    backend/cpu/phase15_singularity.c
     backend/cpu/phase12_elasticity.c
     backend/cpu/phase13_harmonic.c
     backend/cpu/phase7_core.c
@@ -87,6 +89,7 @@ target_link_libraries(qallow_backend_cpu
         Threads::Threads
         m
 )
+target_compile_definitions(qallow_backend_cpu PUBLIC QALLOW_PHASE13_EMBEDDED)
 target_include_directories(qallow_backend_cpu PUBLIC ${QALLOW_INCLUDE_DIRS})
 
 set(QALLOW_RUNTIME_SOURCES
@@ -161,7 +164,10 @@ install(TARGETS qallow qallow_unified
 )
 
 # Examples and benchmarks
-add_executable(qallow_throughput_bench examples/benchmarks/throughput_bench.c)
+add_executable(qallow_throughput_bench
+    examples/benchmarks/throughput_bench.c
+    interface/main.c
+)
 target_link_libraries(qallow_throughput_bench
     PRIVATE
         qallow_runtime
@@ -204,7 +210,10 @@ add_executable(qallow_unit_ethics tests/unit/test_ethics_core.c)
 target_link_libraries(qallow_unit_ethics PRIVATE qallow_algorithms m)
 add_test(NAME unit_ethics_core COMMAND qallow_unit_ethics)
 
-add_executable(qallow_integration_smoke tests/integration/test_vm_smoke.c)
+add_executable(qallow_integration_smoke
+    tests/integration/test_vm_smoke.c
+    interface/main.c
+)
 target_link_libraries(qallow_integration_smoke
     PRIVATE
         qallow_backend_cpu
