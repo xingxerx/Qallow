@@ -1,3 +1,5 @@
+#define _POSIX_C_SOURCE 199309L
+
 #include "qallow_kernel.h"
 #include "ppai.h"
 #include "qcp.h"
@@ -14,6 +16,8 @@
 #include <time.h>
 #include <string.h>
 #include <stdlib.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 // Main application entry point for Qallow VM
 // Supports both CUDA and CPU execution with unified telemetry and adaptive learning
@@ -120,6 +124,12 @@ int qallow_vm_main(void) {
     print_system_info(&state);
     printf("[MAIN] Starting VM execution loop...\n\n");
 
+    pocket_dimension_t pocket_dim;
+    pocket_spawn(&pocket_dim, 4);
+
+    mkdir("data", 0755);
+    mkdir("data/telemetry", 0755);
+
     // Initialize CSV logging from environment
     const char* csv_log_path = getenv("QALLOW_LOG");
     if (csv_log_path) {
@@ -133,6 +143,13 @@ int qallow_vm_main(void) {
         // Run kernel tick
         qallow_kernel_tick(&state);
 
+        // Update pocket dimension telemetry every 5 ticks
+        if (tick % 5 == 0) {
+            pocket_tick_all(&pocket_dim);
+            pocket_merge(&pocket_dim);
+            pocket_capture_metrics(&pocket_dim, tick);
+        }
+
         // Compute ethics
         ethics_state_t ethics_state;
         qallow_ethics_check(&state, &ethics_state);
@@ -143,18 +160,22 @@ int qallow_vm_main(void) {
         }
 
         // Dashboard every 100 ticks
-        if (tick % 100 == 0) {
+        if (tick % 50 == 0) {
             qallow_print_dashboard(&state, &ethics_state);
         }
 
         // Check for equilibrium
-        if (state.decoherence_level < 0.0001f) {
+        if (state.decoherence_level < 0.0001f && tick > 200) {
             printf("\n[KERNEL] System reached stable equilibrium at tick %d\n", tick);
             break;
         }
+
+        struct timespec ts = {0, 20000000};
+        nanosleep(&ts, NULL);
     }
 
     // Cleanup
+    pocket_cleanup(&pocket_dim);
     if (csv_log_path) {
         qallow_csv_log_close();
         printf("\n[CSV] Log file closed\n");

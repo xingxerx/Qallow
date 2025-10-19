@@ -53,6 +53,19 @@ Architecture: CPU + CUDA + Ethics
 watch -n 1 nvidia-smi
 ```
 
+### Optional UI Monitor
+```bash
+python3 ui/qallow_monitor.py
+```
+
+The monitor window launches a separate process with three buttons:
+
+- **Build CUDA** – runs `scripts/build_unified_cuda.sh`
+- **Run CUDA Binary** – executes `build/qallow_unified_cuda`
+- **Run Accelerator** – invokes `scripts/run_auto.sh --watch=$(pwd)`
+
+Command output is streamed into the UI without blocking the underlying tasks, so it stays light-weight and does not interfere with GPU workloads.
+
 ---
 
 ## Execution Modes

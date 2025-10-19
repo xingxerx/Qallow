@@ -27,6 +27,7 @@ NC='\033[0m'
 # Create build directory
 mkdir -p "$BUILD_DIR"
 mkdir -p "data/telemetry"
+rm -f "$BUILD_DIR"/*.o 2>/dev/null
 
 echo -e "${BLUE}[1/7]${NC} Checking dependencies..."
 

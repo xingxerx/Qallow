@@ -7,9 +7,5 @@
   "codeActionsOnSave": {
     "source.fixAll": "always"
   },
-  "terminal.integrated.defaultProfile.linux": "bash",
-  "terminal.integrated.env.linux": {
-    "LANG": "C.UTF-8",
-    "LC_ALL": "C.UTF-8"
-  }
+  "terminal.integrated.defaultProfile.linux": "bash"
 }
