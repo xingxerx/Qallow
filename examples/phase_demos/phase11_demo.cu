@@ -1,6 +1,6 @@
 #include "phase_demo_common.cuh"
-#include "logging.h"
-#include "profiling.h"
+#include "qallow/logging.h"
+#include "qallow/profiling.h"
 
 #include <cstdlib>
 
@@ -11,14 +11,16 @@ int main(int argc, char** argv) {
     }
 
     qallow_logging_init();
-    QALLOW_PROFILE_SCOPE("phase11_demo");
-    int rc = run_phase_demo_kernel(11, ticks);
+    int rc = 0;
+    QALLOW_PROFILE_SCOPE("phase11_demo") {
+        rc = run_phase_demo_kernel(11, ticks);
+    }
     if (rc != 0) {
-        qallow_log_error("examples.phase11.fail", "code", rc);
+        qallow_log_error("examples.phase11.fail", "code=%d", rc);
         return rc;
     }
 
-    qallow_log_info("examples.phase11.ok", "ticks", ticks);
+    qallow_log_info("examples.phase11.ok", "ticks=%d", ticks);
     qallow_logging_flush();
     return 0;
 }
