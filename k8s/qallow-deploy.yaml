@@ -3,6 +3,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: qallow-core
+  namespace: qallow
   labels:
     app: qallow-core
 spec:
@@ -15,14 +16,16 @@ spec:
       labels:
         app: qallow-core
     spec:
+      serviceAccountName: qallow-sa
       containers:
         - name: qallow-core
           image: qallow/unified:latest
           imagePullPolicy: IfNotPresent
           command:
-            - ./build/qallow_unified_cuda
+            - /opt/qallow/build/qallow
+          args:
             - --accelerator
-            - --audit
+            - --log=/logs/phase13.csv
           ports:
             - containerPort: 8080
           env:
@@ -49,6 +52,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: qallow-service
+  namespace: qallow
   labels:
     app: qallow-core
 spec:
@@ -64,6 +68,7 @@ apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: qallow-telemetry-upload
+  namespace: qallow
 spec:
   schedule: "*/30 * * * *"
   jobTemplate:
@@ -71,12 +76,13 @@ spec:
       template:
         spec:
           restartPolicy: OnFailure
+          serviceAccountName: qallow-sa
           containers:
             - name: telemetry-uploader
               image: qallow/unified:latest
               command:
                 - python3
-                - python/collect_signals.py
+                - /opt/qallow/python/collect_signals.py
                 - --upload
               volumeMounts:
                 - name: telemetry-logs
