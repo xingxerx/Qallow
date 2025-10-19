@@ -86,11 +86,11 @@ spec:
           name: istio-system
   - to:
     - podSelector: {}
-      ports:
-      - protocol: TCP
-        port: 53
-      - protocol: UDP
-        port: 53
+    ports:
+    - protocol: TCP
+      port: 53
+    - protocol: UDP
+      port: 53
 
 ---
 # ResourceQuota for Qallow namespace
@@ -108,11 +108,6 @@ spec:
     pods: "100"
     services: "20"
     persistentvolumeclaims: "10"
-  scopeSelector:
-    matchExpressions:
-    - operator: In
-      scopeName: PriorityClass
-      values: ["high", "medium"]
 
 ---
 # LimitRange for Qallow namespace
