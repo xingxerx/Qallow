@@ -63,11 +63,12 @@ set(QALLOW_BACKEND_CPU_SOURCES
     backend/cpu/ingest.c
     backend/cpu/multi_pocket.c
     backend/cpu/overlay.c
-    backend/cpu/phase14_entanglement.c
-    backend/cpu/phase15_singularity.c
+    backend/cpu/phase14_coherence.c
+    backend/cpu/phase15_convergence.c
     backend/cpu/phase12_elasticity.c
     backend/cpu/phase13_harmonic.c
     backend/cpu/phase7_core.c
+    backend/cpu/lattice_integration.c
     backend/cpu/pocket.c
     backend/cpu/pocket_dimension.c
     backend/cpu/ppai.c
@@ -91,6 +92,13 @@ target_link_libraries(qallow_backend_cpu
 )
 target_compile_definitions(qallow_backend_cpu PUBLIC QALLOW_PHASE13_EMBEDDED)
 target_include_directories(qallow_backend_cpu PUBLIC ${QALLOW_INCLUDE_DIRS})
+
+if(QALLOW_ENABLE_CUDA)
+    target_compile_definitions(qallow_backend_cpu PUBLIC QALLOW_ENABLE_CUDA)
+    target_include_directories(qallow_backend_cpu PUBLIC
+        $<TARGET_PROPERTY:CUDA::cudart,INTERFACE_INCLUDE_DIRECTORIES>
+    )
+endif()
 
 set(QALLOW_RUNTIME_SOURCES
     src/runtime/logging.cpp

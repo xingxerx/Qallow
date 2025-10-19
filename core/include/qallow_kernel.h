@@ -13,6 +13,10 @@
     #include <cuda_runtime.h>
     #include <curand_kernel.h>
     #define CUDA_CALLABLE __device__ __host__
+#elif defined(QALLOW_ENABLE_CUDA)
+    #define CUDA_ENABLED 1
+    #include <cuda_runtime.h>
+    #define CUDA_CALLABLE
 #else
     #define CUDA_ENABLED 0
     #define CUDA_CALLABLE

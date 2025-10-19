@@ -1,5 +1,6 @@
 #include "qallow_phase12.h"
 #include "qallow_phase13.h"
+#include "qallow_integration.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,6 +27,16 @@ int main(int argc, char** argv) {
     const char* phase13_args[] = {"qallow_tests", "phase13", "--nodes=8", "--ticks=50", "--k=0.001"};
     if (qallow_phase13_runner(5, (char**)phase13_args) != 0) {
         fprintf(stderr, "[integration] phase13 runner failed\n");
+        return EXIT_FAILURE;
+    }
+
+    qallow_lattice_config_t lattice_cfg;
+    qallow_lattice_config_init(&lattice_cfg);
+    lattice_cfg.ticks = 32;
+    lattice_cfg.no_split = true;
+    lattice_cfg.print_summary = false;
+    if (qallow_lattice_integrate(&lattice_cfg) != 0) {
+        fprintf(stderr, "[integration] unified lattice integration failed\n");
         return EXIT_FAILURE;
     }
 

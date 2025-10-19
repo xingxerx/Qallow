@@ -1,3 +1,7 @@
 {
-  "previous_reward": -0.00988938766715361
+  "target_ms": 50.0,
+  "last_run_ms": 0.0,
+  "threads": 4,
+  "learning_rate": 0.0036,
+  "human_score": 0.81
 }

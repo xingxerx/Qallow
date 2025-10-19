@@ -17,8 +17,6 @@
 #include "phase12.h"
 #include "qallow_phase12.h"
 #include "qallow_phase13.h"
-#include "qallow_phase14.h"
-#include "qallow_phase15.h"
 #include <time.h>
 #include <string.h>
 #include <stdlib.h>
@@ -47,7 +45,7 @@ static void print_system_info(const qallow_state_t* state) {
         int device_count;
         cudaGetDeviceCount(&device_count);
         
-        cudaDeviceProp prop;
+        struct cudaDeviceProp prop;
         cudaGetDeviceProperties(&prop, state->gpu_device_id);
         
         printf("[CUDA] GPU: %s\n", prop.name);
@@ -146,18 +144,6 @@ int qallow_vm_main(void) {
     qallow_log_info("vm", "mode=%s", state.cuda_enabled ? "cuda" : "cpu");
     printf("[MAIN] Starting VM execution loop...\n\n");
 
-    phase14_config_t phase14_cfg;
-    phase14_status_t phase14_status;
-    phase14_config_default(&phase14_cfg);
-    memset(&phase14_status, 0, sizeof(phase14_status));
-    phase14_cfg.iterations = 6;
-
-    phase15_config_t phase15_cfg;
-    phase15_status_t phase15_status;
-    phase15_config_default(&phase15_cfg);
-    memset(&phase15_status, 0, sizeof(phase15_status));
-    phase15_cfg.review_passes = 2;
-
     pocket_dimension_t pocket_dim;
     pocket_spawn(&pocket_dim, 4);
 
@@ -186,20 +172,6 @@ int qallow_vm_main(void) {
                 pocket_merge(&pocket_dim);
                 pocket_capture_metrics(&pocket_dim, tick);
             }
-        }
-
-        if (tick % 25 == 0) {
-            phase14_entanglement_integrate(&state, &phase14_cfg, &phase14_status);
-        }
-
-        if (tick % 50 == 0) {
-            phase15_singularity_converge(&state, &phase15_cfg, &phase14_status, &phase15_status);
-            qallow_log_info("integration.lattice",
-                            "tick=%d coherence=%.6f audit=%.6f entangle=%.6f",
-                            tick,
-                            state.global_coherence,
-                            phase15_status.audit_score,
-                            phase14_status.entanglement_index);
         }
 
         // Compute ethics

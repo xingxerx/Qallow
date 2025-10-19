@@ -1,6 +1,15 @@
 #include "qallow_kernel.h"
 #include "ethics.h"
+#include "phase14.h"
+#include "phase15.h"
+#include "overlay.h"
 #include <string.h>
+#include <stdio.h>
+
+#if CUDA_ENABLED
+extern void runPhotonicSimulation(double* hostData, int n, unsigned long seed);
+extern void runQuantumOptimizer(double* hostData, int n);
+#endif
 
 // Qallow Kernel - Core VM implementation
 
@@ -35,18 +44,36 @@ void qallow_kernel_init(qallow_state_t* state) {
 #if CUDA_ENABLED
     // Try to initialize CUDA
     int device_count = 0;
-    cudaGetDeviceCount(&device_count);
-    if (device_count > 0) {
+    cudaError_t get_count_err = cudaGetDeviceCount(&device_count);
+    if (get_count_err != cudaSuccess) {
+        fprintf(stderr, "[CUDA] cudaGetDeviceCount failed: %s\n", cudaGetErrorString(get_count_err));
+    } else if (device_count > 0) {
         state->cuda_enabled = true;
         qallow_cuda_init(state);
     }
+    else {
+        fprintf(stderr, "[CUDA] No CUDA devices detected.\n");
+    }
 #endif
+
+    phase14_initialize(state);
+    phase15_initialize(state);
 }
 
 void qallow_kernel_tick(qallow_state_t* state) {
     if (!state) return;
 
     state->tick_count++;
+
+#if CUDA_ENABLED
+    if (state->cuda_enabled) {
+        qallow_cuda_process_overlays(state);
+    } else {
+        qallow_cpu_process_overlays(state);
+    }
+#else
+    qallow_cpu_process_overlays(state);
+#endif
 
     // Update decoherence
     qallow_update_decoherence(state);
@@ -66,6 +93,9 @@ void qallow_kernel_tick(qallow_state_t* state) {
     predictive_control(state);
     adaptive_governance(state);
     temporal_alignment(state, pred, qallow_global_stability(state));
+
+    phase14_tick(state);
+    phase15_tick(state);
 }
 
 // qallow_calculate_stability moved to header as inline function
@@ -149,17 +179,58 @@ void qallow_cpu_process_overlays(qallow_state_t* state) {
 #if CUDA_ENABLED
 void qallow_cuda_init(qallow_state_t* state) {
     if (!state) return;
-    // CUDA initialization stub
+    state->gpu_device_id = 0;
+    cudaSetDevice(state->gpu_device_id);
 }
 
 void qallow_cuda_cleanup(qallow_state_t* state) {
     if (!state) return;
-    // CUDA cleanup stub
+    (void)state;
+    cudaDeviceSynchronize();
 }
 
 void qallow_cuda_process_overlays(qallow_state_t* state) {
     if (!state) return;
-    // CUDA processing stub
+    
+    double buffer[MAX_NODES];
+
+    overlay_t* orbital = &state->overlays[OVERLAY_ORBITAL];
+    int nodes = orbital->node_count;
+    if (nodes > MAX_NODES) nodes = MAX_NODES;
+    for (int i = 0; i < nodes; i++) {
+        orbital->history[i] = orbital->values[i];
+        buffer[i] = orbital->values[i];
+    }
+    runPhotonicSimulation(buffer, nodes, (unsigned long)(state->tick_count + 1));
+    for (int i = 0; i < nodes; i++) {
+        orbital->values[i] = (float)buffer[i];
+    }
+
+    overlay_t* river = &state->overlays[OVERLAY_RIVER_DELTA];
+    nodes = river->node_count;
+    if (nodes > MAX_NODES) nodes = MAX_NODES;
+    for (int i = 0; i < nodes; i++) {
+        river->history[i] = river->values[i];
+        buffer[i] = river->values[i];
+    }
+    runQuantumOptimizer(buffer, nodes);
+    for (int i = 0; i < nodes; i++) {
+        river->values[i] = (float)buffer[i];
+    }
+
+    overlay_t* mycelial = &state->overlays[OVERLAY_MYCELIAL];
+    nodes = mycelial->node_count;
+    if (nodes > MAX_NODES) nodes = MAX_NODES;
+    for (int i = 0; i < nodes; i++) {
+        mycelial->history[i] = mycelial->values[i];
+        buffer[i] = mycelial->values[i];
+    }
+    runQuantumOptimizer(buffer, nodes);
+    for (int i = 0; i < nodes; i++) {
+        mycelial->values[i] = (float)buffer[i];
+    }
+
+    overlay_apply_interactions(state->overlays, NUM_OVERLAYS);
 }
 #endif
 

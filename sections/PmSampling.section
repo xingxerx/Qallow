@@ -1,0 +1,2864 @@
+Identifier: "PmSampling"
+DisplayName: "PM Sampling"
+Description: "Timeline view of PM metrics sampled periodically over the workload duration. Data is collected across multiple passes. Use this section to understand how workload behavior changes over its runtime."
+Order: 15
+Sets {
+  Identifier: "full"
+}
+Sets {
+  Identifier: "pmsampling"
+}
+
+Filter{
+  VGpu: Platform_NotSupported
+}
+
+Metrics {
+  Metrics {
+    Label: "Elapsed Cycles"
+    Name: "gpc__cycles_elapsed.max"
+  }
+  Metrics {
+    Label: "Duration"
+    Name: "gpu__time_duration.sum"
+  }
+}
+
+Header {
+  Metrics {
+    Label: "Maximum Sampling Interval"
+    Name: "profiler__pmsampler_interval_cycles"
+    Filter {
+      MinArch: CC_75
+      MaxArch: CC_80
+    }
+    Options {
+      Name: "profiler__pmsampler_interval_time"
+      Filter {
+        MinArch: CC_86
+      }
+    }
+  }
+  Metrics {
+    Label: "# Pass Groups"
+    Name: "profiler__pmsampler_pass_groups"
+    Filter {
+      MinArch: CC_75
+    }
+  }
+  Metrics {
+    Label: "Maximum Buffer Size"
+    Name: "profiler__pmsampler_buffer_size_bytes"
+    Filter {
+      MinArch: CC_75
+    }
+  }
+}
+
+Group {
+  Name: "gb100_sampling"
+  SchedulingHints {
+    CtrDomains {
+      Name: "gpu_sm_b"
+      Ctrs: 0xc83feae1569676cb
+      Ctrs: 0x429f51824686c32f
+      Ctrs: 0xf41f22333c586f44
+      Ctrs: 0x70148cb431f9d807
+    }
+    CtrDomains {
+      Name: "gpu_sm_c"
+      Ctrs: 0xff12a10aead6b65b
+      Ctrs: 0x9ad8b1f11f309619
+      Ctrs: 0x7f3ce2c9a5d9e8f8
+      Ctrs: 0x072dfe5865d3d982
+    }
+  }
+}
+
+Group {
+ Name: "gb20x_TriageCompute_sampling"
+ SchedulingHints {
+  CtrDomains {
+   Name: "gpu_gpc_a"
+   Ctrs: 0xc17246f5eabf1db1
+  }
+  CtrDomains {
+   Name: "gpu_gpc_b"
+   Ctrs: 0xbde01cda9c2e3c91
+   Ctrs: 0xfbba2235a39eeb2d
+   Ctrs: 0x3e0489f6be0a8718
+   Ctrs: 0x8ccef71af5614b2c
+   Ctrs: 0x6041ea0bc8f06bb2
+   Ctrs: 0xa98225534007ec88
+   Ctrs: 0x661f688f6adeed10
+   Ctrs: 0xe0acc7742ccd17ab
+   Ctrs: 0x75ef2b41feee802c
+  }
+  CtrDomains {
+   Name: "gpu_pci"
+   Ctrs: 0x6c2070a25be9038e
+   Ctrs: 0x723893df855d223c
+  }
+  CtrDomains {
+   Name: "gpu_syslts_b"
+   Ctrs: 0x98f0e8a8db18d095
+   Ctrs: 0x34550f104f200beb
+   Ctrs: 0x72b96b546923210c
+   Ctrs: 0x5aa55f8e1099821c
+   Ctrs: 0x243710c53afa96b0
+   Ctrs: 0x72a8b368350825ae
+   Ctrs: 0x26b0655089a00917
+   Ctrs: 0xd239b3d1b5007e3b
+   Ctrs: 0x29fba47519d446c6
+   Ctrs: 0x6675168b38414859
+   Ctrs: 0xc0fd3adb06c2617f
+   Ctrs: 0x54ae072db91327e0
+   Ctrs: 0x2a8f2440d04d48a1
+   Ctrs: 0x53849942365c85ac
+   Ctrs: 0xbdd55beb2f2a5648
+   Ctrs: 0x2455b5bfb2f6290f
+   Ctrs: 0x0b4be09ba67d4de7
+   Ctrs: 0xe9bbc7f13aa801d1
+   Ctrs: 0x9be577cb4d8ab856
+   Ctrs: 0x74264fce18b06c5f
+   Ctrs: 0x9d9eb2dd2b443f4e
+  }
+  CtrDomains {
+   Name: "gpu_fe_a"
+   Ctrs: 0x640d5424935188eb
+   Ctrs: 0x5dbfe840eccaa017
+   Ctrs: 0x0959a27dc1c827ee
+   Ctrs: 0x2e53ae27434a312a
+   Ctrs: 0xccef1c7f76476e20
+   Ctrs: 0x430491751baa8038
+   Ctrs: 0x2ba8ee24d9bf2279
+   Ctrs: 0xef7959767f6313ed
+  }
+  CtrDomains {
+   Name: "gpu_fe_b"
+   Ctrs: 0x013f79853a06351e
+   Ctrs: 0x5e44ec34ab3cd78b
+   Ctrs: 0xedb6bbe294529d3e
+   Ctrs: 0xe9144022760a46d6
+   Ctrs: 0x9975202a2a401818
+   Ctrs: 0x3254a62261943b23
+   Ctrs: 0x471bb2986fed034e
+   Ctrs: 0x5fd8ff397c39dcb1
+   Ctrs: 0xc07af7c9dbfb8453
+  }
+  CtrDomains {
+   Name: "gpu_hub_a"
+   Ctrs: 0xfffcefd25dac1747
+  }
+  CtrDomains {
+   Name: "gpu_sm_b"
+   Ctrs: 0xc83feae1569676cb
+   Ctrs: 0x429f51824686c32f
+  }
+  CtrDomains {
+   Name: "gpu_sm_c"
+   Ctrs: 0x8227bfae281d3e2d
+   Ctrs: 0xf392e722c4588bfe
+   Ctrs: 0x9e9c9520011fe254
+  }
+  CtrDomains {
+   Name: "gpu_tpc"
+   Ctrs: 0x6c73780f62fa19a0
+  }
+  CtrDomains {
+   Name: "gpu_tpc_b"
+   Ctrs: 0xeb1d378c39f5c764
+   Ctrs: 0xec99b1a0b25fbb6b
+   Ctrs: 0x51ada8f4d3c53973
+   Ctrs: 0xa2d45eaf7381cede
+   Ctrs: 0x84d4ead75ea4a565
+   Ctrs: 0xbbc540ff619b4660
+   Ctrs: 0xaaf40e282c2bb5d2
+   Ctrs: 0xaa4c5fb820c28a99
+   Ctrs: 0xcb634916d52b7507
+   Ctrs: 0xabafeeec25b774d9
+   Ctrs: 0x5174a52902403d58
+   Ctrs: 0x5dc48fe50dfd2e9c
+   Ctrs: 0x4c1f7d8648c41971
+   Ctrs: 0x31a8514c448ff52f
+   Ctrs: 0xab19d8a90dbeab35
+   Ctrs: 0xf7dacd2ff0ba2495
+   Ctrs: 0x0c4744338fb446a3
+   Ctrs: 0xf4f29376cc3d2819
+   Ctrs: 0x9fa8b8b6219b2ce4
+   Ctrs: 0x125414bfc65220ed
+   Ctrs: 0x6974506b981b7fa8
+   Ctrs: 0x9dc8568128484d26
+   Ctrs: 0x73d5e1f2da79d01a
+   Ctrs: 0xaa7fdacf371ef11e
+   Ctrs: 0x758f64d1fceb684f
+   Ctrs: 0xa5e5ff134fae9681
+   Ctrs: 0xf836d51919682187
+   Ctrs: 0x14626284c93f12ae
+   Ctrs: 0xa6be3b8066672b81
+   Ctrs: 0x4fe854796b3fda1b
+   Ctrs: 0xd1ff2fd5cb9b88be
+   Ctrs: 0xe1c84e23617da163
+   Ctrs: 0x0d85b9c078699859
+   Ctrs: 0xd296c6167543b0b1
+   Ctrs: 0x2848003c2f0f07d9
+   Ctrs: 0x436ecb37193143a6
+   Ctrs: 0x63fd872815d5c8cc
+   Ctrs: 0xf1e1385033fd4683
+   Ctrs: 0xebd78bcf4ccb7a19
+   Ctrs: 0x5ad13043dd41fb52
+   Ctrs: 0xf8654a7557eba4b5
+   Ctrs: 0x2cfb9c7d09fa1659
+   Ctrs: 0xa8bfb5047600932c
+   Ctrs: 0x5ff82f0a63ec3992
+   Ctrs: 0xd41e48bc0520d9ed
+   Ctrs: 0x38777f66802168ee
+   Ctrs: 0xf3caa8776eb01aa1
+   Ctrs: 0x1126e14d39270675
+   Ctrs: 0x4829346a53ffaf45
+   Ctrs: 0x73b8917454652b5e
+   Ctrs: 0xcc5da7ef084539b4
+   Ctrs: 0x6689b560f662b140
+   Ctrs: 0x4f51e1421374a6cd
+   Ctrs: 0xb0025dbffe9343a7
+   Ctrs: 0xb1534e56e990d2c6
+   Ctrs: 0x336f3eb96a6fe895
+   Ctrs: 0x978fa21b74c0b37f
+   Ctrs: 0xe492d756e5be74e6
+   Ctrs: 0x6f39306b0c9b61a2
+   Ctrs: 0x674d298a6407bd74
+   Ctrs: 0x3106f780d4b508a3
+   Ctrs: 0xc369cfd2d73c63ff
+   Ctrs: 0x90543c1c271e6d55
+   Ctrs: 0x7887564ffd8490c5
+   Ctrs: 0x245d320dbf50e08c
+   Ctrs: 0xabb2a84b7acd8354
+   Ctrs: 0x7e11c594458c1303
+   Ctrs: 0xc279142ce1843efa
+   Ctrs: 0x6284ea315d8e098c
+   Ctrs: 0xd6aa4eb67df61322
+   Ctrs: 0x4204f2081462b57f
+   Ctrs: 0xd688d249373210af
+   Ctrs: 0xb49171c0e6ce19af
+   Ctrs: 0x30afd7eb4392e8ec
+   Ctrs: 0xe5e5474d69073c62
+   Ctrs: 0x7b16836ee78574ff
+   Ctrs: 0x54eed214aa61399e
+   Ctrs: 0xb6706327e6437b82
+   Ctrs: 0x52dfd23ef82e9493
+   Ctrs: 0xbf5baddfe8950ca3
+   Ctrs: 0x3ea903da00e4227b
+   Ctrs: 0x4f6328d685b14496
+   Ctrs: 0xd8a73abbc0419d77
+   Ctrs: 0xdff0418723f79c0e
+   Ctrs: 0xe20c3a3108171f36
+   Ctrs: 0x41d90b54064159ff
+   Ctrs: 0xd6239cc0795b1a76
+   Ctrs: 0x0f804245088573b2
+  }
+  CtrDomains {
+   Name: "gpu_fbp_b"
+   Ctrs: 0xce4db9abddb0dd6d
+   Ctrs: 0xf6a3ca4b08d1ccb8
+   Ctrs: 0xd576b4756de0b044
+   Ctrs: 0x6fa4e70678ce5708
+   Ctrs: 0x78ae97c1f2c42fe7
+   Ctrs: 0x1174507292038749
+   Ctrs: 0xb23888a865c7ddac
+   Ctrs: 0x4892683241ca3b3d
+   Ctrs: 0x938dda81684ecf33
+   Ctrs: 0xaf0e6f476686a29c
+   Ctrs: 0x1e8bebe29b31cf23
+   Ctrs: 0x683e052be06c6f75
+   Ctrs: 0x11a1a814c2ae8996
+   Ctrs: 0x67053656f4a09220
+   Ctrs: 0xd595d147103da314
+   Ctrs: 0xd96b94b4c1c9bba6
+   Ctrs: 0x187232075dacc3f9
+   Ctrs: 0x1c85d1bab80e496b
+   Ctrs: 0x9a271bc9d1e6250e
+   Ctrs: 0x1861aa5ae52b3103
+   Ctrs: 0x7197ecd36300ec03
+   Ctrs: 0x2ad5ae63d173a214
+  }
+  CtrDomains {
+   Name: "gpu_fbsp"
+   Ctrs: 0x930d550f361a2eeb
+   Ctrs: 0xe42e76f09e2bbb05
+   Ctrs: 0x7171b3448135ef04
+  }
+  CtrDomains {
+   Name: "gpu_lts"
+   Ctrs: 0x940f35a6e92d62ec
+   Ctrs: 0x466412ec085419f7
+   Ctrs: 0xf07410ab865300db
+  }
+ }
+}
+Body {
+  DisplayName: "Overview"
+  SetDefault: true
+
+  Items {
+    Filter {
+      MinArch: CC_75
+      MaxArch: CC_75
+    }
+    Timeline {
+      MetricGroups {
+        Label: "SM"
+        Expanded: true
+        MetricRows {
+          Metrics {
+            Label: "Average Active Warps Per Cycle"
+            Name: "TPC.TriageA.tpc__warps_active_realtime.avg.per_cycle_active"
+            Groups: "sampling_0"
+            Multiplier: 0.5
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "Total Active Warps Per Cycle"
+            Name: "TPC.TriageA.tpc__warps_active_realtime.sum.per_cycle_active"
+            Groups: "sampling_0"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "SM Active Cycles"
+            Name: "SM.TriageA.sm__cycles_active.avg"
+            Groups: "sampling_0"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "Executed Ipc Active"
+            Name: "SM.TriageA.sm__inst_executed_realtime.avg.per_cycle_active"
+            Groups: "sampling_0"
+          }
+        }
+      }
+
+      MetricGroups {
+        Label: "DRAM"
+        Expanded: true
+        MetricRows {
+          Metrics {
+            Label: "DRAM Throughput"
+            Name: "FBPA.TriageA.dramc__throughput.avg.pct_of_peak_sustained_elapsed"
+            Groups: "sampling_0"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "DRAM Read Bandwidth"
+            Name: "FBPA.TriageA.dramc__read_throughput.avg.pct_of_peak_sustained_elapsed"
+            Groups: "sampling_0"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "DRAM Write Bandwidth"
+            Name: "FBPA.TriageA.dramc__write_throughput.avg.pct_of_peak_sustained_elapsed"
+            Groups: "sampling_0"
+          }
+        }
+      }
+
+      MetricGroups {
+        Label: "L1 Cache"
+        Expanded: true
+        MetricRows {
+          Metrics {
+            Label: "Writeback Throughput"
+            Name: "SM.TriageA.l1tex__lsu_writeback_active.avg"
+            Groups: "sampling_0"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "Hit Rate"
+            Name: "TriageA.l1tex__t_sector_hit_rate_realtime.pct"
+            Groups: "sampling_0"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "Wavefronts (Data)"
+            Name: "SM.TriageA.l1tex__data_pipe_lsu_wavefronts.avg"
+            Groups: "sampling_0"
+          }
+        }
+      }
+    }
+  }
+
+  Items {
+    Filter {
+      MinArch: CC_80
+      MaxArch: CC_80
+    }
+    Timeline {
+      MetricGroups {
+        Label: "Overview"
+        Expanded: true
+        MetricRows {
+          Metrics {
+            Label: "Blocks Launched"
+            Name: "pmsampling:sm__ctas_launched.sum"
+            Groups: "sampling_0"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "SM Active Cycles"
+            Name: "pmsampling:sm__cycles_active.avg"
+            Groups: "sampling_0"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "Executed Ipc Active"
+            Name: "pmsampling:sm__inst_executed_realtime.avg.per_cycle_active"
+            Groups: "sampling_1"
+          }
+        }
+      }
+
+      MetricGroups {
+        Label: "SM"
+        Expanded: true
+        MetricRows {
+          Metrics {
+            Label: "SM Throughput"
+            Name: "pmsampling:sm__inst_executed_realtime.avg.pct_of_peak_sustained_elapsed"
+            Groups: "sampling_1"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "SM ALU Pipe Throughput"
+            Name: "pmsampling:sm__inst_executed_pipe_alu_realtime.avg.pct_of_peak_sustained_elapsed"
+            Groups: "sampling_1"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "SM Tensor Pipe Throughput"
+            Name: "pmsampling:sm__pipe_tensor_cycles_active_realtime.avg.pct_of_peak_sustained_elapsed"
+            Groups: "sampling_1"
+          }
+        }
+      }
+
+      MetricGroups {
+        Label: "DRAM"
+        Expanded: true
+        MetricRows {
+          Metrics {
+            Label: "DRAM Throughput"
+            Name: "pmsampling:dramc__throughput.avg.pct_of_peak_sustained_elapsed"
+            Groups: "sampling_1"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "DRAM Read Throughput"
+            Name: "pmsampling:dramc__read_throughput.avg.pct_of_peak_sustained_elapsed"
+            Groups: "sampling_1"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "DRAM Write Throughput"
+            Name: "pmsampling:dramc__write_throughput.avg.pct_of_peak_sustained_elapsed"
+            Groups: "sampling_1"
+          }
+        }
+      }
+
+
+      MetricGroups {
+        Label: "L1 Cache"
+        Expanded: true
+        MetricRows {
+          Metrics {
+            Label: "L1 Writeback Throughput"
+            Name: "pmsampling:l1tex__lsu_writeback_active.avg.pct_of_peak_sustained_elapsed"
+            Groups: "sampling_1"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "L1 Hit Rate"
+            Name: "pmsampling:l1tex__t_sector_hit_rate.pct"
+            Groups: "sampling_2"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "L1 Wavefronts (Data)"
+            Name: "pmsampling:l1tex__data_pipe_lsu_wavefronts.avg"
+            Groups: "sampling_3"
+          }
+        }
+      }
+    }
+  }
+
+  Items {
+    Filter {
+      Items {
+        MinArch: CC_86
+        MaxArch: CC_86
+      }
+      Items {
+        MinArch: CC_89
+        MaxArch: CC_89
+      }
+    }
+    Timeline {
+      MetricGroups {
+        Label: "Overview"
+        Expanded: true
+        MetricRows {
+          Metrics {
+            Label: "Average Active Warps Per Cycle"
+            Name: "TriageAC.tpc__warps_active_realtime.avg.per_cycle_active"
+            Groups: "sampling_0"
+            Multiplier: 0.5
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "Total Active Warps Per Cycle"
+            Name: "TriageAC.tpc__warps_active_realtime.sum.per_cycle_active"
+            Groups: "sampling_0"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "Blocks Launched"
+            Name: "FE_B.TriageAC.gr__ctas_launched_queue_sync.sum"
+            Groups: "sampling_0"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "SM Active Cycles"
+            Name: "SM_A.TriageAC.sm__cycles_active.avg"
+            Groups: "sampling_0"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "Executed Ipc Active"
+            Name: "SM_A.TriageAC.sm__inst_executed_realtime.avg.per_cycle_active"
+            Groups: "sampling_0"
+          }
+        }
+      }
+
+      MetricGroups {
+        Label: "SM"
+        Expanded: true
+        MetricRows {
+          Metrics {
+            Label: "SM ALU Pipe Throughput"
+            Name: "SM_A.TriageSCG.sm__inst_executed_pipe_alu_realtime.avg.pct_of_peak_sustained_elapsed"
+            Groups: "sampling_0"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "SM FMA Light Pipe Throughput"
+            Name: "SM_C.TriageSCG.smsp__inst_executed_pipe_fmalite.avg.pct_of_peak_sustained_elapsed"
+            Groups: "sampling_0"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "SM FMA Heavy Pipe Throughput"
+            Name: "SM_C.TriageSCG.smsp__inst_executed_pipe_fmaheavy.avg.pct_of_peak_sustained_elapsed"
+            Groups: "sampling_0"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "SM Tensor Pipe Throughput"
+            Name: "pmsampling:sm__pipe_tensor_cycles_active_realtime.avg.pct_of_peak_sustained_elapsed"
+            Groups: "sampling_0"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "SM XU Pipe Throughput"
+            Name: "pmsampling:sm__inst_executed_pipe_xu_realtime.avg.pct_of_peak_sustained_elapsed"
+            Groups: "sampling_0"
+          }
+        }
+      }
+
+      MetricGroups {
+        Label: "DRAM"
+        Expanded: true
+        MetricRows {
+          Metrics {
+            Label: "DRAM Throughput"
+            Name: "FBSP.TriageSCG.dramc__throughput.avg.pct_of_peak_sustained_elapsed"
+            Groups: "sampling_0"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "DRAM Read Bandwidth"
+            Name: "FBSP.TriageSCG.dramc__read_throughput.avg.pct_of_peak_sustained_elapsed"
+            Groups: "sampling_0"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "DRAM Write Bandwidth"
+            Name: "FBSP.TriageSCG.dramc__write_throughput.avg.pct_of_peak_sustained_elapsed"
+            Groups: "sampling_0"
+          }
+        }
+      }
+
+      MetricGroups {
+        Label: "L2 Cache"
+        Expanded: true
+        MetricRows {
+          Metrics {
+            Label: "L2 Throughput"
+            Name: "LTS.TriageSCG.lts__throughput.avg.pct_of_peak_sustained_elapsed"
+            Groups: "sampling_2"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "L2 Hit Rate"
+            Name: "LTS.TriageSCG.lts__average_t_sector_hit_rate_realtime.pct"
+            Groups: "sampling_2"
+          }
+        }
+      }
+
+      MetricGroups {
+        Label: "L1 Cache"
+        Expanded: true
+        MetricRows {
+          Metrics {
+            Label: "L1 Throughput"
+            Name: "SM_A.TriageSCG.l1tex__throughput.avg.pct_of_peak_sustained_elapsed"
+            Groups: "sampling_2"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "L1 Writeback Throughput"
+            Name: "SM_A.TriageAC.l1tex__lsu_writeback_active.avg"
+            Groups: "sampling_2"
+            CtrDomains: "gpu_sm_a"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "L1 Hit Rate"
+            Name: "SM_B.TriageAC.l1tex__t_sector_hit_rate.pct"
+            Groups: "sampling_2"
+            CtrDomains: "gpu_sm_b"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "L1 Wavefronts (Data)"
+            Name: "SM_A.TriageAC.l1tex__data_pipe_lsu_wavefronts.avg"
+            Groups: "sampling_2"
+            CtrDomains: "gpu_sm_a"
+          }
+        }
+      }
+    }
+  }
+
+  Items {
+    Filter {
+      MinArch: CC_87
+      MaxArch: CC_87
+    }
+    Timeline {
+      MetricGroups {
+        Label: "Overview"
+        Expanded: true
+        MetricRows {
+          Metrics {
+            Label: "Average Active Warps Per Cycle"
+            Name: "TriageAC.tpc__warps_active_realtime.avg.per_cycle_active"
+            Groups: "sampling_0"
+            Multiplier: 0.5
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "Total Active Warps Per Cycle"
+            Name: "TriageAC.tpc__warps_active_realtime.sum.per_cycle_active"
+            Groups: "sampling_0"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "Blocks Launched"
+            Name: "FE_B.TriageAC.gr__ctas_launched_queue_sync.sum"
+            Groups: "sampling_0"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "SM Active Cycles"
+            Name: "SM_A.TriageAC.sm__cycles_active.avg"
+            Groups: "sampling_0"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "Executed Ipc Active"
+            Name: "SM_A.TriageAC.sm__inst_executed_realtime.avg.per_cycle_active"
+            Groups: "sampling_0"
+          }
+        }
+      }
+
+      MetricGroups {
+        Label: "SM"
+        Expanded: true
+        MetricRows {
+          Metrics {
+            Label: "SM ALU Pipe Throughput"
+            Name: "SM_A.TriageSCG.sm__inst_executed_pipe_alu_realtime.avg.pct_of_peak_sustained_elapsed"
+            Groups: "sampling_0"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "SM FMA Light Pipe Throughput"
+            Name: "SM_C.TriageSCG.smsp__inst_executed_pipe_fmalite.avg.pct_of_peak_sustained_elapsed"
+            Groups: "sampling_0"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "SM FMA Heavy Pipe Throughput"
+            Name: "SM_C.TriageSCG.smsp__inst_executed_pipe_fmaheavy.avg.pct_of_peak_sustained_elapsed"
+            Groups: "sampling_0"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "SM Tensor Pipe Throughput"
+            Name: "pmsampling:sm__pipe_tensor_cycles_active_realtime.avg.pct_of_peak_sustained_elapsed"
+            Groups: "sampling_0"
+          }
+        }
+      }
+
+      MetricGroups {
+        Label: "L2 Cache"
+        Expanded: true
+        MetricRows {
+          Metrics {
+            Label: "L2 Throughput"
+            Name: "LTS.TriageSCG.lts__throughput.avg.pct_of_peak_sustained_elapsed"
+            Groups: "sampling_2"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "L2 Hit Rate"
+            Name: "LTS.TriageSCG.lts__average_t_sector_hit_rate_realtime.pct"
+            Groups: "sampling_2"
+          }
+        }
+      }
+
+      MetricGroups {
+        Label: "L1 Cache"
+        Expanded: true
+        MetricRows {
+          Metrics {
+            Label: "L1 Throughput"
+            Name: "SM_A.TriageSCG.l1tex__throughput.avg.pct_of_peak_sustained_elapsed"
+            Groups: "sampling_2"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "L1 Writeback Throughput"
+            Name: "SM_A.TriageAC.l1tex__lsu_writeback_active.avg"
+            Groups: "sampling_2"
+            CtrDomains: "gpu_sm_a"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "L1 Hit Rate"
+            Name: "SM_B.TriageAC.l1tex__t_sector_hit_rate.pct"
+            Groups: "sampling_2"
+            CtrDomains: "gpu_sm_b"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "L1 Wavefronts (Data)"
+            Name: "SM_A.TriageAC.l1tex__data_pipe_lsu_wavefronts.avg"
+            Groups: "sampling_2"
+            CtrDomains: "gpu_sm_a"
+          }
+        }
+      }
+    }
+  }
+
+  Items {
+    Filter {
+      MinArch: CC_90
+      MaxArch: CC_90
+      MinKmd: 560
+    }
+    Timeline {
+      MetricGroups {
+        Label: "Overview"
+        Expanded: true
+        MetricRows {
+          Metrics {
+            Label: "Blocks Launched"
+            Name: "FE_B.TriageCompute.gr__ctas_launched_realtime.sum"
+            Groups: "gh100_sampling"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "SM Active Cycles"
+            Name: "TPC.TriageCompute.sm__cycles_active.avg"
+            Groups: "gh100_sampling"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "Executed Ipc Active"
+            Name: "TPC.TriageCompute.sm__inst_executed_realtime.avg.per_cycle_active"
+            Groups: "gh100_sampling"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "CGAs Launched"
+            Name: "GPC_B.TriageCompute.gpc__cgas_launched.sum"
+            Groups: "gh100_sampling"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "CGAs Active"
+            Name: "GPC_B.TriageCompute.gpc__cgas_active_realtime.avg"
+            Groups: "gh100_sampling"
+          }
+        }
+      }
+
+      MetricGroups {
+        Label: "SM"
+        Expanded: true
+        MetricRows {
+          Metrics {
+            Label: "SM Throughput"
+            Name: "TPC.TriageCompute.sm__inst_executed_realtime.avg.pct_of_peak_sustained_elapsed"
+            Groups: "gh100_sampling"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "SM ALU Pipe Throughput"
+            Name: "TPC.TriageCompute.sm__inst_executed_pipe_alu_realtime.avg.pct_of_peak_sustained_elapsed"
+            Groups: "gh100_sampling"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "SM FMA Pipe Throughput"
+            Name: "TPC.TriageCompute.sm__inst_executed_pipe_fma_realtime.avg.pct_of_peak_sustained_elapsed"
+            Groups: "gh100_sampling"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "SM FMA Heavy Pipe Throughput"
+            Name: "TPC.TriageCompute.sm__inst_executed_pipe_fmaheavy_realtime.avg.pct_of_peak_sustained_elapsed"
+            Groups: "gh100_sampling"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "SM FMA Light Pipe Throughput"
+            Name: "TPC.TriageCompute.sm__inst_executed_pipe_fmalite_realtime.avg.pct_of_peak_sustained_elapsed"
+            Groups: "gh100_sampling"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "SM FP64 Pipe Throughput"
+            Name: "TPC.TriageCompute.sm__pipe_fp64_cycles_active_realtime.avg.pct_of_peak_sustained_elapsed"
+            Groups: "gh100_sampling"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "SM Tensor Pipe Throughput"
+            Name: "TPC.TriageCompute.sm__pipe_tensor_cycles_active_realtime.avg.pct_of_peak_sustained_elapsed"
+            Groups: "gh100_sampling"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "SM Uniform Pipe Throughput"
+            Name: "SM_A.TriageCompute.sm__inst_executed_pipe_uniform_realtime.avg.pct_of_peak_sustained_elapsed"
+            Groups: "gh100_sampling"
+            CtrDomains: "gpu_sm_a"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "SM XU Pipe Throughput"
+            Name: "SM_A.TriageCompute.sm__inst_executed_pipe_xu_realtime.avg.pct_of_peak_sustained_elapsed"
+            Groups: "gh100_sampling"
+            CtrDomains: "gpu_sm_a"
+          }
+        }
+      }
+
+      MetricGroups {
+        Label: "Tensor"
+        Expanded: true
+        MetricRows {
+          Metrics {
+            Label: "DMMA"
+            Name: "SM_C.TriageCompute.smsp__pipe_tensor_op_dmma_cycles_active.avg"
+            Groups: "gh100_sampling"
+            CtrDomains: "gpu_sm_c"
+          }
+          Metrics {
+            Label: "HMMA"
+            Name: "TPC.TriageCompute.sm__pipe_tensor_op_hmma_cycles_active_realtime.avg"
+            Groups: "gh100_sampling"
+          }
+          Metrics {
+            Label: "IMMA"
+            Name: "TPC.TriageCompute.sm__pipe_tensor_op_imma_cycles_active_realtime.avg"
+            Groups: "gh100_sampling"
+          }
+        }
+      }
+
+      MetricGroups {
+        Label: "DRAM"
+        Expanded: true
+        MetricRows {
+          Metrics {
+            Label: "DRAM Throughput"
+            Name: "FBSP.TriageCompute.dramc__throughput.avg.pct_of_peak_sustained_elapsed"
+            Groups: "gh100_sampling"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "DRAM Read Throughput"
+            Name: "FBSP.TriageCompute.dramc__read_throughput.avg.pct_of_peak_sustained_elapsed"
+            Groups: "gh100_sampling"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "DRAM Write Throughput"
+            Name: "FBSP.TriageCompute.dramc__write_throughput.avg.pct_of_peak_sustained_elapsed"
+            Groups: "gh100_sampling"
+          }
+        }
+      }
+
+      MetricGroups {
+        Label: "L2 Cache"
+        Expanded: true
+        MetricRows {
+          Metrics {
+            Label: "L2 Throughput"
+            Name: "LTS.TriageCompute.lts__throughput.avg.pct_of_peak_sustained_elapsed"
+            Groups: "gh100_sampling"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "L2 Throughput for L1 Requests"
+            Name: "LTS.TriageCompute.lts__t_sector_throughput_srcunit_tex.avg.pct_of_peak_sustained_elapsed"
+            Groups: "gh100_sampling"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "L2 Throughput for GCC Requests"
+            Name: "LTS.TriageCompute.lts__t_sector_throughput_srcunit_gcc.avg.pct_of_peak_sustained_elapsed"
+            Groups: "gh100_sampling"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "L2 Throughput to DRAM"
+            Name: "LTS.TriageCompute.lts__t_sector_throughput_aperture_device.avg.pct_of_peak_sustained_elapsed"
+            Groups: "gh100_sampling"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "L2 Hit Rate"
+            Name: "LTS.TriageCompute.lts__average_t_sector_hit_rate_realtime.pct"
+            Groups: "gh100_sampling"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "L2 Hit Rate from L1"
+            Name: "LTS.TriageCompute.lts__average_t_sector_hit_rate_srcunit_tex_realtime.pct"
+            Groups: "gh100_sampling"
+          }
+        }
+      }
+
+      MetricGroups {
+        Label: "L1 Cache"
+        Expanded: true
+        MetricRows {
+          Metrics {
+            Label: "L1 Throughput"
+            Name: "SM_A.TriageCompute.l1tex__throughput.avg.pct_of_peak_sustained_elapsed"
+            Groups: "gh100_sampling"
+            CtrDomains: "gpu_sm_a"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "L1 Sectors"
+            Name: "SM_B.TriageCompute.l1tex__t_sectors.sum"
+            Groups: "gh100_sampling"
+            CtrDomains: "gpu_sm_b"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "L1 Hit Rate"
+            Name: "SM_B.TriageCompute.l1tex__t_sector_hit_rate.pct"
+            Groups: "gh100_sampling"
+            CtrDomains: "gpu_sm_b"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "L1 Lookup Hit"
+            Name: "SM_B.TriageCompute.l1tex__t_sectors_lookup_hit.sum"
+            Groups: "gh100_sampling"
+            CtrDomains: "gpu_sm_b"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "L1 Lookup Miss"
+            Name: "SM_B.TriageCompute.l1tex__t_sectors_lookup_miss.sum"
+            Groups: "gh100_sampling"
+            CtrDomains: "gpu_sm_b"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "L1 Wavefronts (Data)"
+            Name: "SM_A.TriageCompute.l1tex__data_pipe_lsu_wavefronts.avg"
+            Groups: "gh100_sampling"
+            CtrDomains: "gpu_sm_a"
+          }
+        }
+      }
+    }
+  }
+
+  Items {
+    Filter {
+      MinArch: CC_90
+      MaxArch: CC_90
+      MaxKmd: 559
+    }
+    Timeline {
+      MetricGroups {
+        Label: "Overview"
+        Expanded: true
+        MetricRows {
+          Metrics {
+            Label: "Blocks Launched"
+            Name: "pmsampling:sm__ctas_launched.sum"
+            Groups: "sampling_0"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "SM Active Cycles"
+            Name: "pmsampling:sm__cycles_active.avg"
+            Groups: "sampling_0"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "Executed Ipc Active"
+            Name: "pmsampling:sm__inst_executed_realtime.avg.per_cycle_active"
+            Groups: "sampling_0"
+          }
+        }
+      }
+
+      MetricGroups {
+        Label: "SM"
+        Expanded: true
+        MetricRows {
+          Metrics {
+            Label: "SM Throughput"
+            Name: "pmsampling:sm__inst_executed_realtime.avg.pct_of_peak_sustained_elapsed"
+            Groups: "sampling_0"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "SM ALU Pipe Throughput"
+            Name: "pmsampling:sm__inst_executed_pipe_alu_realtime.avg.pct_of_peak_sustained_elapsed"
+            Groups: "sampling_0"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "SM Tensor Pipe Throughput"
+            Name: "pmsampling:sm__pipe_tensor_cycles_active_realtime.avg.pct_of_peak_sustained_elapsed"
+            Groups: "sampling_0"
+          }
+        }
+      }
+
+      MetricGroups {
+        Label: "DRAM"
+        Expanded: true
+        MetricRows {
+          Metrics {
+            Label: "DRAM Throughput"
+            Name: "pmsampling:dramc__throughput.avg.pct_of_peak_sustained_elapsed"
+            Groups: "sampling_0"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "DRAM Read Throughput"
+            Name: "pmsampling:dramc__read_throughput.avg.pct_of_peak_sustained_elapsed"
+            Groups: "sampling_0"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "DRAM Write Throughput"
+            Name: "pmsampling:dramc__write_throughput.avg.pct_of_peak_sustained_elapsed"
+            Groups: "sampling_0"
+          }
+        }
+      }
+
+
+      MetricGroups {
+        Label: "L1 Cache"
+        Expanded: true
+        MetricRows {
+          Metrics {
+            Label: "L1 Hit Rate"
+            Name: "pmsampling:l1tex__t_sector_hit_rate.pct"
+            Groups: "sampling_1"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "L1 Wavefronts (Data)"
+            Name: "pmsampling:l1tex__data_pipe_lsu_wavefronts.avg"
+            Groups: "sampling_1"
+          }
+        }
+      }
+    }
+  }
+
+  Items {
+    Filter {
+      Items {
+        MinArch: CC_100
+        MaxArch: CC_100
+      }
+    }
+    Timeline {
+      MetricGroups {
+        Label: "Overview"
+        Expanded: true
+        MetricRows {
+          Metrics {
+            Label: "Blocks Launched"
+            Name: "FE_B.TriageCompute.gr__ctas_launched_realtime.sum"
+            Groups: "gb100_sampling"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "SM Active Cycles"
+            Name: "TPC.TriageCompute.sm__cycles_active.avg"
+            Groups: "gb100_sampling"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "Executed Ipc Active"
+            Name: "TPC.TriageCompute.sm__inst_executed_realtime.avg.per_cycle_active"
+            Groups: "gb100_sampling"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "CGAs Launched"
+            Name: "GPC_B.TriageCompute.gpc__cgas_launched.sum"
+            Groups: "gb100_sampling"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "CGAs Active"
+            Name: "GPC_B.TriageCompute.gpc__cgas_active_realtime.avg"
+            Groups: "gb100_sampling"
+          }
+        }
+      }
+
+      MetricGroups {
+        Label: "SM"
+        Expanded: true
+        MetricRows {
+          Metrics {
+            Label: "SM Throughput"
+            Name: "TPC.TriageCompute.sm__inst_executed_realtime.avg.pct_of_peak_sustained_elapsed"
+            Groups: "gb100_sampling"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "SM ALU Pipe Throughput"
+            Name: "TPC.TriageCompute.sm__inst_executed_pipe_alu_realtime.avg.pct_of_peak_sustained_elapsed"
+            Groups: "gb100_sampling"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "SM FMA Pipe Throughput"
+            Name: "TPC.TriageCompute.sm__pipe_fma_realtime.avg.pct_of_peak_sustained_elapsed"
+            Groups: "gb100_sampling"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "SM FMA Heavy Pipe Throughput"
+            Name: "TPC.TriageCompute.sm__pipe_fmaheavy_realtime.avg.pct_of_peak_sustained_elapsed"
+            Groups: "gb100_sampling"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "SM FMA Light Pipe Throughput"
+            Name: "TPC.TriageCompute.sm__pipe_fmalite_realtime.avg.pct_of_peak_sustained_elapsed"
+            Groups: "gb100_sampling"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "SM FP64 Pipe Throughput"
+            Name: "TPC.TriageCompute.sm__pipe_fp64_cycles_active_realtime.avg.pct_of_peak_sustained_elapsed"
+            Groups: "gb100_sampling"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "SM Tensor Pipe Throughput"
+            Name: "TPC.TriageCompute.sm__pipe_tensor_cycles_active_realtime.avg.pct_of_peak_sustained_elapsed"
+            Groups: "gb100_sampling"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "SM TMEM (Tensor Memory) Pipe Throughput"
+            Name: "SM_A.TriageCompute.sm__mem_tensor_cycles_active_realtime.avg.pct_of_peak_sustained_elapsed"
+            Groups: "gb100_sampling"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "SM Uniform Pipe Throughput"
+            Name: "SM_A.TriageCompute.sm__inst_executed_pipe_uniform_realtime.avg.pct_of_peak_sustained_elapsed"
+            Groups: "gb100_sampling"
+            CtrDomains: "gpu_sm_a"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "SM XU Pipe Throughput"
+            Name: "SM_A.TriageCompute.sm__inst_executed_pipe_xu_realtime.avg.pct_of_peak_sustained_elapsed"
+            Groups: "gb100_sampling"
+            CtrDomains: "gpu_sm_a"
+          }
+        }
+      }
+
+      MetricGroups {
+        Label: "Tensor"
+        Expanded: true
+        MetricRows {
+          Metrics {
+            Label: "DMMA"
+            Name: "SM_C.TriageCompute.smsp__pipe_tensor_subpipe_dmma_cycles_active.avg"
+            Groups: "gb100_sampling"
+            CtrDomains: "gpu_sm_c"
+          }
+          Metrics {
+            Label: "HMMA"
+            Name: "TPC.TriageCompute.sm__pipe_tensor_subpipe_hmma_cycles_active_realtime.avg"
+            Groups: "gb100_sampling"
+          }
+          Metrics {
+            Label: "IMMA"
+            Name: "TPC.TriageCompute.sm__pipe_tensor_subpipe_imma_cycles_active_realtime.avg"
+            Groups: "gb100_sampling"
+          }
+        }
+      }
+
+      MetricGroups {
+        Label: "DRAM"
+        Expanded: true
+        MetricRows {
+          Metrics {
+            Label: "DRAM Throughput"
+            Name: "FBSP.TriageCompute.dram__throughput.avg.pct_of_peak_sustained_elapsed"
+            Groups: "gb100_sampling"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "DRAM Read Throughput"
+            Name: "FBSP.TriageCompute.dram__read_throughput.avg.pct_of_peak_sustained_elapsed"
+            Groups: "gb100_sampling"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "DRAM Write Throughput"
+            Name: "FBSP.TriageCompute.dram__write_throughput.avg.pct_of_peak_sustained_elapsed"
+            Groups: "gb100_sampling"
+          }
+        }
+      }
+
+      MetricGroups {
+        Label: "L2 Cache"
+        Expanded: true
+        MetricRows {
+          Metrics {
+            Label: "L2 Throughput"
+            Name: "LTS.TriageCompute.lts__throughput.avg.pct_of_peak_sustained_elapsed"
+            Groups: "gb100_sampling"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "L2 Throughput for L1 Requests"
+            Name: "LTS.TriageCompute.lts__t_sector_throughput_srcunit_tex.avg.pct_of_peak_sustained_elapsed"
+            Groups: "gb100_sampling"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "L2 Throughput for GCC Requests"
+            Name: "LTS.TriageCompute.lts__t_sector_throughput_srcunit_gcc.avg.pct_of_peak_sustained_elapsed"
+            Groups: "gb100_sampling"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "L2 Throughput to DRAM"
+            Name: "LTS.TriageCompute.lts__t_sector_throughput_srcnode_fbp.avg.pct_of_peak_sustained_elapsed"
+            Groups: "gb100_sampling"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "SysL2 Throughput to Peer Memory"
+            Name: "SYSLTS.TriageCompute.syslts__t_sector_throughput_aperture_peer.avg.pct_of_peak_sustained_elapsed"
+            Groups: "gb100_sampling"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "SysL2 Throughput to System Memory"
+            Name: "SYSLTS.TriageCompute.syslts__t_sector_throughput_aperture_sysmem.avg.pct_of_peak_sustained_elapsed"
+            Groups: "gb100_sampling"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "L2 Hit Rate"
+            Name: "LTS.TriageCompute.lts__average_t_sector_hit_rate_realtime.pct"
+            Groups: "gb100_sampling"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "L2 Hit Rate from L1"
+            Name: "LTS.TriageCompute.lts__average_t_sector_hit_rate_srcunit_tex_realtime.pct"
+            Groups: "gb100_sampling"
+          }
+        }
+      }
+
+      MetricGroups {
+        Label: "L1 Cache"
+        Expanded: true
+        MetricRows {
+          Metrics {
+            Label: "L1 Throughput"
+            Name: "SM_A.TriageCompute.l1tex__throughput.avg.pct_of_peak_sustained_elapsed"
+            Groups: "gb100_sampling"
+            CtrDomains: "gpu_sm_a"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "L1 Sectors"
+            Name: "SM_B.TriageCompute.l1tex__t_sectors.sum"
+            Groups: "gb100_sampling"
+            CtrDomains: "gpu_sm_b"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "L1 Hit Rate"
+            Name: "SM_B.TriageCompute.l1tex__t_sector_hit_rate.pct"
+            Groups: "gb100_sampling"
+            CtrDomains: "gpu_sm_b"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "L1 Lookup Hit"
+            Name: "SM_B.TriageCompute.l1tex__t_sectors_lookup_hit.sum"
+            Groups: "gb100_sampling"
+            CtrDomains: "gpu_sm_b"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "L1 Lookup Miss"
+            Name: "SM_B.TriageCompute.l1tex__t_sectors_lookup_miss.sum"
+            Groups: "gb100_sampling"
+            CtrDomains: "gpu_sm_b"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "L1 Wavefronts (Data)"
+            Name: "SM_A.TriageCompute.l1tex__data_pipe_lsu_wavefronts.avg"
+            Groups: "gb100_sampling"
+            CtrDomains: "gpu_sm_a"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "L1 Wavefronts (Data: LGDS)"
+            Name: "SM_A.TriageCompute.l1tex__data_pipe_lsu_wavefronts_mem_lgds.avg"
+            Groups: "gb100_sampling"
+            CtrDomains: "gpu_sm_a"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "L1 Wavefronts (Data: Shared)"
+            Name: "SM_A.TriageCompute.l1tex__data_pipe_lsu_wavefronts_mem_shared.avg"
+            Groups: "gb100_sampling"
+            CtrDomains: "gpu_sm_a"
+          }
+        }
+      }
+    }
+  }
+
+  Items {
+    Filter {
+      Items {
+        MinArch: CC_103
+        MaxArch: CC_103
+      }
+    }
+    Timeline {
+      MetricGroups {
+        Label: "Overview"
+        Expanded: true
+        MetricRows {
+          Metrics {
+            Label: "Blocks Launched"
+            Name: "FE_B.TriageCompute.gr__ctas_launched_realtime.sum"
+            Groups: "gb11x_sampling"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "SM Active Cycles"
+            Name: "TPC.TriageCompute.sm__cycles_active.avg"
+            Groups: "gb11x_sampling"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "Executed Ipc Active"
+            Name: "TPC.TriageCompute.sm__inst_executed_realtime.avg.per_cycle_active"
+            Groups: "gb11x_sampling"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "CGAs Launched"
+            Name: "GPC_B.TriageCompute.gpc__cgas_launched.sum"
+            Groups: "gb11x_sampling"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "CGAs Active"
+            Name: "GPC_B.TriageCompute.gpc__cgas_active_realtime.avg"
+            Groups: "gb11x_sampling"
+          }
+        }
+      }
+
+      MetricGroups {
+        Label: "SM"
+        Expanded: true
+        MetricRows {
+          Metrics {
+            Label: "SM Throughput"
+            Name: "TPC.TriageCompute.sm__inst_executed_realtime.avg.pct_of_peak_sustained_elapsed"
+            Groups: "gb11x_sampling"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "SM ALU Pipe Throughput"
+            Name: "TPC.TriageCompute.sm__inst_executed_pipe_alu_realtime.avg.pct_of_peak_sustained_elapsed"
+            Groups: "gb11x_sampling"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "SM FMA Pipe Throughput"
+            Name: "TPC.TriageCompute.sm__pipe_fma_realtime.avg.pct_of_peak_sustained_elapsed"
+            Groups: "gb11x_sampling"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "SM FMA Heavy Pipe Throughput"
+            Name: "TPC.TriageCompute.sm__pipe_fmaheavy_realtime.avg.pct_of_peak_sustained_elapsed"
+            Groups: "gb11x_sampling"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "SM FMA Light Pipe Throughput"
+            Name: "TPC.TriageCompute.sm__pipe_fmalite_realtime.avg.pct_of_peak_sustained_elapsed"
+            Groups: "gb11x_sampling"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "SM FP64 Pipe Throughput"
+            Name: "TPC.TriageCompute.sm__pipe_fp64_cycles_active_realtime.avg.pct_of_peak_sustained_elapsed"
+            Groups: "gb11x_sampling"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "SM Tensor Pipe Throughput"
+            Name: "TPC.TriageCompute.sm__pipe_tensor_cycles_active_realtime.avg.pct_of_peak_sustained_elapsed"
+            Groups: "gb11x_sampling"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "SM TMEM (Tensor Memory) Pipe Throughput"
+            Name: "SM_A.TriageCompute.sm__mem_tensor_cycles_active_realtime.avg.pct_of_peak_sustained_elapsed"
+            Groups: "gb11x_sampling"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "SM Uniform Pipe Throughput"
+            Name: "SM_A.TriageCompute.sm__inst_executed_pipe_uniform_realtime.avg.pct_of_peak_sustained_elapsed"
+            Groups: "gb11x_sampling"
+            CtrDomains: "gpu_sm_a"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "SM XU Pipe Throughput"
+            Name: "SM_A.TriageCompute.sm__inst_executed_pipe_xu_realtime.avg.pct_of_peak_sustained_elapsed"
+            Groups: "gb11x_sampling_1"
+            CtrDomains: "gpu_sm_a"
+          }
+        }
+      }
+
+      MetricGroups {
+        Label: "Tensor"
+        Expanded: true
+        MetricRows {
+          Metrics {
+            Label: "DMMA"
+            Name: "SM_C.TriageCompute.smsp__pipe_tensor_subpipe_dmma_cycles_active.avg"
+            Groups: "gb11x_sampling"
+            CtrDomains: "gpu_sm_c"
+          }
+          Metrics {
+            Label: "HMMA"
+            Name: "TPC.TriageCompute.sm__pipe_tensor_subpipe_hmma_cycles_active_realtime.avg"
+            Groups: "gb11x_sampling"
+          }
+          Metrics {
+            Label: "IMMA"
+            Name: "TPC.TriageCompute.sm__pipe_tensor_subpipe_imma_cycles_active_realtime.avg"
+            Groups: "gb11x_sampling"
+          }
+        }
+      }
+
+      MetricGroups {
+        Label: "DRAM"
+        Expanded: true
+        MetricRows {
+          Metrics {
+            Label: "DRAM Throughput"
+            Name: "FBSP.TriageCompute.dram__throughput.avg.pct_of_peak_sustained_elapsed"
+            Groups: "gb11x_sampling"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "DRAM Read Throughput"
+            Name: "FBSP.TriageCompute.dram__read_throughput.avg.pct_of_peak_sustained_elapsed"
+            Groups: "gb11x_sampling"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "DRAM Write Throughput"
+            Name: "FBSP.TriageCompute.dram__write_throughput.avg.pct_of_peak_sustained_elapsed"
+            Groups: "gb11x_sampling"
+          }
+        }
+      }
+
+      MetricGroups {
+        Label: "L2 Cache"
+        Expanded: true
+        MetricRows {
+          Metrics {
+            Label: "L2 Throughput"
+            Name: "LTS.TriageCompute.lts__throughput.avg.pct_of_peak_sustained_elapsed"
+            Groups: "gb11x_sampling"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "L2 Throughput for L1 Requests"
+            Name: "LTS.TriageCompute.lts__t_sector_throughput_srcunit_tex.avg.pct_of_peak_sustained_elapsed"
+            Groups: "gb11x_sampling"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "L2 Throughput for GCC Requests"
+            Name: "LTS.TriageCompute.lts__t_sector_throughput_srcunit_gcc.avg.pct_of_peak_sustained_elapsed"
+            Groups: "gb11x_sampling"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "L2 Throughput to DRAM"
+            Name: "LTS.TriageCompute.lts__t_sector_throughput_srcnode_fbp.avg.pct_of_peak_sustained_elapsed"
+            Groups: "gb11x_sampling"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "SysL2 Throughput to Peer Memory"
+            Name: "SYSLTS.TriageCompute.syslts__t_sector_throughput_aperture_peer.avg.pct_of_peak_sustained_elapsed"
+            Groups: "gb11x_sampling"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "SysL2 Throughput to System Memory"
+            Name: "SYSLTS.TriageCompute.syslts__t_sector_throughput_aperture_sysmem.avg.pct_of_peak_sustained_elapsed"
+            Groups: "gb11x_sampling"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "L2 Hit Rate"
+            Name: "LTS.TriageCompute.lts__average_t_sector_hit_rate_realtime.pct"
+            Groups: "gb11x_sampling"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "L2 Hit Rate from L1"
+            Name: "LTS.TriageCompute.lts__average_t_sector_hit_rate_srcunit_tex_realtime.pct"
+            Groups: "gb11x_sampling"
+          }
+        }
+      }
+
+      MetricGroups {
+        Label: "L1 Cache"
+        Expanded: true
+        MetricRows {
+          Metrics {
+            Label: "L1 Throughput"
+            Name: "SM_A.TriageCompute.l1tex__throughput.avg.pct_of_peak_sustained_elapsed"
+            Groups: "gb11x_sampling"
+            CtrDomains: "gpu_sm_a"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "L1 Sectors"
+            Name: "SM_B.TriageCompute.l1tex__t_sectors.sum"
+            Groups: "gb11x_sampling"
+            CtrDomains: "gpu_sm_b"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "L1 Hit Rate"
+            Name: "SM_B.TriageCompute.l1tex__t_sector_hit_rate.pct"
+            Groups: "gb11x_sampling"
+            CtrDomains: "gpu_sm_b"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "L1 Lookup Hit"
+            Name: "SM_B.TriageCompute.l1tex__t_sectors_lookup_hit.sum"
+            Groups: "gb11x_sampling"
+            CtrDomains: "gpu_sm_b"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "L1 Lookup Miss"
+            Name: "SM_B.TriageCompute.l1tex__t_sectors_lookup_miss.sum"
+            Groups: "gb11x_sampling"
+            CtrDomains: "gpu_sm_b"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "L1 Wavefronts (Data)"
+            Name: "SM_A.TriageCompute.l1tex__data_pipe_lsu_wavefronts.avg"
+            Groups: "gb11x_sampling"
+            CtrDomains: "gpu_sm_a"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "L1 Wavefronts (Data: LGDS)"
+            Name: "SM_A.TriageCompute.l1tex__data_pipe_lsu_wavefronts_mem_lgds.avg"
+            Groups: "gb11x_sampling"
+            CtrDomains: "gpu_sm_a"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "L1 Wavefronts (Data: Shared)"
+            Name: "SM_A.TriageCompute.l1tex__data_pipe_lsu_wavefronts_mem_shared.avg"
+            Groups: "gb11x_sampling"
+            CtrDomains: "gpu_sm_a"
+          }
+        }
+      }
+    }
+  }
+
+  Items {
+    Filter {
+      Items {
+        MinArch: CC_110
+        MaxArch: CC_110
+      }
+    }
+    Timeline {
+      MetricGroups {
+        Label: "Overview"
+        Expanded: true
+        MetricRows {
+          Metrics {
+            Label: "Average Active Warps Per Cycle"
+            Name: "pmsampling:tpc__warps_active_realtime.avg.per_cycle_active"
+            Groups: "sampling_0"
+            Multiplier: 0.5
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "Total Active Warps Per Cycle"
+            Name: "pmsampling:tpc__warps_active_realtime.sum.per_cycle_active"
+            Groups: "sampling_0"
+          }
+        }
+       MetricRows {
+          Metrics {
+            Label: "Total Active Warps Per Cycle"
+            Name: "pmsampling:tpc__warps_active_realtime.sum.per_cycle_active"
+            Groups: "sampling_0"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "Blocks Launched"
+            Name: "pmsampling:gr__ctas_launched_queue_sync_realtime.sum"
+            Groups: "sampling_0"
+          }
+        }
+       MetricRows {
+          Metrics {
+            Label: "SM Active Cycles"
+            Name: "pmsampling:sm__cycles_active.avg"
+            Groups: "sampling_0"
+          }
+        }
+       MetricRows {
+          Metrics {
+            Label: "Executed Ipc Active"
+            Name: "pmsampling:sm__inst_executed_realtime.avg.per_cycle_active"
+            Groups: "sampling_0"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "Average Threads Per Warp"
+            Name: "pmsampling:sm__average_thread_inst_executed_pred_on_per_inst_executed_realtime.pct"
+            Groups: "sampling_0"
+          }
+        }
+      }
+
+      MetricGroups {
+        Label: "SM"
+        Expanded: true
+        MetricRows {
+          Metrics {
+            Label: "SM ALU Pipe Throughput"
+            Name: "pmsampling:sm__inst_executed_pipe_alu_realtime.avg.pct_of_peak_sustained_elapsed"
+            Groups: "sampling_0"
+            CtrDomains: "gpu_sm_a"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "SM FMA Light Pipe Throughput"
+            Name: "pmsampling:smsp__inst_executed_pipe_fmalite.avg.pct_of_peak_sustained_elapsed"
+            Groups: "sampling_0"
+            CtrDomains: "gpu_sm_a"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "SM FMA Heavy Pipe Throughput"
+            Name: "pmsampling:smsp__inst_executed_pipe_fmaheavy.avg.pct_of_peak_sustained_elapsed"
+            Groups: "sampling_0"
+            CtrDomains: "gpu_sm_a"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "SM Tensor Pipe Throughput"
+            Name: "pmsampling:sm__pipe_tensor_cycles_active_realtime.avg.pct_of_peak_sustained_elapsed"
+            Groups: "sampling_0"
+            CtrDomains: "gpu_sm_a"
+          }
+        }
+      }
+
+      MetricGroups {
+        Label: "L2 Cache"
+        Expanded: true
+        MetricRows {
+          Metrics {
+            Label: "L2 Hit Rate"
+            Name: "pmsampling:lts__average_t_sector_hit_rate_realtime.pct"
+            Groups: "sampling_0"
+            CtrDomains: "gpu_lts"
+          }
+        }
+      }
+
+      MetricGroups {
+        Label: "L1 Cache"
+        Expanded: true
+        MetricRows {
+          Metrics {
+            Label: "L1 Writeback Throughput"
+            Name: "pmsampling:l1tex__lsu_writeback_active.avg"
+            Groups: "sampling_1"
+            CtrDomains: "gpu_sm_a"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "L1 Hit Rate"
+            Name: "pmsampling:l1tex__t_sector_hit_rate.pct"
+            Groups: "sampling_1"
+            CtrDomains: "gpu_sm_b"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "L1 Wavefronts (Data)"
+            Name: "pmsampling:l1tex__data_pipe_lsu_wavefronts.avg"
+            Groups: "sampling_1"
+            CtrDomains: "gpu_sm_a"
+          }
+        }
+      }
+    }
+  }
+
+
+Items {
+    Filter {
+      Items {
+        MinArch: CC_121
+        MaxArch: CC_121
+      }
+    }
+    Timeline {
+      MetricGroups {
+        Label: "Overview"
+        Expanded: true
+        MetricRows {
+          Metrics {
+            Label: "Average Active Warps Per Cycle"
+            Name: "pmsampling:tpc__warps_active_realtime.avg.per_cycle_active"
+            Groups: "sampling_0"
+            Multiplier: 0.5
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "Total Active Warps Per Cycle"
+            Name: "pmsampling:tpc__warps_active_realtime.sum.per_cycle_active"
+            Groups: "sampling_0"
+          }
+        }
+       MetricRows {
+          Metrics {
+            Label: "Blocks Launched"
+            Name: "pmsampling:gr__ctas_launched_queue_sync_realtime.sum"
+            Groups: "sampling_1"
+          }
+        }
+       MetricRows {
+          Metrics {
+            Label: "SM Active Cycles"
+            Name: "pmsampling:sm__cycles_active.avg"
+            Groups: "sampling_0"
+          }
+        }
+       MetricRows {
+          Metrics {
+            Label: "Executed Ipc Active"
+            Name: "pmsampling:sm__inst_executed_realtime.avg.per_cycle_active"
+            Groups: "sampling_0"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "Average Threads Per Warp"
+            Name: "pmsampling:sm__average_thread_inst_executed_pred_on_per_inst_executed_realtime.pct"
+            Groups: "sampling_0"
+          }
+        }
+      }
+
+      MetricGroups {
+        Label: "SM"
+        Expanded: true
+        MetricRows {
+          Metrics {
+            Label: "SM ALU Pipe Throughput"
+            Name: "pmsampling:sm__inst_executed_pipe_alu_realtime.avg.pct_of_peak_sustained_elapsed"
+            Groups: "sampling_1"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "SM FMA Light Pipe Throughput"
+            Name: "pmsampling:smsp__inst_executed_pipe_fmalite.avg.pct_of_peak_sustained_elapsed"
+            Groups: "sampling_1"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "SM FMA Heavy Pipe Throughput"
+            Name: "pmsampling:smsp__inst_executed_pipe_fmaheavy.avg.pct_of_peak_sustained_elapsed"
+            Groups: "sampling_1"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "SM Tensor Pipe Throughput"
+            Name: "pmsampling:sm__pipe_tensor_cycles_active_realtime.avg.pct_of_peak_sustained_elapsed"
+            Groups: "sampling_1"
+          }
+        }
+      }
+
+      MetricGroups {
+        Label: "L2 Cache"
+        Expanded: true
+        MetricRows {
+          Metrics {
+            Label: "L2 Hit Rate"
+            Name: "pmsampling:lts__average_t_sector_hit_rate_realtime.pct"
+            Groups: "sampling_0"
+            CtrDomains: "gpu_lts"
+          }
+        }
+      }
+
+      MetricGroups {
+        Label: "L1 Cache"
+        Expanded: true
+        MetricRows {
+          Metrics {
+            Label: "L1 Writeback Throughput"
+            Name: "pmsampling:l1tex__lsu_writeback_active.avg"
+            Groups: "sampling_1"
+            CtrDomains: "gpu_sm_a"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "L1 Hit Rate"
+            Name: "pmsampling:l1tex__t_sector_hit_rate.pct"
+            Groups: "sampling_1"
+            CtrDomains: "gpu_sm_b"
+          }
+        }
+        MetricRows {
+          Metrics {
+            Label: "L1 Wavefronts (Data)"
+            Name: "pmsampling:l1tex__data_pipe_lsu_wavefronts.avg"
+            Groups: "sampling_1"
+            CtrDomains: "gpu_sm_a"
+          }
+        }
+      }
+    }
+  }
+
+ Items {
+  Filter {
+   MinArch: CC_120
+   MaxArch: CC_120
+  }
+  Timeline {
+   MetricGroups {
+    Label: "Overview"
+    Expanded: true
+     MetricRows {
+      Metrics {
+       Label: "Executed IPC Active"
+       Name: "pmsampling:sm__inst_executed_realtime.avg.per_cycle_active"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+     }
+     MetricRows {
+      Metrics {
+       Label: "Blocks Launched"
+       Name: "TriageCompute.gr__ctas_launched_realtime.sum"
+       Groups: "gb20x_TriageCompute_sampling"
+       UserMetricExpr: "TriageCompute.gr__ctas_launched_realtime = CounterMetric(gr__ctas_launched_queue_sync_realtime + gr__ctas_launched_queue_async_realtime, '# of CTAs launched') TriageCompute.gr__ctas_launched_realtime:SetSustainedRate(1.0)"
+      }
+     }
+     MetricRows {
+      Metrics {
+       Label: "Blocks Active"
+       Name: "pmsampling:tpc__ctas_active_realtime.sum"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+     }
+     MetricRows {
+      Metrics {
+       Label: "Warps Launched"
+       Name: "pmsampling:tpc__warps_launched_shader_cs.sum"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+     }
+     MetricRows {
+      Metrics {
+       Label: "Warps Active"
+       Name: "TriageCompute.tpc__warps_active.sum"
+       Groups: "gb20x_TriageCompute_sampling"
+       UserMetricExpr: "TriageCompute.tpc__warps_active = CounterMetric(RerollUp(smsp__warps_active, RollupOp.avg, HwUnit.tpc), 'cumulative # of warps in flight') TriageCompute.tpc__warps_active:SetSustainedRate(96.0)"
+      }
+     }
+     MetricRows {
+      Metrics {
+       Label: "CGAs Launched"
+       Name: "pmsampling:gpc__cgas_launched.sum"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+     }
+     MetricRows {
+      Metrics {
+       Label: "CGAs Active"
+       Name: "pmsampling:gpc__cgas_active_realtime.sum"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+     }
+   }
+   MetricGroups {
+    Label: "SM"
+    Expanded: true
+     MetricRows {
+      Metrics {
+       Label: "SM Throughput"
+       Name: "TriageCompute.sm__throughput.avg.pct_of_peak_sustained_elapsed"
+       Groups: "gb20x_TriageCompute_sampling"
+       UserMetricExpr: "TriageCompute.sm__throughput = ThroughputMetric({sm__inst_executed_realtime,sm__inst_executed_pipe_aluheavy_realtime,sm__pipe_fma_cycles_active_realtime,sm__pipe_fmaheavy_cycles_active_realtime,sm__inst_executed_pipe_xu_realtime,sm__inst_executed_pipe_uniform_realtime,sm__pipe_tensor_cycles_active_realtime}, '')"
+      }
+     }
+     MetricRows {
+      Metrics {
+       Label: "SM ALU Heavy"
+       Name: "pmsampling:sm__inst_executed_pipe_aluheavy_realtime.avg.pct_of_peak_sustained_elapsed"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+     }
+     MetricRows {
+      Metrics {
+       Label: "SM ALU Size 64B"
+       Name: "pmsampling:sm__inst_executed_pipe_alu_size_64b_realtime.avg.pct_of_peak_sustained_elapsed"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+     }
+     MetricRows {
+      Metrics {
+       Label: "SM FMA"
+       Name: "pmsampling:sm__pipe_fma_cycles_active_realtime.avg.pct_of_peak_sustained_elapsed"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+     }
+     MetricRows {
+      Metrics {
+       Label: "SM FMA Heavy"
+       Name: "pmsampling:sm__pipe_fmaheavy_cycles_active_realtime.avg.pct_of_peak_sustained_elapsed"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+     }
+     MetricRows {
+      Metrics {
+       Label: "SM Tensor"
+       Name: "pmsampling:sm__pipe_tensor_cycles_active_realtime.avg.pct_of_peak_sustained_elapsed"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+     }
+     MetricRows {
+      Metrics {
+       Label: "SM Tensor HMMA"
+       Name: "pmsampling:sm__inst_executed_pipe_tensor_subpipe_hmma_realtime.avg.pct_of_peak_sustained_elapsed"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+     }
+     MetricRows {
+      Metrics {
+       Label: "SM Tensor IMMA"
+       Name: "pmsampling:sm__inst_executed_pipe_tensor_subpipe_imma_realtime.avg.pct_of_peak_sustained_elapsed"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+     }
+     MetricRows {
+      Metrics {
+       Label: "SM Uniform"
+       Name: "pmsampling:sm__inst_executed_pipe_uniform_realtime.avg.pct_of_peak_sustained_elapsed"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+     }
+     MetricRows {
+      Metrics {
+       Label: "SM XU"
+       Name: "pmsampling:sm__inst_executed_pipe_xu_realtime.avg.pct_of_peak_sustained_elapsed"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+     }
+     MetricRows {
+      Label: "SM Bytes Shared"
+      Description: "Shared bytes by access type"
+      Metrics {
+       Label: "SM Bytes Shared Atom"
+       Name: "pmsampling:sm__bytes_mem_shared_cmd_atom_realtime.sum.per_second"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+      Metrics {
+       Label: "SM Bytes Shared Read"
+       Name: "pmsampling:sm__bytes_mem_shared_cmd_read_realtime.sum.per_second"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+     }
+     MetricRows {
+      Label: "SM DCC Hit Miss"
+      Description: "Data Constant Case hits and misses"
+      Metrics {
+       Label: "SM DCC Requests Hit"
+       Name: "pmsampling:sm__dcc_requests_lookup_hit.sum"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+      Metrics {
+       Label: "SM DCC Requests Miss"
+       Name: "pmsampling:sm__dcc_requests_lookup_miss.sum"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+     }
+   }
+   MetricGroups {
+    Label: "L1"
+    Expanded: true
+     MetricRows {
+      Metrics {
+       Label: "L1 LSU Writeback Throughput"
+       Name: "pmsampling:l1tex__lsu_writeback_active.avg.pct_of_peak_sustained_elapsed"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+     }
+     MetricRows {
+      Metrics {
+       Label: "L1 TEX Writeback Throughput"
+       Name: "pmsampling:l1tex__tex_writeback_active.avg.pct_of_peak_sustained_elapsed"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+     }
+   }
+   MetricGroups {
+    Label: "L1 Hit Miss"
+    Expanded: true
+     MetricRows {
+      Metrics {
+       Label: "L1 Lookup Hit %"
+       Name: "pmsampling:l1tex__t_sectors_lookup_hit.avg.pct_of_peak_sustained_elapsed"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+     }
+     MetricRows {
+      Metrics {
+       Label: "L1 Lookup Miss %"
+       Name: "pmsampling:l1tex__t_sectors_lookup_miss.avg.pct_of_peak_sustained_elapsed"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+     }
+     MetricRows {
+      Label: "L1 Lookup Hit Miss"
+      Description: "L1 cache lookup hits by access type, and misses"
+      Metrics {
+       Label: "L1 Global LD Hit"
+       Name: "pmsampling:l1tex__t_sectors_pipe_lsu_mem_global_op_ld_lookup_hit_realtime.sum"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+      Metrics {
+       Label: "L1 Global ST Hit"
+       Name: "pmsampling:l1tex__t_sectors_pipe_lsu_mem_global_op_st_lookup_hit_realtime.sum"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+      Metrics {
+       Label: "L1 LDGSTS Hit"
+       Name: "pmsampling:l1tex__t_sectors_pipe_lsu_mem_global_op_ldgsts_cache_access_lookup_hit_realtime.sum"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+      Metrics {
+       Label: "L1 Local LD Hit"
+       Name: "pmsampling:l1tex__t_sectors_pipe_lsu_mem_local_op_ld_lookup_hit_realtime.sum"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+      Metrics {
+       Label: "L1 Local ST Hit"
+       Name: "pmsampling:l1tex__t_sectors_pipe_lsu_mem_local_op_st_lookup_hit_realtime.sum"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+      Metrics {
+       Label: "L1 Surface LD Hit"
+       Name: "pmsampling:l1tex__t_sectors_pipe_tex_mem_surface_op_ld_lookup_hit_realtime.sum"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+      Metrics {
+       Label: "L1 Surface ST Hit"
+       Name: "pmsampling:l1tex__t_sectors_pipe_tex_mem_surface_op_st_lookup_hit_realtime.sum"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+      Metrics {
+       Label: "L1 Texture LD Hit"
+       Name: "pmsampling:l1tex__t_sectors_pipe_tex_mem_texture_op_ld_lookup_hit_realtime.sum"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+      Metrics {
+       Label: "L1 Texture TEX Hit"
+       Name: "pmsampling:l1tex__t_sectors_pipe_tex_mem_texture_op_tex_lookup_hit_realtime.sum"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+      Metrics {
+       Label: "L1 Lookup Miss"
+       Name: "pmsampling:l1tex__t_sectors_lookup_miss.sum"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+     }
+     MetricRows {
+      Label: "SMEM Bank Conflicts"
+      Description: "Shared memory bank conflicts by access type"
+      Metrics {
+       Label: "SMEM Bank Conflicts Atom"
+       Name: "pmsampling:l1tex__data_bank_conflicts_pipe_lsu_mem_shared_op_atom.sum"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+      Metrics {
+       Label: "SMEM Bank Conflicts LD"
+       Name: "pmsampling:l1tex__data_bank_conflicts_pipe_lsu_mem_shared_op_ld.sum"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+      Metrics {
+       Label: "SMEM Bank Conflicts LDGSTS"
+       Name: "pmsampling:l1tex__data_bank_conflicts_pipe_lsu_mem_shared_op_ldgsts.sum"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+      Metrics {
+       Label: "SMEM Bank Conflicts ST"
+       Name: "pmsampling:l1tex__data_bank_conflicts_pipe_lsu_mem_shared_op_st.sum"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+     }
+   }
+   MetricGroups {
+    Label: "L1 Wavefronts (Data)"
+    Expanded: true
+     MetricRows {
+      Metrics {
+       Label: "L1 Wavefronts %"
+       Name: "pmsampling:l1tex__data_pipe_lsu_wavefronts.avg.pct_of_peak_sustained_elapsed"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+     }
+     MetricRows {
+      Label: "L1 Wavefronts"
+      Description: "L1 cache wavefronts by access type"
+      Metrics {
+       Label: "L1 Wavefronts LGDS"
+       Name: "pmsampling:l1tex__data_pipe_lsu_wavefronts_mem_lgds.sum"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+      Metrics {
+       Label: "L1 Wavefronts Shared"
+       Name: "pmsampling:l1tex__data_pipe_lsu_wavefronts_mem_shared.sum"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+      Metrics {
+       Label: "L1 Wavefronts Shared Atom"
+       Name: "pmsampling:l1tex__data_pipe_lsu_wavefronts_mem_shared_op_atom.sum"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+      Metrics {
+       Label: "L1 Wavefronts Shared LD"
+       Name: "pmsampling:l1tex__data_pipe_lsu_wavefronts_mem_shared_op_ld.sum"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+      Metrics {
+       Label: "L1 Wavefronts Shared LDGSTS"
+       Name: "pmsampling:l1tex__data_pipe_lsu_wavefronts_mem_shared_op_ldgsts.sum"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+      Metrics {
+       Label: "L1 Wavefronts Shared Misc"
+       Name: "pmsampling:l1tex__data_pipe_lsu_wavefronts_mem_shared_op_misc.sum"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+      Metrics {
+       Label: "L1 Wavefronts Shared ST"
+       Name: "pmsampling:l1tex__data_pipe_lsu_wavefronts_mem_shared_op_st.sum"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+      Metrics {
+       Label: "L1 Wavefronts TEX"
+       Name: "pmsampling:l1tex__data_pipe_tex_wavefronts.sum"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+     }
+   }
+   MetricGroups {
+    Label: "L2"
+    Expanded: true
+     MetricRows {
+      Metrics {
+       Label: "L2 Throughput"
+       Name: "TriageCompute.lts__throughput.avg.pct_of_peak_sustained_elapsed"
+       Groups: "gb20x_TriageCompute_sampling"
+       UserMetricExpr: "TriageCompute.lts__cbc_requests_type_comptag_realtime = CounterMetric(lts__cbc_requests_type_comptag_lookup_hit_realtime + lts__cbc_requests_type_comptag_lookup_miss_or_hit_to_miss_realtime, '# of compressible requests handled by CBC') TriageCompute.lts__cbc_requests_type_comptag_realtime:SetSustainedRate(1.0)"
+       UserMetricExpr: "TriageCompute.lts__throughput = ThroughputMetric({lts__t_sectors_realtime,lts__lts2xbar_cycles_active_realtime,lts__xbar2lts_cycles_active,lts__t_requests,lts__d_atomic_input_cycles_active,TriageCompute.lts__cbc_requests_type_comptag_realtime,lts__d_decomp_input_sectors_realtime,lts__d_sectors_fill_device}, 'LTS Throughput')"
+      }
+     }
+     MetricRows {
+      Metrics {
+       Label: "L2 Sectors %"
+       Name: "pmsampling:lts__t_sectors_realtime.avg.pct_of_peak_sustained_elapsed"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+     }
+     MetricRows {
+      Label: "L2 Sectors"
+      Description: "L2 cache sectors by source unit"
+      Metrics {
+       Label: "L2 Sectors CE"
+       Name: "pmsampling:lts__t_sectors_srcunit_ce_realtime.sum"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+      Metrics {
+       Label: "L2 Sectors GCC"
+       Name: "pmsampling:lts__t_sectors_srcunit_gcc_realtime.sum"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+      Metrics {
+       Label: "L2 Sectors GPC"
+       Name: "pmsampling:lts__t_sectors_srcnode_gpc_realtime.sum"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+      Metrics {
+       Label: "L2 Sectors HUB"
+       Name: "pmsampling:lts__t_sectors_srcnode_hub_realtime.sum"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+      Metrics {
+       Label: "L2 Sectors TEX"
+       Name: "pmsampling:lts__t_sectors_srcunit_tex_realtime.sum"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+     }
+     MetricRows {
+      Metrics {
+       Label: "L2 to XBAR Active"
+       Name: "pmsampling:lts__lts2xbar_cycles_active_realtime.avg.pct_of_peak_sustained_elapsed"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+     }
+     MetricRows {
+      Metrics {
+       Label: "XBAR to L2 Active"
+       Name: "pmsampling:lts__xbar2lts_cycles_active.avg.pct_of_peak_sustained_elapsed"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+     }
+   }
+   MetricGroups {
+    Label: "L2 Hit Miss"
+    Expanded: true
+     MetricRows {
+      Label: "L2 Hit Miss"
+      Description: "L2 cache lookup hits and misses"
+      Metrics {
+       Label: "L2 Lookup Hit"
+       Name: "pmsampling:lts__t_sectors_lookup_hit_realtime.sum"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+      Metrics {
+       Label: "L2 Lookup Miss"
+       Name: "pmsampling:lts__t_sectors_lookup_miss_realtime.sum"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+     }
+     MetricRows {
+      Metrics {
+       Label: "L2 Hit Rate CE"
+       Name: "TriageCompute.lts__average_t_sector_hit_rate_srcunit_ce_realtime.pct"
+       Groups: "gb20x_TriageCompute_sampling"
+       UserMetricExpr: "TriageCompute.lts__t_sectors_srcunit_ce_lookup_hit_realtime = CounterMetric(lts__t_sectors_srcunit_ce_realtime - lts__t_sectors_srcunit_ce_lookup_miss_realtime, '# of LTS sectors from unit CE that hit') TriageCompute.lts__t_sectors_srcunit_ce_lookup_hit_realtime:SetSustainedRate(1.0)"
+       UserMetricExpr: "TriageCompute.lts__average_t_sector_hit_rate_srcunit_ce_realtime = RatioMetric(TriageCompute.lts__t_sectors_srcunit_ce_lookup_hit_realtime, RollupOp.sum, lts__t_sectors_srcunit_ce_realtime, RollupOp.sum, 1.0, 'proportion of L2 sector lookups from unit CE that hit')"
+      }
+     }
+     MetricRows {
+      Metrics {
+       Label: "L2 Hit Rate GCC"
+       Name: "TriageCompute.lts__average_t_sector_hit_rate_srcunit_gcc_realtime.pct"
+       Groups: "gb20x_TriageCompute_sampling"
+       UserMetricExpr: "TriageCompute.lts__t_sectors_srcunit_gcc_lookup_hit_realtime = CounterMetric(lts__t_sectors_srcunit_gcc_realtime - lts__t_sectors_srcunit_gcc_lookup_miss_realtime, '# of LTS sectors from unit GCC that hit') TriageCompute.lts__t_sectors_srcunit_gcc_lookup_hit_realtime:SetSustainedRate(1.0)"
+       UserMetricExpr: "TriageCompute.lts__average_t_sector_hit_rate_srcunit_gcc_realtime = RatioMetric(TriageCompute.lts__t_sectors_srcunit_gcc_lookup_hit_realtime, RollupOp.sum, lts__t_sectors_srcunit_gcc_realtime, RollupOp.sum, 1.0, 'proportion of L2 sector lookups from unit GCC that hit')"
+      }
+     }
+     MetricRows {
+      Metrics {
+       Label: "L2 Hit Rate GPC"
+       Name: "TriageCompute.lts__average_t_sector_hit_rate_srcnode_gpc_realtime.pct"
+       Groups: "gb20x_TriageCompute_sampling"
+       UserMetricExpr: "TriageCompute.lts__t_sectors_srcnode_gpc_lookup_hit_realtime = CounterMetric(lts__t_sectors_srcnode_gpc_realtime - lts__t_sectors_srcnode_gpc_lookup_miss_realtime, '# of LTS sectors from node GPC that hit') TriageCompute.lts__t_sectors_srcnode_gpc_lookup_hit_realtime:SetSustainedRate(2.0)"
+       UserMetricExpr: "TriageCompute.lts__average_t_sector_hit_rate_srcnode_gpc_realtime = RatioMetric(TriageCompute.lts__t_sectors_srcnode_gpc_lookup_hit_realtime, RollupOp.sum, lts__t_sectors_srcnode_gpc_realtime, RollupOp.sum, 1.0, 'proportion of L2 sector lookups from node GPC that hit')"
+      }
+     }
+     MetricRows {
+      Metrics {
+       Label: "L2 Hit Rate HUB"
+       Name: "TriageCompute.lts__average_t_sector_hit_rate_srcnode_hub_realtime.pct"
+       Groups: "gb20x_TriageCompute_sampling"
+       UserMetricExpr: "TriageCompute.lts__t_sectors_srcnode_hub_lookup_hit_realtime = CounterMetric(lts__t_sectors_srcnode_hub_realtime - lts__t_sectors_srcnode_hub_lookup_miss_realtime, '# of LTS sectors from node HUB that hit') TriageCompute.lts__t_sectors_srcnode_hub_lookup_hit_realtime:SetSustainedRate(1.0)"
+       UserMetricExpr: "TriageCompute.lts__average_t_sector_hit_rate_srcnode_hub_realtime = RatioMetric(TriageCompute.lts__t_sectors_srcnode_hub_lookup_hit_realtime, RollupOp.sum, lts__t_sectors_srcnode_hub_realtime, RollupOp.sum, 1.0, 'proportion of L2 sector lookups from node HUB that hit')"
+      }
+     }
+     MetricRows {
+      Metrics {
+       Label: "L2 Hit Rate TEX Atom"
+       Name: "TriageCompute.lts__average_t_sector_hit_rate_srcunit_tex_op_atom_realtime.pct"
+       Groups: "gb20x_TriageCompute_sampling"
+       UserMetricExpr: "TriageCompute.lts__t_sectors_srcunit_tex_op_atom_realtime = CounterMetric(lts__t_sectors_srcunit_tex_realtime - lts__t_sectors_srcunit_tex_op_read_realtime - lts__t_sectors_srcunit_tex_op_write_realtime)"
+       UserMetricExpr: "TriageCompute.lts__t_sectors_srcunit_tex_op_atom_lookup_hit_realtime = CounterMetric(TriageCompute.lts__t_sectors_srcunit_tex_op_atom_realtime - (lts__t_sectors_srcunit_tex_lookup_miss_realtime - lts__t_sectors_srcunit_tex_op_read_lookup_miss_realtime - lts__t_sectors_srcunit_tex_op_write_lookup_miss_realtime), '# of LTS sectors from unit TEX for all atomics or reductions that hit') TriageCompute.lts__t_sectors_srcunit_tex_op_atom_lookup_hit_realtime:SetSustainedRate(1.0)"
+       UserMetricExpr: "TriageCompute.lts__average_t_sector_hit_rate_srcunit_tex_op_atom_realtime = RatioMetric(TriageCompute.lts__t_sectors_srcunit_tex_op_atom_lookup_hit_realtime, RollupOp.avg, TriageCompute.lts__t_sectors_srcunit_tex_op_atom_realtime, RollupOp.avg, 1.0, 'proportion of L2 sector lookups from unit TEX for atomics or reductions that hit')"
+      }
+     }
+     MetricRows {
+      Metrics {
+       Label: "L2 Hit Rate TEX Read"
+       Name: "TriageCompute.lts__average_t_sector_hit_rate_srcunit_tex_op_read_realtime.pct"
+       Groups: "gb20x_TriageCompute_sampling"
+       UserMetricExpr: "TriageCompute.lts__t_sectors_srcunit_tex_op_read_lookup_hit_realtime = CounterMetric(lts__t_sectors_srcunit_tex_op_read_realtime - lts__t_sectors_srcunit_tex_op_read_lookup_miss_realtime, '# of LTS sectors from unit TEX for all reads that hit') TriageCompute.lts__t_sectors_srcunit_tex_op_read_lookup_hit_realtime:SetSustainedRate(2.0)"
+       UserMetricExpr: "TriageCompute.lts__average_t_sector_hit_rate_srcunit_tex_op_read_realtime = RatioMetric(TriageCompute.lts__t_sectors_srcunit_tex_op_read_lookup_hit_realtime, RollupOp.avg, lts__t_sectors_srcunit_tex_op_read_realtime, RollupOp.avg, 1.0, 'proportion of L2 sector lookups from unit TEX for reads that hit')"
+      }
+     }
+     MetricRows {
+      Metrics {
+       Label: "L2 Hit Rate TEX Write"
+       Name: "TriageCompute.lts__average_t_sector_hit_rate_srcunit_tex_op_write_realtime.pct"
+       Groups: "gb20x_TriageCompute_sampling"
+       UserMetricExpr: "TriageCompute.lts__t_sectors_srcunit_tex_op_write_lookup_hit_realtime = CounterMetric(lts__t_sectors_srcunit_tex_op_write_realtime - lts__t_sectors_srcunit_tex_op_write_lookup_miss_realtime, '# of LTS sectors from unit TEX for all writes that hit') TriageCompute.lts__t_sectors_srcunit_tex_op_write_lookup_hit_realtime:SetSustainedRate(1.0)"
+       UserMetricExpr: "TriageCompute.lts__average_t_sector_hit_rate_srcunit_tex_op_write_realtime = RatioMetric(TriageCompute.lts__t_sectors_srcunit_tex_op_write_lookup_hit_realtime, RollupOp.avg, lts__t_sectors_srcunit_tex_op_write_realtime, RollupOp.avg, 1.0, 'proportion of L2 sector lookups from unit TEX for writes that hit')"
+      }
+     }
+   }
+   MetricGroups {
+    Label: "SysL2"
+    Expanded: true
+     MetricRows {
+      Metrics {
+       Label: "SysL2 Throughput"
+       Name: "TriageCompute.syslts__throughput.avg.pct_of_peak_sustained_elapsed"
+       Groups: "gb20x_TriageCompute_sampling"
+       UserMetricExpr: "TriageCompute.syslts__throughput = ThroughputMetric({syslts__t_sectors_realtime,syslts__syslts2xbar_cycles_active,syslts__xbar2syslts_cycles_active,syslts__t_requests,syslts__d_atomic_input_cycles_active}, 'SYSLTS Throughput')"
+      }
+     }
+     MetricRows {
+      Metrics {
+       Label: "SysL2 Sectors %"
+       Name: "pmsampling:syslts__t_sectors_realtime.avg.pct_of_peak_sustained_elapsed"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+     }
+     MetricRows {
+      Label: "SysL2 Sectors"
+      Description: "SysL2 cache sectors by source unit"
+      Metrics {
+       Label: "SysL2 Sectors CE"
+       Name: "pmsampling:syslts__t_sectors_srcunit_ce_realtime.sum"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+      Metrics {
+       Label: "SysL2 Sectors FBP"
+       Name: "pmsampling:syslts__t_sectors_srcnode_fbp_realtime.sum"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+      Metrics {
+       Label: "SysL2 Sectors GCC"
+       Name: "pmsampling:syslts__t_sectors_srcunit_gcc_realtime.sum"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+      Metrics {
+       Label: "SysL2 Sectors GPC"
+       Name: "pmsampling:syslts__t_sectors_srcnode_gpc_realtime.sum"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+      Metrics {
+       Label: "SysL2 Sectors HUB"
+       Name: "pmsampling:syslts__t_sectors_srcnode_hub_realtime.sum"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+      Metrics {
+       Label: "SysL2 Sectors TEX"
+       Name: "pmsampling:syslts__t_sectors_srcunit_tex_realtime.sum"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+     }
+     MetricRows {
+      Metrics {
+       Label: "SysL2 Atomic Input Active"
+       Name: "pmsampling:syslts__d_atomic_input_cycles_active.avg.pct_of_peak_sustained_elapsed"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+     }
+     MetricRows {
+      Label: "SysL2 Hit Miss"
+      Description: "SysL2 cache lookup hits and misses"
+      Metrics {
+       Label: "SysL2 Lookup Hit"
+       Name: "pmsampling:syslts__t_sectors_lookup_hit_realtime.sum"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+      Metrics {
+       Label: "SysL2 Lookup Miss"
+       Name: "pmsampling:syslts__t_sectors_lookup_miss_realtime.sum"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+     }
+     MetricRows {
+      Metrics {
+       Label: "SysL2 to XBAR Active"
+       Name: "pmsampling:syslts__syslts2xbar_cycles_active.avg.pct_of_peak_sustained_elapsed"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+     }
+     MetricRows {
+      Metrics {
+       Label: "XBAR to SysL2 Active"
+       Name: "pmsampling:syslts__xbar2syslts_cycles_active.avg.pct_of_peak_sustained_elapsed"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+     }
+   }
+   MetricGroups {
+    Label: "PCIe"
+    Expanded: true
+     MetricRows {
+      Metrics {
+       Label: "PCIe Throughput"
+       Name: "pmsampling:pcie__throughput.avg.pct_of_peak_sustained_elapsed"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+     }
+     MetricRows {
+      Metrics {
+       Label: "PCIe Bytes Read"
+       Name: "pmsampling:pcie__read_bytes.sum.per_second"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+     }
+     MetricRows {
+      Metrics {
+       Label: "PCIe Bytes Write"
+       Name: "pmsampling:pcie__write_bytes.sum.per_second"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+     }
+   }
+   MetricGroups {
+    Label: "DRAM"
+    Expanded: true
+     MetricRows {
+      Metrics {
+       Label: "DRAM Bandwidth"
+       Name: "pmsampling:dram__bytes.avg.pct_of_peak_sustained_elapsed"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+     }
+     MetricRows {
+      Metrics {
+       Label: "DRAM Bytes"
+       Name: "pmsampling:dram__bytes.sum.per_second"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+     }
+     MetricRows {
+      Metrics {
+       Label: "DRAM Sectors Read"
+       Name: "pmsampling:dram__sectors_op_read.sum"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+     }
+     MetricRows {
+      Metrics {
+       Label: "DRAM Sectors Write"
+       Name: "pmsampling:dram__sectors_op_write.sum"
+       Groups: "gb20x_TriageCompute_sampling"
+      }
+     }
+   }
+   Metrics {
+    Name: "pmsampling:gr__ctas_launched_queue_async_realtime.sum"
+    Groups: "gb20x_TriageCompute_sampling"
+   }
+   Metrics {
+    Name: "pmsampling:gr__ctas_launched_queue_sync_realtime.sum"
+    Groups: "gb20x_TriageCompute_sampling"
+   }
+   Metrics {
+    Name: "pmsampling:lts__cbc_requests_type_comptag_lookup_hit_realtime.sum"
+    Groups: "gb20x_TriageCompute_sampling"
+   }
+   Metrics {
+    Name: "pmsampling:lts__cbc_requests_type_comptag_lookup_miss_or_hit_to_miss_realtime.sum"
+    Groups: "gb20x_TriageCompute_sampling"
+   }
+   Metrics {
+    Name: "pmsampling:lts__d_atomic_input_cycles_active.sum"
+    Groups: "gb20x_TriageCompute_sampling"
+   }
+   Metrics {
+    Name: "pmsampling:lts__d_decomp_input_sectors_realtime.sum"
+    Groups: "gb20x_TriageCompute_sampling"
+   }
+   Metrics {
+    Name: "pmsampling:lts__d_sectors_fill_device.sum"
+    Groups: "gb20x_TriageCompute_sampling"
+   }
+   Metrics {
+    Name: "pmsampling:lts__lts2xbar_cycles_active_realtime.sum"
+    Groups: "gb20x_TriageCompute_sampling"
+   }
+   Metrics {
+    Name: "pmsampling:lts__t_requests.sum"
+    Groups: "gb20x_TriageCompute_sampling"
+   }
+   Metrics {
+    Name: "pmsampling:lts__t_sectors_realtime.sum"
+    Groups: "gb20x_TriageCompute_sampling"
+   }
+   Metrics {
+    Name: "pmsampling:lts__t_sectors_srcnode_gpc_lookup_miss_realtime.sum"
+    Groups: "gb20x_TriageCompute_sampling"
+   }
+   Metrics {
+    Name: "pmsampling:lts__t_sectors_srcnode_gpc_realtime.sum"
+    Groups: "gb20x_TriageCompute_sampling"
+   }
+   Metrics {
+    Name: "pmsampling:lts__t_sectors_srcnode_hub_lookup_miss_realtime.sum"
+    Groups: "gb20x_TriageCompute_sampling"
+   }
+   Metrics {
+    Name: "pmsampling:lts__t_sectors_srcnode_hub_realtime.sum"
+    Groups: "gb20x_TriageCompute_sampling"
+   }
+   Metrics {
+    Name: "pmsampling:lts__t_sectors_srcunit_ce_lookup_miss_realtime.sum"
+    Groups: "gb20x_TriageCompute_sampling"
+   }
+   Metrics {
+    Name: "pmsampling:lts__t_sectors_srcunit_ce_realtime.sum"
+    Groups: "gb20x_TriageCompute_sampling"
+   }
+   Metrics {
+    Name: "pmsampling:lts__t_sectors_srcunit_gcc_lookup_miss_realtime.sum"
+    Groups: "gb20x_TriageCompute_sampling"
+   }
+   Metrics {
+    Name: "pmsampling:lts__t_sectors_srcunit_gcc_realtime.sum"
+    Groups: "gb20x_TriageCompute_sampling"
+   }
+   Metrics {
+    Name: "pmsampling:lts__t_sectors_srcunit_tex_lookup_miss_realtime.sum"
+    Groups: "gb20x_TriageCompute_sampling"
+   }
+   Metrics {
+    Name: "pmsampling:lts__t_sectors_srcunit_tex_op_read_lookup_miss_realtime.sum"
+    Groups: "gb20x_TriageCompute_sampling"
+   }
+   Metrics {
+    Name: "pmsampling:lts__t_sectors_srcunit_tex_op_read_realtime.sum"
+    Groups: "gb20x_TriageCompute_sampling"
+   }
+   Metrics {
+    Name: "pmsampling:lts__t_sectors_srcunit_tex_op_write_lookup_miss_realtime.sum"
+    Groups: "gb20x_TriageCompute_sampling"
+   }
+   Metrics {
+    Name: "pmsampling:lts__t_sectors_srcunit_tex_op_write_realtime.sum"
+    Groups: "gb20x_TriageCompute_sampling"
+   }
+   Metrics {
+    Name: "pmsampling:lts__t_sectors_srcunit_tex_realtime.sum"
+    Groups: "gb20x_TriageCompute_sampling"
+   }
+   Metrics {
+    Name: "pmsampling:lts__xbar2lts_cycles_active.sum"
+    Groups: "gb20x_TriageCompute_sampling"
+   }
+   Metrics {
+    Name: "pmsampling:sm__inst_executed_pipe_aluheavy_realtime.sum"
+    Groups: "gb20x_TriageCompute_sampling"
+   }
+   Metrics {
+    Name: "pmsampling:sm__inst_executed_pipe_uniform_realtime.sum"
+    Groups: "gb20x_TriageCompute_sampling"
+   }
+   Metrics {
+    Name: "pmsampling:sm__inst_executed_pipe_xu_realtime.sum"
+    Groups: "gb20x_TriageCompute_sampling"
+   }
+   Metrics {
+    Name: "pmsampling:sm__inst_executed_realtime.sum"
+    Groups: "gb20x_TriageCompute_sampling"
+   }
+   Metrics {
+    Name: "pmsampling:sm__pipe_fma_cycles_active_realtime.sum"
+    Groups: "gb20x_TriageCompute_sampling"
+   }
+   Metrics {
+    Name: "pmsampling:sm__pipe_fmaheavy_cycles_active_realtime.sum"
+    Groups: "gb20x_TriageCompute_sampling"
+   }
+   Metrics {
+    Name: "pmsampling:sm__pipe_tensor_cycles_active_realtime.sum"
+    Groups: "gb20x_TriageCompute_sampling"
+   }
+   Metrics {
+    Name: "pmsampling:smsp__warps_active.sum"
+    Groups: "gb20x_TriageCompute_sampling"
+   }
+   Metrics {
+    Name: "pmsampling:syslts__d_atomic_input_cycles_active.sum"
+    Groups: "gb20x_TriageCompute_sampling"
+   }
+   Metrics {
+    Name: "pmsampling:syslts__syslts2xbar_cycles_active.sum"
+    Groups: "gb20x_TriageCompute_sampling"
+   }
+   Metrics {
+    Name: "pmsampling:syslts__t_requests.sum"
+    Groups: "gb20x_TriageCompute_sampling"
+   }
+   Metrics {
+    Name: "pmsampling:syslts__t_sectors_realtime.sum"
+    Groups: "gb20x_TriageCompute_sampling"
+   }
+   Metrics {
+    Name: "pmsampling:syslts__xbar2syslts_cycles_active.sum"
+    Groups: "gb20x_TriageCompute_sampling"
+   }
+  }
+ }
+}

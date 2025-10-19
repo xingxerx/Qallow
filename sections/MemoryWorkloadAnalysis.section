@@ -1,0 +1,186 @@
+Identifier: "MemoryWorkloadAnalysis"
+DisplayName: "Memory Workload Analysis"
+Description: "Detailed analysis of the memory resources of the GPU. Memory can become a limiting factor for the overall kernel performance when fully utilizing the involved hardware units (Mem Busy), exhausting the available communication bandwidth between those units (Max Bandwidth), or by reaching the maximum throughput of issuing memory instructions (Mem Pipes Busy)."
+Order: 30
+Sets {
+  Identifier: "detailed"
+}
+Sets {
+  Identifier: "full"
+}
+MetricDefinitions {
+  MetricDefinitions {
+    Name : "sass__inst_executed_register_spilling_mem_local"
+    Expression : "simplify(sass__inst_executed_register_spilling_mem_local_op_read) + simplify(sass__inst_executed_register_spilling_mem_local_op_write)"
+  }
+  MetricDefinitions{
+    Name : "sass__inst_executed_register_spilling_mem_shared"
+    Expression : "simplify(sass__inst_executed_register_spilling_mem_shared_op_read) + simplify(sass__inst_executed_register_spilling_mem_shared_op_write)"
+  }
+  MetricDefinitions {
+    Name: "derived__local_spilling_requests"
+    Expression: "simplify(sass__inst_executed_register_spilling)"
+  }
+  MetricDefinitions {
+    Name: "derived__local_spilling_requests_pct"
+    Expression: "100.0 * nan_as_zero(simplify(sass__inst_executed_register_spilling) / (simplify(sass__inst_executed_local_loads) + simplify(sass__inst_executed_local_stores)))"
+  }
+}
+
+Metrics {
+  Metrics {
+    Label: "Instructions Executed"
+    Name: "inst_executed"
+    Filter {
+      CollectionFilter {
+        CollectionScopes: CollectionScope_Launch
+        CollectionScopes: CollectionScope_Cmdlist
+      }
+    }
+  }
+}
+Header {
+  Metrics {
+    Label: "Memory Throughput"
+    Name: "dram__bytes.sum.per_second"
+    Filter {
+      Items {
+        MinArch: CC_75
+        MaxArch: CC_86
+      }
+      Items {
+        MinArch: CC_89
+        MaxArch: CC_100
+      }
+      Items {
+        MinArch: CC_103
+        MaxArch: CC_103
+      }
+      Items {
+        MinArch: CC_120
+        MaxArch: CC_120
+      }
+    }
+  }
+  Metrics {
+    Label: "Mem Busy"
+    Name: "gpu__compute_memory_access_throughput.avg.pct_of_peak_sustained_elapsed"
+  }
+  Metrics {
+    Label: "L1/TEX Hit Rate"
+    Name: "l1tex__t_sector_hit_rate.pct"
+  }
+  Metrics {
+    Label: "Max Bandwidth"
+    Name: "gpu__compute_memory_request_throughput.avg.pct_of_peak_sustained_elapsed"
+  }
+  Metrics {
+    Label: "L2 Hit Rate"
+    Name: "lts__t_sector_hit_rate.pct"
+  }
+  Metrics {
+    Label: "Mem Pipes Busy"
+    Name: "sm__memory_throughput.avg.pct_of_peak_sustained_elapsed"
+  }
+  Metrics {
+    Label: "L2 Compression Input Sectors"
+    Name: "lts__gcomp_input_sectors.sum"
+    Filter {
+      Items {
+        MinArch: CC_80
+        MaxArch: CC_89
+      }
+      Items {
+        MinArch: CC_110
+        MaxArch: CC_110
+      }
+      Items {
+        MinArch: CC_120
+        MaxArch: CC_121
+      }
+    }
+    Options {
+      Name: "lrc__ilc_input_sectors.sum"
+      Filter {
+        Items {
+          MinArch: CC_90
+          MaxArch: CC_100
+        }
+        Items {
+          MinArch: CC_103
+          MaxArch: CC_103
+        }
+      }
+    }
+  }
+  Metrics {
+    Label: "Local Memory Spilling Requests"
+    Name: "derived__local_spilling_requests"
+  }
+  Metrics {
+    Label: "L2 Compression Ratio"
+    Name: "lts__average_gcomp_output_sector_compression_achieved_rate.ratio"
+    Filter {
+      MinArch: CC_80
+    }
+    Options {
+      Name: "lrc__average_ilc_output_sector_compression_achieved_rate.pct"
+      Filter {
+        Items {
+          MinArch: CC_90
+          MaxArch: CC_100
+        }
+        Items {
+          MinArch: CC_103
+          MaxArch: CC_103
+        }
+      }
+    }
+  }
+  Metrics {
+    Label: "Local Memory Spilling Request Overhead"
+    Name: "derived__local_spilling_requests_pct"
+  }
+  Metrics {
+    Label: "L2 Compression Success Rate"
+    Name: "lts__average_gcomp_input_sector_success_rate.pct"
+    Filter {
+      Items {
+        MinArch: CC_80
+        MaxArch: CC_89
+      }
+      Items {
+        MinArch: CC_110
+        MaxArch: CC_110
+      }
+      Items {
+        MinArch: CC_120
+        MaxArch: CC_121
+      }
+    }
+    Options {
+      Name: "lrc__average_ilc_input_sector_success_rate.pct"
+      Filter {
+        Items {
+          MinArch: CC_90
+          MaxArch: CC_100
+        }
+        Items {
+          MinArch: CC_103
+          MaxArch: CC_103
+        }
+      }
+    }
+  }
+  Metrics {
+    Label: "L2 Persisting Size"
+    Name: "launch__persisting_l2_cache_size"
+    Filter {
+      MinArch: CC_80
+      CollectionFilter {
+        CollectionScopes: CollectionScope_Launch
+        CollectionScopes: CollectionScope_Range
+      }
+    }
+  }
+}

@@ -5,8 +5,6 @@
 #include <time.h>
 
 // Include all core headers
-#include "qallow/logging.h"
-#include "qallow/env.h"
 #include "qallow_kernel.h"
 #include "ppai.h"
 #include "qcp.h"
@@ -19,8 +17,7 @@
 #include "qallow_phase12.h"
 #include "qallow_phase13.h"
 #include "phase13_accelerator.h"
-#include "qallow_phase14.h"
-#include "qallow_phase15.h"
+#include "qallow_integration.h"
 // TODO: Add these when modules are implemented
 // #include "adaptive.h"
 // #include "verify.h"
@@ -40,17 +37,6 @@ static int qallow_run_vm(run_profile_t profile);
 static int qallow_handle_run(int argc, char** argv, int arg_offset, run_profile_t default_profile);
 static int qallow_dispatch_phase(int argc, char** argv, int start_index, const char* phase_name,
                                  int (*runner)(int, char**));
-static int qallow_handle_integrate(int argc, char** argv, int flag_index);
-
-typedef struct {
-    bool phase14;
-    bool phase15;
-    bool no_split;
-} integration_options_t;
-
-static void integration_initialize_logging(void);
-static float integration_ethics_total(const qallow_state_t* state);
-static int qallow_execute_integrate(const integration_options_t* opts);
 
 // Print banner
 static void print_banner(void) {
@@ -120,9 +106,34 @@ static int qallow_dispatch_phase(int argc, char** argv, int start_index, const c
 static int qallow_handle_run(int argc, char** argv, int arg_offset, run_profile_t default_profile) {
     run_profile_t profile = default_profile;
     bool profile_set = (default_profile != RUN_PROFILE_STANDARD);
+    bool integrate_requested = false;
+    const char* integrate_phases[8];
+    int integrate_count = 0;
+    bool integrate_no_split = false;
 
     for (int i = arg_offset; i < argc; ++i) {
         const char* arg = argv[i];
+
+        if (strcmp(arg, "--integrate") == 0) {
+            integrate_requested = true;
+            int j = i + 1;
+            for (; j < argc; ++j) {
+                const char* candidate = argv[j];
+                if (!candidate || strncmp(candidate, "--", 2) == 0) {
+                    break;
+                }
+                if (integrate_count < (int)(sizeof(integrate_phases) / sizeof(integrate_phases[0]))) {
+                    integrate_phases[integrate_count++] = candidate;
+                }
+            }
+            i = j - 1;
+            continue;
+        }
+
+        if (strcmp(arg, "--no-split") == 0) {
+            integrate_no_split = true;
+            continue;
+        }
 
         if (strcmp(arg, "--bench") == 0) {
             if (profile_set && profile != RUN_PROFILE_BENCH) {
@@ -157,10 +168,6 @@ static int qallow_handle_run(int argc, char** argv, int arg_offset, run_profile_
             return qallow_phase13_main(accel_argc, (char**)accel_argv_const);
         }
 
-        if (strcmp(arg, "--integrate") == 0) {
-            return qallow_handle_integrate(argc, argv, i);
-        }
-
         if (strncmp(arg, "--phase=", 8) == 0) {
             const char* phase_value = arg + 8;
             if (strcmp(phase_value, "12") == 0 || strcmp(phase_value, "phase12") == 0) {
@@ -192,143 +199,41 @@ static int qallow_handle_run(int argc, char** argv, int arg_offset, run_profile_
         return 1;
     }
 
+    if (integrate_requested) {
+        qallow_lattice_config_t config;
+        qallow_lattice_config_init(&config);
+        config.no_split = integrate_no_split;
+
+        if (integrate_count > 0) {
+            config.phase_mask = 0u;
+            for (int idx = 0; idx < integrate_count; ++idx) {
+                const char* phase_name = integrate_phases[idx];
+                if (strcmp(phase_name, "phase14") == 0 || strcmp(phase_name, "14") == 0 || strcmp(phase_name, "entanglement") == 0) {
+                    qallow_lattice_config_enable(&config, QALLOW_LATTICE_PHASE14, true);
+                    continue;
+                }
+                if (strcmp(phase_name, "phase15") == 0 || strcmp(phase_name, "15") == 0 || strcmp(phase_name, "singularity") == 0) {
+                    qallow_lattice_config_enable(&config, QALLOW_LATTICE_PHASE15, true);
+                    continue;
+                }
+
+                fprintf(stderr, "[ERROR] Unknown integration phase: %s\n", phase_name);
+                return 1;
+            }
+            if (config.phase_mask == 0u) {
+                fprintf(stderr, "[ERROR] No valid phases selected for integration\n");
+                return 1;
+            }
+        }
+
+        int rc = qallow_lattice_integrate(&config);
+        if (rc != 0) {
+            fprintf(stderr, "[ERROR] Unified lattice integration failed (code=%d)\n", rc);
+        }
+        return rc;
+    }
+
     return qallow_run_vm(profile);
-}
-
-static void integration_initialize_logging(void) {
-    static bool initialized = false;
-    if (initialized) {
-        return;
-    }
-    qallow_logging_init();
-    qallow_env_load(NULL);
-    const char* log_dir = getenv("QALLOW_LOG_DIR");
-    if (log_dir && *log_dir) {
-        qallow_logging_set_directory(log_dir);
-    }
-    initialized = true;
-}
-
-static float integration_ethics_total(const qallow_state_t* state) {
-    if (!state) {
-        return 0.0f;
-    }
-    return state->ethics_S + state->ethics_C + state->ethics_H;
-}
-
-static int qallow_handle_integrate(int argc, char** argv, int flag_index) {
-    integration_options_t opts = {0};
-
-    for (int i = flag_index + 1; i < argc; ++i) {
-        const char* next = argv[i];
-        if (!next) {
-            continue;
-        }
-
-        if (strcmp(next, "phase14") == 0 || strcmp(next, "14") == 0) {
-            opts.phase14 = true;
-            continue;
-        }
-
-        if (strcmp(next, "phase15") == 0 || strcmp(next, "15") == 0) {
-            opts.phase15 = true;
-            continue;
-        }
-
-        if (strcmp(next, "--no-split") == 0) {
-            opts.no_split = true;
-            continue;
-        }
-
-        if (strncmp(next, "--", 2) == 0) {
-            fprintf(stderr, "[ERROR] Unknown integration option: %s\n", next);
-            return 1;
-        }
-
-        fprintf(stderr, "[ERROR] Unknown integration phase: %s\n", next);
-        return 1;
-    }
-
-    if (!opts.phase14 && !opts.phase15) {
-        opts.phase14 = true;
-        opts.phase15 = true;
-    }
-
-    return qallow_execute_integrate(&opts);
-}
-
-static int qallow_execute_integrate(const integration_options_t* opts) {
-    if (!opts) {
-        return 1;
-    }
-
-    integration_initialize_logging();
-
-    printf("[INTEGRATE] Starting unified lattice integration\n");
-    printf("[INTEGRATE] phases: p14=%s p15=%s | mode=%s\n",
-           opts->phase14 ? "on" : "off",
-           opts->phase15 ? "on" : "off",
-           opts->no_split ? "no-split" : "harmonic");
-
-    if (opts->no_split) {
-        printf("[INTEGRATE] No-split timeline enabled (shared CUDA blocks)\n");
-    }
-
-    print_banner();
-
-    qallow_state_t state;
-    qallow_kernel_init(&state);
-    qallow_cpu_process_overlays(&state);
-
-    phase14_status_t phase14_status;
-    memset(&phase14_status, 0, sizeof(phase14_status));
-    phase14_config_t phase14_cfg;
-    phase14_config_default(&phase14_cfg);
-
-    phase15_status_t phase15_status;
-    memset(&phase15_status, 0, sizeof(phase15_status));
-    phase15_config_t phase15_cfg;
-    phase15_config_default(&phase15_cfg);
-
-    if (opts->no_split) {
-        phase14_cfg.coupling_gain *= 1.25f;
-        phase14_cfg.iterations += 4;
-        phase15_cfg.convergence_gain *= 1.15f;
-        phase15_cfg.review_passes += 1;
-    }
-
-    if (opts->phase14) {
-        printf("[PHASE14] Stabilizing inter-pocket coherence...\n");
-        phase14_entanglement_integrate(&state, &phase14_cfg, &phase14_status);
-        printf("[PHASE14] Δcoherence=%.6f Δalignment=%.6f ethics-proj=%.6f\n",
-               phase14_status.coherence_delta,
-               phase14_status.cross_alignment_delta,
-               phase14_status.ethics_projection);
-    }
-
-    if (opts->phase15) {
-        printf("[PHASE15] Merging Bayesian and photonic stateflows...\n");
-        phase15_singularity_converge(&state,
-                                     &phase15_cfg,
-                                     opts->phase14 ? &phase14_status : NULL,
-                                     &phase15_status);
-        printf("[PHASE15] coherence=%.6f audit=%.6f ethics-floor=%.6f Δinference=%.6f\n",
-               phase15_status.coherence_scalar,
-               phase15_status.audit_score,
-               phase15_status.ethics_floor,
-               phase15_status.inference_entropy);
-    }
-
-    printf("[INTEGRATE] Final coherence=%.6f decoherence=%.6f ethics-total=%.6f\n",
-           state.global_coherence,
-           state.decoherence_level,
-           integration_ethics_total(&state));
-
-    if (opts->no_split) {
-        printf("[INTEGRATE] Harmonic threads merged without split.\n");
-    }
-
-    return 0;
 }
 
 // VERIFY mode: System checkpoint
