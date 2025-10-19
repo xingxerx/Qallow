@@ -1,0 +1,101 @@
+syntax = "proto3";
+
+package qallow.proto.phase12;
+
+import "proto/qallow_common.proto";
+
+option go_package = "github.com/xingxerx/qallow/proto/phase12";
+
+// ============================================================================
+// Phase 12: Elasticity Engine
+// ============================================================================
+
+/**
+ * Phase 12 elasticity simulation parameters
+ */
+message ElasticityConfig {
+    int32 ticks = 1;
+    float epsilon = 2;  // Elasticity parameter
+    string log_path = 3;
+    bool enable_cuda = 4;
+}
+
+/**
+ * Elasticity state at a given tick
+ */
+message ElasticityState {
+    uint64 tick = 1;
+    float coherence = 2;
+    float entropy = 3;
+    float decoherence = 4;
+    float stretch_factor = 5;
+}
+
+/**
+ * Elasticity simulation request
+ */
+message RunElasticityRequest {
+    ElasticityConfig config = 1;
+    qallow.proto.QallowState initial_state = 2;
+}
+
+/**
+ * Elasticity simulation response
+ */
+message RunElasticityResponse {
+    bool success = 1;
+    string error_message = 2;
+    
+    ElasticityState final_state = 3;
+    repeated ElasticityState state_history = 4;
+    
+    // Telemetry
+    double execution_time_ms = 5;
+    int64 operations_count = 6;
+}
+
+/**
+ * Elasticity metrics for monitoring
+ */
+message ElasticityMetrics {
+    uint64 timestamp_ns = 1;
+    
+    float avg_coherence = 2;
+    float min_coherence = 3;
+    float max_coherence = 4;
+    
+    float avg_entropy = 3;
+    float entropy_delta = 4;
+    
+    float avg_decoherence = 5;
+    float decoherence_trend = 6;
+    
+    double throughput_ops_per_sec = 7;
+    double energy_joules = 8;
+}
+
+/**
+ * Phase 12 Service Definition
+ */
+service ElasticityService {
+    /**
+     * Run elasticity simulation
+     */
+    rpc RunElasticity(RunElasticityRequest) returns (RunElasticityResponse);
+    
+    /**
+     * Stream elasticity metrics
+     */
+    rpc StreamMetrics(ElasticityConfig) returns (stream ElasticityMetrics);
+    
+    /**
+     * Get current elasticity state
+     */
+    rpc GetState(google.protobuf.Empty) returns (ElasticityState);
+    
+    /**
+     * Reset elasticity engine
+     */
+    rpc Reset(google.protobuf.Empty) returns (google.protobuf.Empty);
+}
+

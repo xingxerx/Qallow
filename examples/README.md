@@ -14,4 +14,4 @@ Build everything via CMake:
 cmake --build build --target qallow_examples
 ```
 
-Outputs land under `build/examples/`. Benchmark logs are written to `data/logs/benchmarks/`.
+Outputs land under `build/`. Benchmark logs are written to `data/logs/benchmarks/`.

@@ -1,0 +1,183 @@
+syntax = "proto3";
+
+package qallow.proto;
+
+option go_package = "github.com/xingxerx/qallow/proto";
+option java_package = "com.qallow.proto";
+option java_outer_classname = "QallowCommon";
+
+// ============================================================================
+// Common Types Shared Across All Phases
+// ============================================================================
+
+/**
+ * Overlay state: one of three coherence layers (Orbital, River, Mycelial)
+ */
+message Overlay {
+    repeated double nodes = 1;  // 256 nodes per overlay
+    double stability = 2;
+    double coherence = 3;
+}
+
+/**
+ * Core VM state snapshot
+ */
+message QallowState {
+    uint64 tick = 1;
+    Overlay orbital = 2;
+    Overlay river = 3;
+    Overlay mycelial = 4;
+    
+    // Ethics framework: E = S + C + H
+    double ethics_S = 5;  // Sustainability
+    double ethics_C = 6;  // Compassion
+    double ethics_H = 7;  // Harmony
+    
+    double decoherence = 8;
+    double global_coherence = 9;
+    
+    bool cuda_enabled = 10;
+    int32 gpu_device_id = 11;
+}
+
+/**
+ * Ethics evaluation result
+ */
+message EthicsResult {
+    double safety_score = 1;
+    double clarity_score = 2;
+    double human_benefit_score = 3;
+    double total_ethics_score = 4;
+    bool safety_check_passed = 5;
+    string decision_reason = 6;
+}
+
+/**
+ * Telemetry event for pub-sub
+ */
+message TelemetryEvent {
+    uint64 timestamp_ns = 1;
+    string node_id = 2;
+    string phase_name = 3;
+    
+    QallowState state = 4;
+    EthicsResult ethics = 5;
+    
+    map<string, double> metrics = 6;
+    map<string, string> tags = 7;
+}
+
+/**
+ * Epoch checkpoint for temporal scaling
+ */
+message EpochCheckpoint {
+    uint64 epoch_id = 1;
+    uint64 tick_number = 2;
+    uint64 timestamp_ns = 3;
+    
+    QallowState state = 4;
+    
+    // Causal graph: edges represent dependencies
+    repeated CausalEdge causal_edges = 5;
+    
+    // SHA-256 hash for verification
+    bytes hash = 6;
+    
+    // Previous epoch hash for chain
+    bytes previous_hash = 7;
+}
+
+/**
+ * Causal dependency edge
+ */
+message CausalEdge {
+    uint64 source_tick = 1;
+    uint64 target_tick = 2;
+    string operation = 3;
+    double weight = 4;
+}
+
+/**
+ * Governance ledger entry
+ */
+message GovernanceLedgerEntry {
+    uint64 sequence = 1;
+    uint64 timestamp_ns = 2;
+    string node_id = 3;
+    
+    string decision_type = 4;  // "ethics_check", "adaptation", "rollback", etc.
+    EthicsResult ethics_result = 5;
+    
+    // Cryptographic signature (Ed25519)
+    bytes signature = 6;
+    
+    // Previous entry hash for chain
+    bytes previous_hash = 7;
+    
+    // Consensus metadata
+    int32 validator_count = 8;
+    repeated string validator_ids = 9;
+}
+
+/**
+ * Proof-of-coherence: entropy validation
+ */
+message ProofOfCoherence {
+    uint64 timestamp_ns = 1;
+    string node_id = 2;
+    
+    double entropy = 3;
+    double entropy_threshold = 4;
+    bool entropy_valid = 5;
+    
+    // Ed25519 signature
+    bytes signature = 6;
+    
+    // Consensus round
+    int32 round = 7;
+}
+
+/**
+ * Clock synchronization pulse
+ */
+message SyncPulse {
+    uint64 timestamp_ns = 1;
+    string ntp_server_id = 2;
+    
+    // Harmonic mean cycle time across all nodes
+    double harmonic_mean_cycle_ns = 3;
+    
+    // Per-node cycle times
+    map<string, double> node_cycles_ns = 4;
+    
+    // Slowdown factors for adaptive timing
+    map<string, double> slowdown_factors = 5;
+}
+
+/**
+ * Device capability advertisement
+ */
+message DeviceCapability {
+    string device_id = 1;
+    string device_type = 2;  // "CPU", "GPU", "FPGA", "ASIC"
+    
+    int32 compute_capability = 3;  // e.g., 89 for RTX 5080
+    int64 memory_bytes = 4;
+    double peak_flops = 5;
+    
+    repeated string supported_operations = 6;
+}
+
+/**
+ * Service health status
+ */
+message HealthStatus {
+    string service_name = 1;
+    string status = 2;  // "HEALTHY", "DEGRADED", "UNHEALTHY"
+    uint64 uptime_seconds = 3;
+    double cpu_usage = 4;
+    double memory_usage = 5;
+    int64 processed_events = 6;
+    int64 error_count = 7;
+}
+

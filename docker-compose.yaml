@@ -1,0 +1,18 @@
+version: "3.9"
+services:
+  qallow:
+    build: .
+    image: qallow/runtime:latest
+    environment:
+      - QALLOW_ENABLE_CUDA=auto
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+    volumes:
+      - ./data/logs:/opt/qallow/data/logs
+    command: ["/opt/qallow/build/qallow", "--phase=13", "--ticks=400", "--log=/opt/qallow/data/logs/phase13.csv"]
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+    runtime: nvidia

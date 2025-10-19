@@ -108,7 +108,7 @@ Build and run:
 
 ```bash
 cmake --build build --target qallow_examples
-./build/examples/phase7_demo --ticks=100
+./build/phase07_demo --ticks=100
 ./build/examples/benchmarks/throughput_bench --mode=cuda
 ```
 

@@ -1,19 +1,24 @@
 #include "telemetry.h"
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 void telemetry_init(telemetry_t* tel) {
     if (!tel) return;
     
+    mkdir("data", 0755);
+    mkdir("data/logs", 0755);
+
     // Open streaming CSV file
-    tel->stream_file = fopen("qallow_stream.csv", "w");
+    tel->stream_file = fopen("data/logs/telemetry_stream.csv", "w");
     if (tel->stream_file) {
         fprintf(tel->stream_file, "tick,orbital,river,mycelial,global,deco,mode\n");
         fflush(tel->stream_file);
     }
     
     // Open benchmark log file
-    tel->bench_file = fopen("qallow_bench.log", "a");
+    tel->bench_file = fopen("data/logs/qallow_bench.log", "a");
     if (tel->bench_file) {
         fprintf(tel->bench_file, "timestamp,compile_ms,run_ms,deco,global,mode\n");
         fflush(tel->bench_file);
@@ -25,8 +30,8 @@ void telemetry_init(telemetry_t* tel) {
     tel->mode = 0;
     
     printf("[TELEMETRY] System initialized\n");
-    printf("[TELEMETRY] Streaming to: qallow_stream.csv\n");
-    printf("[TELEMETRY] Logging to: qallow_bench.log\n");
+    printf("[TELEMETRY] Streaming to: data/logs/telemetry_stream.csv\n");
+    printf("[TELEMETRY] Logging to: data/logs/qallow_bench.log\n");
 }
 
 void telemetry_stream_tick(telemetry_t* tel, double orbital, double river, double mycelial,

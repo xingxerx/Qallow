@@ -1,5 +1,9 @@
 #define _POSIX_C_SOURCE 199309L
 
+#include "qallow/logging.h"
+#include "qallow/profiling.h"
+#include "qallow/env.h"
+#include "qallow/logging.h"
 #include "qallow_kernel.h"
 #include "ppai.h"
 #include "qcp.h"
@@ -54,6 +58,20 @@ static void print_system_info(const qallow_state_t* state) {
     printf("[KERNEL] Node count: %d per overlay\n", MAX_NODES);
     printf("[KERNEL] Max ticks: %d\n", MAX_TICKS);
     printf("\n");
+}
+
+static void initialize_logging(void) {
+    static int initialized = 0;
+    if (initialized) {
+        return;
+    }
+    qallow_logging_init();
+    qallow_env_load(NULL);
+    const char* log_dir = getenv("QALLOW_LOG_DIR");
+    if (log_dir && *log_dir) {
+        qallow_logging_set_directory(log_dir);
+    }
+    initialized = 1;
 }
 
 // VM execution function (called from launcher)
@@ -116,12 +134,14 @@ int qallow_phase13_runner(int argc, char** argv) {
 }
 
 int qallow_vm_main(void) {
+    initialize_logging();
     print_banner();
 
     // Initialize state
     qallow_state_t state;
     qallow_kernel_init(&state);
     print_system_info(&state);
+    qallow_log_info("vm", "mode=%s", state.cuda_enabled ? "cuda" : "cpu");
     printf("[MAIN] Starting VM execution loop...\n\n");
 
     pocket_dimension_t pocket_dim;
@@ -141,22 +161,29 @@ int qallow_vm_main(void) {
     int max_ticks = 1000;
     for (int tick = 0; tick < max_ticks; tick++) {
         // Run kernel tick
-        qallow_kernel_tick(&state);
+        QALLOW_PROFILE_SCOPE("kernel_tick") {
+            qallow_kernel_tick(&state);
+        }
 
         // Update pocket dimension telemetry every 5 ticks
         if (tick % 5 == 0) {
-            pocket_tick_all(&pocket_dim);
-            pocket_merge(&pocket_dim);
-            pocket_capture_metrics(&pocket_dim, tick);
+            QALLOW_PROFILE_SCOPE("pocket_update") {
+                pocket_tick_all(&pocket_dim);
+                pocket_merge(&pocket_dim);
+                pocket_capture_metrics(&pocket_dim, tick);
+            }
         }
 
         // Compute ethics
         ethics_state_t ethics_state;
-        qallow_ethics_check(&state, &ethics_state);
+        QALLOW_PROFILE_SCOPE("ethics_check") {
+            qallow_ethics_check(&state, &ethics_state);
+        }
 
         // Log to CSV every tick (if enabled)
         if (csv_log_path) {
             qallow_csv_log_tick(&state, &ethics_state);
+            qallow_log_info("vm.tick", "tick=%d decoherence=%.6f", tick, state.decoherence_level);
         }
 
         // Dashboard every 100 ticks
@@ -183,7 +210,8 @@ int qallow_vm_main(void) {
 
     printf("\n[MAIN] VM execution completed\n");
     printf("[TELEMETRY] Benchmark logged: compile=0.0ms, run=%.2fms, mode=CPU\n\n", 
-           max_ticks * 0.001);
+        max_ticks * 0.001);
+    qallow_log_info("vm.complete", "ticks=%d", max_ticks);
     
     return 0;
 }

@@ -32,7 +32,7 @@ Qallow is an experimental autonomous intelligence runtime that blends photonic s
 4. **Execute examples**
    ```bash
    cmake --build build --target qallow_examples
-   ./build/examples/phase7_demo --ticks=100
+   ./build/phase07_demo --ticks=100
    ```
 
 See `docs/QUICKSTART.md` for extended dependency notes, CUDA driver installation steps, and troubleshooting guidance.
@@ -77,7 +77,7 @@ A condensed summary lives in `docs/ARCHITECTURE_SPEC.md`. Each phase has:
 
 - **Build everything:** `./scripts/build_all.sh`
 - **Run unit tests:** `ctest --test-dir build`
-- **Run phase demos:** `cmake --build build --target qallow_examples && build/examples/phase13_demo`
+- **Run phase demos:** `cmake --build build --target qallow_examples && build/phase13_demo`
 - **Dockerized run:** `docker compose up --build`
 
 See `CONTRIBUTING.md` for coding standards, branching model, and CI expectations.

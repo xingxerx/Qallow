@@ -1,70 +1,71 @@
 #include "qallow/logging.h"
 
-#include <spdlog/sinks/basic_file_sink.h>
-#include <spdlog/sinks/stdout_color_sinks.h>
-#include <spdlog/spdlog.h>
-
 #include <cstdarg>
 #include <cstdio>
 #include <filesystem>
-#include <iterator>
-#include <memory>
 #include <mutex>
 #include <string>
-#include <vector>
+#include <time.h>
 
 namespace {
-std::mutex g_logger_mutex;
-std::shared_ptr<spdlog::logger> g_logger;
+std::mutex g_log_mutex;
 std::string g_log_directory = "data/logs";
 std::string g_log_filename = "qallow_runtime.log";
+FILE* g_log_file = nullptr;
 
 void ensure_directory(const std::string& path) {
     std::error_code ec;
     std::filesystem::create_directories(path, ec);
 }
 
-std::shared_ptr<spdlog::logger> build_logger() {
+void open_log_unlocked() {
+    if (g_log_file) return;
     ensure_directory(g_log_directory);
-    std::vector<spdlog::sink_ptr> sinks;
-    sinks.emplace_back(std::make_shared<spdlog::sinks::stdout_color_sink_mt>());
-    sinks.emplace_back(std::make_shared<spdlog::sinks::basic_file_sink_mt>(
-        g_log_directory + "/" + g_log_filename, true));
-    auto logger = std::make_shared<spdlog::logger>("qallow", begin(sinks), end(sinks));
-    logger->set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%^%l%$] %v");
-    logger->set_level(spdlog::level::info);
-    return logger;
+    std::string full_path = g_log_directory + "/" + g_log_filename;
+    g_log_file = std::fopen(full_path.c_str(), "a");
 }
 
-std::string format_message(const char* fmt, va_list args) {
-    if (!fmt) {
-        return {};
+void close_log_unlocked() {
+    if (g_log_file) {
+        std::fflush(g_log_file);
+        std::fclose(g_log_file);
+        g_log_file = nullptr;
     }
-
-    va_list copy;
-    va_copy(copy, args);
-    int required = vsnprintf(nullptr, 0, fmt, copy);
-    va_end(copy);
-    if (required <= 0) {
-        return {};
-    }
-
-    std::string buffer(static_cast<size_t>(required), '\0');
-    vsnprintf(buffer.data(), buffer.size() + 1, fmt, args);
-    return buffer;
 }
 
-void log_internal(spdlog::level::level_enum level, const char* scope, const char* fmt, va_list args) {
-    std::lock_guard<std::mutex> lock(g_logger_mutex);
-    if (!g_logger) {
-        g_logger = build_logger();
+std::string format_timestamp() {
+    char buffer[64];
+    std::time_t now = std::time(nullptr);
+    std::tm tm_now{};
+    if (std::localtime_r(&now, &tm_now)) {
+        std::strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", &tm_now);
+        return buffer;
     }
+    return "0000-00-00 00:00:00";
+}
 
-    std::string message = format_message(fmt, args);
-    if (scope && *scope) {
-        g_logger->log(level, "[{}] {}", scope, message);
+void log_internal(const char* level, const char* scope, const char* fmt, va_list args) {
+    std::lock_guard<std::mutex> lock(g_log_mutex);
+    open_log_unlocked();
+
+    char message_buffer[2048];
+    if (fmt) {
+        vsnprintf(message_buffer, sizeof(message_buffer), fmt, args);
     } else {
-        g_logger->log(level, "{}", message);
+        message_buffer[0] = '\0';
+    }
+
+    std::string timestamp = format_timestamp();
+    if (scope && *scope) {
+        std::fprintf(stdout, "[%s] [%s] [%s] %s\n", timestamp.c_str(), level, scope, message_buffer);
+        if (g_log_file) {
+            std::fprintf(g_log_file, "[%s] [%s] [%s] %s\n", timestamp.c_str(), level, scope, message_buffer);
+        }
+    } else {
+        std::fprintf(stdout, "[%s] [%s] %s\n", timestamp.c_str(), level, message_buffer);
+        if (g_log_file) {
+            std::fprintf(g_log_file, "[%s] [%s] %s\n", timestamp.c_str(), level, message_buffer);
+        }
     }
 }
 }  // namespace
@@ -72,52 +73,47 @@ void log_internal(spdlog::level::level_enum level, const char* scope, const char
 extern "C" {
 
 void qallow_logging_init(void) {
-    std::lock_guard<std::mutex> lock(g_logger_mutex);
-    if (!g_logger) {
-        g_logger = build_logger();
-    }
+    std::lock_guard<std::mutex> lock(g_log_mutex);
+    open_log_unlocked();
 }
 
 void qallow_logging_shutdown(void) {
-    std::lock_guard<std::mutex> lock(g_logger_mutex);
-    if (g_logger) {
-        g_logger->flush();
-        g_logger.reset();
-    }
+    std::lock_guard<std::mutex> lock(g_log_mutex);
+    close_log_unlocked();
 }
 
 void qallow_logging_set_directory(const char* dir) {
     if (!dir) return;
-    std::lock_guard<std::mutex> lock(g_logger_mutex);
+    std::lock_guard<std::mutex> lock(g_log_mutex);
     g_log_directory = dir;
-    g_logger.reset();
+    close_log_unlocked();
 }
 
 void qallow_logging_flush(void) {
-    std::lock_guard<std::mutex> lock(g_logger_mutex);
-    if (g_logger) {
-        g_logger->flush();
+    std::lock_guard<std::mutex> lock(g_log_mutex);
+    if (g_log_file) {
+        std::fflush(g_log_file);
     }
 }
 
 void qallow_log_info(const char* scope, const char* fmt, ...) {
     va_list args;
     va_start(args, fmt);
-    log_internal(spdlog::level::info, scope, fmt, args);
+    log_internal("INFO", scope, fmt, args);
     va_end(args);
 }
 
 void qallow_log_warn(const char* scope, const char* fmt, ...) {
     va_list args;
     va_start(args, fmt);
-    log_internal(spdlog::level::warn, scope, fmt, args);
+    log_internal("WARN", scope, fmt, args);
     va_end(args);
 }
 
 void qallow_log_error(const char* scope, const char* fmt, ...) {
     va_list args;
     va_start(args, fmt);
-    log_internal(spdlog::level::err, scope, fmt, args);
+    log_internal("ERROR", scope, fmt, args);
     va_end(args);
 }
 

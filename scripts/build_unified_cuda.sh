@@ -10,10 +10,12 @@ echo ""
 # Configuration
 BUILD_DIR="build"
 INCLUDE_DIR="core/include"
+EXTRA_INCLUDE="include"
 BACKEND_CPU="backend/cpu"
 BACKEND_CUDA="backend/cuda"
 INTERFACE_DIR="interface"
 SRC_DIR="src"
+RUNTIME_DIR="src/runtime"
 ALGORITHMS_DIR="algorithms"
 OUTPUT="$BUILD_DIR/qallow_unified_cuda"
 
@@ -29,7 +31,7 @@ mkdir -p "$BUILD_DIR"
 mkdir -p "data/telemetry"
 rm -f "$BUILD_DIR"/*.o 2>/dev/null
 
-echo -e "${BLUE}[1/7]${NC} Checking dependencies..."
+echo -e "${BLUE}[1/8]${NC} Checking dependencies..."
 
 # Check for gcc
 if ! command -v gcc &> /dev/null; then
@@ -55,38 +57,38 @@ else
 fi
 
 echo ""
-echo -e "${BLUE}[2/7]${NC} Compiling ethics system (CPU)..."
+echo -e "${BLUE}[2/8]${NC} Compiling ethics system (CPU)..."
 
 # Compile ethics library
-gcc -c -std=c11 -O2 -Wall -I"$INCLUDE_DIR" \
+gcc -c -std=c11 -O2 -Wall -I"$INCLUDE_DIR" -I"$EXTRA_INCLUDE" \
     "$ALGORITHMS_DIR/ethics_core.c" \
     -o "$BUILD_DIR/ethics_core.o"
 echo -e "${GREEN}      ✓${NC} ethics_core.c"
 
-gcc -c -std=c11 -O2 -Wall -I"$INCLUDE_DIR" \
+gcc -c -std=c11 -O2 -Wall -I"$INCLUDE_DIR" -I"$EXTRA_INCLUDE" \
     "$ALGORITHMS_DIR/ethics_learn.c" \
     -o "$BUILD_DIR/ethics_learn.o"
 echo -e "${GREEN}      ✓${NC} ethics_learn.c"
 
-gcc -c -std=c11 -O2 -Wall -I"$INCLUDE_DIR" \
+gcc -c -std=c11 -O2 -Wall -I"$INCLUDE_DIR" -I"$EXTRA_INCLUDE" \
     "$ALGORITHMS_DIR/ethics_bayes.c" \
     -o "$BUILD_DIR/ethics_bayes.o"
 echo -e "${GREEN}      ✓${NC} ethics_bayes.c"
 
-gcc -c -std=c11 -O2 -Wall -I"$INCLUDE_DIR" \
+gcc -c -std=c11 -O2 -Wall -I"$INCLUDE_DIR" -I"$EXTRA_INCLUDE" \
     "$ALGORITHMS_DIR/ethics_feed.c" \
     -o "$BUILD_DIR/ethics_feed.o"
 echo -e "${GREEN}      ✓${NC} ethics_feed.c"
 
 echo ""
-echo -e "${BLUE}[3/7]${NC} Compiling CPU backend..."
+echo -e "${BLUE}[3/8]${NC} Compiling CPU backend..."
 
 # Find and compile all CPU backend files
 CPU_COUNT=0
 for source in $BACKEND_CPU/*.c; do
     if [ -f "$source" ]; then
         basename=$(basename "$source" .c)
-        if gcc -c -std=c11 -O2 -Wall -Wno-unused -I"$INCLUDE_DIR" -DUSE_CUDA \
+        if gcc -c -std=c11 -O2 -Wall -Wno-unused -I"$INCLUDE_DIR" -I"$EXTRA_INCLUDE" -DUSE_CUDA \
             "$source" \
             -o "$BUILD_DIR/${basename}.o"; then
             echo -e "${GREEN}      ✓${NC} $basename.c"
@@ -99,18 +101,33 @@ for source in $BACKEND_CPU/*.c; do
 done
 
 echo ""
-echo -e "${BLUE}[4/7]${NC} Compiling accelerator core..."
+echo -e "${BLUE}[4/8]${NC} Compiling runtime core..."
 
-gcc -c -std=c11 -O2 -Wall -I"$INCLUDE_DIR" -DQALLOW_PHASE13_EMBEDDED \
+g++ -c -std=c++17 -O2 -Wall -I"$INCLUDE_DIR" -I"$EXTRA_INCLUDE" \
+    "$RUNTIME_DIR/env.cpp" -o "$BUILD_DIR/env.o"
+echo -e "${GREEN}      ✓${NC} env.cpp"
+
+g++ -c -std=c++17 -O2 -Wall -I"$INCLUDE_DIR" -I"$EXTRA_INCLUDE" \
+    "$RUNTIME_DIR/logging.cpp" -o "$BUILD_DIR/logging.o"
+echo -e "${GREEN}      ✓${NC} logging.cpp"
+
+g++ -c -std=c++17 -O2 -Wall -I"$INCLUDE_DIR" -I"$EXTRA_INCLUDE" \
+    "$RUNTIME_DIR/profiling.cpp" -o "$BUILD_DIR/profiling.o"
+echo -e "${GREEN}      ✓${NC} profiling.cpp"
+
+echo ""
+echo -e "${BLUE}[5/8]${NC} Compiling accelerator core..."
+
+gcc -c -std=c11 -O2 -Wall -I"$INCLUDE_DIR" -I"$EXTRA_INCLUDE" -DQALLOW_PHASE13_EMBEDDED \
     "$SRC_DIR/qallow_phase13.c" \
     -o "$BUILD_DIR/qallow_phase13.o"
 echo -e "${GREEN}      ✓${NC} qallow_phase13.c"
 
 echo ""
-echo -e "${BLUE}[5/7]${NC} Compiling CUDA kernels..."
+echo -e "${BLUE}[6/8]${NC} Compiling CUDA kernels..."
 
 # CUDA compilation flags
-CUDA_FLAGS="-std=c++11 -O2 -I$INCLUDE_DIR -DUSE_CUDA"
+CUDA_FLAGS="-std=c++11 -O2 -I$INCLUDE_DIR -I$EXTRA_INCLUDE -DUSE_CUDA"
 CUDA_ARCH="-arch=sm_89" # Adjust for target GPU
 
 # Compile CUDA kernels
@@ -131,27 +148,25 @@ for source in $BACKEND_CUDA/*.cu; do
 done
 
 echo ""
-echo -e "${BLUE}[6/7]${NC} Compiling unified interface..."
+echo -e "${BLUE}[7/8]${NC} Compiling unified interface..."
 
-gcc -c -std=c11 -O2 -Wall -I"$INCLUDE_DIR" -DUSE_CUDA \
+gcc -c -std=c11 -O2 -Wall -I"$INCLUDE_DIR" -I"$EXTRA_INCLUDE" -DUSE_CUDA \
     "$INTERFACE_DIR/main.c" \
     -o "$BUILD_DIR/interface_main.o"
 echo -e "${GREEN}      ✓${NC} main.c"
 
-gcc -c -std=c11 -O2 -Wall -I"$INCLUDE_DIR" -DUSE_CUDA \
+gcc -c -std=c11 -O2 -Wall -I"$INCLUDE_DIR" -I"$EXTRA_INCLUDE" -DUSE_CUDA \
     "$INTERFACE_DIR/launcher.c" \
     -o "$BUILD_DIR/interface_launcher.o"
 echo -e "${GREEN}      ✓${NC} launcher.c"
 
 echo ""
-echo -e "${BLUE}[7/7]${NC} Linking CUDA executable..."
+echo -e "${BLUE}[8/8]${NC} Linking CUDA executable..."
 
 # Link with CUDA runtime
-nvcc -o "$OUTPUT" \
+if nvcc -o "$OUTPUT" \
     $BUILD_DIR/*.o \
-    -lm -lpthread 2>&1 | grep -v "warning:" || true
-
-if [ -f "$OUTPUT" ]; then
+    -lm -lpthread; then
     chmod +x "$OUTPUT"
     echo -e "${GREEN}      ✓${NC} Linked successfully with CUDA runtime"
 else

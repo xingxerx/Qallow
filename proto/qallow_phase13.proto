@@ -1,0 +1,163 @@
+syntax = "proto3";
+
+package qallow.proto.phase13;
+
+import "proto/qallow_common.proto";
+
+option go_package = "github.com/xingxerx/qallow/proto/phase13";
+
+// ============================================================================
+// Phase 13: Closed-Loop Harmonic Ethics
+// ============================================================================
+
+/**
+ * Harmonic propagation configuration
+ */
+message HarmonicConfig {
+    int32 pockets = 1;      // Number of parallel worldlines
+    int32 ticks = 2;        // Simulation ticks
+    float coupling = 3;     // Harmonic coupling strength
+    string log_path = 4;
+    bool enable_cuda = 5;
+}
+
+/**
+ * Pocket state: one parallel worldline
+ */
+message PocketState {
+    int32 pocket_id = 1;
+    float phase = 2;
+    float coherence = 3;
+    float energy = 4;
+}
+
+/**
+ * Harmonic state at a given tick
+ */
+message HarmonicState {
+    uint64 tick = 1;
+    repeated PocketState pockets = 2;
+    
+    float avg_coherence = 3;
+    float phase_drift = 4;
+    float phase_energy = 5;
+}
+
+/**
+ * Harmonic propagation request
+ */
+message RunHarmonicRequest {
+    HarmonicConfig config = 1;
+    qallow.proto.QallowState initial_state = 2;
+    repeated PocketState initial_pockets = 3;
+}
+
+/**
+ * Harmonic propagation response
+ */
+message RunHarmonicResponse {
+    bool success = 1;
+    string error_message = 2;
+    
+    HarmonicState final_state = 3;
+    repeated HarmonicState state_history = 4;
+    
+    // Convergence metrics
+    float convergence_rate = 5;
+    bool converged = 6;
+    int32 convergence_tick = 7;
+    
+    // Telemetry
+    double execution_time_ms = 8;
+    int64 operations_count = 9;
+}
+
+/**
+ * Harmonic metrics for monitoring
+ */
+message HarmonicMetrics {
+    uint64 timestamp_ns = 1;
+    
+    float avg_coherence = 2;
+    float coherence_variance = 3;
+    
+    float avg_phase = 4;
+    float phase_drift = 5;
+    float phase_variance = 6;
+    
+    float total_energy = 7;
+    float energy_dissipation = 8;
+    
+    double throughput_ops_per_sec = 9;
+    double energy_joules = 10;
+    
+    // Convergence tracking
+    float convergence_progress = 11;
+}
+
+/**
+ * Closed-loop ethics feedback
+ */
+message EthicsFeedback {
+    uint64 timestamp_ns = 1;
+    string node_id = 2;
+    
+    qallow.proto.EthicsResult ethics_result = 3;
+    
+    // Feedback signal for adaptation
+    float feedback_signal = 4;
+    string feedback_type = 5;  // "positive", "negative", "neutral"
+    
+    // Suggested parameter adjustments
+    map<string, float> suggested_adjustments = 6;
+}
+
+/**
+ * Closed-loop control state
+ */
+message ClosedLoopState {
+    uint64 iteration = 1;
+    HarmonicState harmonic = 2;
+    qallow.proto.EthicsResult ethics = 3;
+    EthicsFeedback feedback = 4;
+    
+    // Control signal
+    float control_signal = 5;
+    bool should_adapt = 6;
+}
+
+/**
+ * Phase 13 Service Definition
+ */
+service HarmonicService {
+    /**
+     * Run harmonic propagation
+     */
+    rpc RunHarmonic(RunHarmonicRequest) returns (RunHarmonicResponse);
+    
+    /**
+     * Stream harmonic metrics
+     */
+    rpc StreamMetrics(HarmonicConfig) returns (stream HarmonicMetrics);
+    
+    /**
+     * Stream closed-loop control iterations
+     */
+    rpc StreamClosedLoop(HarmonicConfig) returns (stream ClosedLoopState);
+    
+    /**
+     * Get current harmonic state
+     */
+    rpc GetState(google.protobuf.Empty) returns (HarmonicState);
+    
+    /**
+     * Submit ethics feedback
+     */
+    rpc SubmitFeedback(EthicsFeedback) returns (google.protobuf.Empty);
+    
+    /**
+     * Reset harmonic engine
+     */
+    rpc Reset(google.protobuf.Empty) returns (google.protobuf.Empty);
+}
+
