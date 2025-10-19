@@ -2,6 +2,7 @@
 
 #include <cstdarg>
 #include <cstdio>
+#include <cstdio>
 #include <filesystem>
 #include <mutex>
 #include <string>
