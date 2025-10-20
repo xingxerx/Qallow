@@ -54,6 +54,23 @@ add_library(qallow_algorithms STATIC ${QALLOW_ALGORITHM_SOURCES})
 target_link_libraries(qallow_algorithms PUBLIC qallow_core m)
 target_include_directories(qallow_algorithms PUBLIC ${QALLOW_INCLUDE_DIRS})
 
+# Define runtime library early so it can be used by backend_cpu
+set(QALLOW_RUNTIME_SOURCES
+    src/runtime/logging.cpp
+    src/runtime/profiling.cpp
+    src/runtime/env.cpp
+    runtime/meta_introspect.c
+)
+
+add_library(qallow_runtime STATIC ${QALLOW_RUNTIME_SOURCES})
+target_link_libraries(qallow_runtime
+    PUBLIC
+        qallow_core
+        spdlog::spdlog
+)
+target_compile_features(qallow_runtime PUBLIC cxx_std_17)
+target_include_directories(qallow_runtime PUBLIC ${QALLOW_INCLUDE_DIRS})
+
 set(QALLOW_BACKEND_CPU_SOURCES
     backend/cpu/adaptive.c
     backend/cpu/chronometric.c
@@ -93,6 +110,9 @@ target_link_libraries(qallow_backend_cpu
 )
 target_compile_definitions(qallow_backend_cpu PUBLIC QALLOW_PHASE13_EMBEDDED)
 target_include_directories(qallow_backend_cpu PUBLIC ${QALLOW_INCLUDE_DIRS})
+
+# Add runtime library dependency for meta_introspect
+add_dependencies(qallow_backend_cpu qallow_runtime)
 
 if(QALLOW_ENABLE_CUDA)
     target_compile_definitions(qallow_backend_cpu PUBLIC QALLOW_ENABLE_CUDA)

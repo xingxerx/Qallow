@@ -4,7 +4,7 @@
 #include <string.h>
 #include <time.h>
 
-#include "runtime/meta_introspect.h"
+#include "meta_introspect.h"
 
 #define QALLOW_PHASE13_MAX_POCKETS 32
 

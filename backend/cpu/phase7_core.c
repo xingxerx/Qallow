@@ -2,7 +2,7 @@
 
 #include "phase7.h"
 #include "ethics.h"
-#include "runtime/meta_introspect.h"
+#include "meta_introspect.h"
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>

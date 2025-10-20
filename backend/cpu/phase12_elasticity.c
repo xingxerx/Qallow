@@ -2,7 +2,7 @@
 #include <math.h>
 #include <time.h>
 
-#include "runtime/meta_introspect.h"
+#include "meta_introspect.h"
 
 static float clamp(float v, float lo, float hi) {
     return v < lo ? lo : (v > hi ? hi : v);
