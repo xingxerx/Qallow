@@ -12,9 +12,6 @@ jobs:
   build-and-test:
     name: Build and Accelerator Smoke
     runs-on: ubuntu-22.04
-    container:
-      image: ubuntu:22.04
-      options: --ipc=host
 
     steps:
       - name: Checkout repository
@@ -23,30 +20,29 @@ jobs:
       - name: Free up disk space
         run: |
           # Remove unnecessary files to free up space
-          rm -rf /usr/local/lib/android
-          rm -rf /usr/share/dotnet
-          rm -rf /opt/ghc
-          rm -rf /opt/hostedtoolcache
+          sudo rm -rf /usr/local/lib/android || true
+          sudo rm -rf /usr/share/dotnet || true
+          sudo rm -rf /opt/ghc || true
+          sudo rm -rf /opt/hostedtoolcache || true
           df -h
 
       - name: Install system dependencies
         run: |
-          apt-get update
-          DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+          sudo apt-get update
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
             build-essential \
             gcc \
             g++ \
             make \
             python3 \
             python3-pip \
-            git \
-            ca-certificates
-          apt-get clean
-          rm -rf /var/lib/apt/lists/*
+            git
+          sudo apt-get clean
+          sudo rm -rf /var/lib/apt/lists/*
 
       - name: Install Python packages
         run: |
-          pip3 install --upgrade pip --no-cache-dir
+          python3 -m pip install --upgrade pip --no-cache-dir
 
       - name: Cache build artifacts
         uses: actions/cache@v3
