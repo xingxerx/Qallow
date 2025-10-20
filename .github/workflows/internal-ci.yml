@@ -41,12 +41,8 @@ jobs:
           sudo rm -rf /var/lib/apt/lists/*
 
       - name: Install Python packages
-        env:
-          PIP_INDEX_URL: https://download.pytorch.org/whl/cpu
-          PIP_EXTRA_INDEX_URL: https://pypi.org/simple
         run: |
           python3 -m pip install --upgrade pip --no-cache-dir
-          python3 -m pip install --no-cache-dir sentence-transformers==2.2.2
 
       - name: Cache build artifacts
         uses: actions/cache@v3
