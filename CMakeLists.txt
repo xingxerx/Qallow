@@ -181,10 +181,44 @@ if(QALLOW_ENABLE_CUDA)
 endif()
 
 # Optional SDL-based telemetry UI
-find_package(SDL2 QUIET)
-find_package(SDL2_ttf QUIET)
+find_package(SDL2 CONFIG QUIET)
+if(NOT SDL2_FOUND)
+    find_package(SDL2 QUIET)
+endif()
 
-if(SDL2_FOUND AND SDL2_TTF_FOUND)
+find_package(SDL2_ttf CONFIG QUIET)
+if(NOT SDL2_TTF_FOUND)
+    find_package(SDL2_ttf QUIET)
+endif()
+
+if(NOT (SDL2_FOUND AND TARGET SDL2::SDL2))
+    find_package(PkgConfig QUIET)
+    if(PkgConfig_FOUND)
+        pkg_check_modules(SDL2 QUIET sdl2)
+        if(SDL2_FOUND AND NOT TARGET SDL2::SDL2)
+            add_library(SDL2::SDL2 INTERFACE IMPORTED)
+            set_target_properties(SDL2::SDL2 PROPERTIES
+                INTERFACE_INCLUDE_DIRECTORIES "${SDL2_INCLUDE_DIRS}"
+                INTERFACE_LINK_LIBRARIES "${SDL2_LINK_LIBRARIES}"
+            )
+        endif()
+    endif()
+endif()
+
+if(NOT (SDL2_TTF_FOUND AND TARGET SDL2_ttf::SDL2_ttf))
+    if(PkgConfig_FOUND)
+        pkg_check_modules(SDL2_TTF QUIET sdl2_ttf)
+        if(SDL2_TTF_FOUND AND NOT TARGET SDL2_ttf::SDL2_ttf)
+            add_library(SDL2_ttf::SDL2_ttf INTERFACE IMPORTED)
+            set_target_properties(SDL2_ttf::SDL2_ttf PROPERTIES
+                INTERFACE_INCLUDE_DIRECTORIES "${SDL2_TTF_INCLUDE_DIRS}"
+                INTERFACE_LINK_LIBRARIES "${SDL2_TTF_LINK_LIBRARIES}"
+            )
+        endif()
+    endif()
+endif()
+
+if(SDL2_FOUND AND SDL2_TTF_FOUND AND TARGET SDL2::SDL2 AND TARGET SDL2_ttf::SDL2_ttf)
     add_executable(qallow_ui
         interface/qallow_ui.c
     )
