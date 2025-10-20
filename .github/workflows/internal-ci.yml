@@ -13,17 +13,26 @@ jobs:
     name: Build and Accelerator Smoke
     runs-on: ubuntu-22.04
     container:
-      image: nvidia/cuda:13.0.0-devel-ubuntu22.04
+      image: ubuntu:22.04
       options: --ipc=host
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Free up disk space
+        run: |
+          # Remove unnecessary files to free up space
+          rm -rf /usr/local/lib/android
+          rm -rf /usr/share/dotnet
+          rm -rf /opt/ghc
+          rm -rf /opt/hostedtoolcache
+          df -h
+
       - name: Install system dependencies
         run: |
           apt-get update
-          DEBIAN_FRONTEND=noninteractive apt-get install -y \
+          DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
             build-essential \
             gcc \
             g++ \
@@ -31,11 +40,21 @@ jobs:
             python3 \
             python3-pip \
             git \
-            ninja-build
+            ca-certificates
+          apt-get clean
+          rm -rf /var/lib/apt/lists/*
 
       - name: Install Python packages
         run: |
-          pip3 install --upgrade pip
+          pip3 install --upgrade pip --no-cache-dir
+
+      - name: Cache build artifacts
+        uses: actions/cache@v3
+        with:
+          path: build/
+          key: ${{ runner.os }}-build-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-build-
 
       - name: Build CPU binary
         run: make ACCELERATOR=CPU -j"$(nproc)"
@@ -49,6 +68,12 @@ jobs:
         run: |
           echo "{}" > /tmp/accelerator_input.json
           ./build/CPU/qallow_unified_cpu run --accelerator --file=/tmp/accelerator_input.json --no-watch --threads=2 --quiet
+
+      - name: Clean up build artifacts
+        if: always()
+        run: |
+          rm -rf build/
+          df -h
 
       - name: Dependency report
         continue-on-error: true
