@@ -30,6 +30,7 @@
 #include "telemetry.h"
 #include "pocket.h"
 #include "govern.h"
+#include "qallow_phase11.h"
 #include "qallow_phase12.h"
 #include "qallow_phase13.h"
 #include "phase13_accelerator.h"
@@ -451,6 +452,9 @@ static int qallow_handle_run(int argc, char** argv, int arg_offset, run_profile_
 
         if (strncmp(arg, "--phase=", 8) == 0) {
             const char* phase_value = arg + 8;
+            if (strcmp(phase_value, "11") == 0 || strcmp(phase_value, "phase11") == 0) {
+                return qallow_dispatch_phase(argc, argv, i, "phase11", qallow_phase11_runner);
+            }
             if (strcmp(phase_value, "12") == 0 || strcmp(phase_value, "phase12") == 0) {
                 return qallow_dispatch_phase(argc, argv, i, "phase12", qallow_phase12_runner);
             }
@@ -460,6 +464,10 @@ static int qallow_handle_run(int argc, char** argv, int arg_offset, run_profile_
 
             fprintf(stderr, "[ERROR] Unknown phase selector: %s\n", phase_value);
             return 1;
+        }
+
+        if (strcmp(arg, "--phase11") == 0) {
+            return qallow_dispatch_phase(argc, argv, i, "phase11", qallow_phase11_runner);
         }
 
         if (strcmp(arg, "--phase12") == 0) {
@@ -673,6 +681,7 @@ static void qallow_print_help(void) {
     printf("  verify            System checkpoint - verify integrity\n");
     printf("  clear             Remove build artifacts and cached binaries\n");
     printf("  accelerator       Launch the Phase-13 accelerator directly (alias)\n");
+    printf("  phase11           Invoke Phase 11 coherence bridge (alias)\n");
     printf("  phase12           Run Phase 12 elasticity simulation (alias)\n");
     printf("  phase13           Run Phase 13 harmonic propagation (alias)\n");
     printf("  help              Show this help message\n\n");
@@ -685,7 +694,7 @@ static void qallow_print_help(void) {
     printf("  --export-pocket-map <FILE>  Emit audited pocket status JSON after run\n");
     printf("  --dl-model <PATH>  Load TorchScript model for inference inside the run loop\n");
     printf("  --dl-device=<cpu|gpu>  Prefer CPU or GPU when running the TorchScript model\n");
-    printf("  --phase=12|13     Dispatch directly into a legacy phase runner\n");
+    printf("  --phase=11|12|13  Dispatch directly into a legacy phase runner\n");
     printf("  --accelerator     Launch the Phase-13 accelerator; pass accelerator options after this flag\n");
     printf("  --remote-sync     Enable remote ingestion loop (optional endpoint argument)\n");
     printf("  --remote-sync-interval=N  Override remote polling cadence in seconds\n\n");
@@ -702,6 +711,7 @@ static void qallow_print_help(void) {
     printf("  qallow run --accelerator --remote-sync=https://ingest.example.com/feed\n");
     printf("  qallow run --self-audit --self-audit-path=./logs --export-pocket-map pocket.json\n");
     printf("  qallow run --dl-model model.ts --dl-device=gpu\n");
+    printf("  qallow run --phase=11 --ticks=400 --states=-1,0,1\n");
     printf("  qallow run --phase=12 --ticks=100 --eps=0.0001 --log=phase12.csv\n");
     printf("  qallow accelerator --watch=/tmp  # Accelerator alias\n");
     printf("  qallow clear                     # Clean build output\n");
@@ -800,6 +810,10 @@ int main(int argc, char** argv) {
         }
 
         return qallow_phase13_main(accel_argc, (char**)accel_argv_const);
+    }
+
+    if (strcmp(command, "phase11") == 0) {
+        return qallow_dispatch_phase(argc, argv, arg_offset - 1, "phase11", qallow_phase11_runner);
     }
 
     if (strcmp(command, "phase12") == 0) {

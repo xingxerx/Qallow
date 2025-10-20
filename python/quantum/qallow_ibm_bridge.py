@@ -47,15 +47,18 @@ def _get_runtime_service(explicit_token: Optional[str] = None) -> QiskitRuntimeS
     2. QISKIT_IBM_TOKEN environment variable (supports .env files)
     3. Locally saved credentials via QiskitRuntimeService.save_account
     """
-    if explicit_token:
-        return QiskitRuntimeService(channel="ibm_quantum", token=explicit_token)
+    try:
+        if explicit_token:
+            return QiskitRuntimeService(channel="ibm_quantum", token=explicit_token)
 
-    env_token = _load_token_from_env()
-    if env_token:
-        return QiskitRuntimeService(channel="ibm_quantum", token=env_token)
+        env_token = _load_token_from_env()
+        if env_token:
+            return QiskitRuntimeService(channel="ibm_quantum", token=env_token)
 
-    # Fall back to default credential lookup (disk store)
-    return QiskitRuntimeService()
+        # Fall back to default credential lookup (disk store)
+        return QiskitRuntimeService()
+    except Exception as error:  # pragma: no cover - defensive guard
+        raise RuntimeError("Unable to initialize QiskitRuntimeService.") from error
 
 
 def build_ternary_circuit(ternary_states: Sequence[int]) -> QuantumCircuit:
@@ -146,10 +149,10 @@ def run_ternary_sim(
         TernaryResult with normalized counts, backend information, and execution source.
     """
     circuit = build_ternary_circuit(ternary_states)
-    service = _get_runtime_service(explicit_token=token)
 
     if prefer_hardware:
         try:
+            service = _get_runtime_service(explicit_token=token)
             return _execute_on_hardware(circuit, service, shots)
         except (IBMRuntimeError, RuntimeError) as error:
             if AerSimulator is None:

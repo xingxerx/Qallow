@@ -38,9 +38,9 @@ This guide walks through connecting a Qallow deployment to IBM Quantum services.
 
 2. **Baseline runtime test** using the included example:
    ```bash
-   python examples/qiskit_ibm_runtime.py
+   python examples/ibm_quantum_bell.py
    ```
-   The script loads the `QISKIT_IBM_TOKEN` environment variable (if present) or reuses saved credentials, selects the least busy hardware backend, and runs a Bell circuit. Expect quasi-probabilities near 0.5 for `00` and `11`.
+   The script loads the `QISKIT_IBM_TOKEN` environment variable (if present) or reuses saved credentials, selects the least busy hardware backend, and runs a Bell circuit. If hardware access is unavailable it automatically falls back to the Aer simulator. Expect quasi-probabilities near 0.5 for `00` and `11`.
 
 3. **Bridge Qallow Phase 11 workflows to Qiskit** using the helper module in `python/quantum/qallow_ibm_bridge.py`. The module exposes a `run_ternary_sim` function that:
    - Accepts ternary state estimates from Qallow (e.g., `[-1, 0, 1]`).
@@ -68,7 +68,7 @@ This guide walks through connecting a Qallow deployment to IBM Quantum services.
 
 ## Verification Checklist
 - [ ] `QiskitRuntimeService().backends()` returns a list without authentication errors.
-- [ ] `python examples/qiskit_ibm_runtime.py` completes and prints measurement statistics.
+- [ ] `python examples/ibm_quantum_bell.py` completes and prints measurement statistics.
 - [ ] `./build/qallow --phase=11 --ticks=400` emits telemetry entries that reference IBM Quantum results.
 - [ ] Tokens are stored outside version control (`.env`, shell profile, or Qiskit credential store).
 

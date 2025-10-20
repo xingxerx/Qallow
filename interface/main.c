@@ -1,5 +1,9 @@
 #define _POSIX_C_SOURCE 199309L
 
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/wait.h>
+
 #include "qallow/logging.h"
 #include "qallow/profiling.h"
 #include "qallow/env.h"
@@ -14,6 +18,7 @@
 #include "adaptive.h"
 #include "pocket.h"
 #include "phase7.h"
+#include "qallow_phase11.h"
 #include "phase12.h"
 #include "qallow_phase12.h"
 #include "qallow_phase13.h"
@@ -73,6 +78,120 @@ static void initialize_logging(void) {
         qallow_logging_set_directory(log_dir);
     }
     initialized = 1;
+}
+
+static const char* detect_python_binary(void) {
+    const char* env_python = getenv("QALLOW_PYTHON");
+    if (env_python && *env_python && access(env_python, X_OK) == 0) {
+        return env_python;
+    }
+    if (access("./qiskit-env/bin/python", X_OK) == 0) {
+        return "./qiskit-env/bin/python";
+    }
+    if (access("python3", X_OK) == 0) {
+        return "python3";
+    }
+    return "python3";
+}
+
+static int sanitize_states(const char* raw, char* out, size_t out_len) {
+    size_t pos = 0;
+    if (!raw || !*raw) {
+        raw = "-1,0,1";
+    }
+    for (const char* c = raw; *c; ++c) {
+        if (*c == ' ' || *c == '\t' || *c == '\n' || *c == '\r') {
+            continue;
+        }
+        if (*c != '-' && *c != ',' && (*c < '0' || *c > '9')) {
+            fprintf(stderr, "[PHASE11] Invalid character in --states: %c\n", *c);
+            return 0;
+        }
+        if (pos + 1 >= out_len) {
+            fprintf(stderr, "[PHASE11] --states value too long\n");
+            return 0;
+        }
+        out[pos++] = *c;
+    }
+    if (pos == 0) {
+        if (out_len < 6) {
+            return 0;
+        }
+        strcpy(out, "-1,0,1");
+    } else {
+        out[pos] = '\0';
+    }
+    return 1;
+}
+
+int qallow_phase11_runner(int argc, char** argv) {
+    int ticks = 400;
+    const char* states_arg = NULL;
+    int hardware_only = 0;
+
+    for (int i = 2; i < argc; ++i) {
+        const char* arg = argv[i];
+        if (strncmp(arg, "--ticks=", 8) == 0) {
+            ticks = atoi(arg + 8);
+            if (ticks < 1) {
+                ticks = 1;
+            }
+        } else if (strncmp(arg, "--states=", 9) == 0) {
+            states_arg = arg + 9;
+        } else if (strcmp(arg, "--hardware-only") == 0) {
+            hardware_only = 1;
+        }
+    }
+
+    char states_clean[128];
+    if (!sanitize_states(states_arg, states_clean, sizeof(states_clean))) {
+        return 1;
+    }
+
+    const char* python_bin = detect_python_binary();
+    const int shots = ticks > 0 ? ticks : 1;
+
+    char command[512];
+    int written;
+    if (hardware_only) {
+        written = snprintf(
+            command,
+            sizeof(command),
+            "\"%s\" -m python.quantum.run_phase11_bridge --shots=%d --states=\"%s\" --hardware-only",
+            python_bin,
+            shots,
+            states_clean);
+    } else {
+        written = snprintf(
+            command,
+            sizeof(command),
+            "\"%s\" -m python.quantum.run_phase11_bridge --shots=%d --states=\"%s\"",
+            python_bin,
+            shots,
+            states_clean);
+    }
+
+    if (written < 0 || (size_t)written >= sizeof(command)) {
+        fprintf(stderr, "[PHASE11] Failed to compose Python command\n");
+        return 1;
+    }
+
+    printf("[PHASE11] Invoking bridge via %s\n", python_bin);
+    fflush(stdout);
+    int rc = system(command);
+    if (rc == -1) {
+        perror("[PHASE11] system() failed");
+        return 1;
+    }
+    if (WIFEXITED(rc)) {
+        int status = WEXITSTATUS(rc);
+        if (status != 0) {
+            fprintf(stderr, "[PHASE11] Bridge exited with code %d\n", status);
+        }
+        return status;
+    }
+    fprintf(stderr, "[PHASE11] Bridge terminated unexpectedly\n");
+    return 1;
 }
 
 // VM execution function (called from launcher)
