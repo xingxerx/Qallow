@@ -37,6 +37,10 @@ Thumbs.db
 data/snapshots/
 *.json
 
+# Secrets
+.env
+*.qiskitrc
+
 # Python
 __pycache__/
 *.pyc

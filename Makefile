@@ -5,13 +5,14 @@ ACCELERATOR ?= CUDA
 CC ?= gcc
 CXX ?= g++
 NVCC ?= nvcc
+BUILD_DIR ?= build/$(ACCELERATOR)
 
 ifeq ($(ACCELERATOR),CPU)
 CUDA_ENABLED := 0
-BIN ?= build/qallow_unified_cpu
+BIN ?= $(BUILD_DIR)/qallow_unified_cpu
 else ifeq ($(ACCELERATOR),CUDA)
 CUDA_ENABLED := 1
-BIN ?= build/qallow_unified_cuda
+BIN ?= $(BUILD_DIR)/qallow_unified_cuda
 else
 $(error Invalid ACCELERATOR '$(ACCELERATOR)'. Expected CPU or CUDA.)
 endif
@@ -52,15 +53,17 @@ else
 LINKER ?= $(CXX)
 endif
 
-BUILD_DIR ?= build
-
-SRC_C := core/main.c \
+SRC_C := $(wildcard interface/*.c) \
+         $(wildcard backend/cpu/*.c) \
+         $(wildcard io/adapters/*.c) \
+         algorithms/ethics_core.c \
+         algorithms/ethics_learn.c \
+         algorithms/ethics_bayes.c \
          runtime/meta_introspect.c \
-         algorithms/ethics_core.c
-SRC_CPP := runtime/dl_integration.cpp
-SRC_CU := backend/cuda/p12_elasticity.cu \
-          backend/cuda/p13_harmonic.cu \
-          backend/cuda/phase16_meta_introspect.cu
+         src/qallow_phase13.c
+SRC_CPP := $(wildcard src/runtime/*.cpp) \
+           runtime/dl_integration.cpp
+SRC_CU := $(wildcard backend/cuda/*.cu)
 
 ifeq ($(CUDA_ENABLED),0)
 SRC_CU :=
@@ -76,7 +79,7 @@ all: $(BIN)
 
 $(BUILD_DIR)/%.o: %.c
 	@mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) $(if $(filter src/qallow_phase13.c,$<),-DQALLOW_PHASE13_EMBEDDED,) -c $< -o $@
 
 $(BUILD_DIR)/%.o: %.cpp
 	@mkdir -p $(dir $@)

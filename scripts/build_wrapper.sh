@@ -62,9 +62,10 @@ if [ "$MODE" == "AUTO" ]; then
     if [ $CUDA_AVAILABLE -eq 1 ]; then
         MODE="CUDA"
         echo -e "${GREEN}[AUTO]${NC} Using CUDA mode"
-else
-    MODE="CPU"
-    echo -e "${YELLOW}[AUTO]${NC} Using CPU-only mode"
+    else
+        MODE="CPU"
+        echo -e "${YELLOW}[AUTO]${NC} Using CPU-only mode"
+    fi
 fi
 
 # Apply CUDA preprocessor definition based on final mode
@@ -72,7 +73,6 @@ if [ "$MODE" == "CUDA" ]; then
     COMMON_DEFINES+=("-DCUDA_ENABLED=1")
 else
     COMMON_DEFINES+=("-DCUDA_ENABLED=0")
-fi
 fi
 
 # Validate mode

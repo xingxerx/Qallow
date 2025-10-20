@@ -78,6 +78,14 @@ A condensed summary lives in `docs/ARCHITECTURE_SPEC.md`. Each phase has:
 - **Build everything:** `./scripts/build_all.sh`
 - **Run unit tests:** `ctest --test-dir build`
 - **Run phase demos:** `cmake --build build --target qallow_examples && build/phase13_demo`
+
+## Qallow Internal Release v0.1
+
+- **Unified builds** – use `make ACCELERATOR=CPU` or `make ACCELERATOR=CUDA` for deterministic outputs under `build/CPU/` and `build/CUDA/`; the CUDA/CPU chooser script `scripts/build_wrapper.sh [CPU|CUDA|AUTO]` now mirrors the same source layout and feature flags.
+- **Smoke validation** – run `tests/smoke/test_modules.sh` to compile the CPU binary and execute ethics, governance, and phase 12/13 runners with explicit success markers.
+- **Dependency audit** – execute `scripts/check_dependencies.sh` for version checks on Python ≥ 3.13, CUDA 13.0, Nsight Compute CLI, and the `sentence-transformers/all-MiniLM-L6-v2` model.
+- **Accelerator CI** – see `.github/workflows/internal-ci.yml` for the CUDA 13.0 container job that builds, runs the smoke tests, and exercises `qallow run --accelerator --file=/tmp/accelerator_input.json`.
+- **Readiness snapshot** – consolidated module status and metrics live in `docs/internal_readiness_v0_1.md`.
 - **Dockerized run:** `docker compose up --build`
 
 See `CONTRIBUTING.md` for coding standards, branching model, and CI expectations.
