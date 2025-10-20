@@ -53,7 +53,7 @@ else
 LINKER ?= $(CXX)
 endif
 
-SRC_C := $(wildcard interface/*.c) \
+SRC_C := $(filter-out interface/qallow_ui.c,$(wildcard interface/*.c)) \
          $(wildcard backend/cpu/*.c) \
          $(wildcard io/adapters/*.c) \
          algorithms/ethics_core.c \
