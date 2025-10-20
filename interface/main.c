@@ -158,6 +158,16 @@ int qallow_vm_main(void) {
     }
 
     // Main execution loop
+    int dashboard_interval = 50;
+    const char* dashboard_env = getenv("QALLOW_DASHBOARD_INTERVAL");
+    if (dashboard_env && *dashboard_env) {
+        int parsed = atoi(dashboard_env);
+        if (parsed > 0) {
+            dashboard_interval = parsed;
+        } else {
+            dashboard_interval = 0; // treat zero or negative as disabled
+        }
+    }
     int max_ticks = 1000;
     for (int tick = 0; tick < max_ticks; tick++) {
         // Run kernel tick
@@ -186,8 +196,8 @@ int qallow_vm_main(void) {
             qallow_log_info("vm.tick", "tick=%d decoherence=%.6f", tick, state.decoherence_level);
         }
 
-        // Dashboard every 100 ticks
-        if (tick % 50 == 0) {
+        // Dashboard at configured interval (disabled when interval is zero)
+        if (dashboard_interval > 0 && tick % dashboard_interval == 0) {
             qallow_print_dashboard(&state, &ethics_state);
         }
 

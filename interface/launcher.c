@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -37,6 +38,69 @@ static int qallow_run_vm(run_profile_t profile);
 static int qallow_handle_run(int argc, char** argv, int arg_offset, run_profile_t default_profile);
 static int qallow_dispatch_phase(int argc, char** argv, int start_index, const char* phase_name,
                                  int (*runner)(int, char**));
+
+#if defined(_WIN32)
+#define QALLOW_SETENV(name, value) _putenv_s((name), (value))
+#else
+#define QALLOW_SETENV(name, value) setenv((name), (value), 1)
+#endif
+
+static int qallow_apply_dashboard_option(const char* value) {
+    if (!value || !*value) {
+        fprintf(stderr, "[ERROR] --dashboard requires a value (off|<ticks>)\n");
+        return 0;
+    }
+
+    char lowered[16];
+    size_t len = strlen(value);
+    if (len >= sizeof(lowered)) {
+        fprintf(stderr, "[ERROR] --dashboard value too long: %s\n", value);
+        return 0;
+    }
+
+    for (size_t i = 0; i < len; i++) {
+        lowered[i] = (char)tolower((unsigned char)value[i]);
+    }
+    lowered[len] = '\0';
+
+    if (strcmp(lowered, "off") == 0 || strcmp(lowered, "disable") == 0) {
+        if (QALLOW_SETENV("QALLOW_DASHBOARD_INTERVAL", "0") != 0) {
+            fprintf(stderr, "[ERROR] Failed to set dashboard environment override\n");
+            return 0;
+        }
+        printf("[RUN] Dashboard output disabled (--dashboard)\n");
+        return 1;
+    }
+
+    char* endptr = NULL;
+    long parsed = strtol(value, &endptr, 10);
+    if (endptr == value || (endptr && *endptr != '\0')) {
+        fprintf(stderr, "[ERROR] Invalid --dashboard value: %s (expected off|<ticks>)\n", value);
+        return 0;
+    }
+    if (parsed < 0) {
+        fprintf(stderr, "[ERROR] Dashboard interval must be non-negative: %ld\n", parsed);
+        return 0;
+    }
+    if (parsed > 1000000) {
+        fprintf(stderr, "[ERROR] Dashboard interval too large: %ld\n", parsed);
+        return 0;
+    }
+
+    char buffer[32];
+    snprintf(buffer, sizeof(buffer), "%ld", parsed);
+    if (QALLOW_SETENV("QALLOW_DASHBOARD_INTERVAL", buffer) != 0) {
+        fprintf(stderr, "[ERROR] Failed to set dashboard environment override\n");
+        return 0;
+    }
+
+    if (parsed == 0) {
+        printf("[RUN] Dashboard output disabled (--dashboard=0)\n");
+    } else {
+        printf("[RUN] Dashboard interval set to %ld ticks (--dashboard)\n", parsed);
+    }
+    return 1;
+}
 
 // Print banner
 static void print_banner(void) {
@@ -108,7 +172,7 @@ static int qallow_handle_run(int argc, char** argv, int arg_offset, run_profile_
     bool profile_set = (default_profile != RUN_PROFILE_STANDARD);
     bool integrate_requested = false;
     const char* integrate_phases[8];
-    int integrate_count = 0;
+   int integrate_count = 0;
     bool integrate_no_split = false;
 
     for (int i = arg_offset; i < argc; ++i) {
@@ -152,6 +216,24 @@ static int qallow_handle_run(int argc, char** argv, int arg_offset, run_profile_
             }
             profile = RUN_PROFILE_LIVE;
             profile_set = true;
+            continue;
+        }
+
+        if (strncmp(arg, "--dashboard=", 12) == 0) {
+            if (!qallow_apply_dashboard_option(arg + 12)) {
+                return 1;
+            }
+            continue;
+        }
+
+        if (strcmp(arg, "--dashboard") == 0) {
+            if ((i + 1) >= argc) {
+                fprintf(stderr, "[ERROR] --dashboard flag requires a value (off|<ticks>)\n");
+                return 1;
+            }
+            if (!qallow_apply_dashboard_option(argv[++i])) {
+                return 1;
+            }
             continue;
         }
 
@@ -343,6 +425,7 @@ static void qallow_print_help(void) {
     printf("Run options:\n");
     printf("  --bench           Run the benchmark profile (alias of `qallow bench`)\n");
     printf("  --live            Run the live ingestion profile (alias of `qallow live`)\n");
+    printf("  --dashboard=<N|off>  Control dashboard frequency (ticks) or disable output\n");
     printf("  --phase=12|13     Dispatch directly into a legacy phase runner\n");
     printf("  --accelerator     Launch the Phase-13 accelerator; pass accelerator options after this flag\n");
     printf("  --remote-sync     Enable remote ingestion loop (optional endpoint argument)\n");
@@ -355,6 +438,7 @@ static void qallow_print_help(void) {
     printf("Examples:\n");
     printf("  qallow run                       # Run the unified VM\n");
     printf("  qallow run --bench               # Run benchmark profile\n");
+    printf("  qallow run --dashboard=off       # Silence dashboard output\n");
     printf("  qallow run --accelerator --watch=. --threads=auto\n");
     printf("  qallow run --accelerator --remote-sync=https://ingest.example.com/feed\n");
     printf("  qallow run --phase=12 --ticks=100 --eps=0.0001 --log=phase12.csv\n");

@@ -9,6 +9,7 @@ set -e # Exit on error
 MODE=${1:-AUTO}
 BUILD_DIR="build"
 INCLUDE_DIR="core/include"
+INCLUDE_DIR_ALT="include"
 BACKEND_CPU="backend/cpu"
 BACKEND_CUDA="backend/cuda"
 INTERFACE_DIR="interface"
@@ -101,12 +102,22 @@ if [ ${#C_FILES[@]} -eq 0 ]; then
     exit 1
 fi
 
+# Collect C++ runtime sources
+CPP_FILES=()
+for cpp in src/runtime/*.cpp; do
+    if [ -f "$cpp" ]; then
+        CPP_FILES+=("$cpp")
+        echo -e "${GREEN}  →${NC} $(basename "$cpp")"
+    fi
+done
+
 echo ""
 echo -e "${BLUE}[2/3] Compiling...${NC}"
 echo "--------------------------------"
 
 C_OBJECTS=()
 CUDA_OBJECTS=()
+CPP_OBJECTS=()
 
 if [ "$MODE" == "CUDA" ]; then
     echo -e "${GREEN}[CUDA]${NC} Compiling CUDA kernels..."
@@ -117,7 +128,7 @@ if [ "$MODE" == "CUDA" ]; then
             obj_name=$(echo "${cu_file%.cu}" | sed 's/[^A-Za-z0-9_]/_/g')
             obj_file="$BUILD_DIR/${obj_name}.o"
             echo -e "${GREEN}  →${NC} $(basename "$cu_file")"
-            nvcc -c -O2 -arch=sm_89 -I"$INCLUDE_DIR" "$cu_file" -o "$obj_file"
+            nvcc -c -O2 -arch=sm_89 -I"$INCLUDE_DIR" -I"$INCLUDE_DIR_ALT" "$cu_file" -o "$obj_file"
             CUDA_OBJECTS+=("$obj_file")
         fi
     done
@@ -132,8 +143,17 @@ for c_file in "${C_FILES[@]}"; do
     if [ "$c_file" = "$ACCELERATOR_SRC" ]; then
         extra_flags+=("-DQALLOW_PHASE13_EMBEDDED")
     fi
-    gcc -c -O2 -Wall -Wextra -g -I"$INCLUDE_DIR" "${extra_flags[@]}" "$c_file" -o "$obj_file"
+    gcc -c -O2 -Wall -Wextra -g -I"$INCLUDE_DIR" -I"$INCLUDE_DIR_ALT" "${extra_flags[@]}" "$c_file" -o "$obj_file"
     C_OBJECTS+=("$obj_file")
+done
+
+# Compile C++ sources
+for cpp_file in "${CPP_FILES[@]}"; do
+    obj_name=$(echo "${cpp_file%.cpp}" | sed 's/[^A-Za-z0-9_]/_/g')
+    obj_file="$BUILD_DIR/${obj_name}.o"
+    echo -e "${GREEN}  →${NC} $(basename "$cpp_file")"
+    g++ -c -O2 -Wall -Wextra -g -I"$INCLUDE_DIR" -I"$INCLUDE_DIR_ALT" "$cpp_file" -o "$obj_file"
+    CPP_OBJECTS+=("$obj_file")
 done
 
 if [ "$MODE" == "CUDA" ]; then
@@ -146,10 +166,12 @@ echo ""
 echo -e "${BLUE}[3/3] Building executable...${NC}"
 echo "--------------------------------"
 
+LINK_OBJECTS=("${C_OBJECTS[@]}" "${CPP_OBJECTS[@]}")
+
 if [ "$MODE" == "CUDA" ]; then
-    nvcc -O2 -arch=sm_89 -I"$INCLUDE_DIR" "${C_OBJECTS[@]}" "${CUDA_OBJECTS[@]}" -L/usr/local/cuda/lib64 -lcudart -lcurand -lm -o "$OUTPUT"
+    nvcc -O2 -arch=sm_89 -I"$INCLUDE_DIR" -I"$INCLUDE_DIR_ALT" "${LINK_OBJECTS[@]}" "${CUDA_OBJECTS[@]}" -L/usr/local/cuda/lib64 -lcudart -lcurand -lm -o "$OUTPUT"
 else
-    gcc -O2 -Wall -Wextra -g -I"$INCLUDE_DIR" "${C_OBJECTS[@]}" -lm -o "$OUTPUT"
+    g++ -O2 -Wall -Wextra -g -I"$INCLUDE_DIR" -I"$INCLUDE_DIR_ALT" "${LINK_OBJECTS[@]}" -lm -o "$OUTPUT"
 fi
 
 if [ $? -eq 0 ]; then

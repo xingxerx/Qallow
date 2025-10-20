@@ -63,14 +63,14 @@ echo "--------------------------------"
 
 if [ $CUDA_AVAILABLE -eq 1 ] && [ ! -z "$CU_FILES" ]; then
     echo "[BUILD] Using NVCC (CUDA enabled)"
-    nvcc -O2 -arch=sm_89 -Icore/include -DQALLOW_PHASE13_EMBEDDED -Xcompiler -Wall $C_FILES $CU_FILES -lcurand -lm -o qallow_unified
+    nvcc -O2 -arch=sm_89 -Icore/include -Iinclude -DQALLOW_PHASE13_EMBEDDED -Xcompiler -Wall $C_FILES $CU_FILES -lcurand -lm -o qallow_unified
     echo ""
     echo "================================"
     echo "BUILD SUCCESSFUL (CUDA)"
     echo "================================"
 else
     echo "[BUILD] Using GCC (CPU-only)"
-    gcc -O2 -Wall -Icore/include -DQALLOW_PHASE13_EMBEDDED $C_FILES -lm -o qallow_unified
+    gcc -O2 -Wall -Icore/include -Iinclude -DQALLOW_PHASE13_EMBEDDED $C_FILES -lm -o qallow_unified
     echo ""
     echo "================================"
     echo "BUILD SUCCESSFUL (CPU)"
