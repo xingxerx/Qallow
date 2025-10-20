@@ -101,6 +101,7 @@ See `CONTRIBUTING.md` for coding standards, branching model, and CI expectations
 - Feed the JSON into Phase 11 with `./build/qallow_unified --phase=11 --algo=qaoa --qubo=/tmp/qubo.json --shots=4096 --p=2 --ticks=300 > /tmp/qaoa_out.json`.
 - Rank the resulting bitstrings and launch the lightweight trainer using `python scripts/hparam_eval.py --in /tmp/qaoa_out.json --topk 5 --epochs 3`.
 - Optional C assist: compile `c_ext/qaoa_eval.c` as `gcc -shared -O2 -fPIC c_ext/qaoa_eval.c -o build/libqaoa_eval.so` to let `scripts/train_small_model.py` call into native code for score calculations.
+- To run the VM with CUDA and Qiskit in tandem use `scripts/run_auto.sh --cuda --with-qiskit` after building the CUDA binary (`./scripts/build_wrapper.sh CUDA`); additional bridge overrides are available via `--qiskit-backend` and `--qiskit-bridge`.
 
 ## Telemetry & Logging
 

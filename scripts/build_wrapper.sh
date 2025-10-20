@@ -14,7 +14,9 @@ BACKEND_CPU="backend/cpu"
 BACKEND_CUDA="backend/cuda"
 INTERFACE_DIR="interface"
 IO_DIR="io/adapters"
-OUTPUT="$BUILD_DIR/qallow_unified"
+OUTPUT_CPU="$BUILD_DIR/qallow_unified"
+OUTPUT_CUDA="$BUILD_DIR/qallow_unified_cuda"
+OUTPUT="$OUTPUT_CPU"
 
 COMMON_INCLUDES=("-I." "-I${INCLUDE_DIR}" "-Iruntime" "-I${INCLUDE_DIR_ALT}" "-Iethics" "-I/usr/local/cuda/include" "-I/opt/cuda/targets/x86_64-linux/include")
 COMMON_DEFINES=("-D_POSIX_C_SOURCE=200809L" "-D_DEFAULT_SOURCE")
@@ -62,17 +64,21 @@ if [ "$MODE" == "AUTO" ]; then
     if [ $CUDA_AVAILABLE -eq 1 ]; then
         MODE="CUDA"
         echo -e "${GREEN}[AUTO]${NC} Using CUDA mode"
+        OUTPUT="$OUTPUT_CUDA"
     else
         MODE="CPU"
         echo -e "${YELLOW}[AUTO]${NC} Using CPU-only mode"
+        OUTPUT="$OUTPUT_CPU"
     fi
 fi
 
 # Apply CUDA preprocessor definition based on final mode
 if [ "$MODE" == "CUDA" ]; then
     COMMON_DEFINES+=("-DCUDA_ENABLED=1")
+    OUTPUT="$OUTPUT_CUDA"
 else
     COMMON_DEFINES+=("-DCUDA_ENABLED=0")
+    OUTPUT="$OUTPUT_CPU"
 fi
 
 # Validate mode

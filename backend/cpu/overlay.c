@@ -172,6 +172,7 @@ const char* overlay_type_name(overlay_type_t type) {
 #if CUDA_ENABLED
 void overlay_cuda_process_all(overlay_t* overlays, int num_overlays, int nodes) {
     if (!overlays) return;
+    (void)num_overlays;
     (void)nodes;
     // CUDA processing stub
 }

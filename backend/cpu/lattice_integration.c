@@ -1,10 +1,12 @@
 #include "qallow_integration.h"
 
+#include "qallow_kernel.h"
 #include "phase14.h"
 #include "phase15.h"
 #include "telemetry.h"
 #include "ethics.h"
 
+#include <stddef.h>
 #include <stdio.h>
 #include <string.h>
 
