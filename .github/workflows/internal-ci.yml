@@ -57,10 +57,32 @@ jobs:
             ${{ runner.os }}-build-
 
       - name: Build CPU binary
-        run: make ACCELERATOR=CPU -j"$(nproc)"
+        run: |
+          echo "Starting build with $(nproc) cores..."
+          make ACCELERATOR=CPU -j"$(nproc)" || {
+            echo "Build failed, checking disk space..."
+            df -h
+            exit 1
+          }
+          echo "Build completed successfully"
+          ls -lh build/CPU/qallow_unified_cpu
+
+      - name: Verify binary exists
+        run: |
+          if [ ! -f build/CPU/qallow_unified_cpu ]; then
+            echo "ERROR: Binary not found at build/CPU/qallow_unified_cpu"
+            ls -la build/CPU/ || echo "build/CPU directory does not exist"
+            exit 1
+          fi
+          echo "Binary verified: $(file build/CPU/qallow_unified_cpu)"
 
       - name: Run smoke tests
-        run: tests/smoke/test_modules.sh
+        run: |
+          echo "Running smoke tests..."
+          bash tests/smoke/test_modules.sh || {
+            echo "Smoke tests failed"
+            exit 1
+          }
 
       - name: Accelerator execution
         env:
