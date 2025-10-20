@@ -9,6 +9,7 @@
 
 #include "ethics/ethics_model.h"
 #include "runtime/meta_introspect.h"
+#include "runtime/dl_integration.h"
 #include "qallow_kernels.h"
 static void ensure_logs_dir(void) {
     struct stat st;
@@ -94,6 +95,21 @@ static int bench_gpu(void) {
                 clamp_unit(1.0f - (energy / (float)(1 << 20))));
     meta_introspect_flush();
 
+    if (dl_model_is_loaded()) {
+        float input_vector[3] = {
+            mean,
+            (float)(energy / (float)(1 << 20)),
+            duration13
+        };
+        float dl_out[4] = {0};
+        int produced = dl_model_infer(input_vector, 3, dl_out, 4);
+        if (produced > 0) {
+            printf("[DL] bench inference -> %d value(s), first=%.6f\n", produced, dl_out[0]);
+        } else {
+            fprintf(stderr, "[DL] bench inference failed: %s\n", dl_model_last_error());
+        }
+    }
+
     printf("[BENCH] p12.mean=%.6f p13.energy=%.6f\n", mean, energy);
     log_csv("bench_ok", "/var/log/qallow/telemetry.csv");
     return 0;
@@ -143,6 +159,27 @@ static int run_phases_gpu(void) {
               clamp_unit(coherence13),
               clamp_unit((float)metrics.human));
         meta_introspect_flush();
+
+    if (dl_model_is_loaded()) {
+        float input_vector[4] = {
+            mean,
+            (float)metrics.clarity,
+            (float)metrics.human,
+            (float)score
+        };
+        float dl_out[4] = {0};
+        int produced = dl_model_infer(input_vector, 4, dl_out, 4);
+        if (produced > 0) {
+            printf("[DL] model output (first)=%.6f (produced %d)\n", dl_out[0], produced);
+            float adjusted_score = clamp_unit(dl_out[0]);
+            meta_record("phase16", "dl_audit", "phase16.dl.score",
+                        0.0f,
+                        adjusted_score,
+                        adjusted_score);
+        } else {
+            fprintf(stderr, "[DL] inference warning: %s\n", dl_model_last_error());
+        }
+    }
 
     printf("[PHASE] p12.elasticity.mean=%.6f  p13.harmonic.energy=%.6f  ethics=%.2f  pass=%d\n",
            mean, energy, score, pass);

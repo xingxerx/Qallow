@@ -18,6 +18,18 @@ OUTPUT="$BUILD_DIR/qallow_unified"
 
 COMMON_INCLUDES=("-I." "-I${INCLUDE_DIR}" "-I${INCLUDE_DIR_ALT}" "-Iruntime" "-Iethics" "-I/usr/local/cuda/include" "-I/opt/cuda/targets/x86_64-linux/include")
 COMMON_DEFINES=("-DCUDA_ENABLED=1")
+TORCH_LINK_FLAGS=""
+
+if [ -n "$USE_LIBTORCH" ]; then
+    : "${LIBTORCH_HOME:=/opt/libtorch}"
+    COMMON_INCLUDES+=("-I${LIBTORCH_HOME}/include" "-I${LIBTORCH_HOME}/include/torch/csrc/api/include")
+    COMMON_DEFINES+=("-DUSE_LIBTORCH")
+    : "${LIBTORCH_LIB:=${LIBTORCH_HOME}/lib}"
+    TORCH_LINK_FLAGS="-L${LIBTORCH_LIB} -Wl,-rpath,${LIBTORCH_LIB} -ltorch_cpu -ltorch -lc10"
+    if [ -n "$USE_LIBTORCH_CUDA" ]; then
+        TORCH_LINK_FLAGS+=" -ltorch_cuda"
+    fi
+fi
 
 # ANSI color codes
 RED='\033[0;31m'
@@ -124,6 +136,12 @@ for cpp in src/runtime/*.cpp; do
     fi
 done
 
+DL_CPP="runtime/dl_integration.cpp"
+if [ -f "$DL_CPP" ]; then
+    CPP_FILES+=("$DL_CPP")
+    echo -e "${GREEN}  →${NC} $(basename "$DL_CPP")"
+fi
+
 echo ""
 echo -e "${BLUE}[2/3] Compiling...${NC}"
 echo "--------------------------------"
@@ -182,9 +200,9 @@ echo "--------------------------------"
 LINK_OBJECTS=("${C_OBJECTS[@]}" "${CPP_OBJECTS[@]}")
 
 if [ "$MODE" == "CUDA" ]; then
-    nvcc -O2 -arch=sm_89 "${COMMON_INCLUDES[@]}" "${COMMON_DEFINES[@]}" "${LINK_OBJECTS[@]}" "${CUDA_OBJECTS[@]}" -L/usr/local/cuda/lib64 -lcudart -lcurand -lm -o "$OUTPUT"
+    nvcc -O2 -arch=sm_89 "${COMMON_INCLUDES[@]}" "${COMMON_DEFINES[@]}" "${LINK_OBJECTS[@]}" "${CUDA_OBJECTS[@]}" -L/usr/local/cuda/lib64 -lcudart -lcurand -lm $TORCH_LINK_FLAGS -o "$OUTPUT"
 else
-    g++ -O2 -Wall -Wextra -g "${COMMON_INCLUDES[@]}" "${COMMON_DEFINES[@]}" "${LINK_OBJECTS[@]}" -lm -o "$OUTPUT"
+    g++ -O2 -Wall -Wextra -g "${COMMON_INCLUDES[@]}" "${COMMON_DEFINES[@]}" "${LINK_OBJECTS[@]}" -lm $TORCH_LINK_FLAGS -o "$OUTPUT"
 fi
 
 if [ $? -eq 0 ]; then

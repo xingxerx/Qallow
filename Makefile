@@ -17,16 +17,34 @@ CUFLAGS ?= -O2 $(INCS) $(GENCODE) -Xcompiler "-Wall" -DCUDA_ENABLED=1
 LDFLAGS ?= -lm
 CULIBS ?= -lcudart -lcurand -lm
 
+LIBTORCH_HOME ?=
+LIBTORCH_LIB ?=
+
+ifdef USE_LIBTORCH
+INCS += -I$(LIBTORCH_HOME)/include -I$(LIBTORCH_HOME)/include/torch/csrc/api/include
+CXXFLAGS += -DUSE_LIBTORCH
+ifeq ($(LIBTORCH_LIB),)
+LIBTORCH_LIB := $(LIBTORCH_HOME)/lib
+endif
+CULIBS += -L$(LIBTORCH_LIB) -Wl,-rpath,$(LIBTORCH_LIB)
+CULIBS += -ltorch_cpu -ltorch -lc10
+ifdef USE_LIBTORCH_CUDA
+CULIBS += -ltorch_cuda
+endif
+endif
+
 BUILD_DIR ?= build
 
 SRC_C := core/main.c \
-		 runtime/meta_introspect.c \
-		 algorithms/ethics_core.c
+         runtime/meta_introspect.c \
+         algorithms/ethics_core.c
+SRC_CPP := runtime/dl_integration.cpp
 SRC_CU := backend/cuda/p12_elasticity.cu \
           backend/cuda/p13_harmonic.cu \
           backend/cuda/phase16_meta_introspect.cu
 
 OBJ_C := $(SRC_C:%.c=$(BUILD_DIR)/%.o)
+OBJ_CPP := $(SRC_CPP:%.cpp=$(BUILD_DIR)/%.o)
 OBJ_CU := $(SRC_CU:%.cu=$(BUILD_DIR)/%.o)
 
 .PHONY: all clean bench profile
@@ -45,9 +63,9 @@ $(BUILD_DIR)/%.o: %.cu
 	@mkdir -p $(dir $@)
 	$(NVCC) $(CUFLAGS) -c $< -o $@
 
-$(BIN): $(OBJ_C) $(OBJ_CU)
+$(BIN): $(OBJ_C) $(OBJ_CPP) $(OBJ_CU)
 	@mkdir -p $(dir $(BIN))
-	$(NVCC) $(OBJ_C) $(OBJ_CU) -o $(BIN) $(CULIBS)
+	$(NVCC) $(OBJ_C) $(OBJ_CPP) $(OBJ_CU) -o $(BIN) $(CULIBS)
 
 bench: $(BIN)
 	$(BIN) run --accelerator --bench

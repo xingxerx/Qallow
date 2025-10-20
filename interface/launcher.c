@@ -35,6 +35,7 @@
 #include "phase13_accelerator.h"
 #include "qallow_integration.h"
 #include "runtime/meta_introspect.h"
+#include "runtime/dl_integration.h"
 // TODO: Add these when modules are implemented
 // #include "adaptive.h"
 // #include "verify.h"
@@ -327,6 +328,8 @@ static int qallow_handle_run(int argc, char** argv, int arg_offset, run_profile_
     bool self_audit = false;
     const char* self_audit_path = NULL;
     const char* pocket_map_path = NULL;
+    const char* dl_model_path = NULL;
+    const char* dl_device_pref = NULL;
 
     for (int i = arg_offset; i < argc; ++i) {
         const char* arg = argv[i];
@@ -411,6 +414,25 @@ static int qallow_handle_run(int argc, char** argv, int arg_offset, run_profile_
             if (!qallow_apply_dashboard_option(argv[++i])) {
                 return 1;
             }
+            continue;
+        }
+
+        if (strncmp(arg, "--dl-model=", 11) == 0) {
+            dl_model_path = arg + 11;
+            continue;
+        }
+
+        if (strcmp(arg, "--dl-model") == 0) {
+            if ((i + 1) >= argc) {
+                fprintf(stderr, "[ERROR] --dl-model requires a path argument\n");
+                return 1;
+            }
+            dl_model_path = argv[++i];
+            continue;
+        }
+
+        if (strncmp(arg, "--dl-device=", 12) == 0) {
+            dl_device_pref = arg + 12;
             continue;
         }
 
@@ -505,6 +527,29 @@ static int qallow_handle_run(int argc, char** argv, int arg_offset, run_profile_
         return rc;
     }
 
+    if (dl_model_path) {
+        if (!dl_model_supported()) {
+            fprintf(stderr, "[ERROR] Deep learning support not compiled in. Rebuild with USE_LIBTORCH=1.\n");
+            return 1;
+        }
+        int prefer_gpu = 1;
+        if (dl_device_pref) {
+            if (strcmp(dl_device_pref, "cpu") == 0) {
+                prefer_gpu = 0;
+            } else if (strcmp(dl_device_pref, "gpu") == 0) {
+                prefer_gpu = 1;
+            } else {
+                fprintf(stderr, "[ERROR] Unknown --dl-device option: %s\n", dl_device_pref);
+                return 1;
+            }
+        }
+        if (dl_model_load(dl_model_path, prefer_gpu) != 0) {
+            fprintf(stderr, "[ERROR] Failed to load TorchScript model: %s\n", dl_model_last_error());
+            return 1;
+        }
+        printf("[DL] TorchScript model loaded (%s)\n", dl_model_path);
+    }
+
     int rc = qallow_run_vm(profile);
 
     if (self_audit || self_audit_path) {
@@ -517,6 +562,10 @@ static int qallow_handle_run(int argc, char** argv, int arg_offset, run_profile_
         } else {
             fprintf(stderr, "[ERROR] Failed to export pocket map: %s\n", pocket_map_path);
         }
+    }
+
+    if (dl_model_path) {
+        dl_model_unload();
     }
 
     return rc;
@@ -634,6 +683,8 @@ static void qallow_print_help(void) {
     printf("  --self-audit      Enable phase16 meta-introspect logging\n");
     printf("  --self-audit-path <DIR>  Override auditor log directory (implies --self-audit)\n");
     printf("  --export-pocket-map <FILE>  Emit audited pocket status JSON after run\n");
+    printf("  --dl-model <PATH>  Load TorchScript model for inference inside the run loop\n");
+    printf("  --dl-device=<cpu|gpu>  Prefer CPU or GPU when running the TorchScript model\n");
     printf("  --phase=12|13     Dispatch directly into a legacy phase runner\n");
     printf("  --accelerator     Launch the Phase-13 accelerator; pass accelerator options after this flag\n");
     printf("  --remote-sync     Enable remote ingestion loop (optional endpoint argument)\n");
@@ -650,6 +701,7 @@ static void qallow_print_help(void) {
     printf("  qallow run --accelerator --watch=. --threads=auto\n");
     printf("  qallow run --accelerator --remote-sync=https://ingest.example.com/feed\n");
     printf("  qallow run --self-audit --self-audit-path=./logs --export-pocket-map pocket.json\n");
+    printf("  qallow run --dl-model model.ts --dl-device=gpu\n");
     printf("  qallow run --phase=12 --ticks=100 --eps=0.0001 --log=phase12.csv\n");
     printf("  qallow accelerator --watch=/tmp  # Accelerator alias\n");
     printf("  qallow clear                     # Clean build output\n");
