@@ -16,9 +16,10 @@ INTERFACE_DIR="interface"
 IO_DIR="io/adapters"
 OUTPUT="$BUILD_DIR/qallow_unified"
 
-COMMON_INCLUDES=("-I." "-I${INCLUDE_DIR}" "-I${INCLUDE_DIR_ALT}" "-Iruntime" "-Iethics" "-I/usr/local/cuda/include" "-I/opt/cuda/targets/x86_64-linux/include")
-COMMON_DEFINES=("-DCUDA_ENABLED=1")
+COMMON_INCLUDES=("-I." "-I${INCLUDE_DIR}" "-Iruntime" "-I${INCLUDE_DIR_ALT}" "-Iethics" "-I/usr/local/cuda/include" "-I/opt/cuda/targets/x86_64-linux/include")
+COMMON_DEFINES=("-D_POSIX_C_SOURCE=200809L" "-D_DEFAULT_SOURCE")
 TORCH_LINK_FLAGS=""
+CUDA_ARCH="${CUDA_ARCH:-sm_90}"
 
 if [ -n "$USE_LIBTORCH" ]; then
     : "${LIBTORCH_HOME:=/opt/libtorch}"
@@ -61,10 +62,17 @@ if [ "$MODE" == "AUTO" ]; then
     if [ $CUDA_AVAILABLE -eq 1 ]; then
         MODE="CUDA"
         echo -e "${GREEN}[AUTO]${NC} Using CUDA mode"
-    else
-        MODE="CPU"
-        echo -e "${YELLOW}[AUTO]${NC} Using CPU-only mode"
-    fi
+else
+    MODE="CPU"
+    echo -e "${YELLOW}[AUTO]${NC} Using CPU-only mode"
+fi
+
+# Apply CUDA preprocessor definition based on final mode
+if [ "$MODE" == "CUDA" ]; then
+    COMMON_DEFINES+=("-DCUDA_ENABLED=1")
+else
+    COMMON_DEFINES+=("-DCUDA_ENABLED=0")
+fi
 fi
 
 # Validate mode
@@ -159,7 +167,7 @@ if [ "$MODE" == "CUDA" ]; then
             obj_name=$(echo "${cu_file%.cu}" | sed 's/[^A-Za-z0-9_]/_/g')
             obj_file="$BUILD_DIR/${obj_name}.o"
             echo -e "${GREEN}  →${NC} $(basename "$cu_file")"
-            nvcc -c -O2 -arch=sm_89 "${COMMON_INCLUDES[@]}" "${COMMON_DEFINES[@]}" "$cu_file" -o "$obj_file"
+            nvcc -c -O2 -arch="${CUDA_ARCH}" "${COMMON_INCLUDES[@]}" "${COMMON_DEFINES[@]}" "$cu_file" -o "$obj_file"
             CUDA_OBJECTS+=("$obj_file")
         fi
     done
@@ -174,7 +182,7 @@ for c_file in "${C_FILES[@]}"; do
     if [ "$c_file" = "$ACCELERATOR_SRC" ]; then
         extra_flags+=("-DQALLOW_PHASE13_EMBEDDED")
     fi
-    gcc -c -O2 -Wall -Wextra -g "${COMMON_INCLUDES[@]}" "${COMMON_DEFINES[@]}" "${extra_flags[@]}" "$c_file" -o "$obj_file"
+    gcc -c -O2 -std=c11 -Wall -Wextra -g "${COMMON_INCLUDES[@]}" "${COMMON_DEFINES[@]}" "${extra_flags[@]}" "$c_file" -o "$obj_file"
     C_OBJECTS+=("$obj_file")
 done
 
@@ -183,7 +191,7 @@ for cpp_file in "${CPP_FILES[@]}"; do
     obj_name=$(echo "${cpp_file%.cpp}" | sed 's/[^A-Za-z0-9_]/_/g')
     obj_file="$BUILD_DIR/${obj_name}.o"
     echo -e "${GREEN}  →${NC} $(basename "$cpp_file")"
-    g++ -c -O2 -Wall -Wextra -g "${COMMON_INCLUDES[@]}" "${COMMON_DEFINES[@]}" "$cpp_file" -o "$obj_file"
+    g++ -c -O2 -std=c++17 -Wall -Wextra -g "${COMMON_INCLUDES[@]}" "${COMMON_DEFINES[@]}" "$cpp_file" -o "$obj_file"
     CPP_OBJECTS+=("$obj_file")
 done
 
@@ -200,7 +208,7 @@ echo "--------------------------------"
 LINK_OBJECTS=("${C_OBJECTS[@]}" "${CPP_OBJECTS[@]}")
 
 if [ "$MODE" == "CUDA" ]; then
-    nvcc -O2 -arch=sm_89 "${COMMON_INCLUDES[@]}" "${COMMON_DEFINES[@]}" "${LINK_OBJECTS[@]}" "${CUDA_OBJECTS[@]}" -L/usr/local/cuda/lib64 -lcudart -lcurand -lm $TORCH_LINK_FLAGS -o "$OUTPUT"
+    nvcc -O2 -arch="${CUDA_ARCH}" "${COMMON_INCLUDES[@]}" "${COMMON_DEFINES[@]}" "${LINK_OBJECTS[@]}" "${CUDA_OBJECTS[@]}" -L/usr/local/cuda/lib64 -lcudart -lcurand -lm $TORCH_LINK_FLAGS -o "$OUTPUT"
 else
     g++ -O2 -Wall -Wextra -g "${COMMON_INCLUDES[@]}" "${COMMON_DEFINES[@]}" "${LINK_OBJECTS[@]}" -lm $TORCH_LINK_FLAGS -o "$OUTPUT"
 fi

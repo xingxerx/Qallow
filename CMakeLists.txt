@@ -36,6 +36,7 @@ FetchContent_MakeAvailable(spdlog)
 
 set(QALLOW_INCLUDE_DIRS
     ${CMAKE_CURRENT_SOURCE_DIR}/runtime
+    ${CMAKE_CURRENT_SOURCE_DIR}/core
     ${CMAKE_CURRENT_SOURCE_DIR}/core/include
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
@@ -129,12 +130,18 @@ if(QALLOW_ENABLE_CUDA)
         backend/cuda/qcp_kernels.cu
         backend/cuda/quantum.cu
         backend/cuda/phase16_meta_introspect.cu
+        runtime/cuda_parallel.cu
     )
     add_library(qallow_backend_cuda STATIC ${QALLOW_CUDA_SOURCES})
     target_link_libraries(qallow_backend_cuda PUBLIC qallow_core)
     target_compile_definitions(qallow_backend_cuda PUBLIC QALLOW_WITH_CUDA)
-    target_include_directories(qallow_backend_cuda PUBLIC ${QALLOW_INCLUDE_DIRS})
+    target_include_directories(qallow_backend_cuda
+        PUBLIC ${QALLOW_INCLUDE_DIRS}
+        PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/core
+    )
     find_package(CUDAToolkit REQUIRED)
+    target_link_libraries(qallow_backend_cuda PUBLIC CUDA::cudart)
+    set_target_properties(qallow_backend_cuda PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 endif()
 
 set(QALLOW_INTERFACE_SOURCES
@@ -227,6 +234,12 @@ add_test(NAME unit_ethics_core COMMAND qallow_unit_ethics)
 add_executable(qallow_unit_dl_integration tests/unit/test_dl_integration.c)
 target_link_libraries(qallow_unit_dl_integration PRIVATE qallow_runtime m)
 add_test(NAME unit_dl_integration COMMAND qallow_unit_dl_integration)
+
+if(QALLOW_ENABLE_CUDA)
+    add_executable(qallow_unit_cuda_parallel tests/unit/test_cuda_parallel.cu)
+    target_link_libraries(qallow_unit_cuda_parallel PRIVATE qallow_backend_cuda CUDA::cudart m)
+    add_test(NAME unit_cuda_parallel COMMAND qallow_unit_cuda_parallel)
+endif()
 
 add_executable(qallow_integration_smoke
     tests/integration/test_vm_smoke.c

@@ -1,21 +1,33 @@
 PROJECT := qallow
-BIN ?= build/qallow_unified_cuda
+
+ACCELERATOR ?= CUDA
 
 CC ?= gcc
 CXX ?= g++
 NVCC ?= nvcc
 
+ifeq ($(ACCELERATOR),CPU)
+CUDA_ENABLED := 0
+BIN ?= build/qallow_unified_cpu
+else ifeq ($(ACCELERATOR),CUDA)
+CUDA_ENABLED := 1
+BIN ?= build/qallow_unified_cuda
+else
+$(error Invalid ACCELERATOR '$(ACCELERATOR)'. Expected CPU or CUDA.)
+endif
+
 INCS :=
-INCS += -I. -Icore/include -Iinclude -Iethics -Iruntime -I/usr/local/cuda/include -I/opt/cuda/targets/x86_64-linux/include
+INCS += -I. -Icore/include -Iruntime -Iinclude -Iethics -I/usr/local/cuda/include -I/opt/cuda/targets/x86_64-linux/include
 
 GENCODE ?= -gencode arch=compute_90,code=sm_90 -gencode arch=compute_90,code=compute_90
 
-CFLAGS ?= -O2 -Wall -std=c11 -DCUDA_ENABLED=1 $(INCS)
-CXXFLAGS ?= -O2 -Wall -std=c++17 -DCUDA_ENABLED=1 $(INCS)
-CUFLAGS ?= -O2 $(INCS) $(GENCODE) -Xcompiler "-Wall" -DCUDA_ENABLED=1
+C_DEFINES := -D_POSIX_C_SOURCE=200809L -D_DEFAULT_SOURCE -DCUDA_ENABLED=$(CUDA_ENABLED)
+CFLAGS ?= -O2 -Wall -Wextra -std=c11 $(C_DEFINES) $(INCS)
+CXXFLAGS ?= -O2 -Wall -Wextra -std=c++17 $(C_DEFINES) $(INCS)
+CUFLAGS ?= -O2 $(INCS) $(GENCODE) -Xcompiler "-Wall -Wextra" -DCUDA_ENABLED=$(CUDA_ENABLED)
 
-LDFLAGS ?= -lm
-CULIBS ?= -lcudart -lcurand -lm
+LDFLAGS ?=
+LINK_LIBS := -lm
 
 LIBTORCH_HOME ?=
 LIBTORCH_LIB ?=
@@ -26,11 +38,18 @@ CXXFLAGS += -DUSE_LIBTORCH
 ifeq ($(LIBTORCH_LIB),)
 LIBTORCH_LIB := $(LIBTORCH_HOME)/lib
 endif
-CULIBS += -L$(LIBTORCH_LIB) -Wl,-rpath,$(LIBTORCH_LIB)
-CULIBS += -ltorch_cpu -ltorch -lc10
+LINK_LIBS += -L$(LIBTORCH_LIB) -Wl,-rpath,$(LIBTORCH_LIB)
+LINK_LIBS += -ltorch_cpu -ltorch -lc10
 ifdef USE_LIBTORCH_CUDA
-CULIBS += -ltorch_cuda
+LINK_LIBS += -ltorch_cuda
 endif
+endif
+
+ifeq ($(CUDA_ENABLED),1)
+LINK_LIBS += -lcudart -lcurand
+LINKER ?= $(NVCC)
+else
+LINKER ?= $(CXX)
 endif
 
 BUILD_DIR ?= build
@@ -42,6 +61,10 @@ SRC_CPP := runtime/dl_integration.cpp
 SRC_CU := backend/cuda/p12_elasticity.cu \
           backend/cuda/p13_harmonic.cu \
           backend/cuda/phase16_meta_introspect.cu
+
+ifeq ($(CUDA_ENABLED),0)
+SRC_CU :=
+endif
 
 OBJ_C := $(SRC_C:%.c=$(BUILD_DIR)/%.o)
 OBJ_CPP := $(SRC_CPP:%.cpp=$(BUILD_DIR)/%.o)
@@ -65,12 +88,18 @@ $(BUILD_DIR)/%.o: %.cu
 
 $(BIN): $(OBJ_C) $(OBJ_CPP) $(OBJ_CU)
 	@mkdir -p $(dir $(BIN))
-	$(NVCC) $(OBJ_C) $(OBJ_CPP) $(OBJ_CU) -o $(BIN) $(CULIBS)
+	$(LINKER) $(OBJ_C) $(OBJ_CPP) $(OBJ_CU) $(LDFLAGS) -o $(BIN) $(LINK_LIBS)
+
+RUN_ARGS := run
+ifeq ($(CUDA_ENABLED),1)
+RUN_ARGS += --accelerator
+endif
 
 bench: $(BIN)
-	$(BIN) run --accelerator --bench
+	$(BIN) $(RUN_ARGS) --bench
 
 NSIGHT ?= nv-nsight-cu-cli
+ifeq ($(CUDA_ENABLED),1)
 profile: $(BIN)
 	@if command -v $(NSIGHT) >/dev/null 2>&1; then \
 	  NSIGHT_CMD=$(NSIGHT); \
@@ -79,7 +108,11 @@ profile: $(BIN)
 	else \
 	  echo "nv-nsight-cu-cli not found"; exit 1; \
 	fi; \
-	$$NSIGHT_CMD --set full --target-processes all -- $(BIN) run --accelerator --bench
+	$$NSIGHT_CMD --set full --target-processes all -- $(BIN) $(RUN_ARGS) --bench
+else
+profile:
+	@echo "Profile target requires ACCELERATOR=CUDA"
+endif
 
 clean:
 	rm -rf $(BUILD_DIR)

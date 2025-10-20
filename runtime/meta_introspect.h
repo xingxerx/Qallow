@@ -25,6 +25,12 @@ void meta_introspect_apply_environment_defaults(void);
 const char* meta_introspect_log_dir(void);
 int meta_introspect_export_pocket_map(const char* output_path);
 
+int qallow_meta_introspect_gpu(const float* durations,
+                               const float* coherence,
+                               const float* ethics,
+                               float* improvement_scores,
+                               int count);
+
 #ifdef __cplusplus
 }
 #endif

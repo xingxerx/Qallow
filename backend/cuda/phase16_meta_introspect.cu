@@ -1,7 +1,7 @@
 #include <cuda_runtime.h>
 #include <math.h>
 
-#include "core/phase16_meta_introspect.cuh"
+#include "../core/phase16_meta_introspect.cuh"
 
 extern "C" __global__
 void introspect_kernel(const float* __restrict__ dur,
