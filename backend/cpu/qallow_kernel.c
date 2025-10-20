@@ -8,8 +8,10 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <math.h>
+#ifndef _WIN32
 #include <unistd.h>
 #include <sys/wait.h>
+#endif
 #include <errno.h>
 
 #if CUDA_ENABLED
@@ -20,8 +22,17 @@ extern void runQuantumOptimizer(double* hostData, int n);
 #define QALLOW_QISKIT_DEFAULT_SHOTS 512
 #define QALLOW_MAX_QISKIT_SAMPLES 32
 
-static bool qallow_qiskit_enabled(void);
-static void qallow_apply_qiskit_feedback(qallow_state_t* state);
+#ifdef _WIN32
+
+static bool qallow_qiskit_enabled(void) {
+    return false;
+}
+
+static void qallow_apply_qiskit_feedback(qallow_state_t* state) {
+    (void)state;
+}
+
+#else
 
 static bool qallow_env_truthy(const char* value) {
     if (!value) return false;
@@ -185,6 +196,8 @@ static void qallow_apply_qiskit_feedback(qallow_state_t* state) {
 
     fprintf(stdout, "[Qallow][Qiskit] coherence=%.4f (samples=%d)\n", coherence, sample);
 }
+
+#endif  // _WIN32
 
 // Qallow Kernel - Core VM implementation
 

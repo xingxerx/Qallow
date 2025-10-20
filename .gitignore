@@ -10,11 +10,14 @@ build/
 *.exe
 
 # Executables
-qallow_unified
-qallow
-qallow.exe
-qallow_vm
-qallow_vm.exe
+/qallow_unified
+/qallow
+/qallow.exe
+/qallow_vm
+/qallow_vm.exe
+
+# Header exports
+!/include/qallow/
 
 # IDE
 .vscode/

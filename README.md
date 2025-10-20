@@ -91,8 +91,16 @@ A condensed summary lives in `docs/ARCHITECTURE_SPEC.md`. Each phase has:
 - **Accelerator CI** – see `.github/workflows/internal-ci.yml` for the CUDA 13.0 container job that builds, runs the smoke tests, and exercises `qallow run --accelerator --file=/tmp/accelerator_input.json`.
 - **Readiness snapshot** – consolidated module status and metrics live in `docs/internal_readiness_v0_1.md`.
 - **Dockerized run:** `docker compose up --build`
+- **Hybrid quantum bridge** – export `QALLOW_QISKIT=1` (and optionally `QALLOW_QISKIT_BACKEND`) to feed Phase 11 topology samples through `scripts/qiskit_bridge.py`, which in turn invokes Qiskit (IBM Runtime or Aer) before reintegrating the coherence metric into the overlay loop.
 
 See `CONTRIBUTING.md` for coding standards, branching model, and CI expectations.
+
+## Quantum-AI Hyperparameter Optimizer
+
+- Generate a QUBO problem from the discrete search space in `configs/hparam_space.yaml` via `python algos/qaoa_hparam.py --space configs/hparam_space.yaml --out /tmp/qubo.json`.
+- Feed the JSON into Phase 11 with `./build/qallow_unified --phase=11 --algo=qaoa --qubo=/tmp/qubo.json --shots=4096 --p=2 --ticks=300 > /tmp/qaoa_out.json`.
+- Rank the resulting bitstrings and launch the lightweight trainer using `python scripts/hparam_eval.py --in /tmp/qaoa_out.json --topk 5 --epochs 3`.
+- Optional C assist: compile `c_ext/qaoa_eval.c` as `gcc -shared -O2 -fPIC c_ext/qaoa_eval.c -o build/libqaoa_eval.so` to let `scripts/train_small_model.py` call into native code for score calculations.
 
 ## Telemetry & Logging
 

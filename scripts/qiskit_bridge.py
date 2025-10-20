@@ -116,9 +116,10 @@ def execute_circuit(qc: QuantumCircuit, selection: Dict[str, object], shots: int
     mode = selection.get("mode")
     if mode == "ibm":
     sampler = selection["sampler"]  # type: ignore[index]
-    job = sampler.run([qc])
+        job = sampler.run([qc])
         quasi = job.result().quasi_dists[0]
-        return {state: float(prob) for state, prob in quasi.items()}
+        binary = quasi.binary_probabilities()
+        return {state: float(prob) for state, prob in binary.items()}
 
     if mode == "aer":
         backend = selection["backend"]  # type: ignore[index]
