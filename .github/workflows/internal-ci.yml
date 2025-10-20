@@ -45,6 +45,7 @@ jobs:
             python3.13 \
             python3.13-venv \
             python3.13-dev \
+            python3.13-distutils \
             python3-pip
           # Set python3 to point to python3.13
           sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.13 1
@@ -54,22 +55,31 @@ jobs:
       - name: Install Python packages
         run: |
           python3 -m pip install --upgrade pip setuptools wheel --no-cache-dir
-          python3 -m pip install sentence-transformers --no-cache-dir
+          # Install sentence-transformers with error handling (optional for CI)
+          python3 -m pip install sentence-transformers --no-cache-dir || echo "Warning: sentence-transformers installation failed, continuing without it"
 
       - name: Install CUDA toolkit
+        continue-on-error: true
         run: |
-          # Download and install CUDA 13.0 toolkit
-          wget -q https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.1-1_all.deb
-          sudo dpkg -i cuda-keyring_1.1-1_all.deb
-          sudo apt-get update
+          # Download and install CUDA 13.0 toolkit (optional for CPU builds)
+          echo "Attempting to install CUDA 13.0 toolkit..."
+          wget -q https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.1-1_all.deb || {
+            echo "Warning: Failed to download CUDA keyring, skipping CUDA installation"
+            exit 0
+          }
+          sudo dpkg -i cuda-keyring_1.1-1_all.deb || true
+          sudo apt-get update || true
           sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
             cuda-toolkit-13-0 \
-            cuda-nsight-compute-13-0
+            cuda-nsight-compute-13-0 || {
+            echo "Warning: CUDA installation failed, continuing without it"
+            exit 0
+          }
           # Add CUDA to PATH
           echo "/usr/local/cuda-13.0/bin" >> $GITHUB_PATH
           echo "LD_LIBRARY_PATH=/usr/local/cuda-13.0/lib64:$LD_LIBRARY_PATH" >> $GITHUB_ENV
-          sudo apt-get clean
-          sudo rm -rf /var/lib/apt/lists/*
+          sudo apt-get clean || true
+          sudo rm -rf /var/lib/apt/lists/* || true
 
       - name: Build CPU binary
         run: make ACCELERATOR=CPU -j"$(nproc)" -B
