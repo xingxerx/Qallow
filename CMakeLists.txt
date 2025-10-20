@@ -180,6 +180,25 @@ if(QALLOW_ENABLE_CUDA)
     target_compile_definitions(qallow_unified PRIVATE QALLOW_ENABLE_CUDA)
 endif()
 
+# Optional SDL-based telemetry UI
+find_package(SDL2 QUIET)
+find_package(SDL2_ttf QUIET)
+
+if(SDL2_FOUND AND SDL2_TTF_FOUND)
+    add_executable(qallow_ui
+        interface/qallow_ui.c
+    )
+    target_link_libraries(qallow_ui
+        PRIVATE
+            SDL2::SDL2
+            SDL2_ttf::SDL2_ttf
+    )
+    target_compile_definitions(qallow_ui PRIVATE SDL_MAIN_HANDLED)
+    message(STATUS "SDL2 + SDL2_ttf detected; qallow_ui target enabled.")
+else()
+    message(STATUS "SDL2 + SDL2_ttf not detected; qallow_ui target disabled.")
+endif()
+
 install(TARGETS qallow qallow_unified
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )

@@ -1,0 +1,21 @@
+# ninja log v6
+0	16	1760998591233732615	spdlog-populate-prefix/src/spdlog-populate-stamp/spdlog-populate-mkdir	21f5972db9db51ed
+0	16	1760998591233732615	/root/Qallow/build_ninja/_deps/spdlog-subbuild/spdlog-populate-prefix/src/spdlog-populate-stamp/spdlog-populate-mkdir	21f5972db9db51ed
+16	6398	1760998597618041032	spdlog-populate-prefix/src/spdlog-populate-stamp/spdlog-populate-download	8052cac831659d21
+16	6398	1760998597618041032	/root/Qallow/build_ninja/_deps/spdlog-subbuild/spdlog-populate-prefix/src/spdlog-populate-stamp/spdlog-populate-download	8052cac831659d21
+6398	6414	1760998597618041032	spdlog-populate-prefix/src/spdlog-populate-stamp/spdlog-populate-update	8e8615ed32cc0612
+6398	6414	1760998597618041032	/root/Qallow/build_ninja/_deps/spdlog-subbuild/spdlog-populate-prefix/src/spdlog-populate-stamp/spdlog-populate-update	8e8615ed32cc0612
+6414	6428	1760998597646042383	spdlog-populate-prefix/src/spdlog-populate-stamp/spdlog-populate-patch	d5a7ce491bf72b31
+6414	6428	1760998597646042383	/root/Qallow/build_ninja/_deps/spdlog-subbuild/spdlog-populate-prefix/src/spdlog-populate-stamp/spdlog-populate-patch	d5a7ce491bf72b31
+6428	6441	1760998597662043156	spdlog-populate-prefix/src/spdlog-populate-stamp/spdlog-populate-configure	c0b4701f49dce05e
+6428	6441	1760998597662043156	/root/Qallow/build_ninja/_deps/spdlog-subbuild/spdlog-populate-prefix/src/spdlog-populate-stamp/spdlog-populate-configure	c0b4701f49dce05e
+6441	6456	1760998597674043735	spdlog-populate-prefix/src/spdlog-populate-stamp/spdlog-populate-build	557b3837c54a98cd
+6441	6456	1760998597674043735	/root/Qallow/build_ninja/_deps/spdlog-subbuild/spdlog-populate-prefix/src/spdlog-populate-stamp/spdlog-populate-build	557b3837c54a98cd
+6456	6469	1760998597686044314	spdlog-populate-prefix/src/spdlog-populate-stamp/spdlog-populate-install	5678568bed820649
+6456	6469	1760998597686044314	/root/Qallow/build_ninja/_deps/spdlog-subbuild/spdlog-populate-prefix/src/spdlog-populate-stamp/spdlog-populate-install	5678568bed820649
+6469	6483	1760998597702045086	spdlog-populate-prefix/src/spdlog-populate-stamp/spdlog-populate-test	f417aa39a4785f53
+6469	6483	1760998597702045086	/root/Qallow/build_ninja/_deps/spdlog-subbuild/spdlog-populate-prefix/src/spdlog-populate-stamp/spdlog-populate-test	f417aa39a4785f53
+6483	6503	1760998597722046052	CMakeFiles/spdlog-populate-complete	f9ec964b56de77be
+6483	6503	1760998597722046052	spdlog-populate-prefix/src/spdlog-populate-stamp/spdlog-populate-done	f9ec964b56de77be
+6483	6503	1760998597722046052	/root/Qallow/build_ninja/_deps/spdlog-subbuild/CMakeFiles/spdlog-populate-complete	f9ec964b56de77be
+6483	6503	1760998597722046052	/root/Qallow/build_ninja/_deps/spdlog-subbuild/spdlog-populate-prefix/src/spdlog-populate-stamp/spdlog-populate-done	f9ec964b56de77be

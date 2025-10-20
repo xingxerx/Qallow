@@ -1,0 +1,14 @@
+# Target labels
+ spdlog-populate
+# Source files and their labels
+/root/Qallow/build_ninja/_deps/spdlog-subbuild/CMakeFiles/spdlog-populate
+/root/Qallow/build_ninja/_deps/spdlog-subbuild/CMakeFiles/spdlog-populate.rule
+/root/Qallow/build_ninja/_deps/spdlog-subbuild/CMakeFiles/spdlog-populate-complete.rule
+/root/Qallow/build_ninja/_deps/spdlog-subbuild/spdlog-populate-prefix/src/spdlog-populate-stamp/spdlog-populate-build.rule
+/root/Qallow/build_ninja/_deps/spdlog-subbuild/spdlog-populate-prefix/src/spdlog-populate-stamp/spdlog-populate-configure.rule
+/root/Qallow/build_ninja/_deps/spdlog-subbuild/spdlog-populate-prefix/src/spdlog-populate-stamp/spdlog-populate-download.rule
+/root/Qallow/build_ninja/_deps/spdlog-subbuild/spdlog-populate-prefix/src/spdlog-populate-stamp/spdlog-populate-install.rule
+/root/Qallow/build_ninja/_deps/spdlog-subbuild/spdlog-populate-prefix/src/spdlog-populate-stamp/spdlog-populate-mkdir.rule
+/root/Qallow/build_ninja/_deps/spdlog-subbuild/spdlog-populate-prefix/src/spdlog-populate-stamp/spdlog-populate-patch.rule
+/root/Qallow/build_ninja/_deps/spdlog-subbuild/spdlog-populate-prefix/src/spdlog-populate-stamp/spdlog-populate-test.rule
+/root/Qallow/build_ninja/_deps/spdlog-subbuild/spdlog-populate-prefix/src/spdlog-populate-stamp/spdlog-populate-update.rule
