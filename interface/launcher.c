@@ -34,8 +34,8 @@
 #include "qallow_phase13.h"
 #include "phase13_accelerator.h"
 #include "qallow_integration.h"
-#include "runtime/meta_introspect.h"
-#include "runtime/dl_integration.h"
+#include "meta_introspect.h"
+#include "dl_integration.h"
 // TODO: Add these when modules are implemented
 // #include "adaptive.h"
 // #include "verify.h"

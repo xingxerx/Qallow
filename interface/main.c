@@ -17,7 +17,7 @@
 #include "phase12.h"
 #include "qallow_phase12.h"
 #include "qallow_phase13.h"
-#include "runtime/meta_introspect.h"
+#include "meta_introspect.h"
 #include <time.h>
 #include <string.h>
 #include <stdlib.h>

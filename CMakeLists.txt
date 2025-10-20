@@ -35,9 +35,9 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(spdlog)
 
 set(QALLOW_INCLUDE_DIRS
+    ${CMAKE_CURRENT_SOURCE_DIR}/runtime
     ${CMAKE_CURRENT_SOURCE_DIR}/core/include
     ${CMAKE_CURRENT_SOURCE_DIR}/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/runtime
 )
 
 add_library(qallow_core INTERFACE)
@@ -60,6 +60,7 @@ set(QALLOW_RUNTIME_SOURCES
     src/runtime/profiling.cpp
     src/runtime/env.cpp
     runtime/meta_introspect.c
+    runtime/dl_integration.cpp
 )
 
 add_library(qallow_runtime STATIC ${QALLOW_RUNTIME_SOURCES})
@@ -105,14 +106,12 @@ target_link_libraries(qallow_backend_cpu
     PUBLIC
         qallow_core
         qallow_algorithms
+        qallow_runtime
         Threads::Threads
         m
 )
 target_compile_definitions(qallow_backend_cpu PUBLIC QALLOW_PHASE13_EMBEDDED)
 target_include_directories(qallow_backend_cpu PUBLIC ${QALLOW_INCLUDE_DIRS})
-
-# Add runtime library dependency for meta_introspect
-add_dependencies(qallow_backend_cpu qallow_runtime)
 
 if(QALLOW_ENABLE_CUDA)
     target_compile_definitions(qallow_backend_cpu PUBLIC QALLOW_ENABLE_CUDA)
@@ -120,22 +119,6 @@ if(QALLOW_ENABLE_CUDA)
         $<TARGET_PROPERTY:CUDA::cudart,INTERFACE_INCLUDE_DIRECTORIES>
     )
 endif()
-
-set(QALLOW_RUNTIME_SOURCES
-    src/runtime/logging.cpp
-    src/runtime/profiling.cpp
-    src/runtime/env.cpp
-    runtime/meta_introspect.c
-)
-
-add_library(qallow_runtime STATIC ${QALLOW_RUNTIME_SOURCES})
-target_link_libraries(qallow_runtime
-    PUBLIC
-        qallow_core
-        spdlog::spdlog
-)
-target_compile_features(qallow_runtime PUBLIC cxx_std_17)
-target_include_directories(qallow_runtime PUBLIC ${QALLOW_INCLUDE_DIRS})
 
 if(QALLOW_ENABLE_CUDA)
     enable_language(CUDA)
@@ -240,6 +223,10 @@ enable_testing()
 add_executable(qallow_unit_ethics tests/unit/test_ethics_core.c)
 target_link_libraries(qallow_unit_ethics PRIVATE qallow_algorithms m)
 add_test(NAME unit_ethics_core COMMAND qallow_unit_ethics)
+
+add_executable(qallow_unit_dl_integration tests/unit/test_dl_integration.c)
+target_link_libraries(qallow_unit_dl_integration PRIVATE qallow_runtime m)
+add_test(NAME unit_dl_integration COMMAND qallow_unit_dl_integration)
 
 add_executable(qallow_integration_smoke
     tests/integration/test_vm_smoke.c

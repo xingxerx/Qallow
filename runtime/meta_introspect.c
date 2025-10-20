@@ -1,5 +1,3 @@
-#include "runtime/meta_introspect.h"
-
 #include "meta_introspect.h"
 
 #include <ctype.h>
@@ -549,5 +547,22 @@ int meta_introspect_export_pocket_map(const char* output_path) {
     }
     fprintf(f, "  ],\n  \"auditor\": \"phase16_meta_introspect\"\n}\n");
     fclose(f);
+    return 0;
+}
+
+/* CPU fallback for qallow_meta_introspect_gpu when CUDA is not available */
+__attribute__((weak))
+int qallow_meta_introspect_gpu(const float* durations,
+                               const float* coherence,
+                               const float* ethics,
+                               float* improvement_scores,
+                               int count) {
+    if (!durations || !coherence || !ethics || !improvement_scores || count <= 0) {
+        return -1;
+    }
+    /* Simple CPU-based scoring: average of coherence and ethics */
+    for (int i = 0; i < count; ++i) {
+        improvement_scores[i] = (coherence[i] + ethics[i]) * 0.5f;
+    }
     return 0;
 }
