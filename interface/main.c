@@ -17,6 +17,7 @@
 #include "phase12.h"
 #include "qallow_phase12.h"
 #include "qallow_phase13.h"
+#include "runtime/meta_introspect.h"
 #include <time.h>
 #include <string.h>
 #include <stdlib.h>
@@ -142,6 +143,10 @@ int qallow_vm_main(void) {
     qallow_kernel_init(&state);
     print_system_info(&state);
     qallow_log_info("vm", "mode=%s", state.cuda_enabled ? "cuda" : "cpu");
+    meta_introspect_apply_environment_defaults();
+    if (state.cuda_enabled) {
+        meta_introspect_set_gpu_available(1);
+    }
     printf("[MAIN] Starting VM execution loop...\n\n");
 
     pocket_dimension_t pocket_dim;
@@ -169,6 +174,7 @@ int qallow_vm_main(void) {
         }
     }
     int max_ticks = 1000;
+    bool dashboard_muted = false;
     for (int tick = 0; tick < max_ticks; tick++) {
         // Run kernel tick
         QALLOW_PROFILE_SCOPE("kernel_tick") {
@@ -197,8 +203,12 @@ int qallow_vm_main(void) {
         }
 
         // Dashboard at configured interval (disabled when interval is zero)
-        if (dashboard_interval > 0 && tick % dashboard_interval == 0) {
+        if (!dashboard_muted && dashboard_interval > 0 && tick % dashboard_interval == 0) {
             qallow_print_dashboard(&state, &ethics_state);
+            if (!ethics_state.safety_check_passed) {
+                printf("[DASHBOARD] Ethics fail detected at tick %d; muting dashboard output.\n", tick);
+                dashboard_muted = true;
+            }
         }
 
         // Check for equilibrium
@@ -222,6 +232,7 @@ int qallow_vm_main(void) {
     printf("[TELEMETRY] Benchmark logged: compile=0.0ms, run=%.2fms, mode=CPU\n\n", 
         max_ticks * 0.001);
     qallow_log_info("vm.complete", "ticks=%d", max_ticks);
+    meta_introspect_flush();
     
     return 0;
 }

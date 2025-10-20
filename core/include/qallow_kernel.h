@@ -8,18 +8,33 @@
 #include <stdbool.h>
 
 // CUDA support detection
-#ifdef __CUDACC__
-    #define CUDA_ENABLED 1
-    #include <cuda_runtime.h>
-    #include <curand_kernel.h>
-    #define CUDA_CALLABLE __device__ __host__
-#elif defined(QALLOW_ENABLE_CUDA)
-    #define CUDA_ENABLED 1
-    #include <cuda_runtime.h>
-    #define CUDA_CALLABLE
+#ifndef CUDA_ENABLED
+    #ifdef __CUDACC__
+        #define CUDA_ENABLED 1
+    #elif defined(QALLOW_ENABLE_CUDA)
+        #define CUDA_ENABLED 1
+    #else
+        #define CUDA_ENABLED 0
+    #endif
+#endif
+
+#if CUDA_ENABLED
+    #ifdef __CUDACC__
+        #include <cuda_runtime.h>
+        #include <curand_kernel.h>
+        #ifndef CUDA_CALLABLE
+            #define CUDA_CALLABLE __device__ __host__
+        #endif
+    #else
+        #include <cuda_runtime_api.h>
+        #ifndef CUDA_CALLABLE
+            #define CUDA_CALLABLE
+        #endif
+    #endif
 #else
-    #define CUDA_ENABLED 0
-    #define CUDA_CALLABLE
+    #ifndef CUDA_CALLABLE
+        #define CUDA_CALLABLE
+    #endif
 #endif
 
 // System constants

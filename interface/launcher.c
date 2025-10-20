@@ -4,6 +4,21 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <errno.h>
+
+#if defined(_WIN32)
+#include <windows.h>
+#else
+#include <dirent.h>
+#include <limits.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
+#endif
+
+#ifndef PATH_MAX
+#define PATH_MAX 4096
+#endif
 
 // Include all core headers
 #include "qallow_kernel.h"
@@ -19,6 +34,7 @@
 #include "qallow_phase13.h"
 #include "phase13_accelerator.h"
 #include "qallow_integration.h"
+#include "runtime/meta_introspect.h"
 // TODO: Add these when modules are implemented
 // #include "adaptive.h"
 // #include "verify.h"
@@ -38,6 +54,9 @@ static int qallow_run_vm(run_profile_t profile);
 static int qallow_handle_run(int argc, char** argv, int arg_offset, run_profile_t default_profile);
 static int qallow_dispatch_phase(int argc, char** argv, int start_index, const char* phase_name,
                                  int (*runner)(int, char**));
+static int qallow_clear_mode(void);
+
+static int remove_recursive(const char* path);
 
 #if defined(_WIN32)
 #define QALLOW_SETENV(name, value) _putenv_s((name), (value))
@@ -102,6 +121,109 @@ static int qallow_apply_dashboard_option(const char* value) {
     return 1;
 }
 
+#if defined(_WIN32)
+static int remove_recursive(const char* path) {
+    if (!path || !*path) {
+        return 0;
+    }
+
+    DWORD attributes = GetFileAttributesA(path);
+    if (attributes == INVALID_FILE_ATTRIBUTES) {
+        DWORD err = GetLastError();
+        return (err == ERROR_FILE_NOT_FOUND || err == ERROR_PATH_NOT_FOUND) ? 0 : -1;
+    }
+
+    if (attributes & FILE_ATTRIBUTE_DIRECTORY) {
+        char pattern[MAX_PATH];
+        if (snprintf(pattern, sizeof(pattern), "%s\\*", path) >= (int)sizeof(pattern)) {
+            return -1;
+        }
+
+        WIN32_FIND_DATAA data;
+        HANDLE handle = FindFirstFileA(pattern, &data);
+        if (handle != INVALID_HANDLE_VALUE) {
+            do {
+                const char* name = data.cFileName;
+                if (strcmp(name, ".") == 0 || strcmp(name, "..") == 0) {
+                    continue;
+                }
+
+                char child[MAX_PATH];
+                if (snprintf(child, sizeof(child), "%s\\%s", path, name) >= (int)sizeof(child)) {
+                    FindClose(handle);
+                    return -1;
+                }
+
+                if (remove_recursive(child) != 0) {
+                    FindClose(handle);
+                    return -1;
+                }
+            } while (FindNextFileA(handle, &data));
+            FindClose(handle);
+        }
+
+        if (!RemoveDirectoryA(path)) {
+            return -1;
+        }
+    } else {
+        if (!DeleteFileA(path)) {
+            return -1;
+        }
+    }
+
+    return 0;
+}
+#else
+static int remove_recursive(const char* path) {
+    if (!path || !*path) {
+        return 0;
+    }
+
+    struct stat st;
+    if (lstat(path, &st) != 0) {
+        return (errno == ENOENT) ? 0 : -1;
+    }
+
+    if (S_ISDIR(st.st_mode)) {
+        DIR* dir = opendir(path);
+        if (!dir) {
+            return -1;
+        }
+
+        struct dirent* entry;
+        while ((entry = readdir(dir)) != NULL) {
+            if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
+                continue;
+            }
+
+            char child[PATH_MAX];
+            if (snprintf(child, sizeof(child), "%s/%s", path, entry->d_name) >= (int)sizeof(child)) {
+                closedir(dir);
+                errno = ENAMETOOLONG;
+                return -1;
+            }
+
+            if (remove_recursive(child) != 0) {
+                closedir(dir);
+                return -1;
+            }
+        }
+
+        closedir(dir);
+
+        if (rmdir(path) != 0) {
+            return -1;
+        }
+    } else {
+        if (unlink(path) != 0) {
+            return -1;
+        }
+    }
+
+    return 0;
+}
+#endif
+
 // Print banner
 static void print_banner(void) {
     printf("╔════════════════════════════════════════╗\n");
@@ -115,6 +237,34 @@ static void qallow_build_mode(void) {
     printf("[BUILD] Qallow is already built!\n");
     printf("[BUILD] To rebuild, run: scripts\\build_wrapper.bat CPU\n");
     printf("[BUILD] Or for CUDA: scripts\\build_wrapper.bat CUDA\n");
+}
+
+static int qallow_clear_mode(void) {
+    static const char* targets[] = {
+        "build",
+        "qallow_unified",
+        "qallow_unified_cuda",
+        "build_cuda.log",
+        "logs"
+    };
+
+    printf("[CLEAR] Removing build artifacts, cached binaries, and logs...\n");
+
+    int errors = 0;
+    for (size_t i = 0; i < sizeof(targets) / sizeof(targets[0]); ++i) {
+        if (remove_recursive(targets[i]) != 0) {
+            fprintf(stderr, "[WARN] Failed to remove %s\n", targets[i]);
+            errors++;
+        }
+    }
+
+    if (errors > 0) {
+        fprintf(stderr, "[ERROR] Workspace cleanup encountered %d issue(s)\n", errors);
+        return 1;
+    }
+
+    printf("[CLEAR] Workspace cleaned successfully.\n");
+    return 0;
 }
 
 static int qallow_run_vm(run_profile_t profile) {
@@ -174,6 +324,9 @@ static int qallow_handle_run(int argc, char** argv, int arg_offset, run_profile_
     const char* integrate_phases[8];
    int integrate_count = 0;
     bool integrate_no_split = false;
+    bool self_audit = false;
+    const char* self_audit_path = NULL;
+    const char* pocket_map_path = NULL;
 
     for (int i = arg_offset; i < argc; ++i) {
         const char* arg = argv[i];
@@ -196,6 +349,30 @@ static int qallow_handle_run(int argc, char** argv, int arg_offset, run_profile_
 
         if (strcmp(arg, "--no-split") == 0) {
             integrate_no_split = true;
+            continue;
+        }
+
+        if (strcmp(arg, "--self-audit") == 0) {
+            self_audit = true;
+            continue;
+        }
+
+        if (strcmp(arg, "--self-audit-path") == 0) {
+            if ((i + 1) >= argc) {
+                fprintf(stderr, "[ERROR] --self-audit-path requires a directory argument\n");
+                return 1;
+            }
+            self_audit_path = argv[++i];
+            self_audit = true;
+            continue;
+        }
+
+        if (strcmp(arg, "--export-pocket-map") == 0) {
+            if ((i + 1) >= argc) {
+                fprintf(stderr, "[ERROR] --export-pocket-map requires a file path\n");
+                return 1;
+            }
+            pocket_map_path = argv[++i];
             continue;
         }
 
@@ -281,6 +458,19 @@ static int qallow_handle_run(int argc, char** argv, int arg_offset, run_profile_
         return 1;
     }
 
+    meta_introspect_apply_environment_defaults();
+    if (self_audit || self_audit_path) {
+        if (self_audit_path) {
+            if (meta_introspect_configure(self_audit_path, NULL) != 0) {
+                fprintf(stderr, "[ERROR] Failed to configure self-audit directory: %s\n", self_audit_path);
+                return 1;
+            }
+        } else {
+            meta_introspect_configure(NULL, NULL);
+        }
+        meta_introspect_enable(1);
+    }
+
     if (integrate_requested) {
         qallow_lattice_config_t config;
         qallow_lattice_config_init(&config);
@@ -315,7 +505,21 @@ static int qallow_handle_run(int argc, char** argv, int arg_offset, run_profile_
         return rc;
     }
 
-    return qallow_run_vm(profile);
+    int rc = qallow_run_vm(profile);
+
+    if (self_audit || self_audit_path) {
+        meta_introspect_flush();
+    }
+
+    if (pocket_map_path) {
+        if (meta_introspect_export_pocket_map(pocket_map_path) == 0) {
+            printf("[SELF-AUDIT] Pocket map exported to %s\n", pocket_map_path);
+        } else {
+            fprintf(stderr, "[ERROR] Failed to export pocket map: %s\n", pocket_map_path);
+        }
+    }
+
+    return rc;
 }
 
 // VERIFY mode: System checkpoint
@@ -418,6 +622,7 @@ static void qallow_print_help(void) {
     printf("  build             Detect toolchain and compile CPU + CUDA backends\n");
     printf("  govern            Start governance and ethics audit loop\n");
     printf("  verify            System checkpoint - verify integrity\n");
+    printf("  clear             Remove build artifacts and cached binaries\n");
     printf("  accelerator       Launch the Phase-13 accelerator directly (alias)\n");
     printf("  phase12           Run Phase 12 elasticity simulation (alias)\n");
     printf("  phase13           Run Phase 13 harmonic propagation (alias)\n");
@@ -426,6 +631,9 @@ static void qallow_print_help(void) {
     printf("  --bench           Run the benchmark profile (alias of `qallow bench`)\n");
     printf("  --live            Run the live ingestion profile (alias of `qallow live`)\n");
     printf("  --dashboard=<N|off>  Control dashboard frequency (ticks) or disable output\n");
+    printf("  --self-audit      Enable phase16 meta-introspect logging\n");
+    printf("  --self-audit-path <DIR>  Override auditor log directory (implies --self-audit)\n");
+    printf("  --export-pocket-map <FILE>  Emit audited pocket status JSON after run\n");
     printf("  --phase=12|13     Dispatch directly into a legacy phase runner\n");
     printf("  --accelerator     Launch the Phase-13 accelerator; pass accelerator options after this flag\n");
     printf("  --remote-sync     Enable remote ingestion loop (optional endpoint argument)\n");
@@ -441,8 +649,10 @@ static void qallow_print_help(void) {
     printf("  qallow run --dashboard=off       # Silence dashboard output\n");
     printf("  qallow run --accelerator --watch=. --threads=auto\n");
     printf("  qallow run --accelerator --remote-sync=https://ingest.example.com/feed\n");
+    printf("  qallow run --self-audit --self-audit-path=./logs --export-pocket-map pocket.json\n");
     printf("  qallow run --phase=12 --ticks=100 --eps=0.0001 --log=phase12.csv\n");
     printf("  qallow accelerator --watch=/tmp  # Accelerator alias\n");
+    printf("  qallow clear                     # Clean build output\n");
 }
 
 // Input validation helper
@@ -496,6 +706,10 @@ int main(int argc, char** argv) {
     if (strcmp(command, "build") == 0) {
         qallow_build_mode();
         return 0;
+    }
+
+    if (strcmp(command, "clear") == 0) {
+        return qallow_clear_mode();
     }
 
     if (strcmp(command, "run") == 0) {

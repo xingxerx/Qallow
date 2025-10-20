@@ -6,13 +6,13 @@ CXX ?= g++
 NVCC ?= nvcc
 
 INCS :=
-INCS += -I. -Icore/include -Iinclude -Iethics
+INCS += -I. -Icore/include -Iinclude -Iethics -Iruntime -I/usr/local/cuda/include -I/opt/cuda/targets/x86_64-linux/include
 
 GENCODE ?= -gencode arch=compute_90,code=sm_90 -gencode arch=compute_90,code=compute_90
 
-CFLAGS ?= -O2 -Wall -std=c11 $(INCS)
-CXXFLAGS ?= -O2 -Wall -std=c++17 $(INCS)
-CUFLAGS ?= -O2 $(INCS) $(GENCODE) -Xcompiler -Wall
+CFLAGS ?= -O2 -Wall -std=c11 -DCUDA_ENABLED=1 $(INCS)
+CXXFLAGS ?= -O2 -Wall -std=c++17 -DCUDA_ENABLED=1 $(INCS)
+CUFLAGS ?= -O2 $(INCS) $(GENCODE) -Xcompiler "-Wall" -DCUDA_ENABLED=1
 
 LDFLAGS ?= -lm
 CULIBS ?= -lcudart -lcurand -lm
@@ -20,9 +20,11 @@ CULIBS ?= -lcudart -lcurand -lm
 BUILD_DIR ?= build
 
 SRC_C := core/main.c \
-         algorithms/ethics_core.c
+		 runtime/meta_introspect.c \
+		 algorithms/ethics_core.c
 SRC_CU := backend/cuda/p12_elasticity.cu \
-          backend/cuda/p13_harmonic.cu
+          backend/cuda/p13_harmonic.cu \
+          backend/cuda/phase16_meta_introspect.cu
 
 OBJ_C := $(SRC_C:%.c=$(BUILD_DIR)/%.o)
 OBJ_CU := $(SRC_CU:%.cu=$(BUILD_DIR)/%.o)

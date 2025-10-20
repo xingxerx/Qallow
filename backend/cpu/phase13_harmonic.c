@@ -2,6 +2,9 @@
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
+
+#include "runtime/meta_introspect.h"
 
 #define QALLOW_PHASE13_MAX_POCKETS 32
 
@@ -18,6 +21,7 @@ static float avg_phase(const float* phases, int count) {
 }
 
 int run_phase13_harmonic(const char* log_path, int pockets, int ticks, float coupling) {
+    clock_t start_clock = clock();
     if (ticks <= 0) {
         fprintf(stderr, "[PHASE13] Invalid tick count: %d\n", ticks);
         return 1;
@@ -132,6 +136,20 @@ int run_phase13_harmonic(const char* log_path, int pockets, int ticks, float cou
            pockets, ticks, coupling);
     printf("[PHASE13] avg_coherence: %.6f → %.6f\n", start_coherence, final_coherence);
     printf("[PHASE13] phase_drift  : %.6f → %.6f\n", start_drift, final_drift);
+
+    float duration_s = (float)(clock() - start_clock) / (float)CLOCKS_PER_SEC;
+    float coherence_metric = clampf(final_coherence, 0.0f, 1.0f);
+    float ethics_metric = clampf(1.0f - final_drift, 0.0f, 1.0f);
+    learn_event_t ev = {
+        .phase = "phase13",
+        .module = "harmonic",
+        .objective_id = "phase13.harmonic",
+        .duration_s = duration_s,
+        .coherence = coherence_metric,
+        .ethics = ethics_metric
+    };
+    meta_introspect_push(&ev);
+    meta_introspect_flush();
 
     return 0;
 }

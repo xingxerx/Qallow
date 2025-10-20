@@ -37,6 +37,7 @@ FetchContent_MakeAvailable(spdlog)
 set(QALLOW_INCLUDE_DIRS
     ${CMAKE_CURRENT_SOURCE_DIR}/core/include
     ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/runtime
 )
 
 add_library(qallow_core INTERFACE)
@@ -104,6 +105,7 @@ set(QALLOW_RUNTIME_SOURCES
     src/runtime/logging.cpp
     src/runtime/profiling.cpp
     src/runtime/env.cpp
+    runtime/meta_introspect.c
 )
 
 add_library(qallow_runtime STATIC ${QALLOW_RUNTIME_SOURCES})
@@ -123,6 +125,7 @@ if(QALLOW_ENABLE_CUDA)
         backend/cuda/ppai_kernels.cu
         backend/cuda/qcp_kernels.cu
         backend/cuda/quantum.cu
+        backend/cuda/phase16_meta_introspect.cu
     )
     add_library(qallow_backend_cuda STATIC ${QALLOW_CUDA_SOURCES})
     target_link_libraries(qallow_backend_cuda PUBLIC qallow_core)

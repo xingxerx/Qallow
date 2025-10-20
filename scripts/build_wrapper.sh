@@ -16,6 +16,9 @@ INTERFACE_DIR="interface"
 IO_DIR="io/adapters"
 OUTPUT="$BUILD_DIR/qallow_unified"
 
+COMMON_INCLUDES=("-I." "-I${INCLUDE_DIR}" "-I${INCLUDE_DIR_ALT}" "-Iruntime" "-Iethics" "-I/usr/local/cuda/include" "-I/opt/cuda/targets/x86_64-linux/include")
+COMMON_DEFINES=("-DCUDA_ENABLED=1")
+
 # ANSI color codes
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -97,6 +100,16 @@ for algo in "${ALGO_SOURCES[@]}"; do
     fi
 done
 
+RUNTIME_SOURCES=(
+    "runtime/meta_introspect.c"
+)
+for runtime_src in "${RUNTIME_SOURCES[@]}"; do
+    if [ -f "$runtime_src" ]; then
+        C_FILES+=("$runtime_src")
+        echo -e "${GREEN}  →${NC} $(basename "$runtime_src")"
+    fi
+done
+
 if [ ${#C_FILES[@]} -eq 0 ]; then
     echo -e "${RED}[ERROR]${NC} No C source files found"
     exit 1
@@ -128,7 +141,7 @@ if [ "$MODE" == "CUDA" ]; then
             obj_name=$(echo "${cu_file%.cu}" | sed 's/[^A-Za-z0-9_]/_/g')
             obj_file="$BUILD_DIR/${obj_name}.o"
             echo -e "${GREEN}  →${NC} $(basename "$cu_file")"
-            nvcc -c -O2 -arch=sm_89 -I"$INCLUDE_DIR" -I"$INCLUDE_DIR_ALT" "$cu_file" -o "$obj_file"
+            nvcc -c -O2 -arch=sm_89 "${COMMON_INCLUDES[@]}" "${COMMON_DEFINES[@]}" "$cu_file" -o "$obj_file"
             CUDA_OBJECTS+=("$obj_file")
         fi
     done
@@ -143,7 +156,7 @@ for c_file in "${C_FILES[@]}"; do
     if [ "$c_file" = "$ACCELERATOR_SRC" ]; then
         extra_flags+=("-DQALLOW_PHASE13_EMBEDDED")
     fi
-    gcc -c -O2 -Wall -Wextra -g -I"$INCLUDE_DIR" -I"$INCLUDE_DIR_ALT" "${extra_flags[@]}" "$c_file" -o "$obj_file"
+    gcc -c -O2 -Wall -Wextra -g "${COMMON_INCLUDES[@]}" "${COMMON_DEFINES[@]}" "${extra_flags[@]}" "$c_file" -o "$obj_file"
     C_OBJECTS+=("$obj_file")
 done
 
@@ -152,7 +165,7 @@ for cpp_file in "${CPP_FILES[@]}"; do
     obj_name=$(echo "${cpp_file%.cpp}" | sed 's/[^A-Za-z0-9_]/_/g')
     obj_file="$BUILD_DIR/${obj_name}.o"
     echo -e "${GREEN}  →${NC} $(basename "$cpp_file")"
-    g++ -c -O2 -Wall -Wextra -g -I"$INCLUDE_DIR" -I"$INCLUDE_DIR_ALT" "$cpp_file" -o "$obj_file"
+    g++ -c -O2 -Wall -Wextra -g "${COMMON_INCLUDES[@]}" "${COMMON_DEFINES[@]}" "$cpp_file" -o "$obj_file"
     CPP_OBJECTS+=("$obj_file")
 done
 
@@ -169,9 +182,9 @@ echo "--------------------------------"
 LINK_OBJECTS=("${C_OBJECTS[@]}" "${CPP_OBJECTS[@]}")
 
 if [ "$MODE" == "CUDA" ]; then
-    nvcc -O2 -arch=sm_89 -I"$INCLUDE_DIR" -I"$INCLUDE_DIR_ALT" "${LINK_OBJECTS[@]}" "${CUDA_OBJECTS[@]}" -L/usr/local/cuda/lib64 -lcudart -lcurand -lm -o "$OUTPUT"
+    nvcc -O2 -arch=sm_89 "${COMMON_INCLUDES[@]}" "${COMMON_DEFINES[@]}" "${LINK_OBJECTS[@]}" "${CUDA_OBJECTS[@]}" -L/usr/local/cuda/lib64 -lcudart -lcurand -lm -o "$OUTPUT"
 else
-    g++ -O2 -Wall -Wextra -g -I"$INCLUDE_DIR" -I"$INCLUDE_DIR_ALT" "${LINK_OBJECTS[@]}" -lm -o "$OUTPUT"
+    g++ -O2 -Wall -Wextra -g "${COMMON_INCLUDES[@]}" "${COMMON_DEFINES[@]}" "${LINK_OBJECTS[@]}" -lm -o "$OUTPUT"
 fi
 
 if [ $? -eq 0 ]; then

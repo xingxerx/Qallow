@@ -2,6 +2,7 @@
 
 #include "phase7.h"
 #include "ethics.h"
+#include "runtime/meta_introspect.h"
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
@@ -10,6 +11,16 @@
 // ============================================================================
 // PHASE 7 LIFECYCLE
 // ============================================================================
+
+#define OBJ_PHASE7_GOAL "phase7.goal_commit"
+#define OBJ_PHASE7_PLAN "phase7.plan_eval"
+#define OBJ_PHASE7_REFLECTION "phase7.reflection"
+
+static float clamp_unit(float value) {
+    if (value < 0.0f) return 0.0f;
+    if (value > 1.0f) return 1.0f;
+    return value;
+}
 
 int phase7_init(phase7_state_t* state, const char* data_dir) {
     if (!state) return -1;
@@ -197,6 +208,20 @@ int phase7_log_goal(phase7_state_t* state, const goal_t* goal) {
     fprintf(state->telemetry_phase7, "%lld,%s,%.3f,%.3f,0.0,0,0,0.0,0.0\n",
             (long long)time(NULL), goal->id, goal->priority, goal->risk);
     fflush(state->telemetry_phase7);
+
+    float duration_s = 0.0f;
+    if (state->session_start_ts > 0) {
+        duration_s = (float)difftime(time(NULL), (time_t)state->session_start_ts);
+    }
+    learn_event_t ev = {
+        .phase = "phase7",
+        .module = "goal",
+        .objective_id = OBJ_PHASE7_GOAL,
+        .duration_s = duration_s,
+        .coherence = clamp_unit(goal->priority),
+        .ethics = clamp_unit(1.0f - goal->risk)
+    };
+    meta_introspect_push(&ev);
     
     return 0;
 }
@@ -208,6 +233,20 @@ int phase7_log_plan(phase7_state_t* state, const plan_t* plan) {
             (long long)time(NULL), plan->goal_id, plan->risk_cost, 
             plan->step_count, plan->expected_benefit);
     fflush(state->telemetry_phase7);
+
+    float duration_s = 0.0f;
+    if (state->session_start_ts > 0) {
+        duration_s = (float)difftime(time(NULL), (time_t)state->session_start_ts);
+    }
+    learn_event_t ev = {
+        .phase = "phase7",
+        .module = "plan",
+        .objective_id = OBJ_PHASE7_PLAN,
+        .duration_s = duration_s,
+        .coherence = clamp_unit(1.0f - plan->risk_cost),
+        .ethics = clamp_unit(plan->expected_benefit)
+    };
+    meta_introspect_push(&ev);
     
     return 0;
 }
@@ -219,6 +258,21 @@ int phase7_log_reflection(phase7_state_t* state, const reflection_result_t* resu
             (long long)time(NULL), result->run_id, result->drift,
             result->outcome_score, result->confidence);
     fflush(state->telemetry_phase7);
+
+    float duration_s = 0.0f;
+    if (state->session_start_ts > 0) {
+        duration_s = (float)difftime(time(NULL), (time_t)state->session_start_ts);
+    }
+    learn_event_t ev = {
+        .phase = "phase7",
+        .module = "reflection",
+        .objective_id = OBJ_PHASE7_REFLECTION,
+        .duration_s = duration_s,
+        .coherence = clamp_unit(1.0f - result->drift),
+        .ethics = clamp_unit(result->confidence)
+    };
+    meta_introspect_push(&ev);
+    meta_introspect_flush();
     
     return 0;
 }
