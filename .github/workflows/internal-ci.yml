@@ -59,9 +59,17 @@ jobs:
       - name: Build CPU binary
         run: |
           echo "Starting build with $(nproc) cores..."
-          make ACCELERATOR=CPU -j"$(nproc)" || {
-            echo "Build failed, checking disk space..."
+          echo "Current directory: $(pwd)"
+          echo "Listing source files..."
+          find . -name "*.c" -o -name "*.cpp" | grep -v ".venv" | head -20
+          echo "Building..."
+          make ACCELERATOR=CPU -j"$(nproc)" -B 2>&1 | tee build.log || {
+            echo "Build failed, checking logs..."
+            tail -100 build.log
+            echo "Checking disk space..."
             df -h
+            echo "Checking for source files..."
+            ls -la interface/ backend/cpu/ io/adapters/ src/runtime/ 2>&1 | head -50
             exit 1
           }
           echo "Build completed successfully"
