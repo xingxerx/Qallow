@@ -41,6 +41,15 @@ See `docs/QUICKSTART.md` for extended dependency notes, CUDA driver installation
 
 To connect Phase 11 coherence routines to IBM Quantum hardware or simulators, follow the step-by-step instructions in `docs/IBM_QUANTUM_PLATFORM_SETUP.md`. The guide covers account creation, API token management, the Bell-state smoke test in `examples/ibm_quantum_bell.py`, and the bridge module exposed at `python/quantum/qallow_ibm_bridge.py`.
 
+### Adaptive Quantum Decision Demo
+
+- Install the Python dependencies: `pip install qiskit qiskit-aer`.
+- Build Qallow as usual (`cmake -S . -B build -GNinja && cmake --build build`).
+- Drive the end-to-end adaptive loop (simulation-only run): `python examples/quantum_adaptive_demo.py --episodes 5 --simulate`.
+- For a live run against the unified binary, provide the executable:  
+  `python examples/quantum_adaptive_demo.py --runner ./build/qallow_unified --episodes 3`.
+- The script instantiates `QuantumAdaptiveAgent` (see `python/quantum/adaptive_agent.py`), feeds telemetry into a two-qubit policy circuit, launches phases 14–16 based on Qiskit measurement outcomes, then updates the circuit parameters using reward deltas computed from the refreshed telemetry.
+
 ## Repository Layout
 
 ```
