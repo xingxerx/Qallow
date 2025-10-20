@@ -181,44 +181,38 @@ if(QALLOW_ENABLE_CUDA)
 endif()
 
 # Optional SDL-based telemetry UI
-find_package(SDL2 CONFIG QUIET)
-if(NOT SDL2_FOUND)
-    find_package(SDL2 QUIET)
-endif()
+find_package(SDL2 QUIET)
+find_package(SDL2_ttf QUIET)
 
-find_package(SDL2_ttf CONFIG QUIET)
-if(NOT SDL2_TTF_FOUND)
-    find_package(SDL2_ttf QUIET)
-endif()
-
-if(NOT (SDL2_FOUND AND TARGET SDL2::SDL2))
-    find_package(PkgConfig QUIET)
-    if(PkgConfig_FOUND)
-        pkg_check_modules(SDL2 QUIET sdl2)
-        if(SDL2_FOUND AND NOT TARGET SDL2::SDL2)
-            add_library(SDL2::SDL2 INTERFACE IMPORTED)
-            set_target_properties(SDL2::SDL2 PROPERTIES
-                INTERFACE_INCLUDE_DIRECTORIES "${SDL2_INCLUDE_DIRS}"
-                INTERFACE_LINK_LIBRARIES "${SDL2_LINK_LIBRARIES}"
-            )
-        endif()
+if(SDL2_FOUND AND NOT TARGET SDL2::SDL2)
+    add_library(SDL2::SDL2 INTERFACE IMPORTED)
+    if(DEFINED SDL2_INCLUDE_DIRS AND SDL2_INCLUDE_DIRS)
+        set_property(TARGET SDL2::SDL2 PROPERTY INTERFACE_INCLUDE_DIRECTORIES "${SDL2_INCLUDE_DIRS}")
+    elseif(DEFINED SDL2_INCLUDE_DIR AND SDL2_INCLUDE_DIR)
+        set_property(TARGET SDL2::SDL2 PROPERTY INTERFACE_INCLUDE_DIRECTORIES "${SDL2_INCLUDE_DIR}")
+    endif()
+    if(DEFINED SDL2_LIBRARIES AND SDL2_LIBRARIES)
+        set_property(TARGET SDL2::SDL2 PROPERTY INTERFACE_LINK_LIBRARIES "${SDL2_LIBRARIES}")
+    elseif(DEFINED SDL2_LIBRARY AND SDL2_LIBRARY)
+        set_property(TARGET SDL2::SDL2 PROPERTY INTERFACE_LINK_LIBRARIES "${SDL2_LIBRARY}")
     endif()
 endif()
 
-if(NOT (SDL2_TTF_FOUND AND TARGET SDL2_ttf::SDL2_ttf))
-    if(PkgConfig_FOUND)
-        pkg_check_modules(SDL2_TTF QUIET sdl2_ttf)
-        if(SDL2_TTF_FOUND AND NOT TARGET SDL2_ttf::SDL2_ttf)
-            add_library(SDL2_ttf::SDL2_ttf INTERFACE IMPORTED)
-            set_target_properties(SDL2_ttf::SDL2_ttf PROPERTIES
-                INTERFACE_INCLUDE_DIRECTORIES "${SDL2_TTF_INCLUDE_DIRS}"
-                INTERFACE_LINK_LIBRARIES "${SDL2_TTF_LINK_LIBRARIES}"
-            )
-        endif()
+if(SDL2_ttf_FOUND AND NOT TARGET SDL2_ttf::SDL2_ttf)
+    add_library(SDL2_ttf::SDL2_ttf INTERFACE IMPORTED)
+    if(DEFINED SDL2_TTF_INCLUDE_DIRS)
+        set_property(TARGET SDL2_ttf::SDL2_ttf PROPERTY INTERFACE_INCLUDE_DIRECTORIES "${SDL2_TTF_INCLUDE_DIRS}")
+    elseif(DEFINED SDL2_TTF_INCLUDE_DIR)
+        set_property(TARGET SDL2_ttf::SDL2_ttf PROPERTY INTERFACE_INCLUDE_DIRECTORIES "${SDL2_TTF_INCLUDE_DIR}")
+    endif()
+    if(DEFINED SDL2_TTF_LIBRARIES AND SDL2_TTF_LIBRARIES)
+        set_property(TARGET SDL2_ttf::SDL2_ttf PROPERTY INTERFACE_LINK_LIBRARIES "${SDL2_TTF_LIBRARIES}")
+    elseif(DEFINED SDL2_TTF_LIBRARY AND SDL2_TTF_LIBRARY)
+        set_property(TARGET SDL2_ttf::SDL2_ttf PROPERTY INTERFACE_LINK_LIBRARIES "${SDL2_TTF_LIBRARY}")
     endif()
 endif()
 
-if(SDL2_FOUND AND SDL2_TTF_FOUND AND TARGET SDL2::SDL2 AND TARGET SDL2_ttf::SDL2_ttf)
+if(SDL2_FOUND AND SDL2_ttf_FOUND AND TARGET SDL2::SDL2 AND TARGET SDL2_ttf::SDL2_ttf)
     add_executable(qallow_ui
         interface/qallow_ui.c
     )

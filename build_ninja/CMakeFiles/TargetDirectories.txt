@@ -4,6 +4,7 @@
 /root/Qallow/build_ninja/CMakeFiles/qallow_backend_cuda.dir
 /root/Qallow/build_ninja/CMakeFiles/qallow.dir
 /root/Qallow/build_ninja/CMakeFiles/qallow_unified.dir
+/root/Qallow/build_ninja/CMakeFiles/qallow_ui.dir
 /root/Qallow/build_ninja/CMakeFiles/qallow_throughput_bench.dir
 /root/Qallow/build_ninja/CMakeFiles/phase01_demo.dir
 /root/Qallow/build_ninja/CMakeFiles/phase02_demo.dir

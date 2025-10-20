@@ -160,6 +160,27 @@ rule CXX_EXECUTABLE_LINKER__qallow_unified_Release
 #############################################
 # Rule for compiling C files.
 
+rule C_COMPILER__qallow_ui_unscanned_Release
+  depfile = $DEP_FILE
+  deps = gcc
+  command = ${LAUNCHER}${CODE_CHECK}/usr/sbin/cc $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out -c $in
+  description = Building C object $out
+
+
+#############################################
+# Rule for linking C executable.
+
+rule C_EXECUTABLE_LINKER__qallow_ui_Release
+  depfile = $DEP_FILE
+  deps = gcc
+  command = $PRE_LINK && /usr/sbin/cc $FLAGS $LINK_FLAGS $in -o $TARGET_FILE $LINK_PATH $LINK_LIBRARIES && $POST_BUILD
+  description = Linking C executable $TARGET_FILE
+  restat = $RESTAT
+
+
+#############################################
+# Rule for compiling C files.
+
 rule C_COMPILER__qallow_throughput_bench_unscanned_Release
   depfile = $DEP_FILE
   deps = gcc
@@ -525,8 +546,6 @@ rule CUDA_EXECUTABLE_DEVICE_LINKER__qallow_unit_cuda_parallel_Release
 # Rule for linking CUDA executable.
 
 rule CUDA_EXECUTABLE_LINKER__qallow_unit_cuda_parallel_Release
-  depfile = $DEP_FILE
-  deps = gcc
   command = $PRE_LINK && /usr/bin/g++ $LINK_FLAGS $in -o $TARGET_FILE $LINK_PATH $LINK_LIBRARIES -L"/opt/cuda/targets/x86_64-linux/lib/stubs" -L"/opt/cuda/targets/x86_64-linux/lib" && $POST_BUILD
   description = Linking CUDA executable $TARGET_FILE
   restat = $RESTAT

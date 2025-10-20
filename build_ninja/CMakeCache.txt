@@ -564,11 +564,11 @@ Qallow_IS_TOP_LEVEL:STATIC=ON
 //Value Computed by CMake
 Qallow_SOURCE_DIR:STATIC=/root/Qallow
 
-//The directory containing a CMake configuration file for SDL2.
-SDL2_DIR:PATH=/usr/lib/cmake/SDL2
+//No help, variable specified on the command line.
+SDL2_DIR:UNINITIALIZED=/usr/lib/cmake/SDL2
 
-//The directory containing a CMake configuration file for SDL2_ttf.
-SDL2_ttf_DIR:PATH=/usr/lib/cmake/SDL2_ttf
+//No help, variable specified on the command line.
+SDL2_ttf_DIR:UNINITIALIZED=/usr/lib/cmake/SDL2_ttf
 
 //Build all artifacts
 SPDLOG_BUILD_ALL:BOOL=OFF
