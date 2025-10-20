@@ -45,29 +45,7 @@ jobs:
           python3 -m pip install --upgrade pip --no-cache-dir
 
       - name: Build CPU binary
-        run: |
-          echo "Starting build with $(nproc) cores..."
-          echo "Current directory: $(pwd)"
-          echo "Listing source files..."
-          find . -name "*.c" -o -name "*.cpp" | grep -v ".venv" | head -20
-          echo "Checking Makefile..."
-          head -30 Makefile
-          echo "Building..."
-          make ACCELERATOR=CPU -j"$(nproc)" -B 2>&1 | tee build.log || {
-            echo "Build failed, checking logs..."
-            tail -200 build.log
-            echo "Checking disk space..."
-            df -h
-            echo "Checking for source files..."
-            ls -la interface/ backend/cpu/ io/adapters/ src/runtime/ 2>&1 | head -50
-            echo "Checking make version..."
-            make --version
-            echo "Checking gcc version..."
-            gcc --version
-            exit 1
-          }
-          echo "Build completed successfully"
-          ls -lh build/CPU/qallow_unified_cpu
+        run: make ACCELERATOR=CPU -j"$(nproc)" -B
 
       - name: Verify binary exists
         run: |
