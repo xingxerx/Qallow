@@ -1,20 +1,33 @@
-# Qallow SDL Telemetry UI
+# Qallow SDL Control UI
 
-The SDL-based UI in `interface/qallow_ui.c` provides a minimal desktop interface for monitoring Qallow telemetry and launching phase runs directly from the keyboard.
+`interface/qallow_ui.c` now unifies the earlier Tkinter helper (`ui/qallow_monitor.py`) and the telemetry visualizer into a single SDL2 desktop application.
 
-## Features
-- Live view of the most recent entry in `data/logs/telemetry_stream.csv`, including tick index and execution mode.
-- Visual bar chart for up to 16 telemetry metrics with real-time updates (default every 750 ms).
-- Keyboard shortcuts for executing phases 14–16 via the configured Qallow binary.
+## Combined Features
+- Live telemetry stream from `data/logs/telemetry_stream.csv` with bar visualisations for each metric.
+- Pocket-dimension metrics parsed from `data/telemetry/pocket_metrics.json`.
+- Command launcher with log console mirroring the Python monitor:
+  - Build CUDA pipeline (`scripts/build_unified_cuda.sh`).
+  - Run the selected Qallow binary (auto-detected or supplied via `--runner`).
+  - Run the accelerator script (`scripts/run_auto.sh --watch <repo>`).
+  - Launch phases 14–16 with captured stdout/stderr.
+  - Stop button (or `S`) sends `SIGTERM` to the running command.
+- Keyboard shortcuts: `B` build, `R` run binary, `A` accelerator, `1/2/3` phases, `S` stop, `Esc` quit.
 
 ## Build
-Ensure SDL2 and SDL2_ttf development packages are installed. On Arch Linux:
+Install SDL2 + SDL2_ttf development packages (Arch example):
 
 ```bash
 sudo pacman -S sdl2 sdl2_ttf
 ```
 
-Then compile:
+Then build through CMake (the `qallow_ui` target is added automatically once the libraries are detected):
+
+```bash
+cmake -S . -B build_ninja -GNinja
+cmake --build build_ninja --target qallow_ui
+```
+
+Or compile manually if desired:
 
 ```bash
 gcc -std=c11 -Wall -Wextra -O2 \
@@ -24,25 +37,14 @@ gcc -std=c11 -Wall -Wextra -O2 \
     -o build/qallow_ui
 ```
 
-Adjust include/library paths as required for your distribution.
-
 ## Usage
 
 ```bash
 ./build/qallow_ui \
   --telemetry=data/logs/telemetry_stream.csv \
+  --pocket-json=data/telemetry/pocket_metrics.json \
   --runner=./build/qallow_unified_cuda \
-  --font=/usr/share/fonts/TTF/DejaVuSans.ttf \
-  --refresh-ms=750
+  --repo-root=$(pwd)
 ```
 
-Command-line options are optional; sensible defaults are applied when paths are not provided. The UI attempts to locate a runnable Qallow binary automatically but will display phase-launch failures if none is found.
-
-Keyboard controls:
-- `1` — run phase 14
-- `2` — run phase 15
-- `3` — run phase 16
-- `Esc` — exit the UI
-
-The status banner at the bottom reflects the most recent phase command outcome.
-
+All flags are optional; defaults cover the standard repository layout. The UI automatically refreshes telemetry (750 ms) and pocket metrics (1.2 s). Command output is captured in the right-hand log panel, and the status banner reflects the latest action taken.
