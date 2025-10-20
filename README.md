@@ -37,6 +37,10 @@ Qallow is an experimental autonomous intelligence runtime that blends photonic s
 
 See `docs/QUICKSTART.md` for extended dependency notes, CUDA driver installation steps, and troubleshooting guidance.
 
+## IBM Quantum Integration
+
+To connect Phase 11 coherence routines to IBM Quantum hardware or simulators, follow the step-by-step instructions in `docs/IBM_QUANTUM_PLATFORM_SETUP.md`. The guide covers account creation, API token management, and the Python bridge module exposed at `python/quantum/qallow_ibm_bridge.py`.
+
 ## Repository Layout
 
 ```

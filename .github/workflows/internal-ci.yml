@@ -36,8 +36,6 @@ jobs:
       - name: Install Python packages
         run: |
           pip3 install --upgrade pip
-          pip3 install sentence-transformers
-          python3 -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')"
 
       - name: Build CPU binary
         run: make ACCELERATOR=CPU -j"$(nproc)"
