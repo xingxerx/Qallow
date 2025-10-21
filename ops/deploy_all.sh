@@ -7,10 +7,27 @@ NVIDIA_PLUGIN_MANIFEST=${NVIDIA_PLUGIN_MANIFEST:-"https://raw.githubusercontent.
 NVIDIA_PLUGIN_ROLLOUT_TIMEOUT=${NVIDIA_PLUGIN_ROLLOUT_TIMEOUT:-180s}
 
 echo "[INFO] Applying core namespace and persistent volumes"
-kubectl apply -f "$ROOT_DIR/k8s/qallow-namespace.yaml"
+kubectl_apply() {
+  # Skip schema validation to avoid failures when the API server OpenAPI endpoint is unavailable.
+  kubectl apply --validate=false "$@"
+}
+
+require_cluster_access() {
+  echo "[INFO] Verifying Kubernetes API connectivity"
+  if ! kubectl version --short >/dev/null 2>&1; then
+    local server
+    server=$(kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}' 2>/dev/null || echo "configured server")
+    echo "[ERROR] Unable to reach the Kubernetes API at ${server}. Ensure the cluster is running and kubeconfig context is correct." >&2
+    exit 1
+  fi
+}
+
+require_cluster_access
+
+kubectl_apply -f "$ROOT_DIR/k8s/qallow-namespace.yaml"
 
 set +e
-kubectl apply -f "$ROOT_DIR/k8s/qallow-logs-pvc.yaml"
+kubectl_apply -f "$ROOT_DIR/k8s/qallow-logs-pvc.yaml"
 set -e
 
 ensure_nvidia_device_plugin() {
@@ -20,7 +37,7 @@ ensure_nvidia_device_plugin() {
   else
     echo "[INFO] NVIDIA device plugin detected, reapplying manifest to keep configuration aligned"
   fi
-  kubectl apply -f "$NVIDIA_PLUGIN_MANIFEST"
+  kubectl_apply -f "$NVIDIA_PLUGIN_MANIFEST"
   kubectl rollout status daemonset/nvidia-device-plugin-daemonset -n kube-system --timeout="$NVIDIA_PLUGIN_ROLLOUT_TIMEOUT"
 }
 
@@ -44,19 +61,19 @@ ensure_nvidia_device_plugin
 validate_gpu_nodes
 
 echo "[INFO] Deploying Qallow workloads and monitoring with GPU configuration"
-kubectl apply -f "$ROOT_DIR/k8s/qallow-deploy.yaml"
-kubectl apply -f "$ROOT_DIR/monitoring/prometheus-config.yaml"
-kubectl apply -f "$ROOT_DIR/monitoring/prometheus-deploy.yaml"
-kubectl apply -f "$ROOT_DIR/monitoring/grafana-deploy.yaml"
+kubectl_apply -f "$ROOT_DIR/k8s/qallow-deploy.yaml"
+kubectl_apply -f "$ROOT_DIR/monitoring/prometheus-config.yaml"
+kubectl_apply -f "$ROOT_DIR/monitoring/prometheus-deploy.yaml"
+kubectl_apply -f "$ROOT_DIR/monitoring/grafana-deploy.yaml"
 
 if kubectl get crd prometheusrules.monitoring.coreos.com >/dev/null 2>&1; then
-  kubectl apply -f "$ROOT_DIR/monitoring/alerts/prometheus-rules.yaml"
+  kubectl_apply -f "$ROOT_DIR/monitoring/alerts/prometheus-rules.yaml"
 else
   echo "[WARN] PrometheusRule CRD not found. Install kube-prometheus-stack or prometheus-operator before applying alert rules." >&2
 fi
 
-kubectl apply -f "$ROOT_DIR/monitoring/alertmanager/config.yaml"
-kubectl apply -f "$ROOT_DIR/monitoring/alertmanager/deploy.yaml"
+kubectl_apply -f "$ROOT_DIR/monitoring/alertmanager/config.yaml"
+kubectl_apply -f "$ROOT_DIR/monitoring/alertmanager/deploy.yaml"
 
 echo "[INFO] Waiting for qallow-core deployment to become available"
 kubectl rollout status deployment/qallow-core -n qallow --timeout=300s
