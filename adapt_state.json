@@ -1,7 +1,13 @@
 {
+  "learning_rate": 0.0044,
+  "human_score": 0.77,
+  "iterations": 5,
+  "best_params": null,
+  "error_threshold": 0.01,
+  "circuit_depth_target": 10,
+  "entanglement_score": 0.825,
+  "error_correction_enabled": true,
   "target_ms": 50.0,
   "last_run_ms": 0.0,
-  "threads": 4,
-  "learning_rate": 0.0044,
-  "human_score": 0.85
+  "threads": 4
 }
