@@ -44,8 +44,7 @@ jobs:
           sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
             python3.13 \
             python3.13-venv \
-            python3.13-dev \
-            python3-pip
+            python3.13-dev
           # Use ensurepip to bootstrap pip if needed, then upgrade pip/setuptools/wheel
           sudo /usr/bin/python3.13 -m ensurepip --default-pip || true
           sudo /usr/bin/python3.13 -m pip install --upgrade pip setuptools wheel --no-cache-dir
