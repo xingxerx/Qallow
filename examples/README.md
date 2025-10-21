@@ -11,6 +11,8 @@ This directory contains runnable samples, benchmarks, and per-phase CUDA demonst
 - `vqc_binary_classifier.py` – Variational quantum classifier (VQC) for a binary Iris subset.
 - `qgan_torch_gaussian.py` – Torch-integrated qGAN that learns a 2D Gaussian surface.
 - `grover_50q_search.py` – Large-qubit Grover search optimized for Aer MPS simulation.
+- `quantum_bandit_policy.py` – VQC-based policy gradient agent for a four-arm quantum bandit.
+- `quantum_bandit_runtime.py` – Hardware-ready bandit agent using Qiskit Runtime Sampler.
 
 Build everything via CMake:
 
