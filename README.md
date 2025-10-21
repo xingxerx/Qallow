@@ -119,6 +119,20 @@ See `CONTRIBUTING.md` for coding standards, branching model, and CI expectations
 - `include/qallow/logging.h` exposes `qallow_log_*` helpers backed by `spdlog`.
 - Profiling macros (`QALLOW_PROFILE_SCOPE`) pipe into Nsight ranges when CUDA is enabled.
 
+## Unified Pipeline Shortcut
+
+To exercise the quantum workloads and the unified runtime in one go, see `docs/unified_agi_pipeline.md` and run:
+
+```bash
+./scripts/run_unified_agi.sh
+```
+
+Install the Python dependencies first if needed:
+
+```bash
+pip install qiskit-aer qiskit-machine-learning scikit-learn
+```
+
 ## License & Governance
 
 This repo is available under the MIT license (`LICENSE`). Contributions must respect the ethics charter (`docs/ETHICS_CHARTER.md`) and the sustainability + compassion + harmony mandate.
