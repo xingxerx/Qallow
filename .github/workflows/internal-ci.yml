@@ -72,6 +72,9 @@ jobs:
           sudo apt-get clean || true
           sudo rm -rf /var/lib/apt/lists/* || true
 
+      - name: Check Makefile source coverage
+        run: python3 scripts/check_makefile_sources.py
+
       - name: Build CPU binary
         run: make ACCELERATOR=CPU -j"$(nproc)" -B
 
