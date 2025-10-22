@@ -152,6 +152,7 @@ set(QALLOW_INTERFACE_SOURCES
     src/mind/attention.c
     src/mind/memory.c
     src/mind/quantum_bridge.c
+    src/mind/optimizer.c
     src/cli/bench_cmd.c
     src/distributed/federated_learn.c
     src/ethics/multi_stakeholder.c
@@ -162,6 +163,7 @@ set(QALLOW_INTERFACE_BASE_SOURCES
     src/mind/attention.c
     src/mind/memory.c
     src/mind/quantum_bridge.c
+    src/mind/optimizer.c
     src/distributed/federated_learn.c
     src/ethics/multi_stakeholder.c
 )
@@ -257,10 +259,10 @@ install(TARGETS qallow qallow_unified
 add_executable(qallow_throughput_bench
     examples/benchmarks/throughput_bench.c
     interface/main.c
-    src/mind/registry.c
 )
 target_link_libraries(qallow_throughput_bench
     PRIVATE
+        qallow_interface_base
         qallow_runtime
         qallow_algorithms
         qallow_backend_cpu
@@ -314,10 +316,10 @@ endif()
 add_executable(qallow_integration_smoke
     tests/integration/test_vm_smoke.c
     interface/main.c
-    src/mind/registry.c
 )
 target_link_libraries(qallow_integration_smoke
     PRIVATE
+        qallow_interface_base
         qallow_backend_cpu
         qallow_algorithms
         qallow_runtime

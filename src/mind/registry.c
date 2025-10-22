@@ -23,6 +23,8 @@ extern ql_status mod_explainability(ql_state *S);
 extern ql_status mod_audit_trail(ql_state *S);
 extern ql_status mod_conflict_resolution(ql_state *S);
 extern ql_status mod_fairness_monitor(ql_state *S);
+extern ql_status mod_multi_objective_opt(ql_state *S);
+extern ql_status mod_safety_projection(ql_state *S);
 
 // ----- Modeling Core -----
 static ql_status mod_model(ql_state *S){
@@ -127,6 +129,8 @@ static const ql_module MODS[] = {
   {"audit_trail",     mod_audit_trail},
   {"conflict_res",    mod_conflict_resolution},
   {"fairness",        mod_fairness_monitor},
+  {"multi_opt",       mod_multi_objective_opt},
+  {"safety_proj",     mod_safety_projection},
 };
 
 const ql_module *ql_get_mind_modules(size_t *count){
