@@ -89,6 +89,14 @@ function Invoke-Build {
 function Invoke-Run {
     param([string]$Mode = 'cpu')
     
+    if ($Mode -eq 'all') {
+        Write-Host "[WARN] 'run all' not supported - defaulting to CPU build" -ForegroundColor $ColorWarning
+        $Mode = 'cpu'
+    }
+
+    Write-Host "[INFO] Ensuring latest $($Mode.ToUpper()) build before execution" -ForegroundColor $ColorInfo
+    Invoke-Build $Mode
+
     $exe = if ($Mode -eq 'cuda') { 'build/qallow_cuda.exe' } else { 'build/qallow.exe' }
     
     if (-not (Test-Path $exe)) {

@@ -37,6 +37,7 @@
 #include "qallow_integration.h"
 #include "meta_introspect.h"
 #include "dl_integration.h"
+#include "qallow/module.h"
 // TODO: Add these when modules are implemented
 // #include "adaptive.h"
 // #include "verify.h"
@@ -57,6 +58,8 @@ static int qallow_handle_run(int argc, char** argv, int arg_offset, run_profile_
 static int qallow_dispatch_phase(int argc, char** argv, int start_index, const char* phase_name,
                                  int (*runner)(int, char**));
 static int qallow_clear_mode(void);
+int qallow_cmd_mind(int argc, char **argv);
+int qallow_cmd_bench(int argc, char **argv);
 
 static int remove_recursive(const char* path);
 
@@ -679,6 +682,8 @@ static void qallow_print_help(void) {
     printf("  build             Detect toolchain and compile CPU + CUDA backends\n");
     printf("  govern            Start governance and ethics audit loop\n");
     printf("  verify            System checkpoint - verify integrity\n");
+    printf("  mind              Run cognitive modules pipeline (model→predict→plan→learn→abstract→regulate→language→meta)\n");
+    printf("  bench             Run comprehensive benchmarking suite (CPU vs CUDA, ethics overhead, scalability)\n");
     printf("  clear             Remove build artifacts and cached binaries\n");
     printf("  accelerator       Launch the Phase-13 accelerator directly (alias)\n");
     printf("  phase11           Invoke Phase 11 coherence bridge (alias)\n");
@@ -793,6 +798,14 @@ int main(int argc, char** argv) {
     if (strcmp(command, "verify") == 0) {
         qallow_verify_mode();
         return 0;
+    }
+
+    if (strcmp(command, "mind") == 0) {
+        return qallow_cmd_mind(argc - arg_offset, argv + arg_offset);
+    }
+
+    if (strcmp(command, "bench") == 0) {
+        return qallow_cmd_bench(argc - arg_offset, argv + arg_offset);
     }
 
     if (strcmp(command, "accelerator") == 0) {

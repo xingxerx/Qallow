@@ -57,6 +57,8 @@ Execute a simulation with the specified backend.
 ./qallow run                    # Default: CPU
 ```
 
+> ℹ️ The run command always triggers a build for the selected backend first, ensuring the binary reflects the latest source code before execution.
+
 **Output:**
 - `qallow_stream.csv` - Real-time telemetry data
 - `qallow_bench.log` - Benchmark entry

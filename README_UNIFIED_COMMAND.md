@@ -44,6 +44,8 @@ Welcome to the unified Qallow command interface! Everything you need to build, r
 ./qallow run cuda           # Run CUDA version
 ```
 
+> ℹ️ `./qallow run` now triggers a fresh build for the selected target before launching, so the VM always executes the latest source changes.
+
 ### Benchmark
 ```bash
 ./qallow bench              # Benchmark CPU version (default)
@@ -279,7 +281,7 @@ For issues or questions:
 
 ## 🟢 Status
 
-**PRODUCTION READY**
+### PRODUCTION READY
 
 All commands tested and operational!
 

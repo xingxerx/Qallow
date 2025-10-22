@@ -130,6 +130,7 @@ if(QALLOW_ENABLE_CUDA)
         backend/cuda/qcp_kernels.cu
         backend/cuda/quantum.cu
         backend/cuda/phase16_meta_introspect.cu
+        backend/cuda/mind_kernels.cu
         runtime/cuda_parallel.cu
     )
     add_library(qallow_backend_cuda STATIC ${QALLOW_CUDA_SOURCES})
@@ -147,6 +148,11 @@ endif()
 set(QALLOW_INTERFACE_SOURCES
     interface/main.c
     interface/launcher.c
+    src/mind/registry.c
+    src/mind/attention.c
+    src/mind/memory.c
+    src/mind/quantum_bridge.c
+    src/cli/bench_cmd.c
 )
 
 add_executable(qallow ${QALLOW_INTERFACE_SOURCES})

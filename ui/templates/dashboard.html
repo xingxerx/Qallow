@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Qallow Mind Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Courier New', monospace;
+            background: #0a0e27;
+            color: #00ff88;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #00ff88;
+            padding-bottom: 20px;
+        }
+        h1 {
+            font-size: 2.5em;
+            text-shadow: 0 0 10px #00ff88;
+            margin-bottom: 10px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .card {
+            background: #1a1f3a;
+            border: 2px solid #00ff88;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.2);
+        }
+        .card h2 {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            color: #00ffff;
+        }
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            padding: 8px;
+            background: rgba(0, 255, 136, 0.1);
+            border-radius: 4px;
+        }
+        .metric-label {
+            font-weight: bold;
+        }
+        .metric-value {
+            color: #ffff00;
+            font-weight: bold;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #0a0e27;
+            border: 1px solid #00ff88;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff88, #00ffff);
+            transition: width 0.3s ease;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin: 20px 0;
+        }
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            background: #00ff88;
+            color: #0a0e27;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+        }
+        button:hover {
+            background: #00ffff;
+            box-shadow: 0 0 10px #00ffff;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .status.running {
+            background: rgba(0, 255, 0, 0.2);
+            color: #00ff88;
+        }
+        .status.stopped {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff6666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⚡ Qallow Mind Dashboard</h1>
+            <p>Real-time Cognitive Pipeline Monitoring</p>
+        </header>
+
+        <div class="controls">
+            <button onclick="startMind()">▶ Start Mind</button>
+            <button onclick="stopMind()">⏹ Stop Mind</button>
+            <button onclick="clearData()">🗑 Clear Data</button>
+        </div>
+
+        <div id="status" class="status stopped">Status: Stopped</div>
+
+        <div class="grid">
+            <!-- State Metrics -->
+            <div class="card">
+                <h2>🧠 Cognitive State</h2>
+                <div class="metric">
+                    <span class="metric-label">Step:</span>
+                    <span class="metric-value" id="step">0</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Reward:</span>
+                    <span class="metric-value" id="reward">0.000</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="reward-bar" style="width: 0%"></div>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Energy:</span>
+                    <span class="metric-value" id="energy">0.500</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="energy-bar" style="width: 50%"></div>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Risk:</span>
+                    <span class="metric-value" id="risk">0.500</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="risk-bar" style="width: 50%"></div>
+                </div>
+            </div>
+
+            <!-- Ethics Scores -->
+            <div class="card">
+                <h2>⚖️ Ethics Monitoring</h2>
+                <div class="metric">
+                    <span class="metric-label">Safety (S):</span>
+                    <span class="metric-value" id="ethics-s">0.990</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="ethics-s-bar" style="width: 99%"></div>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Clarity (C):</span>
+                    <span class="metric-value" id="ethics-c">1.000</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="ethics-c-bar" style="width: 100%"></div>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Human (H):</span>
+                    <span class="metric-value" id="ethics-h">1.000</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="ethics-h-bar" style="width: 100%"></div>
+                </div>
+                <div class="metric" style="margin-top: 15px; font-size: 1.2em;">
+                    <span class="metric-label">Total E:</span>
+                    <span class="metric-value" id="ethics-total">2.990</span>
+                </div>
+            </div>
+
+            <!-- System Info -->
+            <div class="card">
+                <h2>📊 System Info</h2>
+                <div class="metric">
+                    <span class="metric-label">Modules:</span>
+                    <span class="metric-value" id="modules">0</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Telemetry Points:</span>
+                    <span class="metric-value" id="telemetry-count">0</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Uptime:</span>
+                    <span class="metric-value" id="uptime">0s</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="grid">
+            <div class="card">
+                <h2>📈 Reward Trajectory</h2>
+                <div class="chart-container">
+                    <canvas id="rewardChart"></canvas>
+                </div>
+            </div>
+            <div class="card">
+                <h2>⚡ Energy & Risk</h2>
+                <div class="chart-container">
+                    <canvas id="energyRiskChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let rewardChart, energyRiskChart;
+        let startTime = null;
+
+        async function updateDashboard() {
+            try {
+                const state = await fetch('/api/state').then(r => r.json());
+                const telemetry = await fetch('/api/telemetry').then(r => r.json());
+                const ethics = await fetch('/api/ethics').then(r => r.json());
+
+                // Update state
+                document.getElementById('step').textContent = state.step;
+                document.getElementById('reward').textContent = state.reward.toFixed(3);
+                document.getElementById('energy').textContent = state.energy.toFixed(3);
+                document.getElementById('risk').textContent = state.risk.toFixed(3);
+                document.getElementById('modules').textContent = state.modules;
+                document.getElementById('telemetry-count').textContent = telemetry.length;
+
+                // Update progress bars
+                document.getElementById('reward-bar').style.width = (state.reward * 100) + '%';
+                document.getElementById('energy-bar').style.width = (state.energy * 100) + '%';
+                document.getElementById('risk-bar').style.width = (Math.max(0, state.risk) * 100) + '%';
+
+                // Update ethics
+                document.getElementById('ethics-s').textContent = ethics.safety.toFixed(3);
+                document.getElementById('ethics-c').textContent = ethics.clarity.toFixed(3);
+                document.getElementById('ethics-h').textContent = ethics.human.toFixed(3);
+                document.getElementById('ethics-total').textContent = ethics.total.toFixed(3);
+                document.getElementById('ethics-s-bar').style.width = (ethics.safety * 100) + '%';
+                document.getElementById('ethics-c-bar').style.width = (ethics.clarity * 100) + '%';
+                document.getElementById('ethics-h-bar').style.width = (ethics.human * 100) + '%';
+
+                // Update status
+                const statusEl = document.getElementById('status');
+                if (state.running) {
+                    statusEl.className = 'status running';
+                    statusEl.textContent = '🟢 Status: Running';
+                    if (!startTime) startTime = Date.now();
+                } else {
+                    statusEl.className = 'status stopped';
+                    statusEl.textContent = '🔴 Status: Stopped';
+                }
+
+                // Update uptime
+                if (startTime) {
+                    const uptime = Math.floor((Date.now() - startTime) / 1000);
+                    document.getElementById('uptime').textContent = uptime + 's';
+                }
+
+                // Update charts
+                updateCharts(telemetry);
+            } catch (e) {
+                console.error('Update error:', e);
+            }
+        }
+
+        function updateCharts(telemetry) {
+            if (telemetry.length === 0) return;
+
+            const steps = telemetry.map(t => t.step);
+            const rewards = telemetry.map(t => t.reward);
+            const energies = telemetry.map(t => t.energy);
+            const risks = telemetry.map(t => t.risk);
+
+            if (!rewardChart) {
+                const ctx1 = document.getElementById('rewardChart').getContext('2d');
+                rewardChart = new Chart(ctx1, {
+                    type: 'line',
+                    data: {
+                        labels: steps,
+                        datasets: [{
+                            label: 'Reward',
+                            data: rewards,
+                            borderColor: '#ffff00',
+                            backgroundColor: 'rgba(255, 255, 0, 0.1)',
+                            tension: 0.4,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { labels: { color: '#00ff88' } } },
+                        scales: {
+                            y: { ticks: { color: '#00ff88' }, grid: { color: 'rgba(0, 255, 136, 0.1)' } },
+                            x: { ticks: { color: '#00ff88' }, grid: { color: 'rgba(0, 255, 136, 0.1)' } }
+                        }
+                    }
+                });
+            } else {
+                rewardChart.data.labels = steps;
+                rewardChart.data.datasets[0].data = rewards;
+                rewardChart.update();
+            }
+
+            if (!energyRiskChart) {
+                const ctx2 = document.getElementById('energyRiskChart').getContext('2d');
+                energyRiskChart = new Chart(ctx2, {
+                    type: 'line',
+                    data: {
+                        labels: steps,
+                        datasets: [
+                            {
+                                label: 'Energy',
+                                data: energies,
+                                borderColor: '#00ff88',
+                                backgroundColor: 'rgba(0, 255, 136, 0.1)',
+                                tension: 0.4,
+                            },
+                            {
+                                label: 'Risk',
+                                data: risks,
+                                borderColor: '#ff6666',
+                                backgroundColor: 'rgba(255, 102, 102, 0.1)',
+                                tension: 0.4,
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { labels: { color: '#00ff88' } } },
+                        scales: {
+                            y: { ticks: { color: '#00ff88' }, grid: { color: 'rgba(0, 255, 136, 0.1)' } },
+                            x: { ticks: { color: '#00ff88' }, grid: { color: 'rgba(0, 255, 136, 0.1)' } }
+                        }
+                    }
+                });
+            } else {
+                energyRiskChart.data.labels = steps;
+                energyRiskChart.data.datasets[0].data = energies;
+                energyRiskChart.data.datasets[1].data = risks;
+                energyRiskChart.update();
+            }
+        }
+
+        async function startMind() {
+            await fetch('/api/start');
+            startTime = Date.now();
+        }
+
+        async function stopMind() {
+            await fetch('/api/stop');
+        }
+
+        function clearData() {
+            startTime = null;
+            location.reload();
+        }
+
+        // Update every 500ms
+        setInterval(updateDashboard, 500);
+        updateDashboard();
+    </script>
+</body>
+</html>
+
