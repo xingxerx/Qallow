@@ -156,30 +156,66 @@ class IBMQuantumWorkload:
         return transpiled
     
     def define_observables(self, n_qubits, observable_type="pauli"):
-        """Define observables to measure"""
-        observables = []
+        """Define logical observables (before backend alignment)"""
+        observable_specs = []
         labels = []
         
         if observable_type == "pauli":
-            # Single qubit measurements
+            # Single-qubit observables
             for i in range(n_qubits):
                 for pauli in ['Z', 'X']:
-                    label = pauli + 'I' * (n_qubits - 1 - i) + 'I' * i
-                    observables.append(SparsePauliOp(label))
-                    labels.append(label)
+                    observable_specs.append({
+                        'qubits': (i,),
+                        'paulis': (pauli,)
+                    })
+                    labels.append(f"{pauli}(q{i})")
             
-            # Two-qubit correlations
+            # Two-qubit Z correlations
             for i in range(n_qubits - 1):
-                label = 'Z' + 'I' * (i) + 'Z' + 'I' * (n_qubits - 2 - i)
-                observables.append(SparsePauliOp(label))
-                labels.append(label)
+                observable_specs.append({
+                    'qubits': (i, i + 1),
+                    'paulis': ('Z', 'Z')
+                })
+                labels.append(f"ZZ(q{i},q{i+1})")
         
-        return observables, labels
+        return observable_specs, labels
     
-    def execute_workload(self, qc, observables, shots=1000):
+    def _align_observables(self, transpiled_qc, observable_specs, labels):
+        """Align logical observables with the transpiled backend layout"""
+        total_qubits = transpiled_qc.num_qubits
+        layout = getattr(transpiled_qc, "layout", None)
+        
+        if layout and callable(getattr(layout, "final_index_layout", None)):
+            physical_map = layout.final_index_layout()
+        else:
+            physical_map = list(range(transpiled_qc.num_qubits))
+        
+        aligned_observables = []
+        aligned_labels = []
+        
+        for spec, label in zip(observable_specs, labels):
+            pauli_string = ['I'] * total_qubits
+            targeted = []
+            
+            for logical_qubit, pauli in zip(spec['qubits'], spec['paulis']):
+                physical_index = physical_map[logical_qubit]
+                # SparsePauliOp strings are big-endian; invert index for target qubit
+                pauli_string[total_qubits - 1 - physical_index] = pauli
+                targeted.append(f"q{physical_index}")
+            
+            aligned_observables.append(SparsePauliOp(''.join(pauli_string)))
+            aligned_labels.append(f"{label} @{'/'.join(targeted)}")
+        
+        return aligned_observables, aligned_labels
+    
+    def execute_workload(self, qc, observable_specs, labels, shots=1000):
         """Execute quantum circuit on backend"""
+        observables = []
         try:
             transpiled_qc = self.transpile_circuit(qc)
+            observables, aligned_labels = self._align_observables(
+                transpiled_qc, observable_specs, labels
+            )
 
             # Use AerSimulator for local execution
             from qiskit_aer import AerSimulator
@@ -207,17 +243,17 @@ class IBMQuantumWorkload:
                 'expectation_values': expectation_values,
                 'errors': errors,
                 'timestamp': datetime.now().isoformat()
-            }
-        except Exception as e:
-            logger.error(f"Execution failed: {e}")
+            }, aligned_labels
+        except Exception:
+            logger.exception("Execution failed during estimator run")
             # Fallback: return simulated results
             logger.info("Using fallback simulation...")
             return {
                 'job_id': 'fallback_sim',
-                'expectation_values': np.random.uniform(-1, 1, len(observables)),
-                'errors': np.random.uniform(0.01, 0.1, len(observables)),
+                'expectation_values': np.random.uniform(-1, 1, len(labels)),
+                'errors': np.random.uniform(0.01, 0.1, len(labels)),
                 'timestamp': datetime.now().isoformat()
-            }
+            }, labels
     
     def analyze_results(self, result, labels):
         """Analyze and learn from results"""
@@ -278,18 +314,18 @@ def main():
     logger.info("\n[TEST 1] Bell State Circuit")
     bell_qc = workload.create_bell_state_circuit()
     observables, labels = workload.define_observables(2, "pauli")
-    result = workload.execute_workload(bell_qc, observables, shots=1000)
+    result, bell_labels = workload.execute_workload(bell_qc, observables, labels, shots=1000)
     if result:
-        analysis = workload.analyze_results(result, labels)
+        analysis = workload.analyze_results(result, bell_labels)
         workload.save_results(analysis, "bell_state")
     
     # Test 2: GHZ State (10 qubits)
     logger.info("\n[TEST 2] GHZ State Circuit (10 qubits)")
     ghz_qc = workload.create_ghz_state_circuit(10)
     observables, labels = workload.define_observables(10, "pauli")
-    result = workload.execute_workload(ghz_qc, observables, shots=1000)
+    result, ghz_labels = workload.execute_workload(ghz_qc, observables, labels, shots=1000)
     if result:
-        analysis = workload.analyze_results(result, labels)
+        analysis = workload.analyze_results(result, ghz_labels)
         workload.save_results(analysis, "ghz_10")
     
     logger.info("\n" + "=" * 60)
@@ -299,4 +335,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
