@@ -153,6 +153,8 @@ set(QALLOW_INTERFACE_SOURCES
     src/mind/memory.c
     src/mind/quantum_bridge.c
     src/cli/bench_cmd.c
+    src/distributed/federated_learn.c
+    src/ethics/multi_stakeholder.c
 )
 
 add_executable(qallow ${QALLOW_INTERFACE_SOURCES})
@@ -241,6 +243,7 @@ install(TARGETS qallow qallow_unified
 add_executable(qallow_throughput_bench
     examples/benchmarks/throughput_bench.c
     interface/main.c
+    src/mind/registry.c
 )
 target_link_libraries(qallow_throughput_bench
     PRIVATE

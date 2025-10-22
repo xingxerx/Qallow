@@ -1,3 +1,4 @@
+
 #include <stdbool.h>
 #include <ctype.h>
 #include <stdio.h>
@@ -5,12 +6,14 @@
 #include <string.h>
 #include <time.h>
 #include <errno.h>
+#include <limits.h>
 
 #if defined(_WIN32)
 #include <windows.h>
+#include <io.h>
+#include <process.h>
 #else
 #include <dirent.h>
-#include <limits.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -19,6 +22,284 @@
 #ifndef PATH_MAX
 #define PATH_MAX 4096
 #endif
+
+#if defined(_WIN32)
+#define QALLOW_ACCESS _access
+#define QALLOW_PATH_SEP '\\'
+#define QALLOW_ALT_PATH_SEP '/'
+#else
+#define QALLOW_ACCESS access
+#define QALLOW_PATH_SEP '/'
+#define QALLOW_ALT_PATH_SEP '\\'
+#endif
+
+static int g_skip_build = 0;
+
+static void qallow_dirname_inplace(char* path) {
+    if (!path) {
+        return;
+    }
+
+    size_t len = strlen(path);
+    if (len == 0) {
+        return;
+    }
+
+#if defined(_WIN32)
+    if (!(len == 3 && path[1] == ':' && (path[2] == '\\' || path[2] == '/'))) {
+        while (len > 1 && (path[len - 1] == QALLOW_PATH_SEP || path[len - 1] == QALLOW_ALT_PATH_SEP)) {
+            path[--len] = '\0';
+        }
+    }
+#else
+    while (len > 1 && (path[len - 1] == QALLOW_PATH_SEP || path[len - 1] == QALLOW_ALT_PATH_SEP)) {
+        path[--len] = '\0';
+    }
+#endif
+
+    char* last_sep = strrchr(path, QALLOW_PATH_SEP);
+    char* last_alt = strrchr(path, QALLOW_ALT_PATH_SEP);
+    if (last_alt && (!last_sep || last_alt > last_sep)) {
+        last_sep = last_alt;
+    }
+
+    if (!last_sep) {
+        strcpy(path, ".");
+        return;
+    }
+
+    if (last_sep == path) {
+        last_sep[1] = '\0';
+    } else {
+        *last_sep = '\0';
+        if (path[0] == '\0') {
+            strcpy(path, ".");
+        }
+    }
+}
+
+static int qallow_get_executable_path(char* buffer, size_t buffer_size) {
+    if (!buffer || buffer_size == 0) {
+        return 0;
+    }
+
+#if defined(_WIN32)
+    DWORD len = GetModuleFileNameA(NULL, buffer, (DWORD)buffer_size);
+    if (len == 0 || len >= buffer_size) {
+        return 0;
+    }
+    return 1;
+#else
+    ssize_t len = readlink("/proc/self/exe", buffer, buffer_size - 1);
+    if (len < 0 || (size_t)len >= buffer_size) {
+        return 0;
+    }
+    buffer[len] = '\0';
+    return 1;
+#endif
+}
+
+static int qallow_find_project_root(char* buffer, size_t buffer_size) {
+    if (!buffer || buffer_size == 0) {
+        return 0;
+    }
+
+    const char* env_root = getenv("QALLOW_ROOT");
+    if (env_root && *env_root) {
+        size_t len = strlen(env_root);
+        if (len >= buffer_size) {
+            return 0;
+        }
+        memcpy(buffer, env_root, len + 1);
+        return 1;
+    }
+
+    char current[PATH_MAX];
+    if (!qallow_get_executable_path(current, sizeof(current))) {
+#if defined(_WIN32)
+        if (!GetCurrentDirectoryA((DWORD)sizeof(current), current)) {
+            return 0;
+        }
+#else
+        if (!getcwd(current, sizeof(current))) {
+            return 0;
+        }
+#endif
+    }
+
+#if defined(_WIN32)
+    DWORD attrs = GetFileAttributesA(current);
+    if (attrs != INVALID_FILE_ATTRIBUTES) {
+        if (!(attrs & FILE_ATTRIBUTE_DIRECTORY)) {
+            qallow_dirname_inplace(current);
+        }
+    } else {
+        if (!GetCurrentDirectoryA((DWORD)sizeof(current), current)) {
+            return 0;
+        }
+    }
+#else
+    struct stat st;
+    if (stat(current, &st) == 0) {
+        if (S_ISREG(st.st_mode)) {
+            qallow_dirname_inplace(current);
+        }
+    } else {
+        if (!getcwd(current, sizeof(current))) {
+            return 0;
+        }
+    }
+#endif
+
+    for (int depth = 0; depth < 8; ++depth) {
+        char candidate[PATH_MAX];
+        int written = snprintf(candidate, sizeof(candidate), "%s%cCMakeLists.txt", current, QALLOW_PATH_SEP);
+        if (written <= 0 || written >= (int)sizeof(candidate)) {
+            return 0;
+        }
+
+        if (QALLOW_ACCESS(candidate, 0) == 0) {
+            size_t len = strlen(current);
+            if (len >= buffer_size) {
+                return 0;
+            }
+            memcpy(buffer, current, len + 1);
+            return 1;
+        }
+
+        char parent[PATH_MAX];
+        strncpy(parent, current, sizeof(parent));
+        parent[sizeof(parent) - 1] = '\0';
+        qallow_dirname_inplace(parent);
+        if (strcmp(parent, current) == 0) {
+            break;
+        }
+        strncpy(current, parent, sizeof(current));
+        current[sizeof(current) - 1] = '\0';
+    }
+
+#if defined(_WIN32)
+    if (GetCurrentDirectoryA((DWORD)sizeof(current), current)) {
+#else
+    if (getcwd(current, sizeof(current))) {
+#endif
+        char candidate[PATH_MAX];
+        int written = snprintf(candidate, sizeof(candidate), "%s%cCMakeLists.txt", current, QALLOW_PATH_SEP);
+        if (written > 0 && written < (int)sizeof(candidate) && QALLOW_ACCESS(candidate, 0) == 0) {
+            size_t len = strlen(current);
+            if (len < buffer_size) {
+                memcpy(buffer, current, len + 1);
+                return 1;
+            }
+        }
+    }
+
+    return 0;
+}
+
+static void qallow_init_process_flags(void) {
+    const char* skip = getenv("QALLOW_SKIP_BUILD_ONCE");
+    if (skip && strcmp(skip, "1") == 0) {
+        g_skip_build = 1;
+#if defined(_WIN32)
+        _putenv_s("QALLOW_SKIP_BUILD_ONCE", "");
+#else
+        unsetenv("QALLOW_SKIP_BUILD_ONCE");
+#endif
+    }
+}
+
+static int qallow_run_build_scripts(int clean) {
+    (void)clean;
+
+    char root[PATH_MAX];
+    if (!qallow_find_project_root(root, sizeof(root))) {
+        fprintf(stderr, "[ERROR] Unable to locate Qallow project root. Set QALLOW_ROOT to override.\n");
+        return 1;
+    }
+
+#if defined(_WIN32)
+    const char* cd_prefix = "cd /d";
+#else
+    const char* cd_prefix = "cd";
+#endif
+
+    char command[PATH_MAX * 6];
+    int written = snprintf(
+        command,
+        sizeof(command),
+        "%s \"%s\" && cmake -S . -B build && cmake --build build --parallel",
+        cd_prefix,
+        root);
+    if (written <= 0 || written >= (int)sizeof(command)) {
+        fprintf(stderr, "[ERROR] Build command too long.\n");
+        return 1;
+    }
+
+    printf("[BUILD] Synchronizing sources at %s\n", root);
+    int rc = system(command);
+    if (rc != 0) {
+        fprintf(stderr, "[ERROR] Build command failed (exit=%d).\n", rc);
+        return 1;
+    }
+
+    return 0;
+}
+
+static int qallow_restart_self(int argc, char** argv) {
+    char exec_path[PATH_MAX];
+    if (!qallow_get_executable_path(exec_path, sizeof(exec_path))) {
+        fprintf(stderr, "[ERROR] Unable to resolve Qallow executable path for restart.\n");
+        return 1;
+    }
+
+#if defined(_WIN32)
+    if (_putenv_s("QALLOW_SKIP_BUILD_ONCE", "1") != 0) {
+        fprintf(stderr, "[ERROR] Failed to set restart environment flag.\n");
+        return 1;
+    }
+#else
+    if (setenv("QALLOW_SKIP_BUILD_ONCE", "1", 1) != 0) {
+        perror("[ERROR] Failed to set restart environment flag");
+        return 1;
+    }
+#endif
+
+    char** new_args = (char**)malloc(sizeof(char*) * (argc + 1));
+    if (!new_args) {
+        fprintf(stderr, "[ERROR] Memory allocation failed during restart.\n");
+        return 1;
+    }
+
+    new_args[0] = exec_path;
+    for (int i = 1; i < argc; ++i) {
+        new_args[i] = argv[i];
+    }
+    new_args[argc] = NULL;
+
+#if defined(_WIN32)
+    _execv(exec_path, (const char* const*)new_args);
+    fprintf(stderr, "[ERROR] Failed to restart process (errno=%d).\n", errno);
+#else
+    execv(exec_path, new_args);
+    perror("[ERROR] Failed to restart Qallow after rebuild");
+#endif
+
+    free(new_args);
+    return 1;
+}
+
+static int qallow_build_and_maybe_restart(int argc, char** argv) {
+    if (g_skip_build) {
+        return 0;
+    }
+
+    if (qallow_run_build_scripts(0) != 0) {
+        return 1;
+    }
+
+    return qallow_restart_self(argc, argv);
+}
 
 // Include all core headers
 #include "qallow_kernel.h"
@@ -50,7 +331,7 @@ typedef enum {
 } run_profile_t;
 
 // Forward declarations
-static void qallow_build_mode(void);
+static int qallow_build_mode(void);
 static void qallow_verify_mode(void);
 static void qallow_print_help(void);
 static int qallow_run_vm(run_profile_t profile);
@@ -238,10 +519,13 @@ static void print_banner(void) {
 }
 
 // BUILD mode: Compile CPU + CUDA backends
-static void qallow_build_mode(void) {
-    printf("[BUILD] Qallow is already built!\n");
-    printf("[BUILD] To rebuild, run: scripts\\build_wrapper.bat CPU\n");
-    printf("[BUILD] Or for CUDA: scripts\\build_wrapper.bat CUDA\n");
+static int qallow_build_mode(void) {
+    printf("[BUILD] Preparing latest Qallow binaries...\n");
+    int rc = qallow_run_build_scripts(0);
+    if (rc == 0) {
+        printf("[BUILD] Build completed successfully.\n");
+    }
+    return rc;
 }
 
 static int qallow_clear_mode(void) {
@@ -759,6 +1043,8 @@ int main(int argc, char** argv) {
         return 1;
     }
 
+    qallow_init_process_flags();
+
     const char* command = "run";
     int arg_offset = 1;
 
@@ -771,8 +1057,7 @@ int main(int argc, char** argv) {
     }
 
     if (strcmp(command, "build") == 0) {
-        qallow_build_mode();
-        return 0;
+        return qallow_build_mode();
     }
 
     if (strcmp(command, "clear") == 0) {

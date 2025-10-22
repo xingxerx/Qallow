@@ -13,6 +13,16 @@ extern ql_status mod_quantum_predict(ql_state *S);
 extern ql_status mod_quantum_optimize(ql_state *S);
 extern ql_status mod_hybrid_optimize(ql_state *S);
 extern ql_status mod_quantum_entangle(ql_state *S);
+extern ql_status mod_federated_learn(ql_state *S);
+extern ql_status mod_privacy_preserving_learn(ql_state *S);
+extern ql_status mod_gradient_compression(ql_state *S);
+extern ql_status mod_async_param_server(ql_state *S);
+extern ql_status mod_consensus(ql_state *S);
+extern ql_status mod_multi_stakeholder_ethics(ql_state *S);
+extern ql_status mod_explainability(ql_state *S);
+extern ql_status mod_audit_trail(ql_state *S);
+extern ql_status mod_conflict_resolution(ql_state *S);
+extern ql_status mod_fairness_monitor(ql_state *S);
 
 // ----- Modeling Core -----
 static ql_status mod_model(ql_state *S){
@@ -107,6 +117,16 @@ static const ql_module MODS[] = {
   {"q_optimize",      mod_quantum_optimize},
   {"hybrid_opt",      mod_hybrid_optimize},
   {"q_entangle",      mod_quantum_entangle},
+  {"fed_learn",       mod_federated_learn},
+  {"privacy_learn",   mod_privacy_preserving_learn},
+  {"grad_compress",   mod_gradient_compression},
+  {"async_param",     mod_async_param_server},
+  {"consensus",       mod_consensus},
+  {"multi_ethics",    mod_multi_stakeholder_ethics},
+  {"explainability",  mod_explainability},
+  {"audit_trail",     mod_audit_trail},
+  {"conflict_res",    mod_conflict_resolution},
+  {"fairness",        mod_fairness_monitor},
 };
 
 const ql_module *ql_get_mind_modules(size_t *count){
