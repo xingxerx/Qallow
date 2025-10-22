@@ -46,7 +46,8 @@ def main() -> None:
     result = run_ternary_sim(
         ternary_states,
         shots=shots,
-        prefer_hardware=not args.hardware_only,
+        prefer_hardware=True,
+        require_hardware=args.hardware_only,
     )
 
     payload = {

@@ -193,6 +193,49 @@ int qallow_phase11_runner(int argc, char** argv) {
     return 1;
 }
 
+static int qallow_vm_run_hardware(void) {
+    printf("[HARDWARE] Qallow hardware mode enabled (IBM Quantum).\n");
+    printf("[HARDWARE] Dispatching Phase 11 coherence bridge to real backend...\n");
+
+    const char* shots_env = getenv("QALLOW_PHASE11_SHOTS");
+    int shots = shots_env ? atoi(shots_env) : 1024;
+    if (shots < 1) {
+        shots = 1024;
+    }
+
+    const char* states_env = getenv("QALLOW_PHASE11_STATES");
+    char states_clean[128];
+    if (!sanitize_states(states_env, states_clean, sizeof(states_clean))) {
+        fprintf(stderr, "[HARDWARE] Invalid QALLOW_PHASE11_STATES value.\n");
+        return 1;
+    }
+
+    char shots_arg[48];
+    snprintf(shots_arg, sizeof(shots_arg), "--shots=%d", shots);
+
+    char states_arg[160];
+    snprintf(states_arg, sizeof(states_arg), "--states=%s", states_clean);
+
+    char* args[] = {
+        "qallow",
+        "phase11",
+        shots_arg,
+        states_arg,
+        "--hardware-only",
+        NULL,
+    };
+
+    int rc = qallow_phase11_runner(5, args);
+    if (rc == 0) {
+        printf("[HARDWARE] Phase 11 execution completed on IBM Quantum hardware.\n");
+        printf("[HARDWARE] Review JSON output above for telemetry payload.\n");
+    } else {
+        fprintf(stderr, "[HARDWARE] Phase 11 hardware execution failed (code=%d).\n", rc);
+    }
+
+    return rc;
+}
+
 // VM execution function (called from launcher)
 int qallow_phase12_runner(int argc, char** argv) {
     int ticks = 1000;
@@ -286,6 +329,11 @@ int qallow_cmd_mind(int argc, char **argv){
 int qallow_vm_main(void) {
     initialize_logging();
     print_banner();
+
+    const char* mode = getenv("QALLOW_MODE");
+    if (mode && strcmp(mode, "hardware") == 0) {
+        return qallow_vm_run_hardware();
+    }
 
     // Initialize state
     qallow_state_t state;

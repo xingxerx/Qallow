@@ -641,6 +641,7 @@ static int qallow_handle_run(int argc, char** argv, int arg_offset, run_profile_
     int (*phase_runner)(int, char**) = NULL;
     const char* phase_name = NULL;
     int phase_arg_index = -1;
+    bool hardware_mode = false;
 
     for (int i = arg_offset; i < argc; ++i) {
         const char* arg = argv[i];
@@ -747,6 +748,11 @@ static int qallow_handle_run(int argc, char** argv, int arg_offset, run_profile_
             continue;
         }
 
+        if (strcmp(arg, "--hardware") == 0) {
+            hardware_mode = true;
+            continue;
+        }
+
         if (strcmp(arg, "--accelerator") == 0) {
             accelerator_requested = true;
             accelerator_arg_index = i;
@@ -810,6 +816,13 @@ static int qallow_handle_run(int argc, char** argv, int arg_offset, run_profile_
     }
 
 run_parse_done:
+
+    if (hardware_mode) {
+        if (QALLOW_SETENV("QALLOW_MODE", "hardware") != 0) {
+            fprintf(stderr, "[ERROR] Failed to enable hardware mode.\n");
+            return 1;
+        }
+    }
 
     {
         int restart_rc = qallow_build_and_maybe_restart(argc, argv);
@@ -1037,6 +1050,7 @@ static void qallow_print_help(void) {
     printf("Run options:\n");
     printf("  --bench           Run the benchmark profile (alias of `qallow bench`)\n");
     printf("  --live            Run the live ingestion profile (alias of `qallow live`)\n");
+    printf("  --hardware        Route Phase 11 through IBM Quantum hardware (requires credentials)\n");
     printf("  --dashboard=<N|off>  Control dashboard frequency (ticks) or disable output\n");
     printf("  --self-audit      Enable phase16 meta-introspect logging\n");
     printf("  --self-audit-path <DIR>  Override auditor log directory (implies --self-audit)\n");

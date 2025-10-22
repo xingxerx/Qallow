@@ -52,9 +52,10 @@ Build the Qallow system in CPU, CUDA, or both modes.
 Execute a simulation with the specified backend.
 
 ```bash
+./qallow run                    # Default: CPU
 ./qallow run cpu                # Run CPU version
 ./qallow run cuda               # Run CUDA version
-./qallow run                    # Default: CPU
+./qallow run --hardware         # Route Phase 11 through IBM Quantum hardware
 ```
 
 > ℹ️ The run command always triggers a build for the selected backend first, ensuring the binary reflects the latest source code before execution. After the build completes, the CLI respawns itself automatically so the newly compiled binary handles the session.

@@ -14,21 +14,21 @@ data:
   QALLOW_MODE: "cuda"
 
 ---
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: batch/v1
+kind: Job
 metadata:
   name: qallow-mind
   namespace: qallow
 spec:
-  replicas: 3
-  selector:
-    matchLabels:
-      app: qallow-mind
+  parallelism: 3
+  completions: 3
+  backoffLimit: 1
   template:
     metadata:
       labels:
         app: qallow-mind
     spec:
+      restartPolicy: Never
       containers:
       - name: qallow
         image: qallow:latest
@@ -44,14 +44,6 @@ spec:
           limits:
             memory: "2Gi"
             cpu: "2000m"
-        livenessProbe:
-          exec:
-            command:
-            - /bin/sh
-            - -c
-            - test -f /proc/self/status
-          initialDelaySeconds: 10
-          periodSeconds: 30
 
 ---
 apiVersion: v1

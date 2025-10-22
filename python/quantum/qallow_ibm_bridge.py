@@ -134,6 +134,7 @@ def run_ternary_sim(
     *,
     shots: int = 1024,
     prefer_hardware: bool = True,
+    require_hardware: bool = False,
     token: Optional[str] = None,
 ) -> TernaryResult:
     """
@@ -155,16 +156,25 @@ def run_ternary_sim(
             service = _get_runtime_service(explicit_token=token)
             return _execute_on_hardware(circuit, service, shots)
         except (IBMRuntimeError, RuntimeError) as error:
+            if require_hardware:
+                raise RuntimeError(
+                    "IBM Quantum hardware execution failed while hardware-only mode is enabled."
+                ) from error
             if AerSimulator is None:
                 raise RuntimeError(
                     "IBM Quantum hardware execution failed and qiskit-aer is unavailable."
                 ) from error
         except Exception as _error:  # pragma: no cover - defensive fallback
+            if require_hardware:
+                raise
             if AerSimulator is None:
                 raise
             # Unexpected issue (e.g., temporary network interruption); fall back to Aer.
             # Downstream telemetry can note the source to distinguish from hardware runs.
             pass
+
+    if require_hardware:
+        raise RuntimeError("Hardware execution was requested but could not be fulfilled.")
 
     return _execute_on_aer(circuit, shots)
 
