@@ -611,13 +611,18 @@ static int qallow_handle_run(int argc, char** argv, int arg_offset, run_profile_
     bool profile_set = (default_profile != RUN_PROFILE_STANDARD);
     bool integrate_requested = false;
     const char* integrate_phases[8];
-   int integrate_count = 0;
+    int integrate_count = 0;
     bool integrate_no_split = false;
     bool self_audit = false;
     const char* self_audit_path = NULL;
     const char* pocket_map_path = NULL;
     const char* dl_model_path = NULL;
     const char* dl_device_pref = NULL;
+    bool accelerator_requested = false;
+    int accelerator_arg_index = -1;
+    int (*phase_runner)(int, char**) = NULL;
+    const char* phase_name = NULL;
+    int phase_arg_index = -1;
 
     for (int i = arg_offset; i < argc; ++i) {
         const char* arg = argv[i];
@@ -725,28 +730,30 @@ static int qallow_handle_run(int argc, char** argv, int arg_offset, run_profile_
         }
 
         if (strcmp(arg, "--accelerator") == 0) {
-            int accel_argc = 1 + (argc - (i + 1));
-            const char* accel_argv_const[accel_argc];
-            int pos = 0;
-
-            accel_argv_const[pos++] = argv[0];
-            for (int k = i + 1; k < argc; ++k) {
-                accel_argv_const[pos++] = argv[k];
-            }
-
-            return qallow_phase13_main(accel_argc, (char**)accel_argv_const);
+            accelerator_requested = true;
+            accelerator_arg_index = i;
+            goto run_parse_done;
         }
 
         if (strncmp(arg, "--phase=", 8) == 0) {
             const char* phase_value = arg + 8;
             if (strcmp(phase_value, "11") == 0 || strcmp(phase_value, "phase11") == 0) {
-                return qallow_dispatch_phase(argc, argv, i, "phase11", qallow_phase11_runner);
+                phase_runner = qallow_phase11_runner;
+                phase_name = "phase11";
+                phase_arg_index = i;
+                goto run_parse_done;
             }
             if (strcmp(phase_value, "12") == 0 || strcmp(phase_value, "phase12") == 0) {
-                return qallow_dispatch_phase(argc, argv, i, "phase12", qallow_phase12_runner);
+                phase_runner = qallow_phase12_runner;
+                phase_name = "phase12";
+                phase_arg_index = i;
+                goto run_parse_done;
             }
             if (strcmp(phase_value, "13") == 0 || strcmp(phase_value, "phase13") == 0) {
-                return qallow_dispatch_phase(argc, argv, i, "phase13", qallow_phase13_runner);
+                phase_runner = qallow_phase13_runner;
+                phase_name = "phase13";
+                phase_arg_index = i;
+                goto run_parse_done;
             }
 
             fprintf(stderr, "[ERROR] Unknown phase selector: %s\n", phase_value);
@@ -754,15 +761,24 @@ static int qallow_handle_run(int argc, char** argv, int arg_offset, run_profile_
         }
 
         if (strcmp(arg, "--phase11") == 0) {
-            return qallow_dispatch_phase(argc, argv, i, "phase11", qallow_phase11_runner);
+            phase_runner = qallow_phase11_runner;
+            phase_name = "phase11";
+            phase_arg_index = i;
+            goto run_parse_done;
         }
 
         if (strcmp(arg, "--phase12") == 0) {
-            return qallow_dispatch_phase(argc, argv, i, "phase12", qallow_phase12_runner);
+            phase_runner = qallow_phase12_runner;
+            phase_name = "phase12";
+            phase_arg_index = i;
+            goto run_parse_done;
         }
 
         if (strcmp(arg, "--phase13") == 0) {
-            return qallow_dispatch_phase(argc, argv, i, "phase13", qallow_phase13_runner);
+            phase_runner = qallow_phase13_runner;
+            phase_name = "phase13";
+            phase_arg_index = i;
+            goto run_parse_done;
         }
 
         if (strcmp(arg, "--help") == 0 || strcmp(arg, "-h") == 0) {
@@ -773,6 +789,32 @@ static int qallow_handle_run(int argc, char** argv, int arg_offset, run_profile_
         fprintf(stderr, "[ERROR] Unknown run option: %s\n", arg);
         qallow_print_help();
         return 1;
+    }
+
+run_parse_done:
+
+    {
+        int restart_rc = qallow_build_and_maybe_restart(argc, argv);
+        if (restart_rc != 0) {
+            return restart_rc;
+        }
+    }
+
+    if (accelerator_requested) {
+        int accel_argc = 1 + (argc - (accelerator_arg_index + 1));
+        const char* accel_argv_const[accel_argc];
+        int pos = 0;
+
+        accel_argv_const[pos++] = argv[0];
+        for (int k = accelerator_arg_index + 1; k < argc; ++k) {
+            accel_argv_const[pos++] = argv[k];
+        }
+
+        return qallow_phase13_main(accel_argc, (char**)accel_argv_const);
+    }
+
+    if (phase_runner) {
+        return qallow_dispatch_phase(argc, argv, phase_arg_index, phase_name, phase_runner);
     }
 
     meta_introspect_apply_environment_defaults();
