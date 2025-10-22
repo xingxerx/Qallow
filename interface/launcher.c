@@ -258,12 +258,6 @@ static int qallow_run_build_scripts(int clean) {
 }
 
 static int qallow_restart_self(int argc, char** argv) {
-    char exec_path[PATH_MAX];
-    if (!qallow_get_executable_path(exec_path, sizeof(exec_path))) {
-        fprintf(stderr, "[ERROR] Unable to resolve Qallow executable path for restart.\n");
-        return 1;
-    }
-
 #if defined(_WIN32)
     if (_putenv_s("QALLOW_SKIP_BUILD_ONCE", "1") != 0) {
         fprintf(stderr, "[ERROR] Failed to set restart environment flag.\n");
@@ -276,27 +270,13 @@ static int qallow_restart_self(int argc, char** argv) {
     }
 #endif
 
-    char** new_args = (char**)malloc(sizeof(char*) * (argc + 1));
-    if (!new_args) {
-        fprintf(stderr, "[ERROR] Memory allocation failed during restart.\n");
-        return 1;
-    }
-
-    new_args[0] = exec_path;
-    for (int i = 1; i < argc; ++i) {
-        new_args[i] = argv[i];
-    }
-    new_args[argc] = NULL;
-
 #if defined(_WIN32)
-    _execv(exec_path, (const char* const*)new_args);
+    _execvp(argv[0], (const char* const*)argv);
     fprintf(stderr, "[ERROR] Failed to restart process (errno=%d).\n", errno);
 #else
-    execv(exec_path, new_args);
+    execvp(argv[0], argv);
     perror("[ERROR] Failed to restart Qallow after rebuild");
 #endif
-
-    free(new_args);
     return 1;
 }
 
