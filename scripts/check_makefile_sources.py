@@ -10,10 +10,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
 # Source files that are intentionally excluded from the unified build.
-SKIP_SOURCES = {
-    Path("src/cli/bench_cmd.c"),
-    Path("src/cli/mind_cmd.c"),
-}
+SKIP_SOURCES: set[Path] = set()
 
 
 def expand_make_variable(var_name: str) -> list[str]:

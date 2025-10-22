@@ -325,11 +325,19 @@ typedef enum {
 static int qallow_build_mode(void);
 static void qallow_verify_mode(void);
 static void qallow_print_help(void);
+static void qallow_print_run_help(void);
+static void qallow_print_system_help(void);
+static void qallow_print_phase_help(void);
+static void qallow_print_mind_help(void);
 static int qallow_run_vm(run_profile_t profile);
 static int qallow_handle_run(int argc, char** argv, int arg_offset, run_profile_t default_profile);
 static int qallow_dispatch_phase(int argc, char** argv, int start_index, const char* phase_name,
                                  int (*runner)(int, char**));
 static int qallow_clear_mode(void);
+static int qallow_handle_run_group(int argc, char** argv, int arg_offset);
+static int qallow_handle_system_group(int argc, char** argv, int arg_offset);
+static int qallow_handle_phase_group(int argc, char** argv, int arg_offset);
+static int qallow_handle_mind_group(int argc, char** argv, int arg_offset);
 int qallow_cmd_mind(int argc, char **argv);
 int qallow_cmd_bench(int argc, char **argv);
 
@@ -919,6 +927,138 @@ run_parse_done:
     return rc;
 }
 
+static int qallow_handle_run_group(int argc, char** argv, int arg_offset) {
+    if (arg_offset >= argc) {
+        return qallow_handle_run(argc, argv, arg_offset, RUN_PROFILE_STANDARD);
+    }
+
+    const char* sub = argv[arg_offset];
+    if (!sub || sub[0] == '\0' || sub[0] == '-') {
+        return qallow_handle_run(argc, argv, arg_offset, RUN_PROFILE_STANDARD);
+    }
+
+    if (strcmp(sub, "vm") == 0) {
+        return qallow_handle_run(argc, argv, arg_offset + 1, RUN_PROFILE_STANDARD);
+    }
+
+    if (strcmp(sub, "bench") == 0 || strcmp(sub, "benchmark") == 0) {
+        return qallow_handle_run(argc, argv, arg_offset + 1, RUN_PROFILE_BENCH);
+    }
+
+    if (strcmp(sub, "live") == 0) {
+        return qallow_handle_run(argc, argv, arg_offset + 1, RUN_PROFILE_LIVE);
+    }
+
+    if (strcmp(sub, "accelerator") == 0) {
+        int accel_argc = 1 + (argc - (arg_offset + 1));
+        const char* accel_argv_const[accel_argc];
+        int pos = 0;
+
+        accel_argv_const[pos++] = argv[0];
+        for (int i = arg_offset + 1; i < argc; ++i) {
+            accel_argv_const[pos++] = argv[i];
+        }
+
+        return qallow_phase13_main(accel_argc, (char**)accel_argv_const);
+    }
+
+    if (strcmp(sub, "help") == 0) {
+        qallow_print_run_help();
+        return 0;
+    }
+
+    fprintf(stderr, "[ERROR] Unknown run subcommand: %s\n\n", sub);
+    qallow_print_run_help();
+    return 1;
+}
+
+static int qallow_handle_system_group(int argc, char** argv, int arg_offset) {
+    if (arg_offset >= argc || argv[arg_offset] == NULL) {
+        qallow_print_system_help();
+        return 1;
+    }
+
+    const char* sub = argv[arg_offset];
+    if (strcmp(sub, "build") == 0) {
+        return qallow_build_mode();
+    }
+
+    if (strcmp(sub, "clear") == 0) {
+        return qallow_clear_mode();
+    }
+
+    if (strcmp(sub, "verify") == 0) {
+        qallow_verify_mode();
+        return 0;
+    }
+
+    if (strcmp(sub, "help") == 0) {
+        qallow_print_system_help();
+        return 0;
+    }
+
+    fprintf(stderr, "[ERROR] Unknown system subcommand: %s\n\n", sub);
+    qallow_print_system_help();
+    return 1;
+}
+
+static int qallow_handle_phase_group(int argc, char** argv, int arg_offset) {
+    if (arg_offset >= argc || argv[arg_offset] == NULL) {
+        qallow_print_phase_help();
+        return 1;
+    }
+
+    const char* sub = argv[arg_offset];
+    if (strcmp(sub, "11") == 0 || strcmp(sub, "phase11") == 0) {
+        return qallow_dispatch_phase(argc, argv, arg_offset, "phase11", qallow_phase11_runner);
+    }
+
+    if (strcmp(sub, "12") == 0 || strcmp(sub, "phase12") == 0) {
+        return qallow_dispatch_phase(argc, argv, arg_offset, "phase12", qallow_phase12_runner);
+    }
+
+    if (strcmp(sub, "13") == 0 || strcmp(sub, "phase13") == 0) {
+        return qallow_dispatch_phase(argc, argv, arg_offset, "phase13", qallow_phase13_runner);
+    }
+
+    if (strcmp(sub, "help") == 0) {
+        qallow_print_phase_help();
+        return 0;
+    }
+
+    fprintf(stderr, "[ERROR] Unknown phase subcommand: %s\n\n", sub);
+    qallow_print_phase_help();
+    return 1;
+}
+
+static int qallow_handle_mind_group(int argc, char** argv, int arg_offset) {
+    if (arg_offset >= argc || argv[arg_offset] == NULL) {
+        return qallow_cmd_mind(argc - arg_offset, argv + arg_offset);
+    }
+
+    const char* sub = argv[arg_offset];
+    if (sub[0] == '-') {
+        return qallow_cmd_mind(argc - arg_offset, argv + arg_offset);
+    }
+
+    if (strcmp(sub, "pipeline") == 0) {
+        return qallow_cmd_mind(argc - (arg_offset + 1), argv + arg_offset + 1);
+    }
+
+    if (strcmp(sub, "bench") == 0 || strcmp(sub, "benchmark") == 0) {
+        return qallow_cmd_bench(argc - (arg_offset + 1), argv + arg_offset + 1);
+    }
+
+    if (strcmp(sub, "help") == 0) {
+        qallow_print_mind_help();
+        return 0;
+    }
+
+    fprintf(stderr, "[ERROR] Unknown mind subcommand: %s\n\n", sub);
+    qallow_print_mind_help();
+    return 1;
+}
+
 // VERIFY mode: System checkpoint
 static void qallow_verify_mode(void) {
     printf("[VERIFY] Starting system verification...\n");
@@ -1012,52 +1152,96 @@ static void qallow_verify_mode(void) {
 }
 
 // Print help message
-static void qallow_print_help(void) {
-    printf("Usage: qallow [command] [options]\n\n");
-    printf("Commands:\n");
-    printf("  run [options]     Execute the unified VM workflow (default)\n");
-    printf("  build             Detect toolchain and compile CPU + CUDA backends\n");
-    printf("  govern            Start governance and ethics audit loop\n");
-    printf("  verify            System checkpoint - verify integrity\n");
-    printf("  mind              Run cognitive modules pipeline (model→predict→plan→learn→abstract→regulate→language→meta)\n");
-    printf("  bench             Run comprehensive benchmarking suite (CPU vs CUDA, ethics overhead, scalability)\n");
-    printf("  clear             Remove build artifacts and cached binaries\n");
-    printf("  accelerator       Launch the Phase-13 accelerator directly (alias)\n");
-    printf("  phase11           Invoke Phase 11 coherence bridge (alias)\n");
-    printf("  phase12           Run Phase 12 elasticity simulation (alias)\n");
-    printf("  phase13           Run Phase 13 harmonic propagation (alias)\n");
-    printf("  help              Show this help message\n\n");
-    printf("Run options:\n");
-    printf("  --bench           Run the benchmark profile (alias of `qallow bench`)\n");
-    printf("  --live            Run the live ingestion profile (alias of `qallow live`)\n");
-    printf("  --hardware        Route Phase 11 through IBM Quantum hardware (requires credentials)\n");
-    printf("  --dashboard=<N|off>  Control dashboard frequency (ticks) or disable output\n");
-    printf("  --self-audit      Enable phase16 meta-introspect logging\n");
-    printf("  --self-audit-path <DIR>  Override auditor log directory (implies --self-audit)\n");
-    printf("  --export-pocket-map <FILE>  Emit audited pocket status JSON after run\n");
-    printf("  --dl-model <PATH>  Load TorchScript model for inference inside the run loop\n");
-    printf("  --dl-device=<cpu|gpu>  Prefer CPU or GPU when running the TorchScript model\n");
-    printf("  --phase=11|12|13  Dispatch directly into a legacy phase runner\n");
-    printf("  --accelerator     Launch the Phase-13 accelerator; pass accelerator options after this flag\n");
-    printf("  --remote-sync     Enable remote ingestion loop (optional endpoint argument)\n");
-    printf("  --remote-sync-interval=N  Override remote polling cadence in seconds\n\n");
-    printf("Accelerator options (after --accelerator):\n");
+static void qallow_print_run_help(void) {
+    printf("Run command group:\n");
+    printf("  qallow run [subcommand] [options]\n\n");
+    printf("Subcommands:\n");
+    printf("  vm [options]        Execute the unified VM workflow (default when omitted)\n");
+    printf("  bench [options]     Run the VM in benchmark profile (alias of vm --bench)\n");
+    printf("  live [options]      Run the VM with live ingestion profile (alias of vm --live)\n");
+    printf("  accelerator [options]  Launch the Phase-13 accelerator directly\n");
+    printf("  help                Show this help message for the run group\n\n");
+    printf("VM options:\n");
+    printf("  --bench             Enable benchmark profile (same as `qallow run bench`)\n");
+    printf("  --live              Enable live ingestion profile (same as `qallow run live`)\n");
+    printf("  --hardware          Route Phase 11 through IBM Quantum hardware\n");
+    printf("  --dashboard=<N|off> Control dashboard frequency (ticks) or disable output\n");
+    printf("  --self-audit        Enable phase16 meta-introspect logging\n");
+    printf("  --self-audit-path <DIR> Override auditor log directory (implies --self-audit)\n");
+    printf("  --export-pocket-map <FILE> Emit audited pocket status JSON after run\n");
+    printf("  --dl-model <PATH>   Load TorchScript model for inference inside the run loop\n");
+    printf("  --dl-device=<cpu|gpu> Prefer CPU or GPU when running the TorchScript model\n");
+    printf("  --phase=11|12|13    Dispatch directly into a legacy phase runner\n");
+    printf("  --accelerator       Launch the Phase-13 accelerator from within vm\n");
+    printf("  --remote-sync[=<URL>] Enable remote ingestion loop (optional endpoint)\n");
+    printf("  --remote-sync-interval=N Override remote polling cadence in seconds\n\n");
+    printf("Accelerator options (when using `qallow run accelerator` or --accelerator):\n");
     printf("  --threads=<N|auto>  Worker thread count (auto = online CPUs)\n");
     printf("  --watch=<DIR>       Directory to monitor via inotify\n");
     printf("  --no-watch          Disable watcher even if provided earlier\n");
     printf("  --file=<PATH>       Queue a file for immediate processing (repeatable)\n\n");
     printf("Examples:\n");
-    printf("  qallow run                       # Run the unified VM\n");
-    printf("  qallow run --bench               # Run benchmark profile\n");
-    printf("  qallow run --dashboard=off       # Silence dashboard output\n");
-    printf("  qallow run --accelerator --watch=. --threads=auto\n");
-    printf("  qallow run --accelerator --remote-sync=https://ingest.example.com/feed\n");
-    printf("  qallow run --self-audit --self-audit-path=./logs --export-pocket-map pocket.json\n");
-    printf("  qallow run --dl-model model.ts --dl-device=gpu\n");
-    printf("  qallow run --phase=11 --ticks=400 --states=-1,0,1\n");
-    printf("  qallow run --phase=12 --ticks=100 --eps=0.0001 --log=phase12.csv\n");
-    printf("  qallow accelerator --watch=/tmp  # Accelerator alias\n");
-    printf("  qallow clear                     # Clean build output\n");
+    printf("  qallow run vm                       # Run the unified VM\n");
+    printf("  qallow run bench                    # VM benchmark profile\n");
+    printf("  qallow run live --dashboard=off     # Live ingestion without dashboard\n");
+    printf("  qallow run vm --phase=12 --ticks=200\n");
+    printf("  qallow run accelerator --watch=/tmp --threads=auto\n");
+}
+
+static void qallow_print_system_help(void) {
+    printf("System command group:\n");
+    printf("  qallow system <subcommand>\n\n");
+    printf("Subcommands:\n");
+    printf("  build      Detect toolchain and compile CPU + CUDA backends\n");
+    printf("  clear      Remove build artifacts and cached binaries\n");
+    printf("  verify     Run system verification health checks\n");
+    printf("  help       Show this help message for the system group\n");
+}
+
+static void qallow_print_phase_help(void) {
+    printf("Phase command group:\n");
+    printf("  qallow phase <11|12|13> [options]\n\n");
+    printf("Subcommands:\n");
+    printf("  11 [options]  Invoke the Phase 11 coherence bridge\n");
+    printf("  12 [options]  Run the Phase 12 elasticity simulation\n");
+    printf("  13 [options]  Run the Phase 13 harmonic propagation\n");
+    printf("  help          Show this help message for the phase group\n\n");
+    printf("Examples:\n");
+    printf("  qallow phase 11 --ticks=400 --states=-1,0,1\n");
+    printf("  qallow phase 12 --ticks=100 --eps=0.0001 --log=phase12.csv\n");
+    printf("  qallow phase 13 --nodes=16 --ticks=500 --k=0.002\n");
+}
+
+static void qallow_print_mind_help(void) {
+    printf("Mind command group:\n");
+    printf("  qallow mind [subcommand]\n\n");
+    printf("Subcommands:\n");
+    printf("  pipeline    Run the cognitive modules pipeline (default when omitted)\n");
+    printf("  bench       Run the cognition benchmarking suite\n");
+    printf("  help        Show this help message for the mind group\n\n");
+    printf("Environment overrides:\n");
+    printf("  QALLOW_MIND_STEPS  Number of pipeline steps to execute (default: 50)\n");
+}
+
+static void qallow_print_help(void) {
+    printf("Usage: qallow <group> [subcommand] [options]\n\n");
+    printf("Command groups:\n");
+    printf("  run       Workflow execution (vm, bench, live, accelerator)\n");
+    printf("  system    Build, clean, and verify project artifacts\n");
+    printf("  phase     Invoke individual phase runners (11, 12, 13)\n");
+    printf("  mind      Cognitive pipeline and benchmarking utilities\n");
+    printf("  help      Show this help message\n\n");
+    printf("Use `qallow help <group>` for a detailed description of that group.\n\n");
+    printf("Legacy aliases:\n");
+    printf("  qallow build        -> qallow system build\n");
+    printf("  qallow clear        -> qallow system clear\n");
+    printf("  qallow verify       -> qallow system verify\n");
+    printf("  qallow bench        -> qallow run bench\n");
+    printf("  qallow live         -> qallow run live\n");
+    printf("  qallow accelerator  -> qallow run accelerator\n");
+    printf("  qallow phase11      -> qallow phase 11\n");
+    printf("  qallow phase12      -> qallow phase 12\n");
+    printf("  qallow phase13      -> qallow phase 13\n");
 }
 
 // Input validation helper
@@ -1110,44 +1294,83 @@ int main(int argc, char** argv) {
         arg_offset = 2;
     }
 
-    if (strcmp(command, "build") == 0) {
-        return qallow_build_mode();
-    }
-
-    if (strcmp(command, "clear") == 0) {
-        return qallow_clear_mode();
+    if (strcmp(command, "system") == 0) {
+        return qallow_handle_system_group(argc, argv, arg_offset);
     }
 
     if (strcmp(command, "run") == 0) {
-        return qallow_handle_run(argc, argv, arg_offset, RUN_PROFILE_STANDARD);
+        return qallow_handle_run_group(argc, argv, arg_offset);
     }
 
-    if (strcmp(command, "bench") == 0 || strcmp(command, "benchmark") == 0) {
-        return qallow_handle_run(argc, argv, arg_offset, RUN_PROFILE_BENCH);
+    if (strcmp(command, "phase") == 0) {
+        return qallow_handle_phase_group(argc, argv, arg_offset);
     }
 
-    if (strcmp(command, "live") == 0) {
-        return qallow_handle_run(argc, argv, arg_offset, RUN_PROFILE_LIVE);
+    if (strcmp(command, "mind") == 0) {
+        return qallow_handle_mind_group(argc, argv, arg_offset);
+    }
+
+    if (strcmp(command, "help") == 0 || strcmp(command, "-h") == 0 || strcmp(command, "--help") == 0) {
+        if (arg_offset < argc && argv[arg_offset] != NULL) {
+            const char* topic = argv[arg_offset];
+            if (strcmp(topic, "run") == 0) {
+                qallow_print_run_help();
+                return 0;
+            }
+            if (strcmp(topic, "system") == 0) {
+                qallow_print_system_help();
+                return 0;
+            }
+            if (strcmp(topic, "phase") == 0) {
+                qallow_print_phase_help();
+                return 0;
+            }
+            if (strcmp(topic, "mind") == 0) {
+                qallow_print_mind_help();
+                return 0;
+            }
+
+            fprintf(stderr, "[ERROR] Unknown help topic: %s\n\n", topic);
+            qallow_print_help();
+            return 1;
+        }
+
+        qallow_print_help();
+        return 0;
     }
 
     if (strcmp(command, "govern") == 0) {
         return govern_cli(argc, argv);
     }
 
+    if (strcmp(command, "build") == 0) {
+        printf("[INFO] `qallow build` is deprecated; use `qallow system build`.\n");
+        return qallow_build_mode();
+    }
+
+    if (strcmp(command, "clear") == 0) {
+        printf("[INFO] `qallow clear` is deprecated; use `qallow system clear`.\n");
+        return qallow_clear_mode();
+    }
+
     if (strcmp(command, "verify") == 0) {
+        printf("[INFO] `qallow verify` is deprecated; use `qallow system verify`.\n");
         qallow_verify_mode();
         return 0;
     }
 
-    if (strcmp(command, "mind") == 0) {
-        return qallow_cmd_mind(argc - arg_offset, argv + arg_offset);
+    if (strcmp(command, "bench") == 0 || strcmp(command, "benchmark") == 0) {
+        printf("[INFO] `qallow %s` now routes to `qallow run bench`.\n", command);
+        return qallow_handle_run(argc, argv, arg_offset, RUN_PROFILE_BENCH);
     }
 
-    if (strcmp(command, "bench") == 0) {
-        return qallow_cmd_bench(argc - arg_offset, argv + arg_offset);
+    if (strcmp(command, "live") == 0) {
+        printf("[INFO] `qallow live` now routes to `qallow run live`.\n");
+        return qallow_handle_run(argc, argv, arg_offset, RUN_PROFILE_LIVE);
     }
 
     if (strcmp(command, "accelerator") == 0) {
+        printf("[INFO] `qallow accelerator` now routes to `qallow run accelerator`.\n");
         int accel_argc = 1 + (argc - arg_offset);
         const char* accel_argv_const[accel_argc];
         int pos = 0;
@@ -1165,25 +1388,18 @@ int main(int argc, char** argv) {
     }
 
     if (strcmp(command, "phase11") == 0) {
+        printf("[INFO] `qallow phase11` is deprecated; use `qallow phase 11`.\n");
         return qallow_dispatch_phase(argc, argv, arg_offset - 1, "phase11", qallow_phase11_runner);
     }
 
     if (strcmp(command, "phase12") == 0) {
+        printf("[INFO] `qallow phase12` is deprecated; use `qallow phase 12`.\n");
         return qallow_dispatch_phase(argc, argv, arg_offset - 1, "phase12", qallow_phase12_runner);
     }
 
     if (strcmp(command, "phase13") == 0) {
+        printf("[INFO] `qallow phase13` is deprecated; use `qallow phase 13`.\n");
         return qallow_dispatch_phase(argc, argv, arg_offset - 1, "phase13", qallow_phase13_runner);
-    }
-
-    if (strcmp(command, "help") == 0 || strcmp(command, "-h") == 0 || strcmp(command, "--help") == 0) {
-        qallow_print_help();
-        return 0;
-    }
-
-    if (argc > 1 && argv[1] != NULL && (strcmp(argv[1], "-h") == 0 || strcmp(argv[1], "--help") == 0)) {
-        qallow_print_help();
-        return 0;
     }
 
     fprintf(stderr, "[ERROR] Unknown command: %s\n\n", command);
