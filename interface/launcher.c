@@ -16,6 +16,7 @@
 #include <dirent.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 #include <unistd.h>
 #endif
 
@@ -239,7 +240,17 @@ static int qallow_run_build_scripts(int clean) {
     printf("[BUILD] Synchronizing sources at %s\n", root);
     int rc = system(command);
     if (rc != 0) {
+#if defined(_WIN32)
         fprintf(stderr, "[ERROR] Build command failed (exit=%d).\n", rc);
+#else
+        if (WIFEXITED(rc)) {
+            fprintf(stderr, "[ERROR] Build command failed (exit=%d).\n", WEXITSTATUS(rc));
+        } else if (WIFSIGNALED(rc)) {
+            fprintf(stderr, "[ERROR] Build command terminated by signal %d.\n", WTERMSIG(rc));
+        } else {
+            fprintf(stderr, "[ERROR] Build command failed (code=%d).\n", rc);
+        }
+#endif
         return 1;
     }
 
@@ -553,6 +564,13 @@ static int qallow_clear_mode(void) {
     }
 
     printf("[CLEAR] Workspace cleaned successfully.\n");
+
+    printf("[CLEAR] Rebuilding core binaries to keep CLI available...\n");
+    if (qallow_run_build_scripts(0) != 0) {
+        fprintf(stderr, "[WARN] Post-clean rebuild failed; run 'qallow build' once dependencies are ready.\n");
+        return 1;
+    }
+    printf("[CLEAR] Minimal rebuild complete.\n");
     return 0;
 }
 

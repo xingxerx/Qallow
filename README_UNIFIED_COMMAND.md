@@ -44,7 +44,7 @@ Welcome to the unified Qallow command interface! Everything you need to build, r
 ./qallow run cuda           # Run CUDA version
 ```
 
-> ℹ️ `./qallow run` now triggers a fresh build for the selected target before launching, so the VM always executes the latest source changes.
+> ℹ️ `./qallow run` now triggers a fresh build for the selected target before launching, so the VM always executes the latest source changes. The CLI automatically restarts itself after the rebuild, so expect a brief pause before execution resumes.
 
 ### Benchmark
 ```bash

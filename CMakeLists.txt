@@ -157,6 +157,20 @@ set(QALLOW_INTERFACE_SOURCES
     src/ethics/multi_stakeholder.c
 )
 
+set(QALLOW_INTERFACE_BASE_SOURCES
+    src/mind/registry.c
+    src/mind/attention.c
+    src/mind/memory.c
+    src/mind/quantum_bridge.c
+    src/distributed/federated_learn.c
+    src/ethics/multi_stakeholder.c
+)
+
+add_library(qallow_interface_base STATIC ${QALLOW_INTERFACE_BASE_SOURCES})
+target_link_libraries(qallow_interface_base PUBLIC qallow_core)
+target_include_directories(qallow_interface_base PUBLIC ${QALLOW_INCLUDE_DIRS})
+
+
 add_executable(qallow ${QALLOW_INTERFACE_SOURCES})
 target_link_libraries(qallow
     PRIVATE
@@ -300,6 +314,7 @@ endif()
 add_executable(qallow_integration_smoke
     tests/integration/test_vm_smoke.c
     interface/main.c
+    src/mind/registry.c
 )
 target_link_libraries(qallow_integration_smoke
     PRIVATE
