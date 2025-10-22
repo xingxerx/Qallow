@@ -2,158 +2,47 @@
 applyTo: '**'
 ---
 
-# GitHub Copilot Instructions for Qallow Project
+# Qallow Agent Guide
+- Maintain MCP persistent memory for architecture, ethics mandates, and user-specific workflows; refresh context when build scripts or docs change.
+- Auto-confirm safe tasks (code, tests, docs, commits, pushes); pause for explicit approval before destructive commands like rm/kill/force-push/system configuration edits.
+- Primary code roots: CPU backend in `backend/cpu/`, CUDA kernels in `backend/cuda/`, public APIs in `include/qallow/`, orchestration in `interface/main.c`, ethics engines under `algorithms/`.
 
-## 🧠 Persistent Memory & Context Management
+## Architecture & Data Flow
+- Phase pipeline lives in `interface/main.c`; it wires adaptive ingest → multi-pocket routing → ethics phases (8-10) → quantum bridge (11) → elasticity/harmonics (12-13).
+- Shared structs and constants sit in `core/include/`; modify headers plus both backends whenever a phase contract changes.
+- Telemetry and logging flow through `include/qallow/logging.h` into `data/logs/`; profiling relies on `QALLOW_PROFILE_SCOPE` from `include/qallow/profiling.h`.
+- Python bridge for quantum hardware resides in `python/quantum/run_phase11_bridge.py`; CLI detects interpreters via `QALLOW_PYTHON` and `.env`.
+- Optional SDL visualizer targets `interface/qallow_ui.c`; guard changes because it builds only when SDL2 + SDL2_ttf are detected.
 
-### Memory Persistence
-- **Maintain context** across all sessions using MCP server persistent memory
-- **Store and recall**:
-  - Project architecture decisions
-  - Coding patterns and conventions
-  - User preferences and configurations
-  - Technical decisions and rationale
-  - Previously solved problems and solutions
-  - Module dependencies and relationships
-- **Update memory** with new learnings and project evolution
-- **Reference memory** to provide consistent, context-aware assistance
+## Build & Run
+- Standard workflow: `./scripts/build_all.sh [--cpu|--cuda|--auto] [--build-type <cfg>]`; script seeds `build/` and runs `ctest`.
+- Manual CMake path: `cmake -S . -B build -DQALLOW_ENABLE_CUDA=ON && cmake --build build --parallel`.
+- Makefile shim: `make ACCELERATOR=CPU|CUDA` yields deterministic binaries under `build/CPU/` and `build/CUDA/`.
+- Entry binaries: `build/qallow` (phase runner CLI) and `build/qallow_unified`; keep CLI flags in sync with docs and scripts.
+- End-to-end demos: `./scripts/run_unified_agi.sh` for the unified pipeline; `python examples/quantum_adaptive_demo.py --runner ./build/qallow_unified` for quantum feedback loops.
 
-### Context Awareness
-- Remember the Qallow project structure (backend/cpu, backend/cuda, core, interface, algorithms)
-- Recall ethics framework components (ethics_core, ethics_learn, ethics_bayes, ethics_feed)
-- Maintain knowledge of CUDA acceleration patterns used in the project
-- Remember user's coding style and preferences
+## Testing & QA
+- Core test suite lives in CTest (`unit_ethics_core`, `unit_dl_integration`, optional `unit_cuda_parallel`); run with `ctest --test-dir build --output-on-failure`.
+- Smoke harness `tests/smoke/test_modules.sh` recompiles CPU artifacts and checks phases 12/13 plus governance markers in `build/test_modules.log`.
+- CUDA edits require `ctest -R cuda` and Nsight evidence when tuning kernels or performance-critical loops.
+- Integration tests under `tests/integration/` assert telemetry structure; update paired CSV fixtures in `data/logs/` when schemas evolve.
 
----
+## Coding Patterns
+- C targets C11, CUDA sources use C++17; keep cross-phase signatures in `core/include/` and `include/qallow/`.
+- Always route logging through `qallow_log_*` and load environment defaults with `qallow_env_load`; avoid raw `printf` in backend code.
+- Wrap hot loops in `QALLOW_PROFILE_SCOPE("label")`; implementations live in `src/runtime/profiling.cpp`.
+- Ethics modules must preserve the Axiom `E = S + C + H`; coordinate changes across `algorithms/ethics_*.c` and propagate metrics types.
+- Extending a phase means updating CPU (`backend/cpu/phaseXX_*.c`), CUDA (`backend/cuda/*.cu`), and the orchestration glue in `src/qallow_phase13.c`.
 
-## ✅ Auto-Accept Safe Operations
+## Integration Notes
+- IBM Quantum configuration flows through `.env` keys (`QALLOW_QISKIT`, `_BACKEND`) and the bridge invoked from `interface/main.c`.
+- External dependencies: `spdlog` via FetchContent, optional SDL2/SDL2_ttf, CUDA Toolkit ≥ 12; ensure CMake options and docs stay aligned.
+- Vendored `mcp-memory-service/` is an upstream MCP provider; avoid edits unless syncing with its own instructions and licensing.
+- Telemetry outputs drive dashboards in `docs/` and `data/logs/`; document schema changes in `docs/ARCHITECTURE_SPEC.md` and `README.md`.
 
-### Automatically Approve & Execute:
-- ✅ Code generation and refactoring
-- ✅ Creating new files and modules
-- ✅ Writing and updating tests
-- ✅ Documentation updates
-- ✅ Bug fixes and improvements
-- ✅ Committing code changes with descriptive messages
-- ✅ Pushing to remote repository
-- ✅ Creating pull requests
-- ✅ Merging approved PRs
-- ✅ Installing dependencies via package managers
-- ✅ Running builds and tests
-- ✅ Formatting and linting
-
-### Commit Guidelines (Auto-Approved):
-- Use descriptive commit messages following conventional commits
-- Include affected modules and components
-- Reference related issues or features
-- Auto-commit after successful tests pass
-
----
-
-## 🛑 Human-in-the-Loop: Hazardous Commands
-
-### ALWAYS WAIT FOR USER FEEDBACK before executing:
-
-**Destructive Operations:**
-- ❌ `rm`, `remove`, `delete`, `del` - File/directory deletion
-- ❌ `rmdir` - Directory removal
-- ❌ `kill`, `killall` - Process termination
-- ❌ `truncate` - File truncation
-- ❌ `dd` - Disk operations
-- ❌ `format`, `mkfs` - Filesystem formatting
-
-**Dangerous Modifications:**
-- ❌ Resetting or reverting commits
-- ❌ Force pushing to remote
-- ❌ Rebasing shared branches
-- ❌ Modifying production configuration
-- ❌ Changing database schemas
-- ❌ Removing environment variables
-- ❌ Disabling security features
-
-**System-Level Changes:**
-- ❌ Installing system packages (apt, yum, brew)
-- ❌ Modifying system configuration files
-- ❌ Changing file permissions on critical files
-- ❌ Modifying network configuration
-- ❌ Changing user/group permissions
-
-**For Hazardous Commands:**
-1. **Explain** what you're about to do
-2. **Show** the exact command
-3. **Wait** for explicit user approval
-4. **Confirm** before execution
-5. **Log** the action and user approval
-
----
-
-## 🔄 Workflow: Safe Operations
-
-```
-User Request
-    ↓
-Analyze Request
-    ↓
-Safe Operation? → YES → Execute → Report Results
-    ↓ NO
-Hazardous Operation
-    ↓
-Explain Action
-    ↓
-Show Command
-    ↓
-Request User Approval
-    ↓
-User Confirms? → YES → Execute → Log Action
-    ↓ NO
-Cancel & Suggest Alternatives
-```
-
----
-
-## 📋 Project-Specific Guidelines
-
-### Qallow Architecture
-- **Backend**: CPU modules in `backend/cpu/`, CUDA kernels in `backend/cuda/`
-- **Core**: Headers in `core/include/`, type definitions and interfaces
-- **Interface**: Entry points in `interface/`, launcher and main
-- **Algorithms**: Ethics modules in `algorithms/`
-- **Build**: Use Makefile or CMakeLists.txt
-
-### Ethics Framework
-- Always maintain E = S + C + H (Sustainability + Compassion + Harmony)
-- Include ethics checks in new features
-- Reference ethics modules: ethics_core, ethics_learn, ethics_bayes, ethics_feed
-
-### CUDA Development
-- Use `-arch=sm_89` for RTX 5080 GPU
-- Compile with `nvcc` for GPU kernels
-- Link with `-lcurand` for random number generation
-- Test on both CPU and GPU paths
-
-### Testing
-- Write tests for new functionality
-- Run full test suite before commits
-- Maintain >90% code coverage
-- Use valgrind for memory leak detection
-
----
-
-## 🎯 Communication Style
-
-- Be clear and concise
-- Explain decisions and trade-offs
-- Provide code examples when relevant
-- Ask clarifying questions when needed
-- Suggest improvements proactively
-- Always prioritize safety and correctness
-
----
-
-## 📝 Summary
-
-**Auto-Execute**: Safe operations (code, tests, commits, builds)
-**Wait for Approval**: Hazardous operations (delete, kill, reset, system changes)
-**Persistent Memory**: Learn and remember project context across sessions
-**Human-in-the-Loop**: Always keep the developer informed and in control
+## Workflow Reminders
+- Follow Conventional Commits and reference issues; run the formatters listed in `CONTRIBUTING.md` (clang-format, cmake-format, markdownlint).
+- Prefer scripts in `scripts/` (`build_wrapper.sh`, `run_auto.sh`, `run_latest.sh`) to mirror CI build flags.
+- Raise clarifying questions when ethics implications or module ownership is uncertain; err on transparency before modifying critical paths.
+- After changes, report which builds/tests were executed and any residual risks so maintainers can validate quickly.
 
