@@ -124,3 +124,11 @@ endif
 
 clean:
 	rm -rf $(BUILD_DIR)
+
+.PHONY: pre-build-cleanup
+pre-build-cleanup:
+	@bash scripts/pre_build_cleanup.sh
+
+.PHONY: clean-all
+clean-all: pre-build-cleanup clean
+	@echo "Full cleanup complete"
