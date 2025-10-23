@@ -1,0 +1,32 @@
+#!/bin/bash
+# ALG - Quantum Algorithm Optimizer for Qallow
+# Wrapper script for Python CLI
+
+set -e
+
+# Determine installation directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ALG_HOME="${SCRIPT_DIR}/../lib/qallow/alg"
+
+# Check if ALG modules exist
+if [ ! -f "${ALG_HOME}/main.py" ]; then
+    echo "[ALG] ERROR: ALG modules not found at ${ALG_HOME}"
+    echo "[ALG] Please reinstall ALG"
+    exit 1
+fi
+
+# Find Python interpreter
+PYTHON_BIN="${QALLOW_PYTHON:-python3}"
+
+# Check Python version
+PYTHON_VERSION=$("${PYTHON_BIN}" -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")' 2>/dev/null || echo "0.0")
+
+if [ "${PYTHON_VERSION}" = "0.0" ]; then
+    echo "[ALG] ERROR: Python 3 not found"
+    exit 1
+fi
+
+# Execute ALG
+cd "${ALG_HOME}"
+exec "${PYTHON_BIN}" main.py "$@"
+

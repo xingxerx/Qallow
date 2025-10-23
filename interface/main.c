@@ -309,7 +309,10 @@ int qallow_phase14_runner(int argc, char** argv) {
     const char* jcsv = NULL;
     double gain_base = 0.001;
     double gain_span = 0.009;
+    double alpha_cli = -1.0;
+    const char* gain_json_path = NULL;
 
+    // Parse args
     for (int i = 2; i < argc; ++i) {
         const char* arg = argv[i];
         if (strncmp(arg, "--ticks=", 8) == 0) {
@@ -330,6 +333,11 @@ int qallow_phase14_runner(int argc, char** argv) {
             gain_base = atof(arg + 12);
         } else if (strncmp(arg, "--gain_span=", 12) == 0) {
             gain_span = atof(arg + 12);
+        } else if (strncmp(arg, "--alpha=", 8) == 0) {
+            alpha_cli = atof(arg + 8);
+            if (alpha_cli <= 0.0) alpha_cli = -1.0;
+        } else if (strncmp(arg, "--gain_json=", 12) == 0) {
+            gain_json_path = arg + 12;
         }
     }
 
@@ -338,27 +346,76 @@ int qallow_phase14_runner(int argc, char** argv) {
     if (export_path) {
         printf("[PHASE14] export=%s\n", export_path);
     }
+    if (jcsv) {
+        printf("[PHASE14] jcsv=%s (base=%.3g span=%.3g)\n", jcsv, gain_base, gain_span);
+    }
+    if (gain_json_path) {
+        printf("[PHASE14] gain_json=%s\n", gain_json_path);
+    }
 
-    // Simulate coherence integration with alpha
-    double alpha = -1.0;
+    // Determine base alpha (closed-form) or from sources
+    double fidelity = 0.95; // f0
+    double alpha_base = -1.0;
+
+    // Prefer CUDA-learned alpha from J graph if provided
     if (jcsv) {
         double alpha_eff = 0.0;
         if (phase14_gain_from_csr(jcsv, nodes, &alpha_eff, gain_base, gain_span) == 0 && alpha_eff > 0) {
-            alpha = alpha_eff;
+            alpha_base = alpha_eff;
             printf("[PHASE14] alpha from CUDA J graph = %.6f (base=%.3g span=%.3g)\n",
-                   alpha, gain_base, gain_span);
+                   alpha_base, gain_base, gain_span);
         }
     }
-    if (alpha <= 0) {
-        // closed-form to hit target over T ticks
-        double f0 = 0.95;
-        alpha = 1.0 - pow((1.0 - target_fidelity)/(1.0 - f0), 1.0 / (double)ticks);
-        printf("[PHASE14] alpha closed-form = %.8f\n", alpha);
+
+    // Next prefer explicit CLI alpha
+    if (alpha_base <= 0.0 && alpha_cli > 0.0) {
+        alpha_base = alpha_cli;
+        printf("[PHASE14] alpha from CLI = %.8f\n", alpha_base);
     }
 
-    double fidelity = 0.95;
+    // Fallback to closed-form deterministic alpha
+    if (alpha_base <= 0.0) {
+        double f0 = fidelity;
+        if (ticks <= 0) ticks = 1;
+        // avoid zero division
+        double tf = target_fidelity;
+        if (tf >= 1.0) tf = 0.999999;
+        if (f0 >= 1.0) f0 = 0.999999;
+        double ratio = (1.0 - tf) / (1.0 - f0);
+        if (ratio < 0.0) ratio = 0.0;
+        alpha_base = 1.0 - pow(ratio, 1.0 / (double)ticks);
+        if (alpha_base <= 0.0) alpha_base = 0.0001;
+        printf("[PHASE14] alpha closed-form = %.8f\n", alpha_base);
+    }
+
+    // Optional override from QAOA tuner JSON
+    double alpha_used = alpha_base;
+    if (gain_json_path && *gain_json_path) {
+        FILE* jf = fopen(gain_json_path, "rb");
+        if (jf) {
+            char buf[4096];
+            size_t n = fread(buf, 1, sizeof(buf) - 1, jf);
+            buf[n] = '\0';
+            fclose(jf);
+            const char* key = "\"alpha_eff\"";
+            char* p = strstr(buf, key);
+            if (p) {
+                p += strlen(key);
+                while (*p && (*p == ' ' || *p == '\t' || *p == ':' )) p++;
+                double parsed = atof(p);
+                if (parsed > 0.0) {
+                    alpha_used = parsed;
+                    printf("[PHASE14] alpha overridden by tuner JSON = %.8f\n", alpha_used);
+                }
+            }
+        } else {
+            fprintf(stderr, "[PHASE14] Warning: unable to open gain file: %s\n", gain_json_path);
+        }
+    }
+
+    // Run the loop with chosen alpha
     for (int t = 0; t < ticks; ++t) {
-        fidelity = fidelity + alpha * (1.0 - fidelity);
+        fidelity += alpha_used * (target_fidelity - fidelity);
         if (fidelity > 1.0) fidelity = 1.0;
         if ((t % 50) == 0) {
             printf("[PHASE14][%04d] fidelity=%.6f\n", t, fidelity);
@@ -366,13 +423,65 @@ int qallow_phase14_runner(int argc, char** argv) {
     }
 
     printf("[PHASE14] COMPLETE fidelity=%.6f %s\n", fidelity, (fidelity >= target_fidelity ? "[OK]" : "[WARN]"));
+
+    // Optional export
+    if (export_path && *export_path) {
+        FILE* ef = fopen(export_path, "wb");
+        if (ef) {
+            fprintf(ef,
+                    "{\n  \"fidelity\": %.6f,\n  \"target\": %.6f,\n  \"ticks\": %d,\n  \"alpha_base\": %.8f,\n  \"alpha_used\": %.8f\n}\n",
+                    fidelity, target_fidelity, ticks, alpha_base, alpha_used);
+            fclose(ef);
+        } else {
+            fprintf(stderr, "[PHASE14] Warning: unable to write export file: %s\n", export_path);
+        }
+    }
     return 0;
 }
 
-int qallow_phase15_runner(int argc, char** argv) {
-    int ticks = 400;
-    double eps = 1e-5;
-    const char* export_path = NULL;
+    double fidelity = 0.95; // f0
+    // Determine adaptive gain alpha
+    double alpha = alpha_cli;
+    if (alpha <= 0.0) {
+        // Closed-form alpha to reach target in ticks with exponential smoothing
+        double f0 = fidelity;
+        if (ticks <= 0) ticks = 1;
+        if (target_fidelity >= 1.0) target_fidelity = 0.999999; // avoid division by zero
+        if (f0 >= 1.0) f0 = 0.999999;
+        double ratio = (1.0 - target_fidelity) / (1.0 - f0);
+        if (ratio < 0.0) ratio = 0.0;
+        alpha = 1.0 - pow(ratio, 1.0 / (double)ticks);
+        if (alpha <= 0.0) alpha = 0.0001; // fallback minimal positive
+    }
+
+    // Optionally override with quantum-learned effective gain from JSON
+    double alpha_eff = alpha;
+    if (gain_json_path && *gain_json_path) {
+        FILE* jf = fopen(gain_json_path, "rb");
+        if (jf) {
+            char buf[4096];
+            size_t n = fread(buf, 1, sizeof(buf) - 1, jf);
+            buf[n] = '\0';
+            fclose(jf);
+            // naive parse: look for "alpha_eff": <number>
+            const char* key = "\"alpha_eff\"";
+            char* p = strstr(buf, key);
+            if (p) {
+                p += strlen(key);
+                while (*p && (*p == ' ' || *p == '\t' || *p == ':' )) p++;
+                double parsed = atof(p);
+                if (parsed > 0.0 && parsed < 1.0) {
+                    alpha_eff = parsed;
+                }
+            }
+        } else {
+            fprintf(stderr, "[PHASE14] Warning: unable to open gain file: %s\n", gain_json_path);
+        }
+    }
+
+    printf("[PHASE14] alpha=%.8f alpha_eff=%.8f\n", alpha, alpha_eff);
+    for (int t = 0; t < ticks; ++t) {
+        double drift = (target_fidelity - fidelity) * alpha_eff;
 
     for (int i = 2; i < argc; ++i) {
         const char* arg = argv[i];
@@ -380,7 +489,20 @@ int qallow_phase15_runner(int argc, char** argv) {
             ticks = atoi(arg + 8);
             if (ticks < 1) ticks = 1;
         } else if (strncmp(arg, "--eps=", 6) == 0) {
-            eps = atof(arg + 6);
+    printf("[PHASE14] COMPLETE fidelity=%.6f %s\n", fidelity, (fidelity >= target_fidelity ? "[OK]" : "[WARN]"));
+
+    // Optional export of metrics
+    if (export_path && *export_path) {
+        FILE* ef = fopen(export_path, "wb");
+        if (ef) {
+            fprintf(ef,
+                    "{\n  \"fidelity\": %.6f,\n  \"target\": %.6f,\n  \"ticks\": %d,\n  \"alpha\": %.8f,\n  \"alpha_eff\": %.8f\n}\n",
+                    fidelity, target_fidelity, ticks, alpha, alpha_eff);
+            fclose(ef);
+        } else {
+            fprintf(stderr, "[PHASE14] Warning: unable to write export file: %s\n", export_path);
+        }
+    }
             if (eps < 0.0) eps = 0.0;
         } else if (strncmp(arg, "--export=", 9) == 0) {
             export_path = arg + 9;
@@ -403,8 +525,10 @@ int qallow_phase15_runner(int argc, char** argv) {
         score = w_f * f14 + w_s * stability - w_d * (decoh * 1e4);
         f14 = f14 + 0.5 * (score - f14);
         stability = stability + 0.25 * (score - stability);
+        if (stability < 0.0) stability = 0.0; // enforce non-negative stability
 
-        if (fabs(score - prev) < eps) {
+        double delta = fabs(score - prev);
+        if (delta < eps && t > 50) {
             printf("[PHASE15][%04d] converged score=%.6f\n", t, score);
             break;
         }
