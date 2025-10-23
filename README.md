@@ -37,9 +37,8 @@ Qallow is an experimental autonomous intelligence runtime that blends photonic s
 
 See `docs/QUICKSTART.md` for extended dependency notes, CUDA driver installation steps, and troubleshooting guidance.
 
-## IBM Quantum Integration
+## Architecture 
 
-To connect Phase 11 coherence routines to IBM Quantum hardware or simulators, follow the step-by-step instructions in `docs/IBM_QUANTUM_PLATFORM_SETUP.md`. The guide covers account creation, API token management, the Bell-state smoke test in `examples/ibm_quantum_bell.py`, and the bridge module exposed at `python/quantum/qallow_ibm_bridge.py`.
 
 ### Adaptive Quantum Decision Demo
 
@@ -92,6 +91,32 @@ A condensed summary lives in `docs/ARCHITECTURE_SPEC.md`. Each phase has:
 - **Run unit tests:** `ctest --test-dir build`
 - **Run phase demos:** `cmake --build build --target qallow_examples && build/phase13_demo`
 
+## Phase 14–15: Deterministic coherence + QAOA tuner
+
+Phase 14 now guarantees threshold attainment with a closed-form alpha and supports multiple gain sources, all invoked through the unified `qallow` CLI. Phase 15 consumes Phase 14’s output and tightens convergence with non-negative stability.
+
+- Deterministic alpha: α = 1 − ((1 − target) / (1 − f0))^(1/n), applied toward 1.0 so fidelity deterministically crosses the target by tick n.
+- Gain sources (highest priority first):
+   1. Built-in QAOA tuner: `--tune_qaoa [--qaoa_n N --qaoa_p P]`
+   2. External tuner JSON: `--gain_json <file>` containing { "alpha_eff": A }
+   3. CUDA J-coupling CSV: `--jcsv <graph.csv>` with `--gain_base` and `--gain_span`
+   4. CLI override: `--alpha A`
+   5. Closed-form fallback (default)
+
+Examples:
+
+- Minimal deterministic target attainment: `./build/qallow phase 14 --ticks=600 --nodes=256 --target_fidelity=0.981`
+- With built-in quantum tuner (keeps everything unified in the CLI): `./build/qallow phase 14 --ticks=600 --target_fidelity=0.981 --tune_qaoa --qaoa_n=16 --qaoa_p=2`
+- With CUDA-derived alpha from J-couplings: `./build/qallow phase 14 --ticks=600 --nodes=256 --jcsv=graph.csv --gain_base=0.001 --gain_span=0.009`
+- With external tuner JSON: `./build/qallow phase 14 --ticks=600 --gain_json=/path/to/gain.json`
+- Export Phase 14 summary: `./build/qallow phase 14 --ticks=600 --target_fidelity=0.981 --export=data/logs/phase14.json`
+- Phase 15 convergence and lock-in: `./build/qallow phase 15 --ticks=800 --eps=5e-6`
+
+Notes:
+- The Phase 14 loop updates fidelity as f += α(1 − f), and reports [OK] when f ≥ target_fidelity at completion.
+- Phase 15 enforces stability ≥ 0 and stops when |score − prev| < eps after a short warm-up.
+- Use `qallow help phase` to view all Phase 14/15 flags from the CLI.
+
 ## Qallow Internal Release v0.1
 
 - **Unified builds** – use `make ACCELERATOR=CPU` or `make ACCELERATOR=CUDA` for deterministic outputs under `build/CPU/` and `build/CUDA/`; the CUDA/CPU chooser script `scripts/build_wrapper.sh [CPU|CUDA|AUTO]` now mirrors the same source layout and feature flags.
@@ -142,5 +167,3 @@ This repo is available under the MIT license (`LICENSE`). Contributions must res
 - Documentation: `docs/`
 - Issues & roadmap: GitHub Issues / Projects
 - Discussion: open a thread tagged `support` or `design`
-
-If you plan major changes, propose them in an RFC under `docs/rfcs/` before starting implementation.

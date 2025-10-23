@@ -81,14 +81,14 @@ def run_unified_framework(quick_mode=False):
         results['bell_state'] = framework.run_bell_state()
 
         print("\n[ALG] Running Deutsch Algorithm...")
-        results['deutsch'] = framework.run_deutsch()
+        results['deutsch'] = framework.run_deutsch_algorithm()
 
         if not quick_mode:
             print("\n[ALG] Running Grover's Algorithm...")
-            results['grover'] = framework.run_grover()
+            results['grover'] = framework.run_grovers_algorithm()
 
             print("\n[ALG] Running Shor's Algorithm...")
-            results['shor'] = framework.run_shor()
+            results['shor'] = framework.run_shors_algorithm()
 
             print("\n[ALG] Running VQE...")
             results['vqe'] = framework.run_vqe()

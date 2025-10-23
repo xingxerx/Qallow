@@ -61,7 +61,7 @@ def ising_energy(z, J):
 def qaoa_circuit_energy(gamma, beta, J, N, shots=1000):
     """
     Simulate QAOA circuit and measure energy
-    gamma, beta: QAOA parameters
+    gamma, beta: QAOA parameters (arrays)
     J: coupling matrix
     N: number of qubits
     shots: number of measurement shots
@@ -69,23 +69,36 @@ def qaoa_circuit_energy(gamma, beta, J, N, shots=1000):
     try:
         from qiskit import QuantumCircuit, QuantumRegister
         from qiskit_aer import AerSimulator
-        
+
         qr = QuantumRegister(N, "q")
         qc = QuantumCircuit(qr)
-        
+
+        # Ensure gamma and beta are arrays
+        gamma = np.atleast_1d(gamma)
+        beta = np.atleast_1d(beta)
+        p = len(gamma)
+
         # Initial superposition
         for i in range(N):
             qc.h(qr[i])
-        
-        # Cost layer: ZZ interactions
-        for i in range(N):
-            for j in range(i + 1, N):
-                if J[i, j] != 0:
-                    qc.rzz(2 * gamma * J[i, j], qr[i], qr[j])
-        
-        # Mixer layer: X rotations
-        for i in range(N):
-            qc.rx(2 * beta, qr[i])
+
+        # Apply p layers of QAOA
+        for layer in range(p):
+            # Cost layer: ZZ interactions
+            gamma_layer = float(gamma[layer])
+            for i in range(N):
+                for j in range(i + 1, N):
+                    if J[i, j] != 0:
+                        # Convert to float to avoid numpy array type error
+                        angle = float(2 * gamma_layer * J[i, j])
+                        qc.rzz(angle, qr[i], qr[j])
+
+            # Mixer layer: X rotations
+            beta_layer = float(beta[layer])
+            for i in range(N):
+                # Convert to float to avoid numpy array type error
+                angle = float(2 * beta_layer)
+                qc.rx(angle, qr[i])
         
         # Measurement
         qc.measure_all()

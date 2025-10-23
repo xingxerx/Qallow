@@ -21,7 +21,7 @@ def run_unified_framework_tests():
         results = {}
         tests = [
             ("Bell State", framework.run_bell_state),
-            ("Grover's Algorithm", framework.run_grover),
+            ("Grover's Algorithm", framework.run_grovers_algorithm),
             ("VQE", framework.run_vqe)
         ]
 
