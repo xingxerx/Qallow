@@ -1,6 +1,10 @@
 #include "phase14.h"
 
+#include <ctype.h>
 #include <math.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 typedef struct {
@@ -12,6 +16,7 @@ typedef struct {
     float pocket_flux;
     float decoherence_buffer;
     unsigned tick_count;
+    bool seeded_from_quantum;
 } phase14_state_internal_t;
 
 static phase14_state_internal_t g_phase14_state;
@@ -26,12 +31,120 @@ static float clamp01(float v) {
     return v;
 }
 
+static const char* phase14_metrics_default_path(int index) {
+    static const char* fallbacks[] = {
+        "data/quantum/phase14_metrics.json",
+        "data/calibrations/phase14_metrics.json",
+        "phase14_metrics.json",
+        NULL,
+    };
+    return fallbacks[index];
+}
+
+static const char* phase14_next_candidate_path(const char* env_path, int* cursor) {
+    if (*cursor == 0 && env_path && *env_path) {
+        (*cursor)++;
+        return env_path;
+    }
+    const char* fallback = phase14_metrics_default_path(*cursor - (env_path && *env_path ? 1 : 0));
+    if (fallback) {
+        (*cursor)++;
+    }
+    return fallback;
+}
+
+static bool phase14_parse_json_double(const char* json, const char* key, double* out_val) {
+    if (!json || !key || !out_val) {
+        return false;
+    }
+    char pattern[64];
+    size_t key_len = strlen(key);
+    if (key_len >= sizeof(pattern) - 4) {
+        return false;
+    }
+    snprintf(pattern, sizeof(pattern), "\"%s\"", key);
+    const char* cursor = strstr(json, pattern);
+    if (!cursor) {
+        return false;
+    }
+    cursor += strlen(pattern);
+    while (*cursor && (isspace((unsigned char)*cursor) || *cursor == ':')) {
+        cursor++;
+    }
+    if (!*cursor) {
+        return false;
+    }
+    char* endptr = NULL;
+    double value = strtod(cursor, &endptr);
+    if (cursor == endptr) {
+        return false;
+    }
+    *out_val = value;
+    return true;
+}
+
+static bool phase14_load_quantum_seed(float* fidelity_out,
+                                      float* target_out,
+                                      float* alpha_base_out,
+                                      float* alpha_used_out) {
+    const char* env_path = getenv("QALLOW_PHASE14_METRICS");
+    int cursor = 0;
+    const char* candidate = NULL;
+    while ((candidate = phase14_next_candidate_path(env_path, &cursor)) != NULL) {
+        FILE* f = fopen(candidate, "rb");
+        if (!f) {
+            continue;
+        }
+        char buffer[4096];
+        size_t n = fread(buffer, 1, sizeof(buffer) - 1, f);
+        fclose(f);
+        buffer[n] = '\0';
+
+        double fidelity = 0.0;
+        double target = 0.0;
+        double alpha_base = 0.0;
+        double alpha_used = 0.0;
+
+        bool ok = true;
+        ok = ok && phase14_parse_json_double(buffer, "fidelity", &fidelity);
+        ok = ok && phase14_parse_json_double(buffer, "target", &target);
+        ok = ok && phase14_parse_json_double(buffer, "alpha_base", &alpha_base);
+        ok = ok && phase14_parse_json_double(buffer, "alpha_used", &alpha_used);
+
+        if (ok) {
+            if (fidelity_out) *fidelity_out = (float)fidelity;
+            if (target_out) *target_out = (float)target;
+            if (alpha_base_out) *alpha_base_out = (float)alpha_base;
+            if (alpha_used_out) *alpha_used_out = (float)alpha_used;
+            printf("[PHASE14] Quantum seed loaded from %s (fidelity=%.6f target=%.6f)\n",
+                   candidate,
+                   fidelity,
+                   target);
+            return true;
+        }
+    }
+    return false;
+}
+
 void phase14_initialize(const qallow_state_t* state) {
     memset(&g_phase14_state, 0, sizeof(g_phase14_state));
     g_phase14_state.entanglement_strength = state ? clamp01(state->global_coherence) : 0.5f;
     g_phase14_state.ethics_alignment = 0.5f;
     g_phase14_state.decoherence_buffer = 0.5f;
     g_phase14_state.share_cuda = state && state->cuda_enabled;
+
+    float fidelity = 0.0f;
+    float target = 0.0f;
+    float alpha_base = 0.0f;
+    float alpha_used = 0.0f;
+    if (phase14_load_quantum_seed(&fidelity, &target, &alpha_base, &alpha_used)) {
+        g_phase14_state.entanglement_strength = clamp01(fidelity);
+        g_phase14_state.ethics_alignment = clamp01(target);
+        g_phase14_state.decoherence_buffer = clamp01(1.0f - alpha_used * 128.0f);
+        g_phase14_state.pocket_flux = clamp01(fabsf(target - fidelity) * 4.0f);
+        g_phase14_state.seeded_from_quantum = true;
+        (void)alpha_base;
+    }
 }
 
 void phase14_configure(const phase14_config_t* cfg) {

@@ -358,6 +358,20 @@ Notes:
 
 ✅ **Hybrid quantum bridge** – export `QALLOW_QISKIT=1` (and optionally `QALLOW_QISKIT_BACKEND`) to feed Phase 11 topology samples through `scripts/qiskit_bridge.py`, which in turn invokes Qiskit (IBM Runtime or Aer) before reintegrating the coherence metric into the overlay loop.
 
+✅ **Phase 14/15 seeding** – `run_phase14_16.sh` now primes the Rust `qallow_quantum` pipeline; generated metrics land in `data/quantum/phase14_metrics.json` and `data/quantum/phase15_metrics.json`, which are auto-consumed by the C runtime via `QALLOW_PHASE14_METRICS` / `QALLOW_PHASE15_METRICS`.
+
+ℹ️  **Manual refresh** – to reseed without the wrapper script run:
+
+```bash
+qallow_quantum pipeline \
+    --phase14-ticks=600 --nodes=256 --target-fidelity=0.981 \
+    --phase15-ticks=800 --phase15-eps=0.000005 \
+    --export-phase14 data/quantum/phase14_metrics.json \
+    --export-phase15 data/quantum/phase15_metrics.json
+```
+
+The next `qallow_unified run --integrate phase14 phase15` will ingest the refreshed JSON when those environment variables point to the exported files (set automatically by the helper script).
+
 📖 **Contributing:** See `CONTRIBUTING.md` for coding standards, branching model, and CI expectations.
 
 ## 🧠 Quantum-AI Hyperparameter Optimizer
