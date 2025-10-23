@@ -340,6 +340,7 @@ static int qallow_handle_phase_group(int argc, char** argv, int arg_offset);
 static int qallow_handle_mind_group(int argc, char** argv, int arg_offset);
 int qallow_cmd_mind(int argc, char **argv);
 int qallow_cmd_bench(int argc, char **argv);
+int qallow_cmd_entangle(int argc, char **argv);
 
 static int remove_recursive(const char* path);
 
@@ -962,6 +963,10 @@ static int qallow_handle_run_group(int argc, char** argv, int arg_offset) {
         return qallow_phase13_main(accel_argc, (char**)accel_argv_const);
     }
 
+    if (strcmp(sub, "entangle") == 0) {
+        return qallow_cmd_entangle(argc - (arg_offset + 1), argv + arg_offset + 1);
+    }
+
     if (strcmp(sub, "help") == 0) {
         qallow_print_run_help();
         return 0;
@@ -1160,6 +1165,7 @@ static void qallow_print_run_help(void) {
     printf("  bench [options]     Run the VM in benchmark profile (alias of vm --bench)\n");
     printf("  live [options]      Run the VM with live ingestion profile (alias of vm --live)\n");
     printf("  accelerator [options]  Launch the Phase-13 accelerator directly\n");
+    printf("  entangle [options]  Generate GHZ/W entanglement data via QuTiP bridge\n");
     printf("  help                Show this help message for the run group\n\n");
     printf("VM options:\n");
     printf("  --bench             Enable benchmark profile (same as `qallow run bench`)\n");
