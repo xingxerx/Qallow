@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
-ALG - Quantum Algorithm Optimizer for Qallow
-Unified command-line interface for QAOA + SPSA parameter tuning
+ALG - Unified Quantum Algorithm Framework for Qallow
+Orchestrates all quantum algorithms: QAOA, Grover's, Shor's, VQE, Bell State, Deutsch
+Plus QAOA + SPSA parameter tuning for coherence-lattice integration
 """
 
 import sys
@@ -18,24 +19,34 @@ def print_usage():
     print("""
 ╔════════════════════════════════════════════════════════════════╗
 ║                                                                ║
-║  ALG - Quantum Algorithm Optimizer for Qallow                 ║
-║  QAOA + SPSA Parameter Tuning System                          ║
+║  ALG - Unified Quantum Algorithm Framework for Qallow         ║
+║  All Quantum Algorithms + QAOA + SPSA Parameter Tuning        ║
 ║                                                                ║
 ╚════════════════════════════════════════════════════════════════╝
 
 Usage: alg <command> [options]
 
 Commands:
-  build       Compile and prepare dependencies (Qiskit, CUDA libs)
-  run         Execute quantum optimizer (QAOA + SPSA)
-  test        Run internal test (8-node ring model)
+  build       Install dependencies (Qiskit, Cirq, NumPy, SciPy)
+  run         Execute all quantum algorithms + QAOA optimizer
+  test        Run validation suite (Bell, Grover, VQE)
   verify      Validate results and JSON integrity
+
+Options:
+  --export=PATH       Export results to JSON file
+  --quick             Skip long-running algorithms
+  --noise             Enable noise simulation
+  --scale N           System size (default: 8)
 
 Examples:
   alg build
-  alg run --config=/var/qallow/ising_spec.json
-  alg test
+  alg run --export=/var/qallow/quantum_report.json
+  alg test --quick
   alg verify
+
+Output Files:
+  /var/qallow/quantum_report.json      Raw results
+  /var/qallow/quantum_report.md        Human-readable summary
 
 For more information, visit: https://github.com/xingxerx/Qallow
 """)
