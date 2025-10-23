@@ -1,0 +1,1 @@
+ libalg_ccc.a -lcuda -lcudart -lcudadevrt -lcudart_static -lrt -lpthread -ldl 

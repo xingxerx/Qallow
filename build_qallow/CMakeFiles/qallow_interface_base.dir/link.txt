@@ -1,0 +1,2 @@
+/usr/sbin/ar qc libqallow_interface_base.a CMakeFiles/qallow_interface_base.dir/src/mind/registry.c.o CMakeFiles/qallow_interface_base.dir/src/mind/attention.c.o CMakeFiles/qallow_interface_base.dir/src/mind/memory.c.o CMakeFiles/qallow_interface_base.dir/src/mind/quantum_bridge.c.o CMakeFiles/qallow_interface_base.dir/src/mind/optimizer.c.o CMakeFiles/qallow_interface_base.dir/src/distributed/federated_learn.c.o CMakeFiles/qallow_interface_base.dir/src/ethics/multi_stakeholder.c.o
+/usr/sbin/ranlib libqallow_interface_base.a

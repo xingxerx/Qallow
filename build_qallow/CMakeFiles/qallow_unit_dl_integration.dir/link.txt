@@ -1,0 +1,1 @@
+/usr/sbin/c++ -O3 -DNDEBUG -Wl,--dependency-file=CMakeFiles/qallow_unit_dl_integration.dir/link.d CMakeFiles/qallow_unit_dl_integration.dir/tests/unit/test_dl_integration.c.o -o qallow_unit_dl_integration  libqallow_runtime.a -lm _deps/spdlog-build/libspdlog.a
