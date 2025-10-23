@@ -1,1 +1,1 @@
-/root/Qallow/qallow_quantum_rust/target/release/qallow_quantum: /root/Qallow/qallow_quantum_rust/src/lib.rs /root/Qallow/qallow_quantum_rust/src/main.rs
+/root/Qallow/qallow_quantum_rust/target/release/qallow_quantum: /root/Qallow/qallow_quantum_rust/src/lib.rs /root/Qallow/qallow_quantum_rust/src/main.rs /root/Qallow/qallow_quantum_rust/src/quantum_optimizer.rs

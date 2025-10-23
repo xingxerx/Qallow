@@ -4,6 +4,8 @@ use rand::SeedableRng;
 use serde::{Deserialize, Serialize};
 use std::f64::consts::PI;
 
+pub mod quantum_optimizer;
+
 /// QAOA problem configuration and solver
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct QAOAConfig {
