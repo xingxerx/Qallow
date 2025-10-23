@@ -530,6 +530,16 @@ int qallow_phase15_runner(int argc, char** argv) {
     }
 
     printf("[PHASE15] COMPLETE score=%.6f stability=%.6f\n", score, stability);
+    // Optional export
+    if (export_path && *export_path) {
+        FILE* ef = fopen(export_path, "wb");
+        if (ef) {
+            fprintf(ef, "{\n  \"score\": %.6f,\n  \"stability\": %.6f\n}\n", score, stability);
+            fclose(ef);
+        } else {
+            fprintf(stderr, "[PHASE15] Warning: unable to write export file: %s\n", export_path);
+        }
+    }
     return 0;
 }
 
