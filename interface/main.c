@@ -3,6 +3,7 @@
 #include <sys/wait.h>
 
 #include "qallow/logging.h"
+#include "qallow/telemetry_outputs.h"
 #include "qallow/profiling.h"
 #include "qallow/env.h"
 #include "qallow/logging.h"
@@ -246,6 +247,7 @@ int qallow_phase12_runner(int argc, char** argv) {
     int ticks = 1000;
     float eps = 0.0001f;
     const char* log_path = NULL;
+    const char* audit_tag = NULL;
 
     for (int i = 2; i < argc; ++i) {
         const char* arg = argv[i];
@@ -257,6 +259,8 @@ int qallow_phase12_runner(int argc, char** argv) {
             if (eps < 0.0f) eps = 0.0f;
         } else if (strncmp(arg, "--log=", 6) == 0) {
             log_path = arg + 6;
+        } else if (strncmp(arg, "--audit-tag=", 12) == 0) {
+            audit_tag = arg + 12;
         }
     }
 
@@ -265,8 +269,12 @@ int qallow_phase12_runner(int argc, char** argv) {
     if (log_path) {
         printf("[PHASE12] log=%s\n", log_path);
     }
+    if (!audit_tag || !*audit_tag) {
+        audit_tag = qallow_audit_tag_fallback();
+    }
+    printf("[PHASE12] audit_tag=%s\n", audit_tag);
 
-    return run_phase12_elasticity(log_path, ticks, eps);
+    return run_phase12_elasticity(audit_tag, log_path, ticks, eps);
 }
 
 int qallow_phase13_runner(int argc, char** argv) {
@@ -274,6 +282,7 @@ int qallow_phase13_runner(int argc, char** argv) {
     int ticks = 400;
     float coupling = 0.001f;
     const char* log_path = NULL;
+    const char* audit_tag = NULL;
 
     for (int i = 2; i < argc; ++i) {
         const char* arg = argv[i];
@@ -288,6 +297,8 @@ int qallow_phase13_runner(int argc, char** argv) {
             if (coupling <= 0.0f) coupling = 0.0001f;
         } else if (strncmp(arg, "--log=", 6) == 0) {
             log_path = arg + 6;
+        } else if (strncmp(arg, "--audit-tag=", 12) == 0) {
+            audit_tag = arg + 12;
         }
     }
 
@@ -296,8 +307,12 @@ int qallow_phase13_runner(int argc, char** argv) {
     if (log_path) {
         printf("[PHASE13] log=%s\n", log_path);
     }
+    if (!audit_tag || !*audit_tag) {
+        audit_tag = qallow_audit_tag_fallback();
+    }
+    printf("[PHASE13] audit_tag=%s\n", audit_tag);
 
-    return run_phase13_harmonic(log_path, nodes, ticks, coupling);
+    return run_phase13_harmonic(audit_tag, log_path, nodes, ticks, coupling);
 }
 
 int qallow_phase14_runner(int argc, char** argv) {

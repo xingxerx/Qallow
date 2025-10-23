@@ -160,6 +160,32 @@
                 </div>
             </div>
 
+            <!-- Phase Status -->
+            <div class="card">
+                <h2>📊 Phase Status</h2>
+                <div class="metric">
+                    <span class="metric-label">Current Phase:</span>
+                    <span class="metric-value" id="current-phase">Idle</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="phase-progress-bar" style="width: 0%"></div>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Fidelity:</span>
+                    <span class="metric-value" id="fidelity">0.000</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="fidelity-bar" style="width: 0%"></div>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Coherence:</span>
+                    <span class="metric-value" id="coherence">0.000</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="coherence-bar" style="width: 0%"></div>
+                </div>
+            </div>
+
             <!-- Ethics Scores -->
             <div class="card">
                 <h2>⚖️ Ethics Monitoring</h2>
@@ -223,6 +249,22 @@
                 </div>
             </div>
         </div>
+
+        <!-- Audit Log -->
+        <div class="card" style="margin-top: 20px;">
+            <h2>📋 Ethics Audit Log</h2>
+            <div id="audit-log" style="max-height: 300px; overflow-y: auto; background: rgba(0, 255, 136, 0.05); padding: 10px; border-radius: 4px; font-size: 0.9em;">
+                <p style="color: #888;">Loading audit log...</p>
+            </div>
+        </div>
+
+        <!-- Phase Metrics -->
+        <div class="card" style="margin-top: 20px;">
+            <h2>📊 Phase Metrics</h2>
+            <div id="phase-metrics" style="max-height: 400px; overflow-y: auto;">
+                <p style="color: #888;">Loading phase data...</p>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -234,6 +276,8 @@
                 const state = await fetch('/api/state').then(r => r.json());
                 const telemetry = await fetch('/api/telemetry').then(r => r.json());
                 const ethics = await fetch('/api/ethics').then(r => r.json());
+                const phases = await fetch('/api/phases').then(r => r.json());
+                const audit = await fetch('/api/audit').then(r => r.json());
 
                 // Update state
                 document.getElementById('step').textContent = state.step;
@@ -247,6 +291,14 @@
                 document.getElementById('reward-bar').style.width = (state.reward * 100) + '%';
                 document.getElementById('energy-bar').style.width = (state.energy * 100) + '%';
                 document.getElementById('risk-bar').style.width = (Math.max(0, state.risk) * 100) + '%';
+
+                // Update phase status
+                document.getElementById('current-phase').textContent = state.current_phase || 'Idle';
+                document.getElementById('phase-progress-bar').style.width = (state.phase_progress * 100) + '%';
+                document.getElementById('fidelity').textContent = (state.fidelity || 0).toFixed(3);
+                document.getElementById('fidelity-bar').style.width = ((state.fidelity || 0) * 100) + '%';
+                document.getElementById('coherence').textContent = (state.coherence || 0).toFixed(3);
+                document.getElementById('coherence-bar').style.width = ((state.coherence || 0) * 100) + '%';
 
                 // Update ethics
                 document.getElementById('ethics-s').textContent = ethics.safety.toFixed(3);
@@ -274,11 +326,52 @@
                     document.getElementById('uptime').textContent = uptime + 's';
                 }
 
+                // Update audit log
+                updateAuditLog(audit.entries);
+
+                // Update phase metrics
+                updatePhaseMetrics(phases);
+
                 // Update charts
                 updateCharts(telemetry);
             } catch (e) {
                 console.error('Update error:', e);
             }
+        }
+
+        function updateAuditLog(entries) {
+            const logEl = document.getElementById('audit-log');
+            if (!entries || entries.length === 0) {
+                logEl.innerHTML = '<p style="color: #888;">No audit entries</p>';
+                return;
+            }
+            logEl.innerHTML = entries.map(entry =>
+                `<div style="padding: 5px; border-bottom: 1px solid rgba(0, 255, 136, 0.2);">${entry}</div>`
+            ).join('');
+        }
+
+        function updatePhaseMetrics(phases) {
+            const metricsEl = document.getElementById('phase-metrics');
+            if (!phases || Object.keys(phases).length === 0) {
+                metricsEl.innerHTML = '<p style="color: #888;">No phase data available</p>';
+                return;
+            }
+
+            let html = '';
+            for (const [phaseName, phaseData] of Object.entries(phases)) {
+                const latest = phaseData.latest || {};
+                html += `
+                    <div style="margin-bottom: 15px; padding: 10px; background: rgba(0, 255, 136, 0.05); border-radius: 4px;">
+                        <div style="font-weight: bold; color: #00ffff;">${phaseName}</div>
+                        <div style="font-size: 0.9em; margin-top: 5px;">
+                            ${latest.coherence !== undefined ? `Coherence: ${latest.coherence.toFixed(3)}` : ''}
+                            ${latest.fidelity !== undefined ? ` | Fidelity: ${latest.fidelity.toFixed(3)}` : ''}
+                            ${latest.tick !== undefined ? ` | Tick: ${latest.tick}` : ''}
+                        </div>
+                    </div>
+                `;
+            }
+            metricsEl.innerHTML = html;
         }
 
         function updateCharts(telemetry) {

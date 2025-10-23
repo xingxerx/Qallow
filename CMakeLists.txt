@@ -161,6 +161,7 @@ set(QALLOW_INTERFACE_SOURCES
     src/cli/entangle_cmd.c
     src/distributed/federated_learn.c
     src/ethics/multi_stakeholder.c
+    src/runtime/telemetry_outputs.c
 )
 
 set(QALLOW_INTERFACE_BASE_SOURCES
@@ -171,6 +172,7 @@ set(QALLOW_INTERFACE_BASE_SOURCES
     src/mind/optimizer.c
     src/distributed/federated_learn.c
     src/ethics/multi_stakeholder.c
+    src/runtime/telemetry_outputs.c
 )
 
 add_library(qallow_interface_base STATIC ${QALLOW_INTERFACE_BASE_SOURCES})

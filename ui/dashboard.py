@@ -2,9 +2,10 @@
 """
 Qallow Real-time Monitoring Dashboard
 Live telemetry, ethics visualization, and phase progression tracking
+Enhanced with phase metrics, CSV telemetry integration, and audit logs
 """
 
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, request
 from flask_cors import CORS
 import json
 import os
@@ -13,6 +14,8 @@ import time
 from datetime import datetime
 from collections import deque
 import subprocess
+import csv
+import glob
 
 app = Flask(__name__)
 CORS(app)
@@ -21,6 +24,7 @@ CORS(app)
 telemetry_buffer = deque(maxlen=1000)
 ethics_history = deque(maxlen=100)
 phase_log = []
+audit_log = []
 
 # Global state
 current_state = {
@@ -33,14 +37,55 @@ current_state = {
     'ethics_s': 0.99,
     'ethics_c': 1.0,
     'ethics_h': 1.0,
+    'current_phase': 'idle',
+    'phase_progress': 0,
+    'fidelity': 0.0,
+    'coherence': 0.0,
 }
+
+def load_csv_telemetry(filepath):
+    """Load telemetry from CSV file (phase logs)"""
+    try:
+        if not os.path.exists(filepath):
+            return []
+
+        data = []
+        with open(filepath, 'r') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                try:
+                    data.append({
+                        'timestamp': datetime.now().isoformat(),
+                        'tick': int(row.get('tick', 0)),
+                        'coherence': float(row.get('coherence', 0.0)),
+                        'fidelity': float(row.get('fidelity', 0.0)),
+                        'phase_drift': float(row.get('phase_drift', 0.0)),
+                        'energy': float(row.get('energy', 0.0)),
+                    })
+                except (ValueError, KeyError):
+                    continue
+        return data
+    except Exception as e:
+        print(f"CSV load error: {e}")
+        return []
+
+def load_json_metrics(filepath):
+    """Load metrics from JSON file"""
+    try:
+        if not os.path.exists(filepath):
+            return {}
+        with open(filepath, 'r') as f:
+            return json.load(f)
+    except Exception as e:
+        print(f"JSON load error: {e}")
+        return {}
 
 def parse_mind_output(line):
     """Parse [MIND] output lines"""
     try:
         if '[MIND]' not in line:
             return None
-        
+
         parts = line.split()
         if 'steps=' in line:
             # Header line: [MIND] steps=50 modules=18
@@ -50,19 +95,19 @@ def parse_mind_output(line):
                 elif part.startswith('modules='):
                     current_state['modules'] = int(part.split('=')[1])
             return None
-        
+
         # Data line: [MIND][000] reward=0.127 energy=0.376 risk=0.339
         if 'reward=' in line:
             step = int(parts[1].strip('[]'))
             reward = float(parts[2].split('=')[1])
             energy = float(parts[3].split('=')[1])
             risk = float(parts[4].split('=')[1])
-            
+
             current_state['step'] = step
             current_state['reward'] = reward
             current_state['energy'] = energy
             current_state['risk'] = risk
-            
+
             telemetry_buffer.append({
                 'timestamp': datetime.now().isoformat(),
                 'step': step,
@@ -70,11 +115,11 @@ def parse_mind_output(line):
                 'energy': energy,
                 'risk': risk,
             })
-            
+
             return True
     except Exception as e:
         print(f"Parse error: {e}")
-    
+
     return None
 
 def run_mind_process():
@@ -121,10 +166,54 @@ def get_ethics():
         'safety': current_state.get('ethics_s', 0.99),
         'clarity': current_state.get('ethics_c', 1.0),
         'human': current_state.get('ethics_h', 1.0),
-        'total': current_state.get('ethics_s', 0.99) + 
-                 current_state.get('ethics_c', 1.0) + 
+        'total': current_state.get('ethics_s', 0.99) +
+                 current_state.get('ethics_c', 1.0) +
                  current_state.get('ethics_h', 1.0),
     })
+
+@app.route('/api/phases')
+def get_phases():
+    """Get phase metrics from CSV logs"""
+    phases = {}
+    log_dir = '/root/Qallow/data/logs'
+
+    # Load phase CSV files
+    for phase_file in glob.glob(f'{log_dir}/phase*.csv'):
+        phase_name = os.path.basename(phase_file).replace('.csv', '')
+        data = load_csv_telemetry(phase_file)
+        if data:
+            phases[phase_name] = {
+                'data': data[-10:],  # Last 10 entries
+                'latest': data[-1] if data else {},
+                'count': len(data),
+            }
+
+    # Load phase JSON metrics
+    for metric_file in glob.glob(f'{log_dir}/phase*.json'):
+        phase_name = os.path.basename(metric_file).replace('.json', '')
+        metrics = load_json_metrics(metric_file)
+        if phase_name in phases:
+            phases[phase_name]['metrics'] = metrics
+        else:
+            phases[phase_name] = {'metrics': metrics}
+
+    return jsonify(phases)
+
+@app.route('/api/audit')
+def get_audit():
+    """Get ethics audit logs"""
+    audit_file = '/root/Qallow/data/ethics_audit.log'
+    audit_entries = []
+
+    try:
+        if os.path.exists(audit_file):
+            with open(audit_file, 'r') as f:
+                for line in f.readlines()[-50:]:  # Last 50 lines
+                    audit_entries.append(line.strip())
+    except Exception as e:
+        print(f"Audit load error: {e}")
+
+    return jsonify({'entries': audit_entries})
 
 @app.route('/api/start')
 def start_mind():

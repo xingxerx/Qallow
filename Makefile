@@ -1,3 +1,33 @@
+# Qallow Makefile shim around the CMake toolchain.
+
+.DEFAULT_GOAL := cpu
+CMAKE ?= cmake
+BUILD_DIR ?= build
+CPU_BUILD_DIR := $(BUILD_DIR)/CPU
+CUDA_BUILD_DIR := $(BUILD_DIR)/CUDA
+CMAKE_COMMON_FLAGS ?=
+
+define configure
+	$(CMAKE) -S . -B $(1) $(CMAKE_COMMON_FLAGS) $(2)
+endef
+.PHONY: cpu
+cpu:
+	$(call configure,$(CPU_BUILD_DIR),-DQALLOW_ENABLE_CUDA=OFF -DCMAKE_EXPORT_COMPILE_COMMANDS=ON)
+.PHONY: cuda
+cuda:
+	$(call configure,$(CUDA_BUILD_DIR),-DQALLOW_ENABLE_CUDA=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON)
+.PHONY: test
+test: cpu
+	$(CMAKE) --build $(CPU_BUILD_DIR) --target qallow_unit_ethics --parallel
+.PHONY: profile
+profile: cuda
+	@set -euo pipefail; \
+.PHONY: clean
+clean:
+	rm -rf $(BUILD_DIR)
+.PHONY: format
+format:
+	bash scripts/format_all.sh
 PROJECT := qallow
 
 ACCELERATOR ?= CUDA
