@@ -8,6 +8,7 @@
 #include "qallow/logging.h"
 #include "qallow/module.h"
 #include "qallow_kernel.h"
+#include "qallow_metrics.h"
 #include "ppai.h"
 #include "qcp.h"
 #include "ethics.h"
@@ -309,6 +310,7 @@ int qallow_vm_main(void) {
     qallow_kernel_init(&state);
     print_system_info(&state);
     qallow_log_info("vm", "mode=%s", state.cuda_enabled ? "cuda" : "cpu");
+    qallow_metrics_begin_run(state.cuda_enabled ? 1 : 0);
     meta_introspect_apply_environment_defaults();
     if (state.cuda_enabled) {
         meta_introspect_set_gpu_available(1);
@@ -346,6 +348,7 @@ int qallow_vm_main(void) {
         QALLOW_PROFILE_SCOPE("kernel_tick") {
             qallow_kernel_tick(&state);
         }
+        qallow_metrics_update_tick(state.tick_count, state.global_coherence, state.decoherence_level, state.cuda_enabled ? 1 : 0);
 
         // Update pocket dimension telemetry every 5 ticks
         if (tick % 5 == 0) {
@@ -380,6 +383,7 @@ int qallow_vm_main(void) {
         // Check for equilibrium
         if (state.decoherence_level < 0.0001f && tick > 200) {
             printf("\n[KERNEL] System reached stable equilibrium at tick %d\n", tick);
+            qallow_metrics_mark_equilibrium(tick);
             break;
         }
 
@@ -399,6 +403,7 @@ int qallow_vm_main(void) {
         max_ticks * 0.001);
     qallow_log_info("vm.complete", "ticks=%d", max_ticks);
     meta_introspect_flush();
+    qallow_metrics_finalize(state.global_coherence, state.decoherence_level);
     
     return 0;
 }

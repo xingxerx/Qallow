@@ -6,6 +6,7 @@
 #include <math.h>
 #include <time.h>
 #include <stdbool.h>
+#include "qallow_metrics.h"
 
 // CUDA support detection
 #ifndef CUDA_ENABLED

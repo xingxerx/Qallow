@@ -1,4 +1,5 @@
 #include "qallow_kernel.h"
+#include "qallow_metrics.h"
 #include "ethics.h"
 #include "phase14.h"
 #include "phase15.h"
@@ -33,6 +34,40 @@ static void qallow_apply_qiskit_feedback(qallow_state_t* state) {
 }
 
 #else
+
+static qallow_run_metrics_t g_last_run_metrics = {0};
+
+const qallow_run_metrics_t* qallow_get_last_run_metrics(void) {
+    return &g_last_run_metrics;
+}
+
+void qallow_metrics_begin_run(int cuda_enabled) {
+    memset(&g_last_run_metrics, 0, sizeof(g_last_run_metrics));
+    g_last_run_metrics.cuda_enabled = cuda_enabled ? 1 : 0;
+    g_last_run_metrics.equilibrium_tick = -1;
+}
+
+void qallow_metrics_update_tick(int tick, float coherence, float decoherence, int cuda_enabled) {
+    g_last_run_metrics.tick_count = tick;
+    g_last_run_metrics.final_coherence = coherence;
+    g_last_run_metrics.final_decoherence = decoherence;
+    g_last_run_metrics.cuda_enabled = cuda_enabled ? 1 : 0;
+}
+
+void qallow_metrics_mark_equilibrium(int tick) {
+    if (tick < 0) {
+        return;
+    }
+    g_last_run_metrics.reached_equilibrium = 1;
+    if (g_last_run_metrics.equilibrium_tick < 0) {
+        g_last_run_metrics.equilibrium_tick = tick;
+    }
+}
+
+void qallow_metrics_finalize(float coherence, float decoherence) {
+    g_last_run_metrics.final_coherence = coherence;
+    g_last_run_metrics.final_decoherence = decoherence;
+}
 
 static bool qallow_env_truthy(const char* value) {
     if (!value) return false;

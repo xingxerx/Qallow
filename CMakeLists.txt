@@ -99,6 +99,7 @@ set(QALLOW_BACKEND_CPU_SOURCES
     backend/cpu/telemetry.c
     backend/cpu/transfer_engine.c
     backend/cpu/verify.c
+    src/quantum/entanglement_bridge.c
     src/qallow_phase13.c
 )
 
@@ -132,6 +133,7 @@ if(QALLOW_ENABLE_CUDA)
         backend/cuda/phase16_meta_introspect.cu
         backend/cuda/mind_kernels.cu
         runtime/cuda_parallel.cu
+        src/quantum/entanglement_bridge.c
     )
     add_library(qallow_backend_cuda STATIC ${QALLOW_CUDA_SOURCES})
     target_link_libraries(qallow_backend_cuda PUBLIC qallow_core)

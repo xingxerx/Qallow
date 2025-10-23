@@ -1,10 +1,13 @@
 #include <cuda_runtime.h>
 #include <curand_kernel.h>
 #include <cstdint>
-#include <stdio.h>
+#include <cstdlib>
+#include <cstdio>
+#include <cstring>
 extern "C" {
 #include "qallow.h"
 #include "pocket.h"
+#include "qallow_entanglement.h"
 }
 
 // CUDA error checking macro
@@ -20,6 +23,52 @@ extern "C" {
 static double *d_orb = nullptr, *d_riv = nullptr, *d_myc = nullptr;
 static double *d_orb_mean = nullptr, *d_riv_mean = nullptr, *d_myc_mean = nullptr;
 static int G_P = 0, G_N = 0;
+
+static int load_entanglement_seed(double* buffer, int nodes) {
+  if (!buffer || nodes <= 0) {
+    return 0;
+  }
+
+  const char* toggle = getenv("QALLOW_ENTANGLEMENT_BOOTSTRAP");
+  if (!toggle || *toggle == '\0') {
+    return 0;
+  }
+
+  qallow_entanglement_state_t state = qallow_entanglement_state_from_string(toggle);
+  int qubits = 4;
+  const char* qubits_env = getenv("QALLOW_ENTANGLEMENT_QUBITS");
+  if (qubits_env && *qubits_env) {
+    int parsed = atoi(qubits_env);
+    if (parsed >= 2 && parsed <= 5) {
+      qubits = parsed;
+    }
+  }
+
+  qallow_entanglement_snapshot_t snapshot;
+  if (qallow_entanglement_generate(&snapshot, state, qubits, 1) != 0) {
+    fprintf(stderr, "[POCKET] Entanglement bootstrap failed; continuing with stochastic init.\n");
+    return -1;
+  }
+
+  int amplitude_count = snapshot.amplitude_count;
+  if (amplitude_count <= 0) {
+    return -1;
+  }
+
+  for (int i = 0; i < nodes; ++i) {
+    double base = 0.5;
+    if (i < amplitude_count) {
+      base = snapshot.amplitudes[i];
+    }
+    buffer[i] = base;
+  }
+
+  printf("[POCKET] Initialized pockets from %s state via %s backend (fidelity=%.5f)\n",
+       qallow_entanglement_state_name(snapshot.state),
+       snapshot.backend,
+       snapshot.fidelity);
+  return amplitude_count;
+}
 
 /* simple linear congruential generator */
 static __device__ __inline__ double lcg(uint32_t* s){
@@ -88,8 +137,27 @@ extern "C" int pocket_spawn_and_run(const pocket_cfg_t* cfg){
   dim3 block(128,1);              // nodes x pockets split
   dim3 grid((G_N+block.x-1)/block.x, G_P); // one warp-row per pocket
 
+  int entanglement_count = 0;
+  double* ent_seed = (double*)malloc((size_t)G_N * sizeof(double));
+  if (ent_seed) {
+    entanglement_count = load_entanglement_seed(ent_seed, G_N);
+  }
+
   k_init<<<grid, block>>>(d_orb, d_riv, d_myc, G_P, G_N);
   CUDA_OK(cudaGetLastError());
+
+  if (ent_seed && entanglement_count > 0) {
+    for (int pocket = 0; pocket < G_P; ++pocket) {
+      size_t offset = (size_t)pocket * (size_t)G_N;
+      CUDA_OK(cudaMemcpy(d_orb + offset, ent_seed, (size_t)G_N * sizeof(double), cudaMemcpyHostToDevice));
+      CUDA_OK(cudaMemcpy(d_riv + offset, ent_seed, (size_t)G_N * sizeof(double), cudaMemcpyHostToDevice));
+      CUDA_OK(cudaMemcpy(d_myc + offset, ent_seed, (size_t)G_N * sizeof(double), cudaMemcpyHostToDevice));
+    }
+  }
+
+  if (ent_seed) {
+    free(ent_seed);
+  }
 
   // stream per pocket (optional; kernel already 2D). Example multi-stream loop:
   // Here we keep single kernel per tick for simplicity and good occupancy.

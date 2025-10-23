@@ -59,6 +59,7 @@ SRC_C := $(filter-out interface/qallow_ui.c,$(wildcard interface/*.c)) \
          $(wildcard src/cli/*.c) \
          $(wildcard src/distributed/*.c) \
          $(wildcard src/ethics/*.c) \
+		 $(wildcard src/quantum/*.c) \
          algorithms/ethics_core.c \
          algorithms/ethics_learn.c \
          algorithms/ethics_bayes.c \
