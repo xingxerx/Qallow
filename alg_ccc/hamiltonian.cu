@@ -9,7 +9,10 @@ __device__ __forceinline__ uint32_t d_gray2int(uint32_t g){
   for(uint32_t b=g>>1; b; b>>=1) g ^= b;
   return g;
 }
-int gray2int(uint32_t g){ return static_cast<int>(d_gray2int(g)); }
+int gray2int(uint32_t g){
+  for(uint32_t b=g>>1; b; b>>=1) g ^= b;
+  return static_cast<int>(g);
+}
 
 // ── H_dyn partials: σ^z coeffs for modes and ctrl ──
 __global__ void k_build_cost_coeffs(const float* __restrict__ lambda_m, // [B,M]
