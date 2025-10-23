@@ -157,6 +157,7 @@ set(QALLOW_INTERFACE_SOURCES
     src/mind/optimizer.c
     src/cli/bench_cmd.c
     src/cli/mind_cmd.c
+    src/cli/entangle_cmd.c
     src/distributed/federated_learn.c
     src/ethics/multi_stakeholder.c
 )

@@ -9,6 +9,23 @@ static void print_usage(void) {
     printf("Usage: qallow run entangle [--state=ghz|w] [--qubits=N] [--validate]\n");
 }
 
+static void format_basis_label(int index, int qubits, char* out, size_t len) {
+    if (!out || len == 0) {
+        return;
+    }
+    for (int i = qubits - 1; i >= 0; --i) {
+        if ((size_t)(qubits - 1 - i) >= len - 1) {
+            break;
+        }
+        out[qubits - 1 - i] = (char)(((index >> i) & 0x1) ? '1' : '0');
+    }
+    size_t used = (size_t)qubits;
+    if (used >= len) {
+        used = len - 1;
+    }
+    out[used] = '\0';
+}
+
 int qallow_cmd_entangle(int argc, char** argv) {
     const char* state_arg = "ghz";
     int qubits = 4;
@@ -64,8 +81,10 @@ int qallow_cmd_entangle(int argc, char** argv) {
     printf("Amplitudes:       %d\n", snapshot.amplitude_count);
 
     printf("\nProbabilities:\n");
+    char label[16];
     for (int i = 0; i < snapshot.amplitude_count; ++i) {
-        printf("  |%0*d⟩ : %.10f\n", snapshot.qubits, i, snapshot.amplitudes[i]);
+        format_basis_label(i, snapshot.qubits, label, sizeof(label));
+        printf("  |%s⟩ : %.10f\n", label, snapshot.amplitudes[i]);
     }
 
     const qallow_run_metrics_t* metrics = qallow_get_last_run_metrics();
