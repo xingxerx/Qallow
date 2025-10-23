@@ -1,0 +1,2 @@
+# Empty dependencies file for alg_ccc_test_gray.
+# This may be replaced when dependencies are built.

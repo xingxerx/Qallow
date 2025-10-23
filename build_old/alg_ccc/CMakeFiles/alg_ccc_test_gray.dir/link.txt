@@ -1,0 +1,1 @@
+/usr/sbin/c++ -O3 -DNDEBUG -Wl,--dependency-file=CMakeFiles/alg_ccc_test_gray.dir/link.d CMakeFiles/alg_ccc_test_gray.dir/tests/test_gray.cpp.o CMakeFiles/alg_ccc_test_gray.dir/cmake_device_link.o -o alg_ccc_test_gray   -L/opt/cuda/targets/x86_64-linux/lib/stubs  -L/opt/cuda/targets/x86_64-linux/lib  libalg_ccc.a -lcuda -lcudart -lcudadevrt -lcudart_static -lrt -lpthread -ldl

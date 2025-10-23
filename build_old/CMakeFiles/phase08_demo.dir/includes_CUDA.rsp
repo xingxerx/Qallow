@@ -1,0 +1,1 @@
+-I/root/Qallow/runtime -I/root/Qallow/core -I/root/Qallow/core/include -I/root/Qallow/include -I"/root/Qallow/build/_deps/spdlog-src/include" -isystem "/opt/cuda/targets/x86_64-linux/include" -isystem "/opt/cuda/targets/x86_64-linux/include/cccl"

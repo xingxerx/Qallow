@@ -1,0 +1,1 @@
+  -L"/opt/cuda/targets/x86_64-linux/lib/stubs"  -L"/opt/cuda/targets/x86_64-linux/lib"  libqallow_interface_base.a libqallow_runtime.a libqallow_algorithms.a libqallow_backend_cpu.a -lm libqallow_backend_cuda.a  "_deps/spdlog-build/libspdlog.a" -ldl /usr/lib/librt.a -lcudadevrt -lcudart_static -lrt -lpthread 

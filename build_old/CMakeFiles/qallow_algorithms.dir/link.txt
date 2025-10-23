@@ -1,0 +1,2 @@
+/usr/sbin/ar qc libqallow_algorithms.a CMakeFiles/qallow_algorithms.dir/algorithms/ethics_core.c.o CMakeFiles/qallow_algorithms.dir/algorithms/ethics_learn.c.o CMakeFiles/qallow_algorithms.dir/algorithms/ethics_bayes.c.o CMakeFiles/qallow_algorithms.dir/algorithms/ethics_feed.c.o
+/usr/sbin/ranlib libqallow_algorithms.a
