@@ -1,1 +1,0 @@
-/usr/sbin/cc -O3 -DNDEBUG -Wl,--dependency-file=CMakeFiles/qallow_unit_ethics.dir/link.d CMakeFiles/qallow_unit_ethics.dir/tests/unit/test_ethics_core.c.o -o qallow_unit_ethics  libqallow_algorithms.a -lm

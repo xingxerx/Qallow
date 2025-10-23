@@ -1,2 +1,0 @@
-/usr/sbin/ar qc libqallow_runtime.a CMakeFiles/qallow_runtime.dir/src/runtime/logging.cpp.o CMakeFiles/qallow_runtime.dir/src/runtime/profiling.cpp.o CMakeFiles/qallow_runtime.dir/src/runtime/env.cpp.o CMakeFiles/qallow_runtime.dir/runtime/meta_introspect.c.o CMakeFiles/qallow_runtime.dir/runtime/dl_integration.cpp.o
-/usr/sbin/ranlib libqallow_runtime.a

@@ -1,2 +1,0 @@
-/usr/sbin/ar qc libalg_ccc.a CMakeFiles/alg_ccc.dir/hamiltonian.cu.o CMakeFiles/alg_ccc.dir/koopman_cuda.cu.o
-/usr/sbin/ranlib libalg_ccc.a

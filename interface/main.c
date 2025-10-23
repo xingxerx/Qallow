@@ -25,8 +25,7 @@
 #include "qallow_phase14.h"
 #include "qallow_phase15.h"
 #include "meta_introspect.h"
-extern int phase14_gain_from_csr(const char* csv_path, int N, double* out_alpha_eff,
-                                 double gain_base, double gain_span);
+#include "phase14.h"
 
 #include <time.h>
 #include <string.h>
