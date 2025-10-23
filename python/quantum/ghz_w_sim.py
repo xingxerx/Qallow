@@ -26,6 +26,13 @@ except ImportError as exc:
     print(f"ERROR=QuTiP missing: {exc}", file=sys.stderr)
     sys.exit(2)
 
+__all__ = [
+    "build_state",
+    "validate_with_qiskit",
+    "validate_with_cirq",
+    "main",
+]
+
 
 def build_state(name: str, qubits: int):
     if qubits < 2:

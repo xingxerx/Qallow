@@ -14,7 +14,7 @@ new QuTiP/Qiskit bridge.
 
 3. **Generate Entanglement (1:30‑2:30)**  
    - Run `qallow run entangle --state=ghz --validate`.  
-   - Explain the probability table (peaks at `|0000⟩` and `|1111⟩`).  
+   - Explain the probability table (peaks at `|0000>` and `|1111>`).  
    - Note the backend in use—"If Qiskit is installed you'll see `backend=qiskit`; otherwise we fall back to Cirq."
 
 4. **Seed the VM (2:30‑3:30)**  

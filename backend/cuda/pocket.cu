@@ -1,9 +1,9 @@
 #include <cuda_runtime.h>
 #include <curand_kernel.h>
-#include <cstdint>
-#include <cstdlib>
-#include <cstdio>
-#include <cstring>
+#include <stdint.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 extern "C" {
 #include "qallow.h"
 #include "pocket.h"

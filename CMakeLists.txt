@@ -301,6 +301,8 @@ if(QALLOW_ENABLE_CUDA)
     endforeach()
 endif()
 
+add_subdirectory(alg_ccc)
+
 enable_testing()
 
 add_executable(qallow_unit_ethics tests/unit/test_ethics_core.c)

@@ -84,7 +84,7 @@ int qallow_cmd_entangle(int argc, char** argv) {
     char label[16];
     for (int i = 0; i < snapshot.amplitude_count; ++i) {
         format_basis_label(i, snapshot.qubits, label, sizeof(label));
-        printf("  |%s⟩ : %.10f\n", label, snapshot.amplitudes[i]);
+        printf("  |%s> : %.10f\n", label, snapshot.amplitudes[i]);
     }
 
     const qallow_run_metrics_t* metrics = qallow_get_last_run_metrics();
