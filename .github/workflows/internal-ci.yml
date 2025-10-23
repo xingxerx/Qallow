@@ -88,6 +88,8 @@ jobs:
           echo "Binary verified: $(file build/CPU/qallow_unified_cpu)"
 
       - name: Run smoke tests
+        env:
+          QALLOW_SKIP_BUILD_ONCE: "1"
         run: |
           echo "Running smoke tests..."
           bash tests/smoke/test_modules.sh || {
@@ -98,6 +100,7 @@ jobs:
       - name: Accelerator execution
         env:
           QALLOW_QUIET: "1"
+          QALLOW_SKIP_BUILD_ONCE: "1"
         run: |
           echo "{}" > /tmp/accelerator_input.json
           ./build/CPU/qallow_unified_cpu run --accelerator --file=/tmp/accelerator_input.json --no-watch --threads=2 --quiet

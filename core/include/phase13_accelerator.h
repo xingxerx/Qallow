@@ -24,6 +24,7 @@ typedef struct phase13_accel_config_s {
     int remote_sync_enabled;
     const char* remote_sync_endpoint;
     unsigned int remote_sync_interval_sec;
+    const char* export_path; // optional JSON summary output path
 } phase13_accel_config_t;
 
 /**

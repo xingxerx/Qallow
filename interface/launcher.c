@@ -1185,7 +1185,8 @@ static void qallow_print_run_help(void) {
     printf("  --threads=<N|auto>  Worker thread count (auto = online CPUs)\n");
     printf("  --watch=<DIR>       Directory to monitor via inotify\n");
     printf("  --no-watch          Disable watcher even if provided earlier\n");
-    printf("  --file=<PATH>       Queue a file for immediate processing (repeatable)\n\n");
+    printf("  --file=<PATH>       Queue a file for immediate processing (repeatable)\n");
+    printf("  --export=<FILE>     Write a JSON summary of processed inputs\n\n");
     printf("Examples:\n");
     printf("  qallow run vm                       # Run the unified VM\n");
     printf("  qallow run bench                    # VM benchmark profile\n");

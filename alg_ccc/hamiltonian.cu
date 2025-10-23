@@ -40,19 +40,20 @@ __global__ void k_temporal_chain(const uint8_t* __restrict__ mem_t,  // [B,b]
                                  float* __restrict__ out_cost, float eta, int b){
   int Bidx = blockIdx.x;
   int j = threadIdx.x;
-  __shared__ float ssum;
-  if(j==0) ssum = 0.f;
+  extern __shared__ float ssum_arr[];
+  float* ssum = ssum_arr;
+  if(j==0) *ssum = 0.f;
   __syncthreads();
   uint8_t bt = (j<b) ? mem_t[Bidx*b + j] : 0;
   uint8_t bp = (j<b) ? mem_tp[Bidx*b + j] : 0;
   float c = (j<b && (bt^bp)) ? 1.f : 0.f;
-  atomicAdd(&ssum, c);
+  atomicAdd(ssum, c);
   __syncthreads();
-  if(j==0) out_cost[Bidx] = eta * ssum;
+  if(j==0) out_cost[Bidx] = eta * (*ssum);
 }
 void build_temporal_chain(const uint8_t* mem_bits_t, const uint8_t* mem_bits_tp1,
                           float* pair_cost, float eta, int B, int b){
-  k_temporal_chain<<<B, b>>>(mem_bits_t, mem_bits_tp1, pair_cost, eta, b);
+  k_temporal_chain<<<B, b, sizeof(float)>>>(mem_bits_t, mem_bits_tp1, pair_cost, eta, b);
   cudaDeviceSynchronize();
 }
 

@@ -559,6 +559,45 @@ static int accelerator_run(const phase13_accel_config_t* cfg) {
         close(ifd);
     }
 
+    // Optional export of processed inputs summary
+    if (cfg->export_path && cfg->export_path[0]) {
+        // Derive directory and ensure exists
+        char dirbuf[PATH_MAX];
+        const char* slash = strrchr(cfg->export_path, '/');
+        if (slash) {
+            size_t dlen = (size_t)(slash - cfg->export_path);
+            if (dlen >= sizeof(dirbuf)) dlen = sizeof(dirbuf) - 1;
+            memcpy(dirbuf, cfg->export_path, dlen);
+            dirbuf[dlen] = '\0';
+            (void)ensure_directory(dirbuf);
+        }
+
+        FILE* f = fopen(cfg->export_path, "w");
+        if (!f) {
+            fprintf(stderr, "[EXPORT] Failed to open %s: %s\n", cfg->export_path, strerror(errno));
+        } else {
+            time_t now = time(NULL);
+            fprintf(f, "{\n  \"version\": 1,\n  \"generated_at\": %ld,\n  \"items\": [\n", (long)now);
+            for (size_t i = 0; i < cfg->file_count; ++i) {
+                const char* path = cfg->files[i];
+                if (!path || !*path) continue;
+                time_t mt = path_mtime(path);
+                char key[QALLOW_KEY_MAX];
+                snprintf(key, sizeof(key), "%s|%ld", path, (long)mt);
+                char hint[QALLOW_VAL_MAX];
+                int have = cache_get(key, hint, sizeof(hint));
+                if (!have) {
+                    snprintf(hint, sizeof(hint), "hint:%08lx", (unsigned long)fnv1a64(path, strlen(path)));
+                }
+                fprintf(f, "    { \"path\": \"%s\", \"mtime\": %ld, \"hint\": \"%s\" }%s\n",
+                        path, (long)mt, hint, (i + 1 < cfg->file_count ? "," : ""));
+            }
+            fprintf(f, "  ]\n}\n");
+            fclose(f);
+            qallow_infof("[EXPORT] Wrote summary JSON: %s\n", cfg->export_path);
+        }
+    }
+
     return 0;
 }
 
@@ -569,7 +608,7 @@ int qallow_phase13_accel_start(const phase13_accel_config_t* config) {
 static void usage(const char* argv0) {
     fprintf(stderr,
             "Usage: %s [--threads=N|auto] [--watch=DIR] [--no-watch] [--file=PATH]...\n"
-            "           [--remote-sync[=ENDPOINT]] [--remote-sync-interval=SECONDS] [--quiet]\n",
+            "           [--remote-sync[=ENDPOINT]] [--remote-sync-interval=SECONDS] [--export=FILE] [--quiet]\n",
             argv0);
 }
 
@@ -583,6 +622,7 @@ int qallow_phase13_main(int argc, char** argv) {
         .remote_sync_enabled = 0,
         .remote_sync_endpoint = NULL,
         .remote_sync_interval_sec = 0,
+        .export_path = NULL,
     };
 
     const char* quiet_env = getenv("QALLOW_QUIET");
@@ -674,6 +714,14 @@ int qallow_phase13_main(int argc, char** argv) {
                 return 1;
             }
             cfg.remote_sync_interval_sec = (unsigned int)v;
+        } else if (strncmp(arg, "--export=", 9) == 0) {
+            cfg.export_path = arg + 9;
+        } else if (strcmp(arg, "--export") == 0) {
+            if (i + 1 >= argc) {
+                fprintf(stderr, "[ERROR] Missing value for --export\n");
+                return 1;
+            }
+            cfg.export_path = argv[++i];
         } else if (strcmp(arg, "--quiet") == 0 || strcmp(arg, "-q") == 0) {
             g_quiet = 1;
         } else if (strcmp(arg, "-h") == 0 || strcmp(arg, "--help") == 0) {
