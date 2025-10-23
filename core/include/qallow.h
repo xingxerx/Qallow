@@ -40,6 +40,17 @@ void runQuantumOptimizer(double* hostData, int n);
 #endif
 
 /* VM execution entry point */
+typedef struct qallow_run_metrics {
+    int tick_count;
+    int cuda_enabled;
+    int reached_equilibrium;
+    int equilibrium_tick;
+    float final_coherence;
+    float final_decoherence;
+} qallow_run_metrics_t;
+
+const qallow_run_metrics_t* qallow_get_last_run_metrics(void);
+
 int qallow_vm_main(void);
 
 #endif
