@@ -1,1 +1,0 @@
-/usr/bin/g++ -Wl,--dependency-file=CMakeFiles/test_kernels.dir/link.d @CMakeFiles/test_kernels.dir/objects1.rsp CMakeFiles/test_kernels.dir/cmake_device_link.o -o test_kernels @CMakeFiles/test_kernels.dir/linkLibs.rsp -L"/opt/cuda/targets/x86_64-linux/lib/stubs" -L"/opt/cuda/targets/x86_64-linux/lib"

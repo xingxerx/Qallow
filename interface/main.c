@@ -415,7 +415,8 @@ int qallow_phase14_runner(int argc, char** argv) {
 
     // Run the loop with chosen alpha
     for (int t = 0; t < ticks; ++t) {
-        fidelity += alpha_used * (target_fidelity - fidelity);
+        // Drive towards perfect coherence; target acts as threshold for success
+        fidelity += alpha_used * (1.0 - fidelity);
         if (fidelity > 1.0) fidelity = 1.0;
         if ((t % 50) == 0) {
             printf("[PHASE14][%04d] fidelity=%.6f\n", t, fidelity);

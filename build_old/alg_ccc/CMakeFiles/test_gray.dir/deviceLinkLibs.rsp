@@ -1,1 +1,0 @@
-  -L"/opt/cuda/targets/x86_64-linux/lib/stubs"  -L"/opt/cuda/targets/x86_64-linux/lib"  libalg_ccc.a -lcuda -lcudart -lcudadevrt -lcudart_static -lrt -lpthread -ldl 
