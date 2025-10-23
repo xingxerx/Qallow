@@ -20,8 +20,8 @@ CMAKE_ADDR2LINE:FILEPATH=/usr/sbin/addr2line
 //Path to a program.
 CMAKE_AR:FILEPATH=/usr/sbin/ar
 
-//Choose Release or Debug
-CMAKE_BUILD_TYPE:STRING=Release
+//No help, variable specified on the command line.
+CMAKE_BUILD_TYPE:STRING=Debug
 
 //CUDA architectures
 CMAKE_CUDA_ARCHITECTURES:STRING=75
@@ -45,7 +45,7 @@ CMAKE_CUDA_FLAGS_RELEASE:STRING=-O3 -DNDEBUG
 CMAKE_CUDA_FLAGS_RELWITHDEBINFO:STRING=-O2 -g -DNDEBUG
 
 //CXX compiler
-CMAKE_CXX_COMPILER:FILEPATH=/usr/sbin/c++
+CMAKE_CXX_COMPILER:STRING=/usr/sbin/g++
 
 //A wrapper around 'ar' adding the appropriate '--plugin' option
 // for the GCC compiler
@@ -71,7 +71,7 @@ CMAKE_CXX_FLAGS_RELEASE:STRING=-O3 -DNDEBUG
 CMAKE_CXX_FLAGS_RELWITHDEBINFO:STRING=-O2 -g -DNDEBUG
 
 //C compiler
-CMAKE_C_COMPILER:FILEPATH=/usr/sbin/cc
+CMAKE_C_COMPILER:STRING=/usr/sbin/gcc
 
 //A wrapper around 'ar' adding the appropriate '--plugin' option
 // for the GCC compiler
@@ -117,8 +117,8 @@ CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO:STRING=
 //Enable/Disable output of build database during the build.
 CMAKE_EXPORT_BUILD_DATABASE:BOOL=
 
-//Enable/Disable output of compile commands during generation.
-CMAKE_EXPORT_COMPILE_COMMANDS:BOOL=
+//No help, variable specified on the command line.
+CMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE
 
 //Value Computed by CMake.
 CMAKE_FIND_PACKAGE_REDIRECTS_DIR:STATIC=/root/Qallow/build_ninja/CMakeFiles/pkgRedirects
@@ -564,11 +564,11 @@ Qallow_IS_TOP_LEVEL:STATIC=ON
 //Value Computed by CMake
 Qallow_SOURCE_DIR:STATIC=/root/Qallow
 
-//No help, variable specified on the command line.
-SDL2_DIR:UNINITIALIZED=/usr/lib/cmake/SDL2
+//The directory containing a CMake configuration file for SDL2.
+SDL2_DIR:PATH=/usr/lib/cmake/SDL2
 
-//No help, variable specified on the command line.
-SDL2_ttf_DIR:UNINITIALIZED=/usr/lib/cmake/SDL2_ttf
+//The directory containing a CMake configuration file for SDL2_ttf.
+SDL2_ttf_DIR:PATH=/usr/lib/cmake/SDL2_ttf
 
 //Build all artifacts
 SPDLOG_BUILD_ALL:BOOL=OFF
@@ -651,6 +651,15 @@ SPDLOG_WCHAR_FILENAMES:BOOL=OFF
 
 //non supported option
 SPDLOG_WCHAR_SUPPORT:BOOL=OFF
+
+//Value Computed by CMake
+alg_ccc_BINARY_DIR:STATIC=/root/Qallow/build_ninja/alg_ccc
+
+//Value Computed by CMake
+alg_ccc_IS_TOP_LEVEL:STATIC=OFF
+
+//Value Computed by CMake
+alg_ccc_SOURCE_DIR:STATIC=/root/Qallow/alg_ccc
 
 //Value Computed by CMake
 spdlog_BINARY_DIR:STATIC=/root/Qallow/build_ninja/_deps/spdlog-build
@@ -746,8 +755,6 @@ CMAKE_EXE_LINKER_FLAGS_RELEASE-ADVANCED:INTERNAL=1
 CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_EXPORT_BUILD_DATABASE
 CMAKE_EXPORT_BUILD_DATABASE-ADVANCED:INTERNAL=1
-//ADVANCED property for variable: CMAKE_EXPORT_COMPILE_COMMANDS
-CMAKE_EXPORT_COMPILE_COMMANDS-ADVANCED:INTERNAL=1
 //Name of external makefile project generator.
 CMAKE_EXTRA_GENERATOR:INTERNAL=
 //Name of generator.
@@ -816,7 +823,7 @@ CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_NM
 CMAKE_NM-ADVANCED:INTERNAL=1
 //number of local generators
-CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=2
+CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=3
 //ADVANCED property for variable: CMAKE_OBJCOPY
 CMAKE_OBJCOPY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_OBJDUMP

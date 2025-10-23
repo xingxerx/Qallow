@@ -2,6 +2,7 @@
 /root/Qallow/build_ninja/CMakeFiles/qallow_runtime.dir
 /root/Qallow/build_ninja/CMakeFiles/qallow_backend_cpu.dir
 /root/Qallow/build_ninja/CMakeFiles/qallow_backend_cuda.dir
+/root/Qallow/build_ninja/CMakeFiles/qallow_interface_base.dir
 /root/Qallow/build_ninja/CMakeFiles/qallow.dir
 /root/Qallow/build_ninja/CMakeFiles/qallow_unified.dir
 /root/Qallow/build_ninja/CMakeFiles/qallow_ui.dir
@@ -39,3 +40,14 @@
 /root/Qallow/build_ninja/_deps/spdlog-build/CMakeFiles/install.dir
 /root/Qallow/build_ninja/_deps/spdlog-build/CMakeFiles/install/local.dir
 /root/Qallow/build_ninja/_deps/spdlog-build/CMakeFiles/install/strip.dir
+/root/Qallow/build_ninja/alg_ccc/CMakeFiles/alg_ccc.dir
+/root/Qallow/build_ninja/alg_ccc/CMakeFiles/test_gray.dir
+/root/Qallow/build_ninja/alg_ccc/CMakeFiles/test_kernels.dir
+/root/Qallow/build_ninja/alg_ccc/CMakeFiles/alg_ccc_test_gray.dir
+/root/Qallow/build_ninja/alg_ccc/CMakeFiles/test.dir
+/root/Qallow/build_ninja/alg_ccc/CMakeFiles/edit_cache.dir
+/root/Qallow/build_ninja/alg_ccc/CMakeFiles/rebuild_cache.dir
+/root/Qallow/build_ninja/alg_ccc/CMakeFiles/list_install_components.dir
+/root/Qallow/build_ninja/alg_ccc/CMakeFiles/install.dir
+/root/Qallow/build_ninja/alg_ccc/CMakeFiles/install/local.dir
+/root/Qallow/build_ninja/alg_ccc/CMakeFiles/install/strip.dir
