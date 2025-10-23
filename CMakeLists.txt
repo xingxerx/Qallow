@@ -131,6 +131,7 @@ if(QALLOW_ENABLE_CUDA)
         backend/cuda/qcp_kernels.cu
         backend/cuda/quantum.cu
         backend/cuda/phase16_meta_introspect.cu
+        backend/cuda/phase14_gain.cu
         backend/cuda/mind_kernels.cu
         runtime/cuda_parallel.cu
         src/quantum/entanglement_bridge.c

@@ -305,6 +305,8 @@ static int qallow_build_and_maybe_restart(int argc, char** argv) {
 #include "qallow_phase11.h"
 #include "qallow_phase12.h"
 #include "qallow_phase13.h"
+#include "qallow_phase14.h"
+#include "qallow_phase15.h"
 #include "phase13_accelerator.h"
 #include "qallow_integration.h"
 #include "meta_introspect.h"
@@ -1026,6 +1028,14 @@ static int qallow_handle_phase_group(int argc, char** argv, int arg_offset) {
         return qallow_dispatch_phase(argc, argv, arg_offset, "phase13", qallow_phase13_runner);
     }
 
+    if (strcmp(sub, "14") == 0 || strcmp(sub, "phase14") == 0) {
+        return qallow_dispatch_phase(argc, argv, arg_offset, "phase14", qallow_phase14_runner);
+    }
+
+    if (strcmp(sub, "15") == 0 || strcmp(sub, "phase15") == 0) {
+        return qallow_dispatch_phase(argc, argv, arg_offset, "phase15", qallow_phase15_runner);
+    }
+
     if (strcmp(sub, "help") == 0) {
         qallow_print_phase_help();
         return 0;
@@ -1207,16 +1217,21 @@ static void qallow_print_system_help(void) {
 
 static void qallow_print_phase_help(void) {
     printf("Phase command group:\n");
-    printf("  qallow phase <11|12|13> [options]\n\n");
+    printf("  qallow phase <11|12|13|14|15> [options]\n\n");
     printf("Subcommands:\n");
     printf("  11 [options]  Invoke the Phase 11 coherence bridge\n");
     printf("  12 [options]  Run the Phase 12 elasticity simulation\n");
     printf("  13 [options]  Run the Phase 13 harmonic propagation\n");
+    printf("  14 [options]  Run the Phase 14 coherence-lattice integration\n");
+    printf("  15 [options]  Run the Phase 15 convergence & lock-in\n");
     printf("  help          Show this help message for the phase group\n\n");
     printf("Examples:\n");
     printf("  qallow phase 11 --ticks=400 --states=-1,0,1\n");
     printf("  qallow phase 12 --ticks=100 --eps=0.0001 --log=phase12.csv\n");
     printf("  qallow phase 13 --nodes=16 --ticks=500 --k=0.002\n");
+    printf("  qallow phase 14 --ticks=600 --nodes=256 --target_fidelity=0.981\n");
+    printf("  qallow phase 14 --jcsv=graph.csv --gain_base=0.001 --gain_span=0.009\n");
+    printf("  qallow phase 15 --ticks=500 --eps=1e-5\n");
 }
 
 static void qallow_print_mind_help(void) {
@@ -1235,7 +1250,7 @@ static void qallow_print_help(void) {
     printf("Command groups:\n");
     printf("  run       Workflow execution (vm, bench, live, accelerator)\n");
     printf("  system    Build, clean, and verify project artifacts\n");
-    printf("  phase     Invoke individual phase runners (11, 12, 13)\n");
+    printf("  phase     Invoke individual phase runners (11, 12, 13, 14, 15)\n");
     printf("  mind      Cognitive pipeline and benchmarking utilities\n");
     printf("  help      Show this help message\n\n");
     printf("Use `qallow help <group>` for a detailed description of that group.\n\n");
