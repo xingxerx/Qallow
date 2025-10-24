@@ -1,6 +1,7 @@
 //! GUI entry point for the Rust-based Qallow application surface.
 
-mod gui;
+#[cfg(feature = "gui")]
+mod fltk_gui;
 
 use std::collections::BTreeSet;
 use std::path::PathBuf;
@@ -8,7 +9,9 @@ use std::path::PathBuf;
 use anyhow::{Context, Result};
 use clap::{Parser, ValueEnum, ValueHint};
 use qallow_ui::{record_to_pretty_json, tail_csv, TelemetryRecord};
-use gui::QallowApp;
+
+#[cfg(feature = "gui")]
+use fltk_gui::run_gui;
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, ValueEnum)]
 enum OutputFormat {
@@ -44,49 +47,25 @@ struct Args {
 fn main() -> Result<()> {
     let args = Args::parse();
 
-    // If --cli flag is provided, run in CLI mode; otherwise launch GUI
+    // If --cli flag is provided, run in CLI mode; otherwise launch GUI (if available)
     if args.cli {
         run_cli_mode(args)
     } else {
-        run_gui_mode()
+        #[cfg(feature = "gui")]
+        {
+            run_gui_mode()
+        }
+        #[cfg(not(feature = "gui"))]
+        {
+            eprintln!("GUI feature not compiled. Running in CLI mode.");
+            run_cli_mode(args)
+        }
     }
 }
 
+#[cfg(feature = "gui")]
 fn run_gui_mode() -> Result<()> {
-    // Check if display is available (headless detection)
-    let has_display = std::env::var("DISPLAY").is_ok()
-        || std::env::var("WAYLAND_DISPLAY").is_ok()
-        || cfg!(windows)
-        || cfg!(target_os = "macos");
-
-    if !has_display {
-        eprintln!("No display server detected. Falling back to CLI mode.");
-        eprintln!("To use GUI mode, set DISPLAY or WAYLAND_DISPLAY environment variable.");
-        eprintln!("Or run with --cli flag to suppress this message.\n");
-
-        // Fall back to CLI mode with default settings
-        let args = Args {
-            cli: true,
-            telemetry: None,
-            rows: 5,
-            format: OutputFormat::Table,
-        };
-        return run_cli_mode(args);
-    }
-
-    let options = eframe::NativeOptions {
-        viewport: egui::ViewportBuilder::default()
-            .with_inner_size([1200.0, 800.0]),
-        ..Default::default()
-    };
-
-    let _ = eframe::run_native(
-        "Qallow Unified Dashboard",
-        options,
-        Box::new(|cc| Box::new(QallowApp::new(cc))),
-    );
-
-    Ok(())
+    run_gui()
 }
 
 fn run_cli_mode(args: Args) -> Result<()> {

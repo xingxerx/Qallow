@@ -5,10 +5,14 @@ edition = "2021"
 description = "Command-line harness for the Rust-based Qallow frontends"
 license = "MIT"
 
+[features]
+default = ["gui"]
+gui = ["fltk"]
+
 [dependencies]
 anyhow = { workspace = true }
 clap = { workspace = true }
-egui = { workspace = true }
-eframe = { workspace = true }
-qallow_ui = { path = "../ui" }
+serde = { workspace = true }
 serde_json = { workspace = true }
+fltk = { workspace = true, optional = true }
+qallow_ui = { path = "../ui" }

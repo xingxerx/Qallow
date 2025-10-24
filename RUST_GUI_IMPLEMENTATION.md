@@ -41,7 +41,7 @@ eframe = { workspace = true }
 
 ## Usage
 
-### Launch GUI (Default)
+### Launch GUI (Default - with display server)
 ```bash
 cargo run -p qallow_app
 ```
@@ -53,12 +53,20 @@ This opens a native desktop window with:
 - **Audit Log Tab**: Audit trail display
 - **Control Panel Tab**: Build selection, VM control buttons, telemetry path configuration
 
-### Launch CLI Mode (Legacy)
+### Launch CLI Mode (Headless/No Display)
 ```bash
 cargo run -p qallow_app -- --cli
 ```
 
 This runs the original CLI telemetry viewer.
+
+### Build for Headless Environments
+```bash
+cargo build -p qallow_app --no-default-features
+cargo run -p qallow_app --no-default-features
+```
+
+This builds without GUI dependencies and automatically runs in CLI mode.
 
 ### CLI Options
 ```bash
@@ -193,8 +201,8 @@ Potential improvements:
 ## Status
 
 ✅ **Complete and Tested**
-- GUI compiles successfully
-- CLI mode works
+- GUI compiles successfully (with display server)
+- CLI mode works (headless)
 - Both modes functional
+- Feature flags for headless environments
 - Ready for integration with actual Qallow backend
-

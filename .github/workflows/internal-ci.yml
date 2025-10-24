@@ -136,6 +136,12 @@ jobs:
           rm -rf build/
           df -h
 
+      - name: Build Rust unified project
+        run: |
+          echo "Building Rust unified project..."
+          cargo build --release
+          echo "Rust build completed successfully"
+
       - name: Dependency report
         continue-on-error: true
         run: scripts/check_dependencies.sh
