@@ -1,0 +1,76 @@
+# ============================================================================
+# Qallow MCP Memory Service Configuration
+# ============================================================================
+# This MCP server provides persistent memory capabilities for Continue.dev
+# It integrates with the Qallow MCP Memory Service
+# ============================================================================
+
+name: Qallow Memory Service
+description: Persistent memory and context management for Qallow
+
+# ============================================================================
+# Server Configuration
+# ============================================================================
+
+# Python-based MCP server
+command: python
+args:
+  - "-m"
+  - "mcp_memory_service.server"
+
+# Environment variables
+env:
+  # Storage backend: sqlite_vec, in_memory, or redis
+  MCP_MEMORY_STORAGE_BACKEND: sqlite_vec
+  
+  # SQLite vector database path
+  MCP_MEMORY_SQLITE_VEC_PATH: ~/.local/share/mcp-memory
+  
+  # Python path for imports
+  PYTHONPATH: /root/Qallow/mcp-memory-service/src
+  
+  # Logging level: DEBUG, INFO, WARNING, ERROR
+  LOG_LEVEL: INFO
+
+# ============================================================================
+# Tools Provided
+# ============================================================================
+# This MCP server provides the following tools:
+#
+# 1. store_memory
+#    - Store information in persistent memory
+#    - Parameters: key, value, metadata (optional)
+#
+# 2. retrieve_memory
+#    - Retrieve stored information
+#    - Parameters: key, query (optional)
+#
+# 3. search_memory
+#    - Search across all stored memories
+#    - Parameters: query, limit (optional)
+#
+# 4. delete_memory
+#    - Delete specific memory entries
+#    - Parameters: key
+#
+# 5. list_memories
+#    - List all stored memories
+#    - Parameters: limit (optional)
+#
+# 6. clear_memory
+#    - Clear all memories (use with caution!)
+#    - Parameters: none
+#
+# ============================================================================
+
+# ============================================================================
+# Usage in Continue
+# ============================================================================
+# Once configured, you can use memory in Continue prompts:
+#
+# Example:
+#   @memory retrieve_memory key="project_context"
+#   @memory search_memory query="quantum algorithms"
+#
+# ============================================================================
+

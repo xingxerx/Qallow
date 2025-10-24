@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
+#include <sys/time.h>
 
 #ifndef QALLOW_WEIGHTS_PATH
 #define QALLOW_WEIGHTS_PATH "config/weights.json"
@@ -169,4 +171,102 @@ int ethics_score_pass(const ethics_model_t* model,
     if (metrics->reality_drift > th->max_reality_drift) return 0;
     if (total < th->min_total) return 0;
     return 1;
+}
+
+// ============================================================================
+// Sequential Ethics Decision Logging (Phase 8-10 Enhancement)
+// ============================================================================
+
+static long get_timestamp_ms(void) {
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    return (long)tv.tv_sec * 1000 + (long)tv.tv_usec / 1000;
+}
+
+int ethics_log_sequential_step(const ethics_sequential_step_t* step,
+                               const char* log_path) {
+    if (!step || !log_path) return -1;
+
+    FILE* f = fopen(log_path, "a");
+    if (!f) return -1;
+
+    // Write CSV header if file is empty
+    fseek(f, 0, SEEK_END);
+    if (ftell(f) == 0) {
+        fprintf(f, "step_id,timestamp_ms,rule_name,input_value,threshold,verdict,intervention_type\n");
+    }
+
+    // Write step data
+    fprintf(f, "%d,%ld,%s,%.6f,%.6f,%d,%s\n",
+            step->step_id,
+            step->timestamp_ms,
+            step->rule_name ? step->rule_name : "unknown",
+            step->input_value,
+            step->threshold,
+            step->verdict,
+            step->intervention_type ? step->intervention_type : "none");
+
+    fclose(f);
+    return 0;
+}
+
+int ethics_trace_decision_sequence(const ethics_model_t* model,
+                                   const ethics_metrics_t* metrics,
+                                   const char* log_path) {
+    if (!model || !metrics || !log_path) return -1;
+
+    long ts = get_timestamp_ms();
+    int step_id = 0;
+
+    // Step 1: Safety check
+    ethics_sequential_step_t step = {
+        .step_id = step_id++,
+        .timestamp_ms = ts,
+        .rule_name = "safety_check",
+        .input_value = metrics->safety,
+        .threshold = model->thresholds.min_safety,
+        .verdict = metrics->safety >= model->thresholds.min_safety ? 1 : 0,
+        .intervention_type = metrics->safety < model->thresholds.min_safety ? "safety_intervention" : "none"
+    };
+    ethics_log_sequential_step(&step, log_path);
+
+    // Step 2: Clarity check
+    step.step_id = step_id++;
+    step.rule_name = "clarity_check";
+    step.input_value = metrics->clarity;
+    step.threshold = model->thresholds.min_clarity;
+    step.verdict = metrics->clarity >= model->thresholds.min_clarity ? 1 : 0;
+    step.intervention_type = metrics->clarity < model->thresholds.min_clarity ? "clarity_intervention" : "none";
+    ethics_log_sequential_step(&step, log_path);
+
+    // Step 3: Human check
+    step.step_id = step_id++;
+    step.rule_name = "human_check";
+    step.input_value = metrics->human;
+    step.threshold = model->thresholds.min_human;
+    step.verdict = metrics->human >= model->thresholds.min_human ? 1 : 0;
+    step.intervention_type = metrics->human < model->thresholds.min_human ? "human_intervention" : "none";
+    ethics_log_sequential_step(&step, log_path);
+
+    // Step 4: Reality drift check
+    step.step_id = step_id++;
+    step.rule_name = "reality_drift_check";
+    step.input_value = metrics->reality_drift;
+    step.threshold = model->thresholds.max_reality_drift;
+    step.verdict = metrics->reality_drift <= model->thresholds.max_reality_drift ? 1 : 0;
+    step.intervention_type = metrics->reality_drift > model->thresholds.max_reality_drift ? "reality_correction" : "none";
+    ethics_log_sequential_step(&step, log_path);
+
+    // Step 5: Total score check
+    ethics_score_details_t details;
+    double total = ethics_score_core(model, metrics, &details);
+    step.step_id = step_id++;
+    step.rule_name = "total_score_check";
+    step.input_value = total;
+    step.threshold = model->thresholds.min_total;
+    step.verdict = total >= model->thresholds.min_total ? 1 : 0;
+    step.intervention_type = total < model->thresholds.min_total ? "score_adjustment" : "none";
+    ethics_log_sequential_step(&step, log_path);
+
+    return 0;
 }

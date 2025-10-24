@@ -566,3 +566,121 @@ int qallow_meta_introspect_gpu(const float* durations,
     }
     return 0;
 }
+
+// ============================================================================
+// Sequential Meta-Introspection (Phase 16 Stabilization)
+// ============================================================================
+
+static long get_introspect_timestamp_ms(void) {
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    return (long)tv.tv_sec * 1000 + (long)tv.tv_usec / 1000;
+}
+
+int meta_introspect_log_trigger(const introspection_trigger_t* trigger,
+                                const char* log_path) {
+    if (!trigger || !log_path) return -1;
+
+    FILE* f = fopen(log_path, "a");
+    if (!f) return -1;
+
+    // Write CSV header if file is empty
+    fseek(f, 0, SEEK_END);
+    if (ftell(f) == 0) {
+        fprintf(f, "trigger_id,timestamp_ms,trigger_type,metric_value,threshold,severity\n");
+    }
+
+    // Write trigger data
+    fprintf(f, "%d,%ld,%s,%.6f,%.6f,%d\n",
+            trigger->trigger_id,
+            trigger->timestamp_ms,
+            trigger->trigger_type ? trigger->trigger_type : "unknown",
+            trigger->metric_value,
+            trigger->threshold,
+            trigger->severity);
+
+    fclose(f);
+    return 0;
+}
+
+int meta_introspect_sequential_reasoning(const introspection_trigger_t* trigger,
+                                         introspection_result_t* result,
+                                         const char* log_path) {
+    if (!trigger || !result || !log_path) return -1;
+
+    // Log the trigger
+    meta_introspect_log_trigger(trigger, log_path);
+
+    // Sequential reasoning steps:
+    // Step 1: Analyze trigger type
+    float base_score = 0.5f;
+    const char* recommendation = "monitor";
+    int confidence = 50;
+
+    if (trigger->trigger_type) {
+        if (strcmp(trigger->trigger_type, "coherence_drop") == 0) {
+            // Step 2: Coherence analysis
+            float coherence_ratio = trigger->metric_value / trigger->threshold;
+            base_score = coherence_ratio * 0.8f;
+
+            if (coherence_ratio < 0.5f) {
+                recommendation = "increase_error_correction";
+                confidence = 85;
+            } else if (coherence_ratio < 0.8f) {
+                recommendation = "optimize_gates";
+                confidence = 70;
+            } else {
+                recommendation = "continue_monitoring";
+                confidence = 60;
+            }
+        } else if (strcmp(trigger->trigger_type, "ethics_violation") == 0) {
+            // Step 3: Ethics analysis
+            base_score = 0.3f;
+            recommendation = "apply_ethics_intervention";
+            confidence = 90;
+        } else if (strcmp(trigger->trigger_type, "latency_spike") == 0) {
+            // Step 4: Latency analysis
+            float latency_ratio = trigger->metric_value / trigger->threshold;
+            base_score = 1.0f - (latency_ratio * 0.5f);
+
+            if (latency_ratio > 2.0f) {
+                recommendation = "scale_resources";
+                confidence = 80;
+            } else {
+                recommendation = "profile_bottleneck";
+                confidence = 70;
+            }
+        }
+    }
+
+    // Step 5: Adjust score based on severity
+    if (trigger->severity == 2) {  // high
+        base_score *= 0.7f;
+        confidence = (confidence * 9) / 10;
+    } else if (trigger->severity == 1) {  // medium
+        base_score *= 0.85f;
+    }
+
+    // Clamp score to [0, 1]
+    if (base_score < 0.0f) base_score = 0.0f;
+    if (base_score > 1.0f) base_score = 1.0f;
+
+    // Populate result
+    result->trigger_id = trigger->trigger_id;
+    result->introspection_score = base_score;
+    result->recommendation = recommendation;
+    result->confidence = confidence;
+
+    // Log result
+    FILE* f = fopen(log_path, "a");
+    if (f) {
+        fprintf(f, "# Result: trigger_id=%d, score=%.3f, recommendation=%s, confidence=%d\n",
+                result->trigger_id,
+                result->introspection_score,
+                result->recommendation,
+                result->confidence);
+        fclose(f);
+    }
+
+    return 0;
+}
