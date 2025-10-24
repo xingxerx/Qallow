@@ -162,3 +162,29 @@ pre-build-cleanup:
 .PHONY: clean-all
 clean-all: pre-build-cleanup clean
 	@echo "Full cleanup complete"
+
+# ============================================================================
+# Continue.dev Setup Targets
+# ============================================================================
+
+.PHONY: setup-continue
+setup-continue:
+	@echo "Setting up Continue.dev for Qallow..."
+	@chmod +x setup_continue.sh
+	@./setup_continue.sh
+
+.PHONY: verify-continue
+verify-continue:
+	@echo "Verifying Continue.dev setup..."
+	@chmod +x verify_continue_setup.sh
+	@./verify_continue_setup.sh
+
+.PHONY: continue-help
+continue-help:
+	@echo "Continue.dev Setup Commands:"
+	@echo ""
+	@echo "  make setup-continue      - Interactive setup wizard"
+	@echo "  make verify-continue     - Verify setup is correct"
+	@echo "  make continue-help       - Show this help"
+	@echo ""
+	@echo "For more information, see CONTINUE_SETUP_GUIDE.md"
