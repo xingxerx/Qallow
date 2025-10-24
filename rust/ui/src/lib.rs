@@ -25,8 +25,8 @@ pub enum TelemetryError {
 ///
 pub fn load_csv<P: AsRef<Path>>(path: P) -> Result<Vec<TelemetryRecord>, TelemetryError> {
     let path_ref = path.as_ref();
-    let mut reader = csv::Reader::from_path(path_ref)
-        .map_err(|err| map_csv_error(path_ref, err))?;
+    let mut reader =
+        csv::Reader::from_path(path_ref).map_err(|err| map_csv_error(path_ref, err))?;
 
     let headers = reader
         .headers()
@@ -60,7 +60,10 @@ pub fn load_csv<P: AsRef<Path>>(path: P) -> Result<Vec<TelemetryRecord>, Telemet
 }
 
 /// Return the newest `count` records from the telemetry CSV, preserving order.
-pub fn tail_csv<P: AsRef<Path>>(path: P, count: usize) -> Result<Vec<TelemetryRecord>, TelemetryError> {
+pub fn tail_csv<P: AsRef<Path>>(
+    path: P,
+    count: usize,
+) -> Result<Vec<TelemetryRecord>, TelemetryError> {
     let mut records = load_csv(path)?;
     if count == 0 {
         records.clear();
@@ -103,11 +106,7 @@ mod tests {
     #[test]
     fn load_csv_reads_records() {
         let mut file = tempfile::NamedTempFile::new().expect("temp file");
-        writeln!(
-            file,
-            "metric,value\nphase,13\nthroughput,42.5"
-        )
-        .expect("write csv");
+        writeln!(file, "metric,value\nphase,13\nthroughput,42.5").expect("write csv");
 
         let records = load_csv(file.path()).expect("load csv");
         assert_eq!(records.len(), 2);
@@ -118,11 +117,7 @@ mod tests {
     #[test]
     fn tail_csv_limits_records() {
         let mut file = tempfile::NamedTempFile::new().expect("temp file");
-        writeln!(
-            file,
-            "metric,value\nphase,13\nthroughput,42.5\nlatency,99"
-        )
-        .expect("write csv");
+        writeln!(file, "metric,value\nphase,13\nthroughput,42.5\nlatency,99").expect("write csv");
 
         let records = tail_csv(file.path(), 2).expect("tail csv");
         assert_eq!(records.len(), 2);

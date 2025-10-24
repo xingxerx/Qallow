@@ -224,7 +224,16 @@ bool phase14_is_active(void) {
     return g_phase14_state.active;
 }
 
-/* phase14_gain_from_csr is implemented in backend/cuda/phase14_gain.cu
- * This CPU backend does not provide a CPU-only implementation to avoid
- * linker conflicts. The CUDA version is used for all builds.
+/* phase14_gain_from_csr: CPU stub implementation
+ * When CUDA is disabled, this provides a fallback that returns a default value.
+ * The CUDA version (in backend/cuda/phase14_gain.cu) is used when CUDA is enabled.
  */
+#ifndef QALLOW_WITH_CUDA
+int phase14_gain_from_csr(const char* csv_path, int N, double* out_alpha_eff,
+                          double gain_base, double gain_span) {
+    if (!out_alpha_eff) return -1;
+    /* CPU fallback: return midpoint of gain range */
+    *out_alpha_eff = gain_base + gain_span * 0.5;
+    return 0;
+}
+#endif

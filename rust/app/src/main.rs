@@ -14,7 +14,12 @@ enum OutputFormat {
 }
 
 #[derive(Parser, Debug)]
-#[command(author, version, about = "Qallow telemetry console", disable_help_subcommand = true)]
+#[command(
+    author,
+    version,
+    about = "Qallow telemetry console",
+    disable_help_subcommand = true
+)]
 struct Args {
     /// Override the telemetry CSV path
     #[arg(short, long, value_hint = ValueHint::FilePath)]
