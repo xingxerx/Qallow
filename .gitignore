@@ -40,9 +40,30 @@ Thumbs.db
 data/snapshots/
 *.json
 
-# Secrets
+# Secrets & API Keys
 .env
+.env.local
+.env.*.local
 *.qiskitrc
+.continue/config.json
+.continue/config.local.json
+claude_desktop_config.json
+continue.json
+continue_config.json
+
+# API Keys & Credentials
+*_api_key
+*_apikey
+*_secret
+*_token
+*.key
+*.pem
+*.p12
+credentials.json
+secrets.json
+.aws/
+.gcloud/
+.azure/
 
 # Python
 __pycache__/
