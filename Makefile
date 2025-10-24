@@ -2,9 +2,9 @@
 
 .DEFAULT_GOAL := cpu
 CMAKE ?= cmake
-BUILD_DIR ?= build
-CPU_BUILD_DIR := $(BUILD_DIR)/CPU
-CUDA_BUILD_DIR := $(BUILD_DIR)/CUDA
+BUILD_ROOT ?= build
+CPU_BUILD_DIR := $(BUILD_ROOT)/CPU
+CUDA_BUILD_DIR := $(BUILD_ROOT)/CUDA
 CMAKE_COMMON_FLAGS ?=
 
 define configure
@@ -24,7 +24,7 @@ profile: cuda
 	@set -euo pipefail; \
 .PHONY: clean
 clean:
-	rm -rf $(BUILD_DIR)
+	rm -rf $(BUILD_ROOT)
 .PHONY: format
 format:
 	bash scripts/format_all.sh
@@ -35,7 +35,7 @@ ACCELERATOR ?= CUDA
 CC ?= gcc
 CXX ?= g++
 NVCC ?= nvcc
-BUILD_DIR ?= build/$(ACCELERATOR)
+BUILD_DIR := $(BUILD_ROOT)/$(ACCELERATOR)
 
 ifeq ($(ACCELERATOR),CPU)
 CUDA_ENABLED := 0
@@ -95,6 +95,7 @@ SRC_C := $(filter-out interface/qallow_ui.c,$(wildcard interface/*.c)) \
          algorithms/ethics_bayes.c \
          runtime/meta_introspect.c \
          $(wildcard src/mind/*.c) \
+		 $(wildcard src/runtime/*.c) \
          src/qallow_phase13.c
 SRC_CPP := $(wildcard src/runtime/*.cpp) \
            runtime/dl_integration.cpp
