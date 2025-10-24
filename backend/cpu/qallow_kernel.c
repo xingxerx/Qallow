@@ -4,6 +4,7 @@
 #include "phase14.h"
 #include "phase15.h"
 #include "overlay.h"
+#include "quantum_suite.h"
 #include <string.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -519,6 +520,27 @@ void qallow_print_dashboard(const qallow_state_t* state, const ethics_state_t* e
     qallow_print_bar("Coherence", coherence_bar, 40);
     printf("%-12s   decoherence = %.6f\n", "", state->decoherence_level);
     printf("%-12s   Mode: %s\n\n", "", state->cuda_enabled ? "CUDA GPU" : "CPU");
+
+    const quantum_suite_metrics_t* qmetrics = quantum_suite_get_metrics();
+    if (qmetrics) {
+        printf("QUANTUM SUITE:\n");
+        printf("%-12s   Algorithms: %d/%d pass\n",
+               "",
+               qmetrics->algorithms_passed,
+               qmetrics->algorithms_total);
+        if (qmetrics->grover_probability >= 0.0) {
+            double grover = qmetrics->grover_probability;
+            if (grover < 0.0) {
+                grover = 0.0;
+            }
+            if (grover > 1.0) {
+                grover = 1.0;
+            }
+            qallow_print_bar("GroverProb", grover, 40);
+        }
+        printf("%-12s   VQE best energy: %.6f\n", "", qmetrics->vqe_best_energy);
+        printf("%-12s   Last run: %s\n\n", "", qmetrics->timestamp);
+    }
 }
 
 // ============================================================================

@@ -49,11 +49,16 @@ set(QALLOW_ALGORITHM_SOURCES
     algorithms/ethics_learn.c
     algorithms/ethics_bayes.c
     algorithms/ethics_feed.c
+    algorithms/quantum_suite.c
+    third_party/cjson/cJSON.c
 )
 
 add_library(qallow_algorithms STATIC ${QALLOW_ALGORITHM_SOURCES})
 target_link_libraries(qallow_algorithms PUBLIC qallow_core m)
-target_include_directories(qallow_algorithms PUBLIC ${QALLOW_INCLUDE_DIRS})
+target_include_directories(qallow_algorithms PUBLIC
+    ${QALLOW_INCLUDE_DIRS}
+    ${CMAKE_CURRENT_SOURCE_DIR}/third_party/cjson
+)
 
 # Define runtime library early so it can be used by backend_cpu
 set(QALLOW_RUNTIME_SOURCES

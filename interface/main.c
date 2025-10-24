@@ -27,6 +27,7 @@
 #include "qallow_phase15.h"
 #include "meta_introspect.h"
 #include "phase14.h"
+#include "quantum_suite.h"
 
 #include <time.h>
 #include <string.h>
@@ -570,6 +571,20 @@ int qallow_vm_main(void) {
     qallow_state_t state;
     qallow_kernel_init(&state);
     print_system_info(&state);
+
+    quantum_suite_metrics_t quantum_metrics;
+    int quantum_status = quantum_run_all(&quantum_metrics);
+    if (quantum_status == 0 && quantum_metrics.valid) {
+        qallow_log_info("quantum",
+                        "suite ready algorithms=%d passed=%d grover=%.3f vqe_best=%.6f",
+                        quantum_metrics.algorithms_total,
+                        quantum_metrics.algorithms_passed,
+                        quantum_metrics.grover_probability,
+                        quantum_metrics.vqe_best_energy);
+    } else if (quantum_status < 0) {
+        qallow_log_warn("quantum", "suite execution failed; continuing without quantum metrics");
+    }
+
     qallow_log_info("vm", "mode=%s", state.cuda_enabled ? "cuda" : "cpu");
     qallow_metrics_begin_run(state.cuda_enabled ? 1 : 0);
     meta_introspect_apply_environment_defaults();
