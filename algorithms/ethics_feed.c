@@ -3,6 +3,7 @@
  * Part of Qallow Phase 13: Closed-loop ethics monitoring
  */
 
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -85,6 +86,20 @@ int ethics_ingest_signal(const char *path, ethics_metrics_t *metrics) {
             metrics->clarity, vals[3], vals[4], vals[5], vals[6]);
     fprintf(stdout, "  Human:   %.3f (avg of %.3f, %.3f, %.3f)\n",
             metrics->human, vals[7], vals[8], vals[9]);
+
+    double spread_sc = fabs(metrics->safety - metrics->clarity);
+    double spread_ch = fabs(metrics->clarity - metrics->human);
+    double spread_sh = fabs(metrics->safety - metrics->human);
+    double drift = 0.4 * spread_sc + 0.4 * spread_ch + 0.2 * spread_sh;
+    if (drift < 0.0) {
+        drift = 0.0;
+    } else if (drift > 1.0) {
+        drift = 1.0;
+    }
+    metrics->reality_drift = drift;
+
+    fprintf(stdout, "  Reality Drift: %.3f (spread SC=%.3f CH=%.3f SH=%.3f)\n",
+            metrics->reality_drift, spread_sc, spread_ch, spread_sh);
 
     return 1;
 }

@@ -144,6 +144,8 @@ static int run_phases_gpu(void) {
     metrics.safety = safety_metric;
     metrics.clarity = clarity_metric;
     metrics.human = human_metric;
+    metrics.reality_drift = fabs(metrics.safety - metrics.clarity) * 0.5 +
+                             fabs(metrics.clarity - metrics.human) * 0.5;
     ethics_score_details_t details;
     double score = ethics_score_core(&model, &metrics, &details);
     int pass = ethics_score_pass(&model, &metrics, &details);
@@ -181,8 +183,8 @@ static int run_phases_gpu(void) {
         }
     }
 
-    printf("[PHASE] p12.elasticity.mean=%.6f  p13.harmonic.energy=%.6f  ethics=%.2f  pass=%d\n",
-           mean, energy, score, pass);
+    printf("[PHASE] p12.elasticity.mean=%.6f  p13.harmonic.energy=%.6f  ethics=%.2f  Δ=%.3f  pass=%d\n",
+        mean, energy, score, details.weighted_reality_penalty, pass);
     log_csv("phase_run_ok", "/var/log/qallow/telemetry.csv");
     return pass ? 0 : 1;
 }

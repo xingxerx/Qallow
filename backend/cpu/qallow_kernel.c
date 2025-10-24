@@ -371,8 +371,10 @@ bool qallow_ethics_check(const qallow_state_t* state, ethics_state_t* ethics) {
     ethics->safety_score = ethics_calculate_safety_score(state, &ethics_monitor);
     ethics->clarity_score = ethics_calculate_clarity_score(state, &ethics_monitor);
     ethics->human_benefit_score = ethics_calculate_human_benefit_score(state, &ethics_monitor);
+    ethics->reality_drift_score = ethics_monitor.reality_drift_score;
     ethics->total_ethics_score = ethics_monitor.total_ethics_score;
     ethics->safety_check_passed = passed;
+    ethics->reality_drift_guard_passed = (ethics_monitor.reality_drift_score <= ETHICS_MAX_REALITY_DRIFT);
     
     return passed;
 }
@@ -496,11 +498,19 @@ void qallow_print_dashboard(const qallow_state_t* state, const ethics_state_t* e
         qallow_print_bar("Safety (S)", ethics->safety_score, 40);
         qallow_print_bar("Clarity (C)", ethics->clarity_score, 40);
         qallow_print_bar("Human (H)", ethics->human_benefit_score, 40);
-        printf("%-12s   E = S+C+H = %.2f (Safety=%.2f, Clarity=%.2f, Human=%.2f)\n",
-               "", ethics->total_ethics_score, 
+        printf("%-12s   E = S+C+H-Δ = %.2f (Safety=%.2f, Clarity=%.2f, Human=%.2f)\n",
+               "", ethics->total_ethics_score,
                ethics->safety_score, ethics->clarity_score, ethics->human_benefit_score);
-        printf("%-12s   Status: %s\n\n", "", 
-               ethics->safety_check_passed ? "PASS ✓" : "FAIL ✗");
+        double drift_limit = ETHICS_MAX_REALITY_DRIFT;
+        double guard_ratio = drift_limit > 0.0 ? (double)(ethics->reality_drift_score / drift_limit) : 1.0;
+        if (guard_ratio < 0.0) guard_ratio = 0.0;
+        if (guard_ratio > 1.0) guard_ratio = 1.0;
+        qallow_print_bar("RealityDrift", 1.0 - guard_ratio, 40);
+        printf("%-12s   Drift: %.3f (limit=%.3f)\n", "",
+               ethics->reality_drift_score, drift_limit);
+        printf("%-12s   Status: %s / Drift Guard: %s\n\n", "",
+               ethics->safety_check_passed ? "PASS ✓" : "FAIL ✗",
+               ethics->reality_drift_guard_passed ? "OK" : "ALERT");
     }
     
     // Decoherence (inverted bar for coherence visualization)
@@ -527,7 +537,7 @@ void qallow_csv_log_init(const char* filepath) {
     }
     
     // Write CSV header
-    fprintf(csv_log_file, "tick,orbital,river,mycelial,global,decoherence,ethics_S,ethics_C,ethics_H,ethics_total,ethics_pass\n");
+    fprintf(csv_log_file, "tick,orbital,river,mycelial,global,decoherence,ethics_S,ethics_C,ethics_H,ethics_total,ethics_reality_drift,ethics_pass,reality_guard_pass\n");
     fflush(csv_log_file);
     
     printf("[CSV] Logging enabled: %s\n", filepath);
@@ -545,12 +555,14 @@ void qallow_csv_log_tick(const qallow_state_t* state, const ethics_state_t* ethi
             state->decoherence_level);
     
     if (ethics) {
-        fprintf(csv_log_file, ",%.6f,%.6f,%.6f,%.6f,%d",
+    fprintf(csv_log_file, ",%.6f,%.6f,%.6f,%.6f,%.6f,%d,%d",
                 ethics->safety_score,
                 ethics->clarity_score,
                 ethics->human_benefit_score,
                 ethics->total_ethics_score,
-                ethics->safety_check_passed ? 1 : 0);
+        ethics->reality_drift_score,
+        ethics->safety_check_passed ? 1 : 0,
+        ethics->reality_drift_guard_passed ? 1 : 0);
     } else {
         fprintf(csv_log_file, ",0,0,0,0,0");
     }

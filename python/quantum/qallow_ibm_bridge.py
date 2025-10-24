@@ -1,24 +1,18 @@
-"""Utilities to bridge Qallow ternary state experiments with IBM Quantum services."""
+"""Utilities to bridge Qallow ternary state experiments with Cirq backends."""
 
 from __future__ import annotations
 
 import os
+from collections import Counter, defaultdict
 from dataclasses import dataclass
-from typing import Mapping, MutableMapping, Optional, Sequence
+from typing import Dict, Mapping, Optional, Sequence, Tuple
 
-from qiskit import QuantumCircuit
-from qiskit_ibm_runtime import QiskitRuntimeService, Sampler
-from qiskit_ibm_runtime.exceptions import IBMRuntimeError
+import cirq
 
 try:
-    from dotenv import load_dotenv
+    import cirq_google
 except ImportError:  # pragma: no cover - optional dependency
-    load_dotenv = None
-
-try:
-    from qiskit_aer import AerSimulator
-except ImportError:  # pragma: no cover - qiskit-aer is optional but recommended
-    AerSimulator = None
+    cirq_google = None
 
 
 @dataclass(slots=True)
@@ -28,104 +22,167 @@ class TernaryResult:
     counts: Mapping[str, float]
     backend_name: str
     shots: int
-    source: str  # "hardware" or "aer"
+    source: str  # "hardware" or "simulator"
+    logical_counts: Optional[Mapping[str, float]] = None
+    metadata: Optional[Mapping[str, float]] = None
 
 
-def _load_token_from_env() -> Optional[str]:
-    """Return the IBM Quantum token from environment variables if available."""
-    if load_dotenv is not None:
-        load_dotenv()  # load .env files when present
-    return os.getenv("QISKIT_IBM_TOKEN")
+def _resolve_surface_code(distance: Optional[int],
+                          physical_error_rate: Optional[float]) -> Tuple[int, float]:
+    """Resolve surface code parameters using CLI overrides with env/default fallbacks."""
+
+    resolved_distance = distance
+    if resolved_distance is None:
+        env_distance = os.getenv("QALLOW_SURFACE_CODE_DISTANCE")
+        if env_distance:
+            try:
+                resolved_distance = int(env_distance)
+            except ValueError:
+                resolved_distance = None
+    if resolved_distance is None or resolved_distance < 1:
+        resolved_distance = 1
+
+    resolved_error = physical_error_rate
+    if resolved_error is None:
+        env_error = os.getenv("QALLOW_PHYSICAL_ERROR_RATE")
+        if env_error:
+            try:
+                resolved_error = float(env_error)
+            except ValueError:
+                resolved_error = None
+    if resolved_error is None or resolved_error < 0.0:
+        resolved_error = 0.01
+    if resolved_error > 1.0:
+        resolved_error = 1.0
+
+    return resolved_distance, resolved_error
 
 
-def _get_runtime_service(explicit_token: Optional[str] = None) -> QiskitRuntimeService:
-    """
-    Initialize QiskitRuntimeService using an explicit token, an env token, or saved credentials.
+def _estimate_logical_error_rate(physical_error_rate: float, distance: int) -> float:
+    """Estimate logical error rate using a surface-code heuristic."""
 
-    Preference order:
-    1. explicit_token argument
-    2. QISKIT_IBM_TOKEN environment variable (supports .env files)
-    3. Locally saved credentials via QiskitRuntimeService.save_account
-    """
-    try:
-        if explicit_token:
-            return QiskitRuntimeService(channel="ibm_quantum", token=explicit_token)
-
-        env_token = _load_token_from_env()
-        if env_token:
-            return QiskitRuntimeService(channel="ibm_quantum", token=env_token)
-
-        # Fall back to default credential lookup (disk store)
-        return QiskitRuntimeService()
-    except Exception as error:  # pragma: no cover - defensive guard
-        raise RuntimeError("Unable to initialize QiskitRuntimeService.") from error
+    if distance <= 0:
+        return max(0.0, min(1.0, physical_error_rate))
+    estimate = physical_error_rate ** (distance / 2.0)
+    if estimate < 0.0:
+        return 0.0
+    if estimate > 1.0:
+        return 1.0
+    return estimate
 
 
-def build_ternary_circuit(ternary_states: Sequence[int]) -> QuantumCircuit:
-    """
-    Build a simple circuit representing ternary (-1, 0, 1) states on qubits.
+def _compute_logical_counts(
+    counts: Mapping[str, float],
+    logical_qubits: int,
+    block_size: int,
+) -> Optional[Dict[str, float]]:
+    """Aggregate physical qubit measurements into logical qubits via majority vote."""
 
-    The mapping is heuristic: 0 leaves the qubit idle, 1 applies an X gate, and -1
-    applies an H-Z-H sequence to approximate a negative phase. This placeholder
-    can be replaced by a true qutrit encoding when Phase 11 formalizes its mapping.
-    """
-    num_qubits = max(len(ternary_states), 1)
-    circuit = QuantumCircuit(num_qubits, num_qubits)
+    if block_size <= 1 or logical_qubits <= 0:
+        return None
 
-    for index, state in enumerate(ternary_states):
-        qubit = index % num_qubits
-        if state > 0:
-            circuit.x(qubit)
-        elif state < 0:
-            circuit.h(qubit)
-            circuit.z(qubit)
-            circuit.h(qubit)
-        # state == 0 leaves the qubit untouched
+    aggregated: Dict[str, float] = defaultdict(float)
+    expected_len = logical_qubits * block_size
+    for bitstring, probability in counts.items():
+        padded = bitstring.zfill(expected_len)
+        logical_bits = []
+        for index in range(logical_qubits):
+            start = index * block_size
+            segment = padded[start : start + block_size]
+            ones = segment.count("1")
+            zeros = block_size - ones
+            logical_bits.append("1" if ones > zeros else "0")
+        aggregated["".join(logical_bits)] += probability
 
-    circuit.barrier()
-    circuit.measure(range(num_qubits), range(num_qubits))
-    return circuit
+    total = sum(aggregated.values())
+    if total <= 0.0:
+        return dict(aggregated)
+    return {key: value / total for key, value in aggregated.items()}
 
 
-def _execute_on_hardware(
-    circuit: QuantumCircuit,
-    service: QiskitRuntimeService,
+def build_ternary_circuit(
+    ternary_states: Sequence[int], *, surface_code_distance: int = 1
+) -> cirq.Circuit:
+    """Build a Cirq circuit mapping ternary (-1, 0, 1) states onto qubits."""
+
+    logical_states = list(ternary_states) if ternary_states else [0]
+    block_size = surface_code_distance * surface_code_distance if surface_code_distance > 1 else 1
+    num_qubits = max(len(logical_states) * block_size, 1)
+    qubits = [cirq.NamedQubit(f"q{i}") for i in range(num_qubits)]
+    operations = []
+
+    for logical_index, state in enumerate(logical_states):
+        int_state = max(-1, min(1, int(state)))
+        block_start = logical_index * block_size
+        anchor_qubit = qubits[block_start]
+        for offset in range(block_size):
+            qubit = qubits[block_start + offset]
+            if int_state > 0:
+                operations.append(cirq.X(qubit))
+            elif int_state < 0:
+                operations.extend([cirq.H(qubit), cirq.Z(qubit), cirq.H(qubit)])
+            if block_size > 1 and offset > 0:
+                operations.append(cirq.CNOT(anchor_qubit, qubit))
+
+    operations.append(cirq.measure(*qubits, key="m"))
+    return cirq.Circuit(operations)
+
+
+def _resolve_engine_config() -> Tuple[Optional[str], Optional[str], Optional[str]]:
+    project_id = os.getenv("QALLOW_CIRQ_PROJECT_ID") or os.getenv("GOOGLE_CLOUD_PROJECT")
+    processor_id = os.getenv("QALLOW_CIRQ_PROCESSOR_ID")
+    endpoint = os.getenv("QALLOW_CIRQ_ENDPOINT")
+    return project_id, processor_id, endpoint
+
+
+def _counts_from_measurements(measurements, shot_count: int) -> Dict[str, float]:
+    rows = []
+    for sample in measurements:
+        rows.append("".join(str(int(bit)) for bit in sample[::-1]))
+    raw = Counter(rows)
+    if shot_count <= 0:
+        return {key: float(value) for key, value in raw.items()}
+    return {key: float(value) / float(shot_count) for key, value in raw.items()}
+
+
+def _execute_on_engine(
+    circuit: cirq.Circuit,
     shots: int,
+    project_id: str,
+    processor_id: str,
+    endpoint: Optional[str] = None,
 ) -> TernaryResult:
-    backend = service.least_busy(operational=True, simulator=False)
-    sampler = Sampler(backend=backend)
-    job = sampler.run([circuit], shots=shots)
-    result = job.result()
-    quasi_dist = result.quasi_dists[0].binary_probabilities()
-    counts: MutableMapping[str, float] = {state: float(prob) for state, prob in quasi_dist.items()}
+    if cirq_google is None:  # pragma: no cover - depends on optional package
+        raise RuntimeError("cirq-google is not installed; install it for hardware access.")
+
+    engine_sampler = cirq_google.EngineSampler(
+        project_id=project_id,
+        processor_id=processor_id,
+        endpoint=endpoint,
+    )
+    result = engine_sampler.run(circuit, repetitions=shots)
+    measurements = result.measurements["m"]
+    counts = _counts_from_measurements(measurements, shots)
 
     return TernaryResult(
         counts=dict(counts),
-        backend_name=backend.name,
+        backend_name=processor_id,
         shots=shots,
         source="hardware",
     )
 
 
-def _execute_on_aer(circuit: QuantumCircuit, shots: int) -> TernaryResult:
-    if AerSimulator is None:
-        raise RuntimeError(
-            "qiskit-aer is not installed; install it or provide access to IBM Quantum hardware."
-        )
-
-    backend = AerSimulator()
-    job = backend.run(circuit, shots=shots)
-    result = job.result()
-    raw_counts = result.get_counts()
-    counts: MutableMapping[str, float] = {
-        bitstring: float(value) / float(shots) for bitstring, value in raw_counts.items()
-    }
+def _execute_on_simulator(circuit: cirq.Circuit, shots: int) -> TernaryResult:
+    simulator = cirq.Simulator()
+    result = simulator.run(circuit, repetitions=shots)
+    measurements = result.measurements["m"]
+    counts = _counts_from_measurements(measurements, shots)
 
     return TernaryResult(
         counts=dict(counts),
-        backend_name="aer_simulator",
+        backend_name="cirq_simulator",
         shots=shots,
-        source="aer",
+        source="simulator",
     )
 
 
@@ -149,34 +206,74 @@ def run_ternary_sim(
     Returns:
         TernaryResult with normalized counts, backend information, and execution source.
     """
-    circuit = build_ternary_circuit(ternary_states)
+    _ = token  # retained for backwards compatibility with earlier Qiskit integration
+
+    logical_states = list(ternary_states)
+    if not logical_states:
+        logical_states = [0]
+
+    shots = max(1, int(shots))
+    surface_code_distance, physical_error_rate = _resolve_surface_code(None, None)
+    block_size = (
+        surface_code_distance * surface_code_distance if surface_code_distance > 1 else 1
+    )
+    circuit = build_ternary_circuit(
+        logical_states,
+        surface_code_distance=surface_code_distance,
+    )
+
+    metadata: Dict[str, float] = {
+        "surface_code_distance": float(surface_code_distance),
+        "physical_error_rate": float(physical_error_rate),
+        "logical_error_rate": float(
+            _estimate_logical_error_rate(physical_error_rate, surface_code_distance)
+        ),
+        "qubit_count": float(circuit.num_qubits()),
+        "shot_count": float(shots),
+    }
 
     if prefer_hardware:
-        try:
-            service = _get_runtime_service(explicit_token=token)
-            return _execute_on_hardware(circuit, service, shots)
-        except (IBMRuntimeError, RuntimeError) as error:
-            if require_hardware:
-                raise RuntimeError(
-                    "IBM Quantum hardware execution failed while hardware-only mode is enabled."
-                ) from error
-            if AerSimulator is None:
-                raise RuntimeError(
-                    "IBM Quantum hardware execution failed and qiskit-aer is unavailable."
-                ) from error
-        except Exception as _error:  # pragma: no cover - defensive fallback
-            if require_hardware:
-                raise
-            if AerSimulator is None:
-                raise
-            # Unexpected issue (e.g., temporary network interruption); fall back to Aer.
-            # Downstream telemetry can note the source to distinguish from hardware runs.
-            pass
+        project_id, processor_id, endpoint = _resolve_engine_config()
+        if project_id and processor_id:
+            try:
+                result = _execute_on_engine(
+                    circuit,
+                    shots,
+                    project_id=project_id,
+                    processor_id=processor_id,
+                    endpoint=endpoint,
+                )
+            except Exception as error:  # pragma: no cover - defensive guard
+                if require_hardware:
+                    raise RuntimeError(
+                        "Cirq hardware execution failed while hardware-only mode is enabled."
+                    ) from error
+            else:
+                logical_counts = _compute_logical_counts(
+                    result.counts,
+                    logical_qubits=len(logical_states),
+                    block_size=block_size,
+                )
+                result.logical_counts = logical_counts
+                result.metadata = dict(metadata)
+                return result
+        elif require_hardware:
+            raise RuntimeError(
+                "Hardware execution requested but no Cirq engine configuration was provided."
+            )
 
     if require_hardware:
         raise RuntimeError("Hardware execution was requested but could not be fulfilled.")
 
-    return _execute_on_aer(circuit, shots)
+    result = _execute_on_simulator(circuit, shots)
+    logical_counts = _compute_logical_counts(
+        result.counts,
+        logical_qubits=len(logical_states),
+        block_size=block_size,
+    )
+    result.logical_counts = logical_counts
+    result.metadata = dict(metadata)
+    return result
 
 
 __all__ = [

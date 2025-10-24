@@ -19,16 +19,24 @@ static void test_ethics_pass_fail(void) {
         .safety = 0.9,
         .clarity = 0.9,
         .human = 0.9,
+        .reality_drift = 0.05,
     };
 
     ethics_score_details_t details;
     double total = ethics_score_core(&model, &metrics, &details);
     assert(total > 0.0);
     assert(ethics_score_pass(&model, &metrics, &details) == 1);
+    assert(details.weighted_reality_penalty >= 0.0);
 
     metrics.human = 0.1;
     total = ethics_score_core(&model, &metrics, &details);
     assert(total > 0.0);
+    assert(ethics_score_pass(&model, &metrics, &details) == 0);
+
+    metrics.human = 0.9;
+    metrics.reality_drift = 0.9;
+    total = ethics_score_core(&model, &metrics, &details);
+    assert(total < 3.0);
     assert(ethics_score_pass(&model, &metrics, &details) == 0);
 }
 

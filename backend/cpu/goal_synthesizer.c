@@ -199,14 +199,17 @@ int gs_commit(goal_synthesizer_t* gs, const char* goal_id, const void* ethics_st
     if (ethics_state) {
         const ethics_state_t* eth = (const ethics_state_t*)ethics_state;
         
-        // Check total ethics score E = S + C + H
-        // Using standard ethics_state_t structure
-        double E = eth->safety_score + eth->clarity_score + eth->human_benefit_score;
+        double E = eth->total_ethics_score;
         
         // Hard stop: E < 2.95
         if (E < 2.95) {
             goal->status = GOAL_STATUS_REJECTED;
             return -2;  // Ethics gate failure
+        }
+
+        if (!eth->reality_drift_guard_passed) {
+            goal->status = GOAL_STATUS_REJECTED;
+            return -4;  // Reality drift guard triggered
         }
         
         // Risk threshold check

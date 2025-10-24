@@ -72,6 +72,7 @@ static void clamp_weights(ethics_model_t* model) {
     if (model->weights.safety_weight < 0.1) model->weights.safety_weight = 0.1;
     if (model->weights.clarity_weight < 0.1) model->weights.clarity_weight = 0.1;
     if (model->weights.human_weight < 0.1) model->weights.human_weight = 0.1;
+    if (model->weights.reality_weight < 0.0) model->weights.reality_weight = 0.0;
 }
 
 void ethics_model_default(ethics_model_t* model) {
@@ -79,10 +80,12 @@ void ethics_model_default(ethics_model_t* model) {
     model->weights.safety_weight = 1.1;
     model->weights.clarity_weight = 1.0;
     model->weights.human_weight = 0.9;
+    model->weights.reality_weight = 0.6;
     model->thresholds.min_safety = 0.7;
     model->thresholds.min_clarity = 0.65;
     model->thresholds.min_human = 0.6;
     model->thresholds.min_total = 1.85;
+    model->thresholds.max_reality_drift = 0.25;
     clamp_weights(model);
 }
 
@@ -104,6 +107,8 @@ int ethics_model_load(ethics_model_t* model,
                                                             model->weights.clarity_weight);
         model->weights.human_weight = json_extract_double(weights_buf, "human_weight",
                                                           model->weights.human_weight);
+        model->weights.reality_weight = json_extract_double(weights_buf, "reality_weight",
+                                                            model->weights.reality_weight);
     } else {
         rc = -1;
     }
@@ -118,6 +123,9 @@ int ethics_model_load(ethics_model_t* model,
                                                           model->thresholds.min_human);
         model->thresholds.min_total = json_extract_double(thresholds_buf, "min_total",
                                                           model->thresholds.min_total);
+        model->thresholds.max_reality_drift = json_extract_double(thresholds_buf,
+                                                                  "max_reality_drift",
+                                                                  model->thresholds.max_reality_drift);
     } else {
         rc = -1;
     }
@@ -136,12 +144,14 @@ double ethics_score_core(const ethics_model_t* model,
     double ws = model->weights.safety_weight * metrics->safety;
     double wc = model->weights.clarity_weight * metrics->clarity;
     double wh = model->weights.human_weight * metrics->human;
-    double total = ws + wc + wh;
+    double wr = model->weights.reality_weight * metrics->reality_drift;
+    double total = ws + wc + wh - wr;
 
     if (details) {
         details->weighted_safety = ws;
         details->weighted_clarity = wc;
         details->weighted_human = wh;
+        details->weighted_reality_penalty = wr;
         details->total = total;
     }
     return total;
@@ -156,6 +166,7 @@ int ethics_score_pass(const ethics_model_t* model,
     if (metrics->safety < th->min_safety) return 0;
     if (metrics->clarity < th->min_clarity) return 0;
     if (metrics->human < th->min_human) return 0;
+    if (metrics->reality_drift > th->max_reality_drift) return 0;
     if (total < th->min_total) return 0;
     return 1;
 }

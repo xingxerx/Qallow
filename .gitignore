@@ -48,3 +48,19 @@ data/snapshots/
 __pycache__/
 *.pyc
 *.pyo
+
+# Node.js / Electron
+node_modules/
+app/node_modules/
+app/dist/
+app/build/
+*.tsbuildinfo
+
+# Rust build artifacts
+native_app/target/
+Cargo.lock
+
+# Large files
+*.exe
+*.dmg
+*.AppImage

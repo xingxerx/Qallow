@@ -330,12 +330,17 @@ bool phase7_check_hard_stops(const phase7_state_t* state, const void* ethics_sta
     
     const ethics_state_t* eth = (const ethics_state_t*)ethics_state;
     
-    // Calculate E = S + C + H using standard ethics_state_t structure
-    double E = eth->safety_score + eth->clarity_score + eth->human_benefit_score;
+    double E = eth->total_ethics_score;
     
     // Hard stop: E < 2.95
     if (E < 2.95) {
         printf("[PHASE7] HARD STOP: Ethics score E=%.3f < 2.95\n", E);
+        return true;
+    }
+
+    if (!eth->reality_drift_guard_passed) {
+        printf("[PHASE7] HARD STOP: Reality drift score %.3f exceeds limit %.3f\n",
+               eth->reality_drift_score, (double)ETHICS_MAX_REALITY_DRIFT);
         return true;
     }
     

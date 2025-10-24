@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-"""
-CLI entry point to execute Phase 11 ternary coherence checks via IBM Quantum bridge.
-"""
+"""CLI entry point to execute Phase 11 ternary coherence checks via Cirq bridge."""
 
 from __future__ import annotations
 

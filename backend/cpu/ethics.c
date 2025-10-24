@@ -11,6 +11,29 @@ static float clampf(float v, float lo, float hi) {
     return v < lo ? lo : (v > hi ? hi : v);
 }
 
+static CUDA_CALLABLE float compute_overlay_divergence(const qallow_state_t* state) {
+    if (!state) return 0.0f;
+    float divergence = 0.0f;
+    for (int i = 0; i < NUM_OVERLAYS; ++i) {
+        divergence += fabsf(state->overlays[i].stability - state->global_coherence);
+    }
+    divergence /= (float)NUM_OVERLAYS;
+    return clampf(divergence, 0.0f, 1.0f);
+}
+
+static CUDA_CALLABLE float estimate_reality_drift(float safety,
+                                                  float clarity,
+                                                  float human,
+                                                  float decoherence,
+                                                  float overlay_divergence) {
+    float spread_sc = fabsf(safety - clarity);
+    float spread_ch = fabsf(clarity - human);
+    float deco_scaled = clampf(decoherence * 500.0f, 0.0f, 1.0f);
+    float spread = 0.5f * spread_sc + 0.5f * spread_ch;
+    float drift = 0.45f * spread + 0.35f * deco_scaled + 0.20f * overlay_divergence;
+    return clampf(drift, 0.0f, 1.0f);
+}
+
 static float load_human_weight(float fallback) {
 #ifndef __CUDA_ARCH__
     float w = fallback;
@@ -87,6 +110,11 @@ CUDA_CALLABLE void ethics_init(ethics_monitor_t* ethics) {
     for (int i = 0; i < 3; i++) {
         ethics->human_benefit_factors[i] = 0.6f;
     }
+
+    ethics->reality_drift_score = 0.05f;
+    for (int i = 0; i < 10; ++i) {
+        ethics->reality_drift_trend[i] = ethics->reality_drift_score;
+    }
     
     ethics->total_ethics_score = 2.1f;
     ethics->no_replication_rule_active = false;
@@ -101,13 +129,21 @@ CUDA_CALLABLE bool ethics_evaluate_state(const qallow_state_t* state, ethics_mon
     float safety = ethics_calculate_safety_score(state, ethics);
     float clarity = ethics_calculate_clarity_score(state, ethics);
     float human_benefit = ethics_calculate_human_benefit_score(state, ethics);
+    float overlay_divergence = compute_overlay_divergence(state);
+    float reality_drift = estimate_reality_drift(safety,
+                                                 clarity,
+                                                 human_benefit,
+                                                 state->decoherence_level,
+                                                 overlay_divergence);
+    ethics->reality_drift_score = reality_drift;
     
 #ifndef __CUDA_ARCH__
     ensure_ethics_model_loaded();
     ethics_metrics_t metrics = {
         .safety = safety,
         .clarity = clarity,
-        .human = human_benefit
+        .human = human_benefit,
+        .reality_drift = reality_drift
     };
     ethics_score_details_t details;
     double total = ethics_score_core(&g_ethics_model, &metrics, &details);
@@ -133,6 +169,7 @@ CUDA_CALLABLE bool ethics_evaluate_state(const qallow_state_t* state, ethics_mon
     bool passed = (safety >= ETHICS_MIN_SAFETY &&
                    clarity >= ETHICS_MIN_CLARITY &&
                    human_benefit >= ETHICS_MIN_HUMAN_BENEFIT &&
+                   reality_drift <= ETHICS_MAX_REALITY_DRIFT &&
                    ethics->total_ethics_score >= ETHICS_MIN_TOTAL);
 #endif
     
@@ -214,11 +251,13 @@ CUDA_CALLABLE void ethics_update_trends(ethics_monitor_t* ethics, const qallow_s
     for (int i = 9; i > 0; i--) {
         ethics->decoherence_trend[i] = ethics->decoherence_trend[i - 1];
         ethics->stability_trend[i] = ethics->stability_trend[i - 1];
+        ethics->reality_drift_trend[i] = ethics->reality_drift_trend[i - 1];
     }
     
     // Add new measurements
     ethics->decoherence_trend[0] = state->decoherence_level;
     ethics->stability_trend[0] = state->global_coherence;
+    ethics->reality_drift_trend[0] = ethics->reality_drift_score;
 }
 
 CUDA_CALLABLE void ethics_enforce_no_replication(ethics_monitor_t* ethics, qallow_state_t* state) {

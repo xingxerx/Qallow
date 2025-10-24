@@ -4,21 +4,24 @@
  */
 
 #include "ethics_core.h"
+#include <math.h>
 #include <stdio.h>
 
 // Forward declaration for feed function
 int ethics_ingest_signal(const char *path, ethics_metrics_t *metrics);
 
 static void print_model(const ethics_model_t* model) {
-    printf("weights  -> safety: %.3f clarity: %.3f human: %.3f\n",
+    printf("weights  -> safety: %.3f clarity: %.3f human: %.3f reality_penalty: %.3f\n",
            model->weights.safety_weight,
            model->weights.clarity_weight,
-           model->weights.human_weight);
-    printf("thresholds -> safety: %.3f clarity: %.3f human: %.3f total: %.3f\n",
+           model->weights.human_weight,
+           model->weights.reality_weight);
+    printf("thresholds -> safety: %.3f clarity: %.3f human: %.3f total: %.3f max_drift: %.3f\n",
            model->thresholds.min_safety,
            model->thresholds.min_clarity,
            model->thresholds.min_human,
-           model->thresholds.min_total);
+           model->thresholds.min_total,
+           model->thresholds.max_reality_drift);
 }
 
 int main(void) {
@@ -45,8 +48,11 @@ int main(void) {
         metrics.safety = 0.92;
         metrics.clarity = 0.88;
         metrics.human = 0.83;
-        printf("  Using: safety=%.3f clarity=%.3f human=%.3f\n\n",
-               metrics.safety, metrics.clarity, metrics.human);
+        metrics.reality_drift = fabs(metrics.safety - metrics.clarity) * 0.4 +
+                                fabs(metrics.clarity - metrics.human) * 0.4 +
+                                fabs(metrics.safety - metrics.human) * 0.2;
+        printf("  Using: safety=%.3f clarity=%.3f human=%.3f reality_drift=%.3f\n\n",
+               metrics.safety, metrics.clarity, metrics.human, metrics.reality_drift);
     }
 
     // Compute ethics score
@@ -62,8 +68,11 @@ int main(void) {
            metrics.clarity, model.weights.clarity_weight, details.weighted_clarity);
     printf("    Human:   %.3f × %.2f = %.3f\n",
            metrics.human, model.weights.human_weight, details.weighted_human);
+    printf("    Drift:   %.3f × %.2f = %.3f (penalty)\n",
+           metrics.reality_drift, model.weights.reality_weight, details.weighted_reality_penalty);
     printf("  Total score: %.3f\n", total);
     printf("  Threshold:   %.3f\n", model.thresholds.min_total);
+    printf("  Max drift:   %.3f\n", model.thresholds.max_reality_drift);
     printf("  Result:      %s\n\n", pass ? "✓ PASS" : "✗ FAIL");
 
     // Apply adaptive learning

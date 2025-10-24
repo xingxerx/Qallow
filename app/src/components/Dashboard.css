@@ -1,0 +1,206 @@
+.dashboard {
+  width: 100%;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  background: linear-gradient(135deg, #1a1f3a 0%, #2d3561 100%);
+  border: 1px solid #00d4ff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 8px 32px rgba(0, 212, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: 0 12px 48px rgba(0, 212, 255, 0.2);
+  border-color: #00ffff;
+}
+
+.card.full-width {
+  grid-column: 1 / -1;
+}
+
+.card h2 {
+  font-size: 18px;
+  margin: 0 0 20px 0;
+  color: #00d4ff;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.metric-group {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.metric {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.metric label {
+  font-size: 12px;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.progress-bar {
+  position: relative;
+  height: 24px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 212, 255, 0.3);
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #00d4ff, #0099ff);
+  transition: width 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 8px;
+}
+
+.progress-text {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 11px;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.decoherence-value {
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  color: #00ff64;
+  background: rgba(0, 255, 100, 0.1);
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(0, 255, 100, 0.3);
+}
+
+.mode-badge {
+  display: inline-block;
+  background: rgba(0, 212, 255, 0.2);
+  color: #00d4ff;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: bold;
+  border: 1px solid #00d4ff;
+}
+
+.stat-value {
+  font-size: 24px;
+  font-weight: bold;
+  color: #00d4ff;
+}
+
+.status-badge-large {
+  display: inline-block;
+  background: rgba(0, 255, 100, 0.2);
+  color: #00ff64;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: bold;
+  border: 1px solid #00ff64;
+}
+
+.ethics-combined {
+  background: rgba(0, 212, 255, 0.1);
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 212, 255, 0.3);
+}
+
+.combined-score {
+  font-size: 18px;
+  font-weight: bold;
+  color: #00d4ff;
+  margin: 8px 0;
+}
+
+.status-pass {
+  display: inline-block;
+  background: rgba(0, 255, 100, 0.2);
+  color: #00ff64;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.system-status {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 12px;
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  background: rgba(0, 255, 100, 0.05);
+  border-radius: 6px;
+  border-left: 3px solid #00ff64;
+}
+
+.status-icon {
+  color: #00ff64;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.gpu-info {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.gpu-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background: rgba(0, 212, 255, 0.05);
+  border-radius: 6px;
+  border-left: 3px solid #00d4ff;
+}
+
+.gpu-item span {
+  color: #888;
+  font-size: 12px;
+}
+
+.gpu-item strong {
+  color: #00d4ff;
+  font-size: 14px;
+}
+
+@media (max-width: 768px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .card.full-width {
+    grid-column: 1;
+  }
+}
+

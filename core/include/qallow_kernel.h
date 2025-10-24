@@ -76,8 +76,10 @@ typedef struct {
     float safety_score;
     float clarity_score;
     float human_benefit_score;
+    float reality_drift_score;
     float total_ethics_score;
     bool safety_check_passed;
+    bool reality_drift_guard_passed;
 } ethics_state_t;
 
 // Function declarations

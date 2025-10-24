@@ -12,6 +12,7 @@
 #define ETHICS_MIN_HUMAN_BENEFIT 0.6f
 #define ETHICS_MIN_TOTAL 2.1f
 #define ETHICS_DECOHERENCE_LIMIT 0.001f
+#define ETHICS_MAX_REALITY_DRIFT 0.25f
 
 // Safety categories
 typedef enum {
@@ -25,6 +26,7 @@ typedef struct {
     float safety_scores[SAFETY_COUNT];
     float clarity_metrics[4]; // Transparency, Predictability, Explainability, Auditability
     float human_benefit_factors[3]; // Welfare, Autonomy, Justice
+    float reality_drift_score;
     
     // Monitoring state
     float total_ethics_score;
@@ -36,6 +38,7 @@ typedef struct {
     // Real-time monitoring
     float decoherence_trend[10]; // Last 10 measurements
     float stability_trend[10];   // Last 10 measurements
+    float reality_drift_trend[10];
 } ethics_monitor_t;
 
 // Function declarations

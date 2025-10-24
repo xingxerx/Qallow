@@ -1,0 +1,161 @@
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+  color: #e0e0e0;
+}
+
+.app-header {
+  background: linear-gradient(90deg, #1a1f3a 0%, #2d3561 100%);
+  border-bottom: 2px solid #00d4ff;
+  padding: 20px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 20px rgba(0, 212, 255, 0.1);
+}
+
+.header-content h1 {
+  font-size: 28px;
+  margin: 0;
+  background: linear-gradient(90deg, #00d4ff, #0099ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.header-content p {
+  font-size: 12px;
+  color: #888;
+  margin: 5px 0 0 0;
+}
+
+.header-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.status-badge {
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.status-badge.running {
+  background: rgba(0, 255, 100, 0.2);
+  color: #00ff64;
+  border: 1px solid #00ff64;
+}
+
+.status-badge.stopped {
+  background: rgba(255, 100, 100, 0.2);
+  color: #ff6464;
+  border: 1px solid #ff6464;
+}
+
+.app-container {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.sidebar {
+  width: 200px;
+  background: #0f1428;
+  border-right: 1px solid #2d3561;
+  padding: 20px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  overflow-y: auto;
+}
+
+.nav-item {
+  padding: 12px 20px;
+  background: none;
+  border: none;
+  color: #888;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  text-align: left;
+  border-left: 3px solid transparent;
+}
+
+.nav-item:hover {
+  background: rgba(0, 212, 255, 0.1);
+  color: #00d4ff;
+  border-left-color: #00d4ff;
+}
+
+.nav-item.active {
+  background: rgba(0, 212, 255, 0.2);
+  color: #00d4ff;
+  border-left-color: #00d4ff;
+  font-weight: bold;
+}
+
+.main-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 30px;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0a0e27;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #2d3561;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #00d4ff;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .app-header {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .sidebar {
+    width: 100%;
+    flex-direction: row;
+    border-right: none;
+    border-bottom: 1px solid #2d3561;
+    padding: 10px 0;
+    overflow-x: auto;
+  }
+
+  .nav-item {
+    border-left: none;
+    border-bottom: 3px solid transparent;
+    padding: 10px 15px;
+  }
+
+  .nav-item:hover,
+  .nav-item.active {
+    border-left: none;
+    border-bottom-color: #00d4ff;
+  }
+
+  .main-content {
+    padding: 15px;
+  }
+}
+

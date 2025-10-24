@@ -11,6 +11,7 @@ typedef struct {
     double safety_weight;
     double clarity_weight;
     double human_weight;
+    double reality_weight;
 } ethics_weights_t;
 
 typedef struct {
@@ -18,12 +19,14 @@ typedef struct {
     double min_clarity;
     double min_human;
     double min_total;
+    double max_reality_drift;
 } ethics_thresholds_t;
 
 typedef struct {
     double safety;
     double clarity;
     double human;
+    double reality_drift;
 } ethics_metrics_t;
 
 typedef struct {
@@ -35,6 +38,7 @@ typedef struct {
     double weighted_safety;
     double weighted_clarity;
     double weighted_human;
+    double weighted_reality_penalty;
     double total;
 } ethics_score_details_t;
 
