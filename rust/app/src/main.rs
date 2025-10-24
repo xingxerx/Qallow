@@ -1,4 +1,6 @@
-//! CLI entry point for the Rust-based Qallow application surface.
+//! GUI entry point for the Rust-based Qallow application surface.
+
+mod gui;
 
 use std::collections::BTreeSet;
 use std::path::PathBuf;
@@ -6,6 +8,7 @@ use std::path::PathBuf;
 use anyhow::{Context, Result};
 use clap::{Parser, ValueEnum, ValueHint};
 use qallow_ui::{record_to_pretty_json, tail_csv, TelemetryRecord};
+use gui::QallowApp;
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, ValueEnum)]
 enum OutputFormat {
@@ -17,10 +20,14 @@ enum OutputFormat {
 #[command(
     author,
     version,
-    about = "Qallow telemetry console",
+    about = "Qallow unified dashboard",
     disable_help_subcommand = true
 )]
 struct Args {
+    /// Run in CLI mode instead of launching GUI
+    #[arg(long)]
+    cli: bool,
+
     /// Override the telemetry CSV path
     #[arg(short, long, value_hint = ValueHint::FilePath)]
     telemetry: Option<PathBuf>,
@@ -37,6 +44,31 @@ struct Args {
 fn main() -> Result<()> {
     let args = Args::parse();
 
+    // If --cli flag is provided, run in CLI mode; otherwise launch GUI
+    if args.cli {
+        run_cli_mode(args)
+    } else {
+        run_gui_mode()
+    }
+}
+
+fn run_gui_mode() -> Result<()> {
+    let options = eframe::NativeOptions {
+        viewport: egui::ViewportBuilder::default()
+            .with_inner_size([1200.0, 800.0]),
+        ..Default::default()
+    };
+
+    let _ = eframe::run_native(
+        "Qallow Unified Dashboard",
+        options,
+        Box::new(|cc| Box::new(QallowApp::new(cc))),
+    );
+
+    Ok(())
+}
+
+fn run_cli_mode(args: Args) -> Result<()> {
     let telemetry_path = args
         .telemetry
         .unwrap_or_else(|| PathBuf::from("data/logs/telemetry_stream.csv"));

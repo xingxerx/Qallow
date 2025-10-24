@@ -84,17 +84,20 @@ pub fn record_to_pretty_json(record: &TelemetryRecord) -> Result<String, serde_j
 }
 
 fn map_csv_error(path: &Path, err: csv::Error) -> TelemetryError {
-    if let Some(io_err) = err.io_error() {
-        if io_err.kind() == std::io::ErrorKind::NotFound {
-            return TelemetryError::NotFound {
-                path: path.to_path_buf(),
-            };
-        }
-    }
+    let is_not_found = matches!(
+        err.kind(),
+        csv::ErrorKind::Io(io_err) if io_err.kind() == std::io::ErrorKind::NotFound
+    );
 
-    TelemetryError::Csv {
-        path: path.to_path_buf(),
-        source: err,
+    if is_not_found {
+        TelemetryError::NotFound {
+            path: path.to_path_buf(),
+        }
+    } else {
+        TelemetryError::Csv {
+            path: path.to_path_buf(),
+            source: err,
+        }
     }
 }
 
