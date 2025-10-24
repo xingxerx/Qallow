@@ -16,7 +16,7 @@ enum OutputFormat {
     Json,
 }
 
-#[derive(Parser, Debug)]
+#[derive(Parser, Debug, Clone)]
 #[command(
     author,
     version,
@@ -53,6 +53,27 @@ fn main() -> Result<()> {
 }
 
 fn run_gui_mode() -> Result<()> {
+    // Check if display is available (headless detection)
+    let has_display = std::env::var("DISPLAY").is_ok()
+        || std::env::var("WAYLAND_DISPLAY").is_ok()
+        || cfg!(windows)
+        || cfg!(target_os = "macos");
+
+    if !has_display {
+        eprintln!("No display server detected. Falling back to CLI mode.");
+        eprintln!("To use GUI mode, set DISPLAY or WAYLAND_DISPLAY environment variable.");
+        eprintln!("Or run with --cli flag to suppress this message.\n");
+
+        // Fall back to CLI mode with default settings
+        let args = Args {
+            cli: true,
+            telemetry: None,
+            rows: 5,
+            format: OutputFormat::Table,
+        };
+        return run_cli_mode(args);
+    }
+
     let options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default()
             .with_inner_size([1200.0, 800.0]),
