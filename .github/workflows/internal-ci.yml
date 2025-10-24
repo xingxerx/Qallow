@@ -78,17 +78,39 @@ jobs:
       - name: Pre-build cleanup
         run: bash scripts/pre_build_cleanup.sh
 
-      - name: Build CPU binary
-        run: make ACCELERATOR=CPU -j"$(nproc)" -B
+      - name: Configure and build (CPU)
+        run: |
+          set -eux
+          # Clean previous configure cache (if any)
+          rm -rf build/CPU
+          # Configure explicitly with QALLOW_ENABLE_CUDA=OFF
+          cmake -S . -B build/CPU -DQALLOW_ENABLE_CUDA=OFF -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+          # Show generated files right after configure
+          echo "After configure:"
+          ls -la build/CPU || true
+          # Build with verbose output into a log file
+          cmake --build build/CPU -- -j"$(nproc)" VERBOSE=1 2>&1 | tee build/CPU/build.log || (echo "Build failed - see build/CPU/build.log" && tail -n 200 build/CPU/build.log && false)
+          # Show produced artifacts and search for likely binaries
+          echo "After build:"
+          ls -la build/CPU || true
+          find build/CPU -maxdepth 4 -type f -executable -print -ls || true
+          # Print last 200 lines of the build log to the job log
+          tail -n 200 build/CPU/build.log || true
 
       - name: Verify binary exists
         run: |
-          if [ ! -f build/CPU/qallow_unified_cpu ]; then
-            echo "ERROR: Binary not found at build/CPU/qallow_unified_cpu"
-            ls -la build/CPU/ || echo "build/CPU directory does not exist"
-            exit 1
+          set -eux
+          echo "Listing build/CPU:"
+          ls -la build/CPU || true
+          echo "Searching for qallow-related executables:"
+          find build/CPU -maxdepth 4 -type f -perm /u=x,g=x,o=x -name "*qallow*" -print -ls || true
+          if [ -f build/CPU/qallow_unified_cpu ]; then
+            echo "Binary verified: $(file build/CPU/qallow_unified_cpu)"
+            exit 0
           fi
-          echo "Binary verified: $(file build/CPU/qallow_unified_cpu)"
+          echo "ERROR: Expected binary build/CPU/qallow_unified_cpu not found."
+          echo "See build/CPU/build.log for build output (if present)."
+          exit 1
 
       - name: Run smoke tests
         env:

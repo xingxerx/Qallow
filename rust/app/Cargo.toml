@@ -1,0 +1,12 @@
+[package]
+name = "qallow_app"
+version = "0.1.0"
+edition = "2021"
+description = "Command-line harness for the Rust-based Qallow frontends"
+license = "MIT"
+
+[dependencies]
+anyhow = { workspace = true }
+clap = { workspace = true }
+qallow_ui = { path = "../ui" }
+serde_json = { workspace = true }

@@ -209,6 +209,9 @@ target_compile_definitions(qallow_unified PRIVATE QALLOW_UNIFIED)
 if(QALLOW_ENABLE_CUDA)
     target_link_libraries(qallow_unified PRIVATE qallow_backend_cuda CUDA::cudart)
     target_compile_definitions(qallow_unified PRIVATE QALLOW_ENABLE_CUDA)
+    set_target_properties(qallow_unified PROPERTIES OUTPUT_NAME "qallow_unified_cuda")
+else()
+    set_target_properties(qallow_unified PROPERTIES OUTPUT_NAME "qallow_unified_cpu")
 endif()
 
 # Optional SDL-based telemetry UI
