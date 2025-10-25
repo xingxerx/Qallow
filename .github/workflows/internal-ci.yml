@@ -136,6 +136,27 @@ jobs:
           rm -rf build/
           df -h
 
+      - name: Install FLTK dependencies
+        run: |
+          echo "Installing FLTK GUI dependencies..."
+          sudo apt-get update
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+            libxft-dev \
+            libx11-dev \
+            libxext-dev \
+            libxinerama-dev \
+            libxcursor-dev \
+            libxrandr-dev \
+            libxrender-dev \
+            libpango1.0-dev \
+            libcairo2-dev
+          sudo apt-get clean
+          sudo rm -rf /var/lib/apt/lists/*
+          echo "FLTK dependencies installed successfully"
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
       - name: Build Rust unified project
         run: |
           echo "Building Rust unified project..."

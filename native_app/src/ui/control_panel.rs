@@ -3,7 +3,18 @@ use fltk::enums::Color;
 use std::sync::{Arc, Mutex};
 use crate::models::AppState;
 
-pub fn create_control_panel(tabs: &mut group::Tabs, _state: Arc<Mutex<AppState>>) {
+pub struct ControlPanelButtons {
+    pub start_btn: button::Button,
+    pub stop_btn: button::Button,
+    pub pause_btn: button::Button,
+    pub reset_btn: button::Button,
+    pub export_btn: button::Button,
+    pub save_btn: button::Button,
+    pub logs_btn: button::Button,
+    pub build_choice: menu::Choice,
+}
+
+pub fn create_control_panel(tabs: &mut group::Tabs, _state: Arc<Mutex<AppState>>) -> ControlPanelButtons {
     let mut group = group::Group::default()
         .with_label("⚙️ Control");
     group.set_color(Color::from_hex(0x0a0e27));
@@ -155,6 +166,17 @@ Ethics Score:         2.39 (PASS ✓)"#;
     flex.end();
     group.end();
     tabs.add(&group);
+
+    ControlPanelButtons {
+        start_btn,
+        stop_btn,
+        pause_btn,
+        reset_btn,
+        export_btn,
+        save_btn,
+        logs_btn,
+        build_choice,
+    }
 }
 
 fn create_config_input(flex: &mut group::Flex, label: &str, value: &str) {

@@ -11,7 +11,7 @@ use fltk::enums::Color;
 use std::sync::{Arc, Mutex};
 use crate::models::AppState;
 
-pub fn create_main_ui(_wind: &mut window::Window, state: Arc<Mutex<AppState>>) {
+pub fn create_main_ui(_wind: &mut window::Window, state: Arc<Mutex<AppState>>) -> control_panel::ControlPanelButtons {
     let mut flex = group::Flex::default()
         .with_size(1600, 1000)
         .column();
@@ -57,7 +57,7 @@ pub fn create_main_ui(_wind: &mut window::Window, state: Arc<Mutex<AppState>>) {
     audit_log::create_audit_log(&mut tabs, state.clone());
 
     // Control Panel tab
-    control_panel::create_control_panel(&mut tabs, state.clone());
+    let control_buttons = control_panel::create_control_panel(&mut tabs, state.clone());
 
     // Settings tab
     settings::create_settings_panel(&mut tabs, state.clone());
@@ -70,6 +70,8 @@ pub fn create_main_ui(_wind: &mut window::Window, state: Arc<Mutex<AppState>>) {
     main_flex.end();
 
     flex.end();
+
+    control_buttons
 }
 
 fn create_header(flex: &mut group::Flex) {

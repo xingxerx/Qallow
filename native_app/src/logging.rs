@@ -3,6 +3,7 @@ use std::io::Write;
 use std::path::Path;
 use chrono::Local;
 
+#[derive(Clone)]
 pub struct AppLogger {
     log_file: String,
     max_file_size: u64,
