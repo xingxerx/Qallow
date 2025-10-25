@@ -38,13 +38,24 @@ impl ButtonHandler {
 
         state.vm_running = true;
         state.mind_started_at = Some(Utc::now());
+        state.current_step = 0;
 
         // Add terminal output
+        let build_str = match state.selected_build {
+            BuildType::CPU => "CPU",
+            BuildType::CUDA => "CUDA",
+        };
+        let phase_str = match state.selected_phase {
+            Phase::Phase13 => "Phase 13",
+            Phase::Phase14 => "Phase 14",
+            Phase::Phase15 => "Phase 15",
+        };
+
         let line = TerminalLine {
             timestamp: Utc::now(),
             content: format!(
-                "🚀 Starting VM with {:?} build on {:?}",
-                state.selected_build, state.selected_phase
+                "🚀 Starting Qallow VM with {} build on {} (ticks: {})",
+                build_str, phase_str, state.phase_config.ticks
             ),
             line_type: LineType::Info,
         };
@@ -55,11 +66,11 @@ impl ButtonHandler {
             timestamp: Utc::now(),
             level: LogLevel::Success,
             component: "ControlPanel".to_string(),
-            message: "VM started successfully".to_string(),
+            message: format!("VM started with {} build on {}", build_str, phase_str),
         };
         state.audit_logs.push_back(audit);
 
-        let _ = self.logger.info("✓ VM started successfully");
+        let _ = self.logger.info(&format!("✓ VM started with {} build on {}", build_str, phase_str));
         Ok(())
     }
 
@@ -77,10 +88,18 @@ impl ButtonHandler {
 
         state.vm_running = false;
 
+        // Calculate uptime
+        let uptime = state.mind_started_at
+            .map(|start| Utc::now().signed_duration_since(start).num_seconds())
+            .unwrap_or(0);
+
         // Add terminal output
         let line = TerminalLine {
             timestamp: Utc::now(),
-            content: "⏹️ VM stopped".to_string(),
+            content: format!(
+                "⏹️ VM stopped gracefully (uptime: {}s, steps: {}, reward: {:.2})",
+                uptime, state.current_step, state.reward
+            ),
             line_type: LineType::Info,
         };
         state.terminal_output.push_back(line);
@@ -90,11 +109,11 @@ impl ButtonHandler {
             timestamp: Utc::now(),
             level: LogLevel::Warning,
             component: "ControlPanel".to_string(),
-            message: "VM stopped".to_string(),
+            message: format!("VM stopped after {}s with {} steps", uptime, state.current_step),
         };
         state.audit_logs.push_back(audit);
 
-        let _ = self.logger.info("✓ VM stopped");
+        let _ = self.logger.info(&format!("✓ VM stopped after {}s", uptime));
         Ok(())
     }
 
@@ -106,15 +125,29 @@ impl ButtonHandler {
             return Err("VM is not running".to_string());
         }
 
-        // Add terminal output
+        state.vm_running = false;
+
+        // Add terminal output with current metrics
         let line = TerminalLine {
             timestamp: Utc::now(),
-            content: "⏸️ VM paused".to_string(),
+            content: format!(
+                "⏸️ VM paused (step: {}, reward: {:.2}, energy: {:.2}, risk: {:.2})",
+                state.current_step, state.reward, state.energy, state.risk
+            ),
             line_type: LineType::Info,
         };
         state.terminal_output.push_back(line);
 
-        let _ = self.logger.info("✓ VM paused");
+        // Add audit log
+        let audit = AuditLog {
+            timestamp: Utc::now(),
+            level: LogLevel::Info,
+            component: "ControlPanel".to_string(),
+            message: format!("VM paused at step {}", state.current_step),
+        };
+        state.audit_logs.push_back(audit);
+
+        let _ = self.logger.info(&format!("✓ VM paused at step {}", state.current_step));
         Ok(())
     }
 
@@ -126,18 +159,25 @@ impl ButtonHandler {
             return Err("Cannot reset while VM is running".to_string());
         }
 
+        // Store previous metrics for comparison
+        let prev_steps = state.current_step;
+        let prev_reward = state.reward;
+
         // Reset state
         state.current_step = 0;
         state.reward = 0.0;
         state.energy = 0.0;
         state.risk = 0.0;
-        state.terminal_output.clear();
+        state.mind_started_at = None;
         state.telemetry.clear();
 
         // Add terminal output
         let line = TerminalLine {
             timestamp: Utc::now(),
-            content: "🔄 System reset".to_string(),
+            content: format!(
+                "🔄 System reset (cleared {} steps, reward: {:.2})",
+                prev_steps, prev_reward
+            ),
             line_type: LineType::Info,
         };
         state.terminal_output.push_back(line);
@@ -147,11 +187,11 @@ impl ButtonHandler {
             timestamp: Utc::now(),
             level: LogLevel::Info,
             component: "ControlPanel".to_string(),
-            message: "System reset".to_string(),
+            message: format!("System reset - cleared {} steps and {:.2} reward", prev_steps, prev_reward),
         };
         state.audit_logs.push_back(audit);
 
-        let _ = self.logger.info("✓ System reset");
+        let _ = self.logger.info(&format!("✓ System reset - cleared {} steps", prev_steps));
         Ok(())
     }
 
@@ -163,16 +203,33 @@ impl ButtonHandler {
             return Err("Cannot change build while VM is running".to_string());
         }
 
+        let build_str = match build {
+            BuildType::CPU => "CPU",
+            BuildType::CUDA => "CUDA",
+        };
+
         state.selected_build = build;
 
         let line = TerminalLine {
             timestamp: Utc::now(),
-            content: format!("📦 Build selected: {:?}", build),
+            content: format!("📦 Build selected: {} (optimized for {})",
+                build_str,
+                if build == BuildType::CUDA { "GPU acceleration" } else { "CPU processing" }
+            ),
             line_type: LineType::Info,
         };
         state.terminal_output.push_back(line);
 
-        let _ = self.logger.info(&format!("✓ Build changed to {:?}", build));
+        // Add audit log
+        let audit = AuditLog {
+            timestamp: Utc::now(),
+            level: LogLevel::Info,
+            component: "ControlPanel".to_string(),
+            message: format!("Build changed to {}", build_str),
+        };
+        state.audit_logs.push_back(audit);
+
+        let _ = self.logger.info(&format!("✓ Build changed to {}", build_str));
         Ok(())
     }
 
@@ -184,16 +241,37 @@ impl ButtonHandler {
             return Err("Cannot change phase while VM is running".to_string());
         }
 
+        let phase_str = match phase {
+            Phase::Phase13 => "Phase 13",
+            Phase::Phase14 => "Phase 14",
+            Phase::Phase15 => "Phase 15",
+        };
+
+        let phase_desc = match phase {
+            Phase::Phase13 => "Quantum Circuit Optimization",
+            Phase::Phase14 => "Photonic Integration",
+            Phase::Phase15 => "AGI Synthesis",
+        };
+
         state.selected_phase = phase;
 
         let line = TerminalLine {
             timestamp: Utc::now(),
-            content: format!("📍 Phase selected: {:?}", phase),
+            content: format!("📍 Phase selected: {} - {}", phase_str, phase_desc),
             line_type: LineType::Info,
         };
         state.terminal_output.push_back(line);
 
-        let _ = self.logger.info(&format!("✓ Phase changed to {:?}", phase));
+        // Add audit log
+        let audit = AuditLog {
+            timestamp: Utc::now(),
+            level: LogLevel::Info,
+            component: "ControlPanel".to_string(),
+            message: format!("Phase changed to {} ({})", phase_str, phase_desc),
+        };
+        state.audit_logs.push_back(audit);
+
+        let _ = self.logger.info(&format!("✓ Phase changed to {}", phase_str));
         Ok(())
     }
 
@@ -201,11 +279,26 @@ impl ButtonHandler {
     pub fn on_export_metrics(&self) -> Result<String, String> {
         let state = self.state.lock().map_err(|e| format!("State lock error: {}", e))?;
 
-        // Export metrics as JSON
-        let metrics_json = serde_json::to_string_pretty(&state.metrics)
+        // Create comprehensive metrics export
+        let export_data = serde_json::json!({
+            "timestamp": Utc::now().to_rfc3339(),
+            "vm_running": state.vm_running,
+            "current_step": state.current_step,
+            "reward": state.reward,
+            "energy": state.energy,
+            "risk": state.risk,
+            "selected_build": format!("{:?}", state.selected_build),
+            "selected_phase": format!("{:?}", state.selected_phase),
+            "metrics": state.metrics,
+            "telemetry_count": state.telemetry.len(),
+            "terminal_lines": state.terminal_output.len(),
+            "audit_logs": state.audit_logs.len(),
+        });
+
+        let metrics_json = serde_json::to_string_pretty(&export_data)
             .map_err(|e| format!("Serialization error: {}", e))?;
 
-        let _ = self.logger.info("✓ Metrics exported");
+        let _ = self.logger.info(&format!("✓ Metrics exported ({} bytes)", metrics_json.len()));
         Ok(metrics_json)
     }
 
@@ -213,14 +306,43 @@ impl ButtonHandler {
     pub fn on_save_config(&self) -> Result<(), String> {
         let state = self.state.lock().map_err(|e| format!("State lock error: {}", e))?;
 
-        // Save configuration to file
-        let config_json = serde_json::to_string_pretty(&state.phase_config)
+        // Create comprehensive configuration export
+        let config_export = serde_json::json!({
+            "timestamp": Utc::now().to_rfc3339(),
+            "phase_config": state.phase_config,
+            "selected_build": format!("{:?}", state.selected_build),
+            "selected_phase": format!("{:?}", state.selected_phase),
+            "current_metrics": {
+                "step": state.current_step,
+                "reward": state.reward,
+                "energy": state.energy,
+                "risk": state.risk,
+            },
+            "vm_running": state.vm_running,
+        });
+
+        let config_json = serde_json::to_string_pretty(&config_export)
             .map_err(|e| format!("Serialization error: {}", e))?;
 
-        std::fs::write("qallow_phase_config.json", config_json)
+        std::fs::write("qallow_phase_config.json", &config_json)
             .map_err(|e| format!("File write error: {}", e))?;
 
-        let _ = self.logger.info("✓ Configuration saved");
+        // Add audit log
+        let audit = AuditLog {
+            timestamp: Utc::now(),
+            level: LogLevel::Success,
+            component: "ControlPanel".to_string(),
+            message: "Configuration saved to qallow_phase_config.json".to_string(),
+        };
+
+        // Need to drop the lock before acquiring it again
+        drop(state);
+
+        if let Ok(mut state) = self.state.lock() {
+            state.audit_logs.push_back(audit);
+        }
+
+        let _ = self.logger.info("✓ Configuration saved to qallow_phase_config.json");
         Ok(())
     }
 
@@ -228,19 +350,35 @@ impl ButtonHandler {
     pub fn on_view_logs(&self) -> Result<Vec<String>, String> {
         let state = self.state.lock().map_err(|e| format!("State lock error: {}", e))?;
 
-        let logs: Vec<String> = state
-            .audit_logs
-            .iter()
-            .map(|log| {
-                format!(
-                    "[{}] {:?} - {}: {}",
-                    log.timestamp.format("%H:%M:%S"),
-                    log.level,
-                    log.component,
-                    log.message
-                )
-            })
-            .collect();
+        let mut logs: Vec<String> = Vec::new();
+
+        // Add header
+        logs.push("═══════════════════════════════════════════════════════════════".to_string());
+        logs.push(format!("📋 Audit Log - {} entries", state.audit_logs.len()));
+        logs.push("═══════════════════════════════════════════════════════════════".to_string());
+        logs.push("".to_string());
+
+        // Add audit logs
+        for log in state.audit_logs.iter().rev().take(50) {
+            let (level_icon, level_str) = match log.level {
+                LogLevel::Info => ("ℹ️", "INFO"),
+                LogLevel::Success => ("✅", "SUCCESS"),
+                LogLevel::Warning => ("⚠️", "WARNING"),
+                LogLevel::Error => ("❌", "ERROR"),
+            };
+
+            logs.push(format!(
+                "{} [{}] {} - {}: {}",
+                level_icon,
+                log.timestamp.format("%H:%M:%S"),
+                level_str,
+                log.component,
+                log.message
+            ));
+        }
+
+        logs.push("".to_string());
+        logs.push("═══════════════════════════════════════════════════════════════".to_string());
 
         Ok(logs)
     }
