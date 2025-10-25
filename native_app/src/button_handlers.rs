@@ -1,4 +1,5 @@
 use crate::backend::process_manager::ProcessManager;
+use crate::codebase_manager::CodebaseManager;
 use crate::logging::AppLogger;
 use crate::models::{AppState, AuditLog, BuildType, LineType, LogLevel, Phase, TerminalLine};
 use chrono::Utc;
@@ -9,6 +10,7 @@ pub struct ButtonHandler {
     state: Arc<Mutex<AppState>>,
     process_manager: Arc<Mutex<ProcessManager>>,
     logger: Arc<AppLogger>,
+    codebase_manager: Option<Arc<CodebaseManager>>,
 }
 
 impl ButtonHandler {
@@ -16,11 +18,13 @@ impl ButtonHandler {
         state: Arc<Mutex<AppState>>,
         process_manager: Arc<Mutex<ProcessManager>>,
         logger: Arc<AppLogger>,
+        codebase_manager: Option<Arc<CodebaseManager>>,
     ) -> Self {
         ButtonHandler {
             state,
             process_manager,
             logger,
+            codebase_manager,
         }
     }
 
@@ -446,5 +450,168 @@ impl ButtonHandler {
         logs.push("═══════════════════════════════════════════════════════════════".to_string());
 
         Ok(logs)
+    }
+
+    /// Handle Build Native App button click
+    pub fn on_build_native_app(&self) -> Result<String, String> {
+        let manager = self
+            .codebase_manager
+            .as_ref()
+            .ok_or_else(|| "Codebase manager not available".to_string())?;
+
+        let result = manager.build_native_app()?;
+        let terminal_message = format!("🛠️ Native app build result: {}", result);
+
+        {
+            let mut state = self
+                .state
+                .lock()
+                .map_err(|e| format!("State lock error: {}", e))?;
+
+            state.terminal_output.push_back(TerminalLine {
+                timestamp: Utc::now(),
+                content: terminal_message.clone(),
+                line_type: LineType::Info,
+            });
+
+            state.audit_logs.push_back(AuditLog {
+                timestamp: Utc::now(),
+                level: LogLevel::Success,
+                component: "Codebase".to_string(),
+                message: "Native app build executed".to_string(),
+            });
+        }
+
+        let _ = self
+            .logger
+            .info("✓ Native app build executed via control panel");
+
+        Ok(result)
+    }
+
+    /// Handle Run Tests button click
+    pub fn on_run_tests(&self) -> Result<String, String> {
+        let manager = self
+            .codebase_manager
+            .as_ref()
+            .ok_or_else(|| "Codebase manager not available".to_string())?;
+
+        let result = manager.run_tests()?;
+        let terminal_message = format!("🧪 Test run result: {}", result);
+
+        {
+            let mut state = self
+                .state
+                .lock()
+                .map_err(|e| format!("State lock error: {}", e))?;
+
+            state.terminal_output.push_back(TerminalLine {
+                timestamp: Utc::now(),
+                content: terminal_message.clone(),
+                line_type: LineType::Info,
+            });
+
+            state.audit_logs.push_back(AuditLog {
+                timestamp: Utc::now(),
+                level: LogLevel::Success,
+                component: "Codebase".to_string(),
+                message: "Native app tests executed".to_string(),
+            });
+        }
+
+        let _ = self
+            .logger
+            .info("✓ Native app tests executed via control panel");
+
+        Ok(result)
+    }
+
+    /// Handle Git Status button click
+    pub fn on_git_status(&self) -> Result<String, String> {
+        let manager = self
+            .codebase_manager
+            .as_ref()
+            .ok_or_else(|| "Codebase manager not available".to_string())?;
+
+        let status = manager.get_git_status()?;
+        let trimmed = status.trim();
+        let status_message = if trimmed.is_empty() {
+            "Working tree clean".to_string()
+        } else {
+            trimmed.to_string()
+        };
+
+        {
+            let mut state = self
+                .state
+                .lock()
+                .map_err(|e| format!("State lock error: {}", e))?;
+
+            state.terminal_output.push_back(TerminalLine {
+                timestamp: Utc::now(),
+                content: format!("📁 Git status:\n{}", status_message),
+                line_type: LineType::Info,
+            });
+
+            state.audit_logs.push_back(AuditLog {
+                timestamp: Utc::now(),
+                level: LogLevel::Info,
+                component: "Codebase".to_string(),
+                message: "Git status fetched".to_string(),
+            });
+        }
+
+        let _ = self.logger.info("ℹ️ Git status fetched via control panel");
+
+        Ok(status_message)
+    }
+
+    /// Handle Recent Commits button click
+    pub fn on_recent_commits(&self, count: usize) -> Result<Vec<String>, String> {
+        let manager = self
+            .codebase_manager
+            .as_ref()
+            .ok_or_else(|| "Codebase manager not available".to_string())?;
+
+        let commits = manager.get_recent_commits(count)?;
+        let display = if commits.is_empty() {
+            "No commits available".to_string()
+        } else {
+            commits
+                .iter()
+                .map(|s| s.as_str())
+                .collect::<Vec<_>>()
+                .join("\n")
+        };
+
+        {
+            let mut state = self
+                .state
+                .lock()
+                .map_err(|e| format!("State lock error: {}", e))?;
+
+            state.terminal_output.push_back(TerminalLine {
+                timestamp: Utc::now(),
+                content: format!("📜 Recent commits:\n{}", display),
+                line_type: LineType::Info,
+            });
+
+            state.audit_logs.push_back(AuditLog {
+                timestamp: Utc::now(),
+                level: LogLevel::Info,
+                component: "Codebase".to_string(),
+                message: format!(
+                    "Fetched {} recent commit{}",
+                    commits.len(),
+                    if commits.len() == 1 { "" } else { "s" }
+                ),
+            });
+        }
+
+        let _ = self
+            .logger
+            .info("ℹ️ Recent commits fetched via control panel");
+
+        Ok(commits)
     }
 }

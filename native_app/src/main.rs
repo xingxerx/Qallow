@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 mod backend;
 mod button_handlers;
 mod codebase_manager;
@@ -12,6 +14,7 @@ mod utils;
 
 use backend::process_manager::ProcessManager;
 use button_handlers::ButtonHandler;
+use codebase_manager::CodebaseManager;
 use config::ConfigManager;
 use fltk::enums::Color;
 use fltk::{dialog, prelude::*, *};
@@ -46,11 +49,10 @@ fn main() {
     let _ = logger.info("🚀 Qallow Application Starting");
 
     // Initialize codebase manager
-    let _codebase_mgr = match codebase_manager::CodebaseManager::new("/root/Qallow", logger.clone())
-    {
+    let codebase_mgr = match CodebaseManager::new("/root/Qallow", logger.clone()) {
         Ok(mgr) => {
             let _ = logger.info("✓ Codebase manager initialized");
-            Some(mgr)
+            Some(Arc::new(mgr))
         }
         Err(e) => {
             let _ = logger.warn(&format!("Could not initialize codebase manager: {}", e));
@@ -90,6 +92,7 @@ fn main() {
         state.clone(),
         process_manager.clone(),
         Arc::new(logger.clone()),
+        codebase_mgr.clone(),
     ));
 
     // Create main window
@@ -252,6 +255,95 @@ fn main() {
                 dialog::message_default(&display);
             }
             Err(e) => dialog::alert_default(&format!("Error viewing logs: {}", e)),
+        }
+    });
+
+    let handler_clone = button_handler.clone();
+    control_buttons.build_app_btn.set_callback({
+        let handler = handler_clone.clone();
+        let state = state.clone();
+        let terminal_buffer = terminal_buffer.clone();
+        let audit_buffer = audit_buffer.clone();
+        let audit_filter_choice = audit_filter_choice.clone();
+        move |_| match handler.on_build_native_app() {
+            Ok(message) => {
+                refresh_terminal(&state, &terminal_buffer);
+                refresh_audit(
+                    &state,
+                    &audit_buffer,
+                    current_audit_filter(&audit_filter_choice),
+                );
+                dialog::message_default(&format!("✓ {}", message));
+            }
+            Err(e) => dialog::alert_default(&format!("Build failed: {}", e)),
+        }
+    });
+
+    let handler_clone = button_handler.clone();
+    control_buttons.run_tests_btn.set_callback({
+        let handler = handler_clone.clone();
+        let state = state.clone();
+        let terminal_buffer = terminal_buffer.clone();
+        let audit_buffer = audit_buffer.clone();
+        let audit_filter_choice = audit_filter_choice.clone();
+        move |_| match handler.on_run_tests() {
+            Ok(message) => {
+                refresh_terminal(&state, &terminal_buffer);
+                refresh_audit(
+                    &state,
+                    &audit_buffer,
+                    current_audit_filter(&audit_filter_choice),
+                );
+                dialog::message_default(&format!("✓ {}", message));
+            }
+            Err(e) => dialog::alert_default(&format!("Tests failed: {}", e)),
+        }
+    });
+
+    let handler_clone = button_handler.clone();
+    control_buttons.git_status_btn.set_callback({
+        let handler = handler_clone.clone();
+        let state = state.clone();
+        let terminal_buffer = terminal_buffer.clone();
+        let audit_buffer = audit_buffer.clone();
+        let audit_filter_choice = audit_filter_choice.clone();
+        move |_| match handler.on_git_status() {
+            Ok(status) => {
+                refresh_terminal(&state, &terminal_buffer);
+                refresh_audit(
+                    &state,
+                    &audit_buffer,
+                    current_audit_filter(&audit_filter_choice),
+                );
+                dialog::message_default(&format!("📁 Git Status:\n{}", status));
+            }
+            Err(e) => dialog::alert_default(&format!("Failed to fetch git status: {}", e)),
+        }
+    });
+
+    let handler_clone = button_handler.clone();
+    control_buttons.recent_commits_btn.set_callback({
+        let handler = handler_clone.clone();
+        let state = state.clone();
+        let terminal_buffer = terminal_buffer.clone();
+        let audit_buffer = audit_buffer.clone();
+        let audit_filter_choice = audit_filter_choice.clone();
+        move |_| match handler.on_recent_commits(5) {
+            Ok(commits) => {
+                refresh_terminal(&state, &terminal_buffer);
+                refresh_audit(
+                    &state,
+                    &audit_buffer,
+                    current_audit_filter(&audit_filter_choice),
+                );
+                let content = if commits.is_empty() {
+                    "No commits available".to_string()
+                } else {
+                    commits.join("\n")
+                };
+                dialog::message_default(&format!("📜 Recent Commits:\n{}", content));
+            }
+            Err(e) => dialog::alert_default(&format!("Failed to fetch commits: {}", e)),
         }
     });
 

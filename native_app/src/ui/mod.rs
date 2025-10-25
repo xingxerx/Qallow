@@ -25,7 +25,7 @@ pub fn create_main_ui(_wind: &mut window::Window, state: Arc<Mutex<AppState>>) -
     let status_indicator = create_header(&mut flex);
 
     // Main content area with sidebar
-    let mut main_flex = group::Flex::default().with_size(1600, 950).row();
+    let main_flex = group::Flex::default().with_size(1600, 950).row();
 
     // Sidebar navigation
     let mut sidebar = group::Flex::default().with_size(150, 950).column();

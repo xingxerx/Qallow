@@ -12,6 +12,10 @@ pub struct ControlPanelButtons {
     pub save_btn: button::Button,
     pub logs_btn: button::Button,
     pub build_choice: menu::Choice,
+    pub build_app_btn: button::Button,
+    pub run_tests_btn: button::Button,
+    pub git_status_btn: button::Button,
+    pub recent_commits_btn: button::Button,
 }
 
 pub fn create_control_panel(
@@ -132,6 +136,40 @@ pub fn create_control_panel(
 
     actions_flex.end();
 
+    // Codebase operations
+    let mut codebase_flex = group::Flex::default().with_size(1450, 100).row();
+    codebase_flex.set_color(Color::from_hex(0x0a0e27));
+
+    let mut build_app_btn = button::Button::default()
+        .with_size(220, 100)
+        .with_label("🛠️ Build Native App");
+    build_app_btn.set_color(Color::from_hex(0x1a1f3a));
+    build_app_btn.set_label_color(Color::from_hex(0x00d4ff));
+    codebase_flex.add(&build_app_btn);
+
+    let mut run_tests_btn = button::Button::default()
+        .with_size(220, 100)
+        .with_label("🧪 Run Tests");
+    run_tests_btn.set_color(Color::from_hex(0x1a1f3a));
+    run_tests_btn.set_label_color(Color::from_hex(0x00d4ff));
+    codebase_flex.add(&run_tests_btn);
+
+    let mut git_status_btn = button::Button::default()
+        .with_size(220, 100)
+        .with_label("📁 Git Status");
+    git_status_btn.set_color(Color::from_hex(0x1a1f3a));
+    git_status_btn.set_label_color(Color::from_hex(0x00d4ff));
+    codebase_flex.add(&git_status_btn);
+
+    let mut recent_commits_btn = button::Button::default()
+        .with_size(220, 100)
+        .with_label("📜 Recent Commits");
+    recent_commits_btn.set_color(Color::from_hex(0x1a1f3a));
+    recent_commits_btn.set_label_color(Color::from_hex(0x00d4ff));
+    codebase_flex.add(&recent_commits_btn);
+
+    codebase_flex.end();
+
     // System information
     let mut info_flex = group::Flex::default().with_size(1450, 250).column();
     info_flex.set_color(Color::from_hex(0x0a0e27));
@@ -170,6 +208,10 @@ Ethics Score:         2.39 (PASS ✓)"#;
         save_btn,
         logs_btn,
         build_choice,
+        build_app_btn,
+        run_tests_btn,
+        git_status_btn,
+        recent_commits_btn,
     }
 }
 
