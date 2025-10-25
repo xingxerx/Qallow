@@ -228,7 +228,7 @@ bool phase14_is_active(void) {
  * When CUDA is disabled, this provides a fallback that returns a default value.
  * The CUDA version (in backend/cuda/phase14_gain.cu) is used when CUDA is enabled.
  */
-#ifndef QALLOW_WITH_CUDA
+#if !defined(QALLOW_WITH_CUDA) && !defined(QALLOW_ENABLE_CUDA)
 int phase14_gain_from_csr(const char* csv_path, int N, double* out_alpha_eff,
                           double gain_base, double gain_span) {
     if (!out_alpha_eff) return -1;
