@@ -93,12 +93,7 @@ fn main() {
     // Create UI and get button references
     let mut control_buttons = ui::create_main_ui(&mut wind, state.clone());
 
-    wind.end();
-    wind.show();
-
-    let _ = logger.info("✓ UI initialized and window shown");
-
-    // Setup button callbacks
+    // Setup button callbacks BEFORE showing window
     let handler_clone = button_handler.clone();
     control_buttons.start_btn.set_callback({
         let handler = handler_clone.clone();
@@ -194,6 +189,11 @@ fn main() {
             }
         }
     });
+
+    wind.end();
+    wind.show();
+
+    let _ = logger.info("✓ UI initialized and window shown");
 
     // Run event loop
     while app.wait() {

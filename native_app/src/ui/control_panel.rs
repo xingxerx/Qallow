@@ -42,24 +42,28 @@ pub fn create_control_panel(tabs: &mut group::Tabs, _state: Arc<Mutex<AppState>>
         .with_label("▶️ Start VM");
     start_btn.set_color(Color::from_hex(0x00ff64));
     start_btn.set_label_color(Color::Black);
+    control_flex.add(&start_btn);
 
     let mut stop_btn = button::Button::default()
         .with_size(150, 150)
         .with_label("⏹️ Stop VM");
     stop_btn.set_color(Color::from_hex(0xff6464));
     stop_btn.set_label_color(Color::White);
+    control_flex.add(&stop_btn);
 
     let mut pause_btn = button::Button::default()
         .with_size(150, 150)
         .with_label("⏸️ Pause");
     pause_btn.set_color(Color::from_hex(0xffaa00));
     pause_btn.set_label_color(Color::Black);
+    control_flex.add(&pause_btn);
 
     let mut reset_btn = button::Button::default()
         .with_size(150, 150)
         .with_label("🔄 Reset");
     reset_btn.set_color(Color::from_hex(0x1a1f3a));
     reset_btn.set_label_color(Color::from_hex(0x00d4ff));
+    control_flex.add(&reset_btn);
 
     control_flex.end();
 
@@ -74,12 +78,14 @@ pub fn create_control_panel(tabs: &mut group::Tabs, _state: Arc<Mutex<AppState>>
     build_label.set_buffer(text::TextBuffer::default());
     build_label.buffer().unwrap().set_text("Select Build:");
     build_label.set_text_color(Color::from_hex(0x00d4ff));
+    build_flex.add(&build_label);
 
     let mut build_choice = menu::Choice::default()
         .with_size(300, 100);
     build_choice.add_choice("CPU|CUDA");
     build_choice.set_color(Color::from_hex(0x1a1f3a));
     build_choice.set_text_color(Color::from_hex(0x00d4ff));
+    build_flex.add(&build_choice);
 
     build_flex.end();
 
@@ -119,18 +125,21 @@ pub fn create_control_panel(tabs: &mut group::Tabs, _state: Arc<Mutex<AppState>>
         .with_label("📈 Export Metrics");
     export_btn.set_color(Color::from_hex(0x1a1f3a));
     export_btn.set_label_color(Color::from_hex(0x00d4ff));
+    actions_flex.add(&export_btn);
 
     let mut save_btn = button::Button::default()
         .with_size(200, 100)
         .with_label("💾 Save Config");
     save_btn.set_color(Color::from_hex(0x1a1f3a));
     save_btn.set_label_color(Color::from_hex(0x00d4ff));
+    actions_flex.add(&save_btn);
 
     let mut logs_btn = button::Button::default()
         .with_size(200, 100)
         .with_label("📋 View Logs");
     logs_btn.set_color(Color::from_hex(0x1a1f3a));
     logs_btn.set_label_color(Color::from_hex(0x00d4ff));
+    actions_flex.add(&logs_btn);
 
     actions_flex.end();
 
