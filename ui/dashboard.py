@@ -5,7 +5,7 @@ Live telemetry, ethics visualization, and phase progression tracking
 Enhanced with phase metrics, CSV telemetry integration, and audit logs
 """
 
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, render_template, jsonify
 from flask_cors import CORS
 import json
 import os
@@ -16,6 +16,7 @@ from collections import deque
 import subprocess
 import csv
 import glob
+import shlex
 
 app = Flask(__name__)
 CORS(app)
@@ -26,22 +27,59 @@ ethics_history = deque(maxlen=100)
 phase_log = []
 audit_log = []
 
+# Process coordination
+process_lock = threading.Lock()
+mind_process = None
+mind_thread = None
+stop_event = threading.Event()
+
+
+def _default_state():
+    return {
+        'reward': 0.0,
+        'energy': 0.5,
+        'risk': 0.5,
+        'modules': 0,
+        'step': 0,
+        'running': False,
+        'ethics_s': 0.99,
+        'ethics_c': 1.0,
+        'ethics_h': 1.0,
+        'current_phase': 'idle',
+        'phase_progress': 0.0,
+        'fidelity': 0.0,
+        'coherence': 0.0,
+    }
+
+
 # Global state
-current_state = {
-    'reward': 0.0,
-    'energy': 0.5,
-    'risk': 0.5,
-    'modules': 0,
-    'step': 0,
-    'running': False,
-    'ethics_s': 0.99,
-    'ethics_c': 1.0,
-    'ethics_h': 1.0,
-    'current_phase': 'idle',
-    'phase_progress': 0,
-    'fidelity': 0.0,
-    'coherence': 0.0,
-}
+current_state = _default_state()
+
+
+def reset_state():
+    current_state.clear()
+    current_state.update(_default_state())
+
+
+def get_mind_command():
+    raw = os.environ.get('QALLOW_MIND_COMMAND', './build/qallow_unified mind')
+    if isinstance(raw, str):
+        raw = raw.strip()
+    if not raw:
+        return []
+    return shlex.split(raw)
+
+
+def _terminate_process(timeout=5):
+    global mind_process
+    with process_lock:
+        if mind_process and mind_process.poll() is None:
+            mind_process.terminate()
+            try:
+                mind_process.wait(timeout=timeout)
+            except subprocess.TimeoutExpired:
+                mind_process.kill()
+                mind_process.wait(timeout=timeout)
 
 def load_csv_telemetry(filepath):
     """Load telemetry from CSV file (phase logs)"""
@@ -124,25 +162,52 @@ def parse_mind_output(line):
 
 def run_mind_process():
     """Run mind command and stream output"""
+    global mind_process
+    global mind_thread
     try:
+        command = get_mind_command()
+        if not command:
+            raise RuntimeError('QALLOW_MIND_COMMAND is empty')
+
+        with process_lock:
+            mind_process = subprocess.Popen(
+                command,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                cwd='/root/Qallow'
+            )
+
         current_state['running'] = True
-        proc = subprocess.Popen(
-            ['./build/qallow_unified', 'mind'],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-            cwd='/root/Qallow'
-        )
-        
-        for line in proc.stdout:
+
+        if mind_process.stdout is None:
+            raise RuntimeError('Mind process stdout unavailable')
+
+        for line in iter(mind_process.stdout.readline, ''):
+            if stop_event.is_set():
+                break
             parse_mind_output(line.strip())
             time.sleep(0.01)
-        
-        proc.wait()
+
+        if stop_event.is_set():
+            _terminate_process()
+        else:
+            mind_process.wait()
         current_state['running'] = False
     except Exception as e:
         print(f"Process error: {e}")
         current_state['running'] = False
+    finally:
+        stop_event.clear()
+        with process_lock:
+            if mind_process and mind_process.poll() is None:
+                try:
+                    mind_process.wait(timeout=1)
+                except subprocess.TimeoutExpired:
+                    mind_process.kill()
+                    mind_process.wait(timeout=1)
+            mind_process = None
+        mind_thread = None
 
 @app.route('/')
 def index():
@@ -215,19 +280,46 @@ def get_audit():
 
     return jsonify({'entries': audit_entries})
 
-@app.route('/api/start')
+@app.route('/api/start', methods=['GET', 'POST'])
 def start_mind():
     """Start mind process"""
-    if not current_state['running']:
-        thread = threading.Thread(target=run_mind_process, daemon=True)
-        thread.start()
+    global mind_thread
+    if current_state.get('running') and mind_thread and mind_thread.is_alive():
+        return jsonify({'status': 'already running'})
+
+    stop_event.clear()
+    mind_thread = threading.Thread(target=run_mind_process, daemon=True)
+    mind_thread.start()
+    current_state['running'] = True
     return jsonify({'status': 'started'})
 
-@app.route('/api/stop')
+
+@app.route('/api/stop', methods=['GET', 'POST'])
 def stop_mind():
     """Stop mind process"""
+    global mind_thread
+    stop_event.set()
+    _terminate_process()
+
+    if mind_thread and mind_thread.is_alive():
+        mind_thread.join(timeout=2)
+    mind_thread = None
     current_state['running'] = False
     return jsonify({'status': 'stopped'})
+
+
+@app.route('/api/clear', methods=['POST'])
+def clear_data():
+    """Clear telemetry and reset state"""
+    if current_state.get('running'):
+        return jsonify({'status': 'running'}), 409
+
+    telemetry_buffer.clear()
+    ethics_history.clear()
+    phase_log.clear()
+    audit_log.clear()
+    reset_state()
+    return jsonify({'status': 'cleared'})
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)

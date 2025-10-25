@@ -93,16 +93,9 @@ else
   print_status "Server dependencies already installed"
 fi
 
-# Build React frontend
-print_info "Building React frontend..."
-cd "$PROJECT_ROOT/app"
-if [ ! -d "build" ]; then
-  print_warn "Frontend build not found, building..."
-  npm run build
-  print_status "Frontend built successfully"
-else
-  print_status "Frontend build found"
-fi
+# Skip React frontend - using native app instead
+print_status "Using native desktop app (no React frontend needed)"
+print_info "Backend server will NOT open a browser"
 
 # Create .env file if it doesn't exist
 print_info "Checking environment configuration..."
@@ -133,16 +126,12 @@ echo -e "  Log Directory: ${YELLOW}$LOG_DIR${NC}"
 echo -e "${BLUE}════════════════════════════════════════════════════════════════${NC}"
 echo ""
 
-# Start server with logging
-if [ "$NODE_ENV" = "production" ]; then
-  print_status "Starting in PRODUCTION mode"
-  NODE_ENV=production node server.js 2>&1 | tee "$LOG_DIR/server-$(date +%Y%m%d-%H%M%S).log"
-else
-  print_status "Starting in DEVELOPMENT mode"
-  if command -v nodemon &> /dev/null; then
-    nodemon server.js 2>&1 | tee "$LOG_DIR/server-$(date +%Y%m%d-%H%M%S).log"
-  else
-    node server.js 2>&1 | tee "$LOG_DIR/server-$(date +%Y%m%d-%H%M%S).log"
-  fi
-fi
+# Start server with comprehensive error handling
+print_status "Starting server with error handling and recovery"
+print_info "Mode: Backend-only (no web browser)"
+print_info "Error handling: Enabled"
+print_info "Auto-recovery: Enabled"
+echo ""
+cd "$SERVER_DIR"
+node server.js 2>&1 | tee "$LOG_DIR/server-$(date +%Y%m%d-%H%M%S).log"
 

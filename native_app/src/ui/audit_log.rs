@@ -1,8 +1,9 @@
 use fltk::{prelude::*, *};
+use fltk::enums::Color;
 use std::sync::{Arc, Mutex};
 use crate::models::AppState;
 
-pub fn create_audit_log(tabs: &mut group::Tabs, state: Arc<Mutex<AppState>>) {
+pub fn create_audit_log(tabs: &mut group::Tabs, _state: Arc<Mutex<AppState>>) {
     let mut group = group::Group::default()
         .with_label("🔍 Audit Log");
     group.set_color(Color::from_hex(0x0a0e27));

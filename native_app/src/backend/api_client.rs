@@ -47,7 +47,7 @@ impl ApiClient {
         ])
     }
 
-    pub async fn start_phase(&self, phase: u32, ticks: u32) -> Result<(), String> {
+    pub async fn start_phase(&self, _phase: u32, _ticks: u32) -> Result<(), String> {
         // Placeholder for API call to start a phase
         Ok(())
     }

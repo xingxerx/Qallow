@@ -2,6 +2,7 @@
 members = [
     "rust/app",
     "rust/ui",
+    "native_app",
 ]
 default-members = ["rust/app"]
 resolver = "2"

@@ -3,12 +3,15 @@ pub mod terminal;
 pub mod metrics;
 pub mod audit_log;
 pub mod control_panel;
+pub mod settings;
+pub mod help;
 
 use fltk::{prelude::*, *};
+use fltk::enums::Color;
 use std::sync::{Arc, Mutex};
 use crate::models::AppState;
 
-pub fn create_main_ui(wind: &mut window::Window, state: Arc<Mutex<AppState>>) {
+pub fn create_main_ui(_wind: &mut window::Window, state: Arc<Mutex<AppState>>) {
     let mut flex = group::Flex::default()
         .with_size(1600, 1000)
         .column();
@@ -56,6 +59,12 @@ pub fn create_main_ui(wind: &mut window::Window, state: Arc<Mutex<AppState>>) {
     // Control Panel tab
     control_panel::create_control_panel(&mut tabs, state.clone());
 
+    // Settings tab
+    settings::create_settings_panel(&mut tabs, state.clone());
+
+    // Help tab
+    help::create_help_panel(&mut tabs, state.clone());
+
     tabs.end();
     content.end();
     main_flex.end();
@@ -85,7 +94,7 @@ fn create_header(flex: &mut group::Flex) {
     flex.add(&header);
 }
 
-fn create_sidebar(flex: &mut group::Flex, state: Arc<Mutex<AppState>>) {
+fn create_sidebar(flex: &mut group::Flex, _state: Arc<Mutex<AppState>>) {
     let mut dashboard_btn = button::Button::default()
         .with_size(150, 40)
         .with_label("📊 Dashboard");

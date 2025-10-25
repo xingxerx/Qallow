@@ -127,7 +127,7 @@
             <button onclick="clearData()">🗑 Clear Data</button>
         </div>
 
-        <div id="status" class="status stopped">Status: Stopped</div>
+    <div id="status" class="status stopped">🔴 Status: Stopped</div>
 
         <div class="grid">
             <!-- State Metrics -->
@@ -271,45 +271,60 @@
         let rewardChart, energyRiskChart;
         let startTime = null;
 
+        const clamp = (value, min = 0, max = 1) => {
+            const numeric = Number.isFinite(value) ? value : 0;
+            return Math.min(Math.max(numeric, min), max);
+        };
+
         async function updateDashboard() {
             try {
-                const state = await fetch('/api/state').then(r => r.json());
-                const telemetry = await fetch('/api/telemetry').then(r => r.json());
-                const ethics = await fetch('/api/ethics').then(r => r.json());
-                const phases = await fetch('/api/phases').then(r => r.json());
-                const audit = await fetch('/api/audit').then(r => r.json());
+                const [state, telemetry, ethics, phases, audit] = await Promise.all([
+                    fetch('/api/state').then(r => r.json()),
+                    fetch('/api/telemetry').then(r => r.json()),
+                    fetch('/api/ethics').then(r => r.json()),
+                    fetch('/api/phases').then(r => r.json()),
+                    fetch('/api/audit').then(r => r.json()),
+                ]);
 
-                // Update state
-                document.getElementById('step').textContent = state.step;
-                document.getElementById('reward').textContent = state.reward.toFixed(3);
-                document.getElementById('energy').textContent = state.energy.toFixed(3);
-                document.getElementById('risk').textContent = state.risk.toFixed(3);
-                document.getElementById('modules').textContent = state.modules;
-                document.getElementById('telemetry-count').textContent = telemetry.length;
+                const telemetryData = Array.isArray(telemetry) ? telemetry : [];
+                const phaseData = phases && typeof phases === 'object' ? phases : {};
+                const auditEntries = audit && Array.isArray(audit.entries) ? audit.entries : [];
 
-                // Update progress bars
-                document.getElementById('reward-bar').style.width = (state.reward * 100) + '%';
-                document.getElementById('energy-bar').style.width = (state.energy * 100) + '%';
-                document.getElementById('risk-bar').style.width = (Math.max(0, state.risk) * 100) + '%';
+                document.getElementById('step').textContent = state.step ?? 0;
+                document.getElementById('reward').textContent = (state.reward ?? 0).toFixed(3);
+                document.getElementById('energy').textContent = (state.energy ?? 0.5).toFixed(3);
+                document.getElementById('risk').textContent = (state.risk ?? 0.5).toFixed(3);
+                document.getElementById('modules').textContent = state.modules ?? 0;
+                document.getElementById('telemetry-count').textContent = telemetryData.length;
 
-                // Update phase status
+                document.getElementById('reward-bar').style.width = `${clamp(state.reward) * 100}%`;
+                document.getElementById('energy-bar').style.width = `${clamp(state.energy) * 100}%`;
+                document.getElementById('risk-bar').style.width = `${clamp(state.risk) * 100}%`;
+
                 document.getElementById('current-phase').textContent = state.current_phase || 'Idle';
-                document.getElementById('phase-progress-bar').style.width = (state.phase_progress * 100) + '%';
-                document.getElementById('fidelity').textContent = (state.fidelity || 0).toFixed(3);
-                document.getElementById('fidelity-bar').style.width = ((state.fidelity || 0) * 100) + '%';
-                document.getElementById('coherence').textContent = (state.coherence || 0).toFixed(3);
-                document.getElementById('coherence-bar').style.width = ((state.coherence || 0) * 100) + '%';
+                document.getElementById('phase-progress-bar').style.width = `${clamp(state.phase_progress) * 100}%`;
+                document.getElementById('fidelity').textContent = (state.fidelity ?? 0).toFixed(3);
+                document.getElementById('fidelity-bar').style.width = `${clamp(state.fidelity) * 100}%`;
+                document.getElementById('coherence').textContent = (state.coherence ?? 0).toFixed(3);
+                document.getElementById('coherence-bar').style.width = `${clamp(state.coherence) * 100}%`;
 
-                // Update ethics
-                document.getElementById('ethics-s').textContent = ethics.safety.toFixed(3);
-                document.getElementById('ethics-c').textContent = ethics.clarity.toFixed(3);
-                document.getElementById('ethics-h').textContent = ethics.human.toFixed(3);
-                document.getElementById('ethics-total').textContent = ethics.total.toFixed(3);
-                document.getElementById('ethics-s-bar').style.width = (ethics.safety * 100) + '%';
-                document.getElementById('ethics-c-bar').style.width = (ethics.clarity * 100) + '%';
-                document.getElementById('ethics-h-bar').style.width = (ethics.human * 100) + '%';
+                const safeEthics = {
+                    safety: Number.isFinite(ethics && ethics.safety) ? ethics.safety : 0.99,
+                    clarity: Number.isFinite(ethics && ethics.clarity) ? ethics.clarity : 1.0,
+                    human: Number.isFinite(ethics && ethics.human) ? ethics.human : 1.0,
+                };
+                safeEthics.total = Number.isFinite(ethics && ethics.total)
+                    ? ethics.total
+                    : safeEthics.safety + safeEthics.clarity + safeEthics.human;
 
-                // Update status
+                document.getElementById('ethics-s').textContent = safeEthics.safety.toFixed(3);
+                document.getElementById('ethics-c').textContent = safeEthics.clarity.toFixed(3);
+                document.getElementById('ethics-h').textContent = safeEthics.human.toFixed(3);
+                document.getElementById('ethics-total').textContent = safeEthics.total.toFixed(3);
+                document.getElementById('ethics-s-bar').style.width = `${clamp(safeEthics.safety) * 100}%`;
+                document.getElementById('ethics-c-bar').style.width = `${clamp(safeEthics.clarity) * 100}%`;
+                document.getElementById('ethics-h-bar').style.width = `${clamp(safeEthics.human) * 100}%`;
+
                 const statusEl = document.getElementById('status');
                 if (state.running) {
                     statusEl.className = 'status running';
@@ -318,22 +333,19 @@
                 } else {
                     statusEl.className = 'status stopped';
                     statusEl.textContent = '🔴 Status: Stopped';
+                    startTime = null;
                 }
 
-                // Update uptime
                 if (startTime) {
                     const uptime = Math.floor((Date.now() - startTime) / 1000);
-                    document.getElementById('uptime').textContent = uptime + 's';
+                    document.getElementById('uptime').textContent = `${uptime}s`;
+                } else {
+                    document.getElementById('uptime').textContent = '0s';
                 }
 
-                // Update audit log
-                updateAuditLog(audit.entries);
-
-                // Update phase metrics
-                updatePhaseMetrics(phases);
-
-                // Update charts
-                updateCharts(telemetry);
+                updateAuditLog(auditEntries);
+                updatePhaseMetrics(phaseData);
+                updateCharts(telemetryData);
             } catch (e) {
                 console.error('Update error:', e);
             }
@@ -375,7 +387,17 @@
         }
 
         function updateCharts(telemetry) {
-            if (telemetry.length === 0) return;
+            if (!Array.isArray(telemetry) || telemetry.length === 0) {
+                if (rewardChart) {
+                    rewardChart.destroy();
+                    rewardChart = null;
+                }
+                if (energyRiskChart) {
+                    energyRiskChart.destroy();
+                    energyRiskChart = null;
+                }
+                return;
+            }
 
             const steps = telemetry.map(t => t.step);
             const rewards = telemetry.map(t => t.reward);
@@ -453,18 +475,107 @@
             }
         }
 
+        function resetDashboardUI() {
+            startTime = null;
+            const defaults = {
+                step: '0',
+                reward: '0.000',
+                energy: '0.500',
+                risk: '0.500',
+                modules: '0',
+                'telemetry-count': '0',
+                uptime: '0s',
+                'current-phase': 'Idle',
+                fidelity: '0.000',
+                coherence: '0.000',
+                'ethics-s': '0.990',
+                'ethics-c': '1.000',
+                'ethics-h': '1.000',
+                'ethics-total': '2.990',
+            };
+
+            Object.entries(defaults).forEach(([id, value]) => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = value;
+            });
+
+            const widths = {
+                'reward-bar': '0%',
+                'energy-bar': '50%',
+                'risk-bar': '50%',
+                'phase-progress-bar': '0%',
+                'fidelity-bar': '0%',
+                'coherence-bar': '0%',
+                'ethics-s-bar': '99%',
+                'ethics-c-bar': '100%',
+                'ethics-h-bar': '100%',
+            };
+
+            Object.entries(widths).forEach(([id, value]) => {
+                const el = document.getElementById(id);
+                if (el) el.style.width = value;
+            });
+
+            const statusEl = document.getElementById('status');
+            if (statusEl) {
+                statusEl.className = 'status stopped';
+                statusEl.textContent = '🔴 Status: Stopped';
+            }
+
+            if (rewardChart) {
+                rewardChart.destroy();
+                rewardChart = null;
+            }
+            if (energyRiskChart) {
+                energyRiskChart.destroy();
+                energyRiskChart = null;
+            }
+
+            const auditEl = document.getElementById('audit-log');
+            if (auditEl) {
+                auditEl.innerHTML = '<p style="color: #888;">No audit entries</p>';
+            }
+
+            const phaseMetricsEl = document.getElementById('phase-metrics');
+            if (phaseMetricsEl) {
+                phaseMetricsEl.innerHTML = '<p style="color: #888;">No phase data available</p>';
+            }
+        }
+
         async function startMind() {
-            await fetch('/api/start');
-            startTime = Date.now();
+            try {
+                const response = await fetch('/api/start', { method: 'POST' });
+                const payload = await response.json().catch(() => ({}));
+                if (response.ok && payload.status === 'started') {
+                    startTime = Date.now();
+                }
+            } catch (err) {
+                console.error('Start mind error:', err);
+            }
         }
 
         async function stopMind() {
-            await fetch('/api/stop');
+            try {
+                await fetch('/api/stop', { method: 'POST' });
+            } catch (err) {
+                console.error('Stop mind error:', err);
+            }
+            startTime = null;
         }
 
-        function clearData() {
-            startTime = null;
-            location.reload();
+        async function clearData() {
+            try {
+                const response = await fetch('/api/clear', { method: 'POST' });
+                const payload = await response.json().catch(() => ({}));
+                if (response.ok && payload.status === 'cleared') {
+                    resetDashboardUI();
+                    await updateDashboard();
+                } else if (response.status === 409) {
+                    console.warn('Cannot clear data while mind is running.');
+                }
+            } catch (err) {
+                console.error('Clear data error:', err);
+            }
         }
 
         // Update every 500ms
