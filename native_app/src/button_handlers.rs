@@ -1,8 +1,8 @@
-use std::sync::{Arc, Mutex};
-use crate::models::{AppState, BuildType, Phase, LineType, TerminalLine, AuditLog, LogLevel};
 use crate::backend::process_manager::ProcessManager;
 use crate::logging::AppLogger;
+use crate::models::{AppState, AuditLog, BuildType, LineType, LogLevel, Phase, TerminalLine};
 use chrono::Utc;
+use std::sync::{Arc, Mutex};
 
 /// Handles all button click events and connects them to backend functionality
 pub struct ButtonHandler {
@@ -26,15 +26,25 @@ impl ButtonHandler {
 
     /// Handle Start VM button click
     pub fn on_start_vm(&self) -> Result<(), String> {
-        let mut state = self.state.lock().map_err(|e| format!("State lock error: {}", e))?;
-        let mut pm = self.process_manager.lock().map_err(|e| format!("PM lock error: {}", e))?;
+        let mut state = self
+            .state
+            .lock()
+            .map_err(|e| format!("State lock error: {}", e))?;
+        let mut pm = self
+            .process_manager
+            .lock()
+            .map_err(|e| format!("PM lock error: {}", e))?;
 
         if state.vm_running {
             return Err("VM is already running".to_string());
         }
 
         // Start the VM with current configuration
-        pm.start_vm(state.selected_build, state.selected_phase, state.phase_config.ticks)?;
+        pm.start_vm(
+            state.selected_build,
+            state.selected_phase,
+            state.phase_config.ticks,
+        )?;
 
         state.vm_running = true;
         state.mind_started_at = Some(Utc::now());
@@ -70,14 +80,23 @@ impl ButtonHandler {
         };
         state.audit_logs.push_back(audit);
 
-        let _ = self.logger.info(&format!("✓ VM started with {} build on {}", build_str, phase_str));
+        let _ = self.logger.info(&format!(
+            "✓ VM started with {} build on {}",
+            build_str, phase_str
+        ));
         Ok(())
     }
 
     /// Handle Stop VM button click
     pub fn on_stop_vm(&self) -> Result<(), String> {
-        let mut state = self.state.lock().map_err(|e| format!("State lock error: {}", e))?;
-        let mut pm = self.process_manager.lock().map_err(|e| format!("PM lock error: {}", e))?;
+        let mut state = self
+            .state
+            .lock()
+            .map_err(|e| format!("State lock error: {}", e))?;
+        let mut pm = self
+            .process_manager
+            .lock()
+            .map_err(|e| format!("PM lock error: {}", e))?;
 
         if !state.vm_running {
             return Err("VM is not running".to_string());
@@ -89,7 +108,8 @@ impl ButtonHandler {
         state.vm_running = false;
 
         // Calculate uptime
-        let uptime = state.mind_started_at
+        let uptime = state
+            .mind_started_at
             .map(|start| Utc::now().signed_duration_since(start).num_seconds())
             .unwrap_or(0);
 
@@ -109,7 +129,10 @@ impl ButtonHandler {
             timestamp: Utc::now(),
             level: LogLevel::Warning,
             component: "ControlPanel".to_string(),
-            message: format!("VM stopped after {}s with {} steps", uptime, state.current_step),
+            message: format!(
+                "VM stopped after {}s with {} steps",
+                uptime, state.current_step
+            ),
         };
         state.audit_logs.push_back(audit);
 
@@ -119,7 +142,10 @@ impl ButtonHandler {
 
     /// Handle Pause button click
     pub fn on_pause(&self) -> Result<(), String> {
-        let mut state = self.state.lock().map_err(|e| format!("State lock error: {}", e))?;
+        let mut state = self
+            .state
+            .lock()
+            .map_err(|e| format!("State lock error: {}", e))?;
 
         if !state.vm_running {
             return Err("VM is not running".to_string());
@@ -147,13 +173,18 @@ impl ButtonHandler {
         };
         state.audit_logs.push_back(audit);
 
-        let _ = self.logger.info(&format!("✓ VM paused at step {}", state.current_step));
+        let _ = self
+            .logger
+            .info(&format!("✓ VM paused at step {}", state.current_step));
         Ok(())
     }
 
     /// Handle Reset button click
     pub fn on_reset(&self) -> Result<(), String> {
-        let mut state = self.state.lock().map_err(|e| format!("State lock error: {}", e))?;
+        let mut state = self
+            .state
+            .lock()
+            .map_err(|e| format!("State lock error: {}", e))?;
 
         if state.vm_running {
             return Err("Cannot reset while VM is running".to_string());
@@ -187,17 +218,25 @@ impl ButtonHandler {
             timestamp: Utc::now(),
             level: LogLevel::Info,
             component: "ControlPanel".to_string(),
-            message: format!("System reset - cleared {} steps and {:.2} reward", prev_steps, prev_reward),
+            message: format!(
+                "System reset - cleared {} steps and {:.2} reward",
+                prev_steps, prev_reward
+            ),
         };
         state.audit_logs.push_back(audit);
 
-        let _ = self.logger.info(&format!("✓ System reset - cleared {} steps", prev_steps));
+        let _ = self
+            .logger
+            .info(&format!("✓ System reset - cleared {} steps", prev_steps));
         Ok(())
     }
 
     /// Handle Build selection change
     pub fn on_build_selected(&self, build: BuildType) -> Result<(), String> {
-        let mut state = self.state.lock().map_err(|e| format!("State lock error: {}", e))?;
+        let mut state = self
+            .state
+            .lock()
+            .map_err(|e| format!("State lock error: {}", e))?;
 
         if state.vm_running {
             return Err("Cannot change build while VM is running".to_string());
@@ -212,9 +251,14 @@ impl ButtonHandler {
 
         let line = TerminalLine {
             timestamp: Utc::now(),
-            content: format!("📦 Build selected: {} (optimized for {})",
+            content: format!(
+                "📦 Build selected: {} (optimized for {})",
                 build_str,
-                if build == BuildType::CUDA { "GPU acceleration" } else { "CPU processing" }
+                if build == BuildType::CUDA {
+                    "GPU acceleration"
+                } else {
+                    "CPU processing"
+                }
             ),
             line_type: LineType::Info,
         };
@@ -229,13 +273,18 @@ impl ButtonHandler {
         };
         state.audit_logs.push_back(audit);
 
-        let _ = self.logger.info(&format!("✓ Build changed to {}", build_str));
+        let _ = self
+            .logger
+            .info(&format!("✓ Build changed to {}", build_str));
         Ok(())
     }
 
     /// Handle Phase selection change
     pub fn on_phase_selected(&self, phase: Phase) -> Result<(), String> {
-        let mut state = self.state.lock().map_err(|e| format!("State lock error: {}", e))?;
+        let mut state = self
+            .state
+            .lock()
+            .map_err(|e| format!("State lock error: {}", e))?;
 
         if state.vm_running {
             return Err("Cannot change phase while VM is running".to_string());
@@ -271,13 +320,18 @@ impl ButtonHandler {
         };
         state.audit_logs.push_back(audit);
 
-        let _ = self.logger.info(&format!("✓ Phase changed to {}", phase_str));
+        let _ = self
+            .logger
+            .info(&format!("✓ Phase changed to {}", phase_str));
         Ok(())
     }
 
     /// Handle Export Metrics button click
     pub fn on_export_metrics(&self) -> Result<String, String> {
-        let state = self.state.lock().map_err(|e| format!("State lock error: {}", e))?;
+        let state = self
+            .state
+            .lock()
+            .map_err(|e| format!("State lock error: {}", e))?;
 
         // Create comprehensive metrics export
         let export_data = serde_json::json!({
@@ -298,13 +352,19 @@ impl ButtonHandler {
         let metrics_json = serde_json::to_string_pretty(&export_data)
             .map_err(|e| format!("Serialization error: {}", e))?;
 
-        let _ = self.logger.info(&format!("✓ Metrics exported ({} bytes)", metrics_json.len()));
+        let _ = self.logger.info(&format!(
+            "✓ Metrics exported ({} bytes)",
+            metrics_json.len()
+        ));
         Ok(metrics_json)
     }
 
     /// Handle Save Config button click
     pub fn on_save_config(&self) -> Result<(), String> {
-        let state = self.state.lock().map_err(|e| format!("State lock error: {}", e))?;
+        let state = self
+            .state
+            .lock()
+            .map_err(|e| format!("State lock error: {}", e))?;
 
         // Create comprehensive configuration export
         let config_export = serde_json::json!({
@@ -342,13 +402,18 @@ impl ButtonHandler {
             state.audit_logs.push_back(audit);
         }
 
-        let _ = self.logger.info("✓ Configuration saved to qallow_phase_config.json");
+        let _ = self
+            .logger
+            .info("✓ Configuration saved to qallow_phase_config.json");
         Ok(())
     }
 
     /// Handle View Logs button click
     pub fn on_view_logs(&self) -> Result<Vec<String>, String> {
-        let state = self.state.lock().map_err(|e| format!("State lock error: {}", e))?;
+        let state = self
+            .state
+            .lock()
+            .map_err(|e| format!("State lock error: {}", e))?;
 
         let mut logs: Vec<String> = Vec::new();
 
@@ -383,4 +448,3 @@ impl ButtonHandler {
         Ok(logs)
     }
 }
-

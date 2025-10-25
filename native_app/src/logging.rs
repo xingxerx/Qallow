@@ -1,7 +1,7 @@
+use chrono::Local;
 use std::fs::{self, OpenOptions};
 use std::io::Write;
 use std::path::Path;
-use chrono::Local;
 
 #[derive(Clone)]
 pub struct AppLogger {
@@ -114,8 +114,7 @@ impl AppLogger {
     }
 
     pub fn clear(&self) -> Result<(), String> {
-        fs::remove_file(&self.log_file)
-            .map_err(|e| format!("Failed to clear log file: {}", e))?;
+        fs::remove_file(&self.log_file).map_err(|e| format!("Failed to clear log file: {}", e))?;
         Ok(())
     }
 
@@ -148,4 +147,3 @@ mod tests {
         assert!(logger.init().is_ok());
     }
 }
-

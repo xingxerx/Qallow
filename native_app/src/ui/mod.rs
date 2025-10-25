@@ -1,33 +1,34 @@
-pub mod dashboard;
-pub mod terminal;
-pub mod metrics;
 pub mod audit_log;
 pub mod control_panel;
-pub mod settings;
+pub mod dashboard;
 pub mod help;
+pub mod metrics;
+pub mod settings;
+pub mod terminal;
 
-use fltk::{prelude::*, *};
-use fltk::enums::Color;
-use std::sync::{Arc, Mutex};
 use crate::models::AppState;
+use fltk::enums::Color;
+use fltk::{prelude::*, *};
+use std::sync::{Arc, Mutex};
 
-pub fn create_main_ui(_wind: &mut window::Window, state: Arc<Mutex<AppState>>) -> control_panel::ControlPanelButtons {
-    let mut flex = group::Flex::default()
-        .with_size(1600, 1000)
-        .column();
+pub struct MainUiHandles {
+    pub control: control_panel::ControlPanelButtons,
+    pub terminal: terminal::TerminalView,
+    pub audit: audit_log::AuditLogView,
+    pub status_indicator: button::Button,
+}
+
+pub fn create_main_ui(_wind: &mut window::Window, state: Arc<Mutex<AppState>>) -> MainUiHandles {
+    let mut flex = group::Flex::default().with_size(1600, 1000).column();
 
     // Header
-    create_header(&mut flex);
+    let status_indicator = create_header(&mut flex);
 
     // Main content area with sidebar
-    let mut main_flex = group::Flex::default()
-        .with_size(1600, 950)
-        .row();
+    let mut main_flex = group::Flex::default().with_size(1600, 950).row();
 
     // Sidebar navigation
-    let mut sidebar = group::Flex::default()
-        .with_size(150, 950)
-        .column();
+    let mut sidebar = group::Flex::default().with_size(150, 950).column();
     sidebar.set_color(Color::from_hex(0x1a1f3a));
 
     create_sidebar(&mut sidebar, state.clone());
@@ -35,14 +36,11 @@ pub fn create_main_ui(_wind: &mut window::Window, state: Arc<Mutex<AppState>>) -
     sidebar.end();
 
     // Content area
-    let mut content = group::Flex::default()
-        .with_size(1450, 950)
-        .column();
+    let mut content = group::Flex::default().with_size(1450, 950).column();
     content.set_color(Color::from_hex(0x0a0e27));
 
     // Create tabs for different views
-    let mut tabs = group::Tabs::default()
-        .with_size(1450, 950);
+    let mut tabs = group::Tabs::default().with_size(1450, 950);
 
     // Dashboard tab
     dashboard::create_dashboard(&mut tabs, state.clone());
@@ -51,10 +49,10 @@ pub fn create_main_ui(_wind: &mut window::Window, state: Arc<Mutex<AppState>>) -
     metrics::create_metrics(&mut tabs, state.clone());
 
     // Terminal tab
-    terminal::create_terminal(&mut tabs, state.clone());
+    let terminal_view = terminal::create_terminal(&mut tabs, state.clone());
 
     // Audit Log tab
-    audit_log::create_audit_log(&mut tabs, state.clone());
+    let audit_view = audit_log::create_audit_log(&mut tabs, state.clone());
 
     // Control Panel tab
     let control_buttons = control_panel::create_control_panel(&mut tabs, state.clone());
@@ -71,19 +69,24 @@ pub fn create_main_ui(_wind: &mut window::Window, state: Arc<Mutex<AppState>>) -
 
     flex.end();
 
-    control_buttons
+    MainUiHandles {
+        control: control_buttons,
+        terminal: terminal_view,
+        audit: audit_view,
+        status_indicator,
+    }
 }
 
-fn create_header(flex: &mut group::Flex) {
-    let mut header = group::Flex::default()
-        .with_size(1600, 50)
-        .row();
+fn create_header(flex: &mut group::Flex) -> button::Button {
+    let mut header = group::Flex::default().with_size(1600, 50).row();
     header.set_color(Color::from_hex(0x1a1f3a));
 
-    let mut title = text::TextDisplay::default()
-        .with_size(1400, 50);
+    let mut title = text::TextDisplay::default().with_size(1400, 50);
     title.set_buffer(text::TextBuffer::default());
-    title.buffer().unwrap().set_text("🚀 Qallow Unified VM - Quantum-Photonic AGI System");
+    title
+        .buffer()
+        .unwrap()
+        .set_text("🚀 Qallow Unified VM - Quantum-Photonic AGI System");
     title.set_text_color(Color::from_hex(0x00d4ff));
 
     let mut status = button::Button::default()
@@ -94,6 +97,8 @@ fn create_header(flex: &mut group::Flex) {
 
     header.end();
     flex.add(&header);
+
+    status
 }
 
 fn create_sidebar(flex: &mut group::Flex, _state: Arc<Mutex<AppState>>) {
@@ -133,4 +138,3 @@ fn create_sidebar(flex: &mut group::Flex, _state: Arc<Mutex<AppState>>) {
     flex.add(&audit_btn);
     flex.add(&control_btn);
 }
-

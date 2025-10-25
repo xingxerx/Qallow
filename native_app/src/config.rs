@@ -89,23 +89,24 @@ pub struct ConfigManager {
 impl ConfigManager {
     pub fn new(config_file: String) -> Self {
         let config = Self::load_or_default(&config_file);
-        Self { config_file, config }
+        Self {
+            config_file,
+            config,
+        }
     }
 
     fn load_or_default(config_file: &str) -> AppConfig {
         if Path::new(config_file).exists() {
             match fs::read_to_string(config_file) {
-                Ok(content) => {
-                    match serde_json::from_str(&content) {
-                        Ok(config) => {
-                            eprintln!("[CONFIG] Loaded config from {}", config_file);
-                            return config;
-                        }
-                        Err(e) => {
-                            eprintln!("[CONFIG] Failed to parse config: {}", e);
-                        }
+                Ok(content) => match serde_json::from_str(&content) {
+                    Ok(config) => {
+                        eprintln!("[CONFIG] Loaded config from {}", config_file);
+                        return config;
                     }
-                }
+                    Err(e) => {
+                        eprintln!("[CONFIG] Failed to parse config: {}", e);
+                    }
+                },
                 Err(e) => {
                     eprintln!("[CONFIG] Failed to read config: {}", e);
                 }
@@ -119,15 +120,13 @@ impl ConfigManager {
 
     fn save_config(config_file: &str, config: &AppConfig) -> Result<(), String> {
         match serde_json::to_string_pretty(config) {
-            Ok(json) => {
-                match fs::write(config_file, json) {
-                    Ok(_) => {
-                        eprintln!("[CONFIG] Saved config to {}", config_file);
-                        Ok(())
-                    }
-                    Err(e) => Err(format!("Failed to write config: {}", e)),
+            Ok(json) => match fs::write(config_file, json) {
+                Ok(_) => {
+                    eprintln!("[CONFIG] Saved config to {}", config_file);
+                    Ok(())
                 }
-            }
+                Err(e) => Err(format!("Failed to write config: {}", e)),
+            },
             Err(e) => Err(format!("Failed to serialize config: {}", e)),
         }
     }
@@ -167,4 +166,3 @@ mod tests {
         assert_eq!(manager.get().app.auto_save_interval_secs, 30);
     }
 }
-

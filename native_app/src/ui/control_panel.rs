@@ -1,7 +1,7 @@
-use fltk::{prelude::*, *};
-use fltk::enums::Color;
-use std::sync::{Arc, Mutex};
 use crate::models::AppState;
+use fltk::enums::Color;
+use fltk::{prelude::*, *};
+use std::sync::{Arc, Mutex};
 
 pub struct ControlPanelButtons {
     pub start_btn: button::Button,
@@ -14,27 +14,24 @@ pub struct ControlPanelButtons {
     pub build_choice: menu::Choice,
 }
 
-pub fn create_control_panel(tabs: &mut group::Tabs, _state: Arc<Mutex<AppState>>) -> ControlPanelButtons {
-    let mut group = group::Group::default()
-        .with_label("⚙️ Control");
+pub fn create_control_panel(
+    tabs: &mut group::Tabs,
+    _state: Arc<Mutex<AppState>>,
+) -> ControlPanelButtons {
+    let mut group = group::Group::default().with_label("⚙️ Control");
     group.set_color(Color::from_hex(0x0a0e27));
 
-    let mut flex = group::Flex::default()
-        .with_size(1450, 950)
-        .column();
+    let mut flex = group::Flex::default().with_size(1450, 950).column();
     flex.set_color(Color::from_hex(0x0a0e27));
 
     // Title
-    let mut title = text::TextDisplay::default()
-        .with_size(1450, 40);
+    let mut title = text::TextDisplay::default().with_size(1450, 40);
     title.set_buffer(text::TextBuffer::default());
     title.buffer().unwrap().set_text("System Control Panel");
     title.set_text_color(Color::from_hex(0x00d4ff));
 
     // Control section
-    let mut control_flex = group::Flex::default()
-        .with_size(1450, 150)
-        .row();
+    let mut control_flex = group::Flex::default().with_size(1450, 150).row();
     control_flex.set_color(Color::from_hex(0x0a0e27));
 
     let mut start_btn = button::Button::default()
@@ -68,20 +65,16 @@ pub fn create_control_panel(tabs: &mut group::Tabs, _state: Arc<Mutex<AppState>>
     control_flex.end();
 
     // Build selection
-    let mut build_flex = group::Flex::default()
-        .with_size(1450, 100)
-        .row();
+    let mut build_flex = group::Flex::default().with_size(1450, 100).row();
     build_flex.set_color(Color::from_hex(0x0a0e27));
 
-    let mut build_label = text::TextDisplay::default()
-        .with_size(200, 100);
+    let mut build_label = text::TextDisplay::default().with_size(200, 100);
     build_label.set_buffer(text::TextBuffer::default());
     build_label.buffer().unwrap().set_text("Select Build:");
     build_label.set_text_color(Color::from_hex(0x00d4ff));
     build_flex.add(&build_label);
 
-    let mut build_choice = menu::Choice::default()
-        .with_size(300, 100);
+    let mut build_choice = menu::Choice::default().with_size(300, 100);
     build_choice.add_choice("CPU|CUDA");
     build_choice.set_color(Color::from_hex(0x1a1f3a));
     build_choice.set_text_color(Color::from_hex(0x00d4ff));
@@ -90,20 +83,18 @@ pub fn create_control_panel(tabs: &mut group::Tabs, _state: Arc<Mutex<AppState>>
     build_flex.end();
 
     // Phase configuration
-    let mut phase_flex = group::Flex::default()
-        .with_size(1450, 150)
-        .column();
+    let mut phase_flex = group::Flex::default().with_size(1450, 150).column();
     phase_flex.set_color(Color::from_hex(0x0a0e27));
 
-    let mut phase_title = text::TextDisplay::default()
-        .with_size(1450, 40);
+    let mut phase_title = text::TextDisplay::default().with_size(1450, 40);
     phase_title.set_buffer(text::TextBuffer::default());
-    phase_title.buffer().unwrap().set_text("Phase Configuration");
+    phase_title
+        .buffer()
+        .unwrap()
+        .set_text("Phase Configuration");
     phase_title.set_text_color(Color::from_hex(0x00d4ff));
 
-    let mut phase_config_flex = group::Flex::default()
-        .with_size(1450, 110)
-        .row();
+    let mut phase_config_flex = group::Flex::default().with_size(1450, 110).row();
     phase_config_flex.set_color(Color::from_hex(0x0a0e27));
 
     create_config_input(&mut phase_config_flex, "Phase:", "Phase 14");
@@ -115,9 +106,7 @@ pub fn create_control_panel(tabs: &mut group::Tabs, _state: Arc<Mutex<AppState>>
     phase_flex.end();
 
     // Quick actions
-    let mut actions_flex = group::Flex::default()
-        .with_size(1450, 100)
-        .row();
+    let mut actions_flex = group::Flex::default().with_size(1450, 100).row();
     actions_flex.set_color(Color::from_hex(0x0a0e27));
 
     let mut export_btn = button::Button::default()
@@ -144,19 +133,15 @@ pub fn create_control_panel(tabs: &mut group::Tabs, _state: Arc<Mutex<AppState>>
     actions_flex.end();
 
     // System information
-    let mut info_flex = group::Flex::default()
-        .with_size(1450, 250)
-        .column();
+    let mut info_flex = group::Flex::default().with_size(1450, 250).column();
     info_flex.set_color(Color::from_hex(0x0a0e27));
 
-    let mut info_title = text::TextDisplay::default()
-        .with_size(1450, 40);
+    let mut info_title = text::TextDisplay::default().with_size(1450, 40);
     info_title.set_buffer(text::TextBuffer::default());
     info_title.buffer().unwrap().set_text("System Information");
     info_title.set_text_color(Color::from_hex(0x00d4ff));
 
-    let mut info_display = text::TextDisplay::default()
-        .with_size(1450, 210);
+    let mut info_display = text::TextDisplay::default().with_size(1450, 210);
     info_display.set_buffer(text::TextBuffer::default());
     let info_text = r#"Build Version:        1.0.0
 GPU:                  NVIDIA RTX 5080
@@ -189,19 +174,15 @@ Ethics Score:         2.39 (PASS ✓)"#;
 }
 
 fn create_config_input(flex: &mut group::Flex, label: &str, value: &str) {
-    let mut input_flex = group::Flex::default()
-        .with_size(350, 110)
-        .column();
+    let mut input_flex = group::Flex::default().with_size(350, 110).column();
     input_flex.set_color(Color::from_hex(0x0a0e27));
 
-    let mut label_text = text::TextDisplay::default()
-        .with_size(350, 40);
+    let mut label_text = text::TextDisplay::default().with_size(350, 40);
     label_text.set_buffer(text::TextBuffer::default());
     label_text.buffer().unwrap().set_text(label);
     label_text.set_text_color(Color::from_hex(0x00d4ff));
 
-    let mut input = text::TextEditor::default()
-        .with_size(350, 70);
+    let mut input = text::TextEditor::default().with_size(350, 70);
     input.set_buffer(text::TextBuffer::default());
     input.buffer().unwrap().set_text(value);
     input.set_color(Color::from_hex(0x1a1f3a));
@@ -210,4 +191,3 @@ fn create_config_input(flex: &mut group::Flex, label: &str, value: &str) {
     input_flex.end();
     flex.add(&input_flex);
 }
-

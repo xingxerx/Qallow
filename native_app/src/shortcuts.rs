@@ -6,24 +6,24 @@ pub enum Shortcut {
     Quit,
     Settings,
     Help,
-    
+
     // VM Control
     StartVM,
     StopVM,
     RestartVM,
-    
+
     // UI Navigation
     DashboardTab,
     MetricsTab,
     TerminalTab,
     AuditLogTab,
     ControlPanelTab,
-    
+
     // Terminal
     ClearTerminal,
     CopyTerminal,
     PasteTerminal,
-    
+
     // General
     Refresh,
     Save,
@@ -144,7 +144,7 @@ impl ShortcutManager {
     #[allow(dead_code)]
     pub fn export_bindings(&self) -> String {
         let mut output = String::from("# Qallow Keyboard Shortcuts\n\n");
-        
+
         let mut bindings: Vec<_> = self.get_all_bindings();
         bindings.sort_by(|a, b| a.key_combo.cmp(&b.key_combo));
 
@@ -204,4 +204,3 @@ mod tests {
         assert!(export.contains("Quit application"));
     }
 }
-

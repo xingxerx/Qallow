@@ -1,30 +1,25 @@
-use fltk::{prelude::*, *};
-use fltk::enums::Color;
-use std::sync::{Arc, Mutex};
 use crate::models::AppState;
+use fltk::enums::Color;
+use fltk::{prelude::*, *};
+use std::sync::{Arc, Mutex};
 
-pub fn create_help_panel(
-    parent: &mut group::Tabs,
-    _state: Arc<Mutex<AppState>>,
-) {
-    let mut help_group = group::Group::default()
-        .with_label("❓ Help");
+pub fn create_help_panel(parent: &mut group::Tabs, _state: Arc<Mutex<AppState>>) {
+    let mut help_group = group::Group::default().with_label("❓ Help");
 
-    let mut flex = group::Flex::default()
-        .with_size(1450, 950)
-        .column();
+    let mut flex = group::Flex::default().with_size(1450, 950).column();
     flex.set_color(Color::from_hex(0x0a0e27));
 
     // Title
-    let mut title = text::TextDisplay::default()
-        .with_size(1450, 40);
+    let mut title = text::TextDisplay::default().with_size(1450, 40);
     title.set_buffer(text::TextBuffer::default());
-    title.buffer().unwrap().set_text("Qallow Help & Documentation");
+    title
+        .buffer()
+        .unwrap()
+        .set_text("Qallow Help & Documentation");
     title.set_text_color(Color::from_hex(0x00d4ff));
 
     // Help content
-    let mut help_text = text::TextDisplay::default()
-        .with_size(1450, 850);
+    let mut help_text = text::TextDisplay::default().with_size(1450, 850);
     help_text.set_buffer(text::TextBuffer::default());
 
     let help_content = r#"🚀 QALLOW UNIFIED VM - HELP & DOCUMENTATION
@@ -147,4 +142,3 @@ Last Updated: 2025-10-25
     help_group.end();
     parent.add(&help_group);
 }
-

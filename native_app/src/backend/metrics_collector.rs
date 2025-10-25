@@ -1,4 +1,4 @@
-use crate::models::{SystemMetrics, OverlayStability, EthicsScore};
+use crate::models::{EthicsScore, OverlayStability, SystemMetrics};
 use chrono::Utc;
 use std::fs;
 
@@ -92,8 +92,14 @@ impl MetricsCollector {
     #[cfg(unix)]
     fn estimate_cpu_usage(stat_parts: &[&str]) -> f64 {
         // utime (index 13) + stime (index 14)
-        let utime = stat_parts.get(13).and_then(|s| s.parse::<u64>().ok()).unwrap_or(0);
-        let stime = stat_parts.get(14).and_then(|s| s.parse::<u64>().ok()).unwrap_or(0);
+        let utime = stat_parts
+            .get(13)
+            .and_then(|s| s.parse::<u64>().ok())
+            .unwrap_or(0);
+        let stime = stat_parts
+            .get(14)
+            .and_then(|s| s.parse::<u64>().ok())
+            .unwrap_or(0);
 
         let total_time = (utime + stime) as f64;
         // Rough estimate: clamp to 0-100
@@ -105,10 +111,12 @@ impl MetricsCollector {
         use std::hash::{BuildHasher, Hasher};
 
         let mut hasher = RandomState::new().build_hasher();
-        hasher.write_u64(std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .unwrap_or_default()
-            .as_nanos() as u64);
+        hasher.write_u64(
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap_or_default()
+                .as_nanos() as u64,
+        );
 
         let hash = hasher.finish();
         let normalized = (hash as f64) / (u64::MAX as f64);
@@ -148,4 +156,3 @@ impl MetricsCollector {
         }
     }
 }
-

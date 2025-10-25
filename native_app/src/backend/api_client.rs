@@ -68,4 +68,3 @@ impl Default for ApiClient {
         Self::new("http://localhost:5000".to_string())
     }
 }
-

@@ -68,4 +68,3 @@ mod tests {
         assert_eq!(get_status_color(0.50), "🔴");
     }
 }
-

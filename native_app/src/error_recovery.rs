@@ -1,5 +1,5 @@
-use std::time::{Duration, Instant};
 use std::collections::VecDeque;
+use std::time::{Duration, Instant};
 
 #[derive(Debug, Clone)]
 pub struct ErrorEvent {
@@ -84,7 +84,7 @@ impl ErrorRecoveryManager {
     pub fn get_retry_delay(&self, attempt: u32) -> Duration {
         let delay_ms = (self.retry_policy.initial_delay_ms as f64
             * self.retry_policy.backoff_multiplier.powi(attempt as i32))
-            .min(self.retry_policy.max_delay_ms as f64) as u64;
+        .min(self.retry_policy.max_delay_ms as f64) as u64;
         Duration::from_millis(delay_ms)
     }
 
@@ -189,4 +189,3 @@ mod tests {
         assert!(!manager.should_retry(3));
     }
 }
-

@@ -1,9 +1,9 @@
-use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::Arc;
-use std::fs;
-use std::path::Path;
 use crate::models::AppState;
 use serde_json;
+use std::fs;
+use std::path::Path;
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::Arc;
 
 /// Global shutdown flag
 pub static SHUTDOWN_FLAG: AtomicBool = AtomicBool::new(false);
@@ -56,15 +56,13 @@ impl ShutdownManager {
     /// Save application state to file
     pub fn save_state(&self, state: &AppState) -> Result<(), String> {
         match serde_json::to_string_pretty(state) {
-            Ok(json) => {
-                match fs::write(&self.state_file, json) {
-                    Ok(_) => {
-                        eprintln!("[SHUTDOWN] State saved to {}", self.state_file);
-                        Ok(())
-                    }
-                    Err(e) => Err(format!("Failed to write state file: {}", e)),
+            Ok(json) => match fs::write(&self.state_file, json) {
+                Ok(_) => {
+                    eprintln!("[SHUTDOWN] State saved to {}", self.state_file);
+                    Ok(())
                 }
-            }
+                Err(e) => Err(format!("Failed to write state file: {}", e)),
+            },
             Err(e) => Err(format!("Failed to serialize state: {}", e)),
         }
     }
@@ -76,18 +74,16 @@ impl ShutdownManager {
         }
 
         match fs::read_to_string(&self.state_file) {
-            Ok(json) => {
-                match serde_json::from_str(&json) {
-                    Ok(state) => {
-                        eprintln!("[SHUTDOWN] State loaded from {}", self.state_file);
-                        Ok(state)
-                    }
-                    Err(e) => {
-                        eprintln!("[SHUTDOWN] Failed to deserialize state: {}", e);
-                        Ok(AppState::new())
-                    }
+            Ok(json) => match serde_json::from_str(&json) {
+                Ok(state) => {
+                    eprintln!("[SHUTDOWN] State loaded from {}", self.state_file);
+                    Ok(state)
                 }
-            }
+                Err(e) => {
+                    eprintln!("[SHUTDOWN] Failed to deserialize state: {}", e);
+                    Ok(AppState::new())
+                }
+            },
             Err(e) => {
                 eprintln!("[SHUTDOWN] Failed to read state file: {}", e);
                 Ok(AppState::new())
@@ -126,4 +122,3 @@ mod tests {
         assert!(manager.is_shutdown_requested());
     }
 }
-

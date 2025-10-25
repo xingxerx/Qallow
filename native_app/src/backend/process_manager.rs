@@ -1,10 +1,10 @@
-use std::process::{Command, Child, Stdio};
+use crate::models::{BuildType, Phase};
+use crossbeam_channel::{unbounded, Receiver, Sender};
 use std::io::{BufRead, BufReader};
+use std::process::{Child, Command, Stdio};
 #[allow(unused_imports)]
 use std::sync::{Arc, Mutex};
 use std::time::{SystemTime, UNIX_EPOCH};
-use crossbeam_channel::{Sender, Receiver, unbounded};
-use crate::models::{BuildType, Phase};
 
 #[derive(Debug, Clone)]
 pub struct ProcessMetadata {
@@ -137,7 +137,10 @@ impl ProcessManager {
             }
             Err(e) => {
                 self.retry_count += 1;
-                Err(format!("Failed to start process (attempt {}): {}", self.retry_count, e))
+                Err(format!(
+                    "Failed to start process (attempt {}): {}",
+                    self.retry_count, e
+                ))
             }
         }
     }
@@ -269,4 +272,3 @@ impl Default for ProcessManager {
         Self::new()
     }
 }
-

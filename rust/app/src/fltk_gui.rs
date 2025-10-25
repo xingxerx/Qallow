@@ -1,10 +1,10 @@
 //! Native GUI for the Qallow unified dashboard using FLTK.
 
-use fltk::{prelude::*, *};
 use fltk::enums::Color;
+use fltk::{prelude::*, *};
 use std::fs::File;
 use std::io::{BufRead, BufReader};
-use std::process::{Command, Child, Stdio};
+use std::process::{Child, Command, Stdio};
 use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Duration;
@@ -89,13 +89,10 @@ pub fn run_gui() -> anyhow::Result<()> {
     wind.set_color(Color::from_hex(0x1e1e1e));
 
     // Main vertical flex layout
-    let main_flex = group::Flex::default()
-        .with_size(1600, 1000)
-        .column();
+    let main_flex = group::Flex::default().with_size(1600, 1000).column();
 
     // ===== HEADER =====
-    let header = frame::Frame::default()
-        .with_size(1600, 70);
+    let header = frame::Frame::default().with_size(1600, 70);
     {
         let mut h = header;
         h.set_label("🚀 QALLOW UNIFIED DASHBOARD");
@@ -105,14 +102,10 @@ pub fn run_gui() -> anyhow::Result<()> {
     }
 
     // ===== TOP SECTION: METRICS + BUTTONS =====
-    let top_flex = group::Flex::default()
-        .with_size(1600, 300)
-        .row();
+    let top_flex = group::Flex::default().with_size(1600, 300).row();
 
     // Metrics grid (left side)
-    let metrics_flex = group::Flex::default()
-        .with_size(1200, 300)
-        .row();
+    let metrics_flex = group::Flex::default().with_size(1200, 300).row();
 
     let mut tick_value = frame::Frame::default();
     let mut global_value = frame::Frame::default();
@@ -127,9 +120,7 @@ pub fn run_gui() -> anyhow::Result<()> {
     metrics_flex.end();
 
     // Buttons (right side)
-    let button_col = group::Flex::default()
-        .with_size(400, 300)
-        .column();
+    let button_col = group::Flex::default().with_size(400, 300).column();
 
     let mut run_btn = button::Button::default()
         .with_size(380, 60)
@@ -155,8 +146,7 @@ pub fn run_gui() -> anyhow::Result<()> {
     top_flex.end();
 
     // ===== STATUS BAR =====
-    let mut status = frame::Frame::default()
-        .with_size(1600, 40);
+    let mut status = frame::Frame::default().with_size(1600, 40);
     status.set_label("✅ Status: Ready");
     status.set_label_size(14);
     status.set_color(Color::from_hex(0x2d2d2d));
@@ -170,8 +160,7 @@ pub fn run_gui() -> anyhow::Result<()> {
     terminal_label.set_color(Color::from_hex(0x1a1a1a));
     terminal_label.set_label_color(Color::from_hex(0x888888));
 
-    let mut terminal = text::TextEditor::default()
-        .with_size(1600, 500);
+    let mut terminal = text::TextEditor::default().with_size(1600, 500);
     terminal.set_buffer(text::TextBuffer::default());
     terminal.set_color(Color::from_hex(0x0d0d0d));
     terminal.set_text_color(Color::from_hex(0x00ff88));
@@ -290,9 +279,7 @@ pub fn run_gui() -> anyhow::Result<()> {
 
 fn create_metric_card(value: &mut frame::Frame, label: &str, default: &str) {
     let card = group::Group::default().with_size(240, 300);
-    let mut label_frame = frame::Frame::default()
-        .with_size(240, 40)
-        .with_label(label);
+    let mut label_frame = frame::Frame::default().with_size(240, 40).with_label(label);
     label_frame.set_label_size(14);
     label_frame.set_color(Color::from_hex(0x2d2d2d));
     label_frame.set_label_color(Color::from_hex(0x00ff88));
@@ -312,4 +299,3 @@ fn style_button(btn: &mut button::Button, color_hex: u32) {
     btn.set_label_color(Color::from_hex(0x000000));
     btn.set_selection_color(Color::from_hex(0xffffff));
 }
-

@@ -1,7 +1,7 @@
-use std::path::{Path, PathBuf};
-use std::fs;
-use std::process::Command;
 use crate::logging::AppLogger;
+use std::fs;
+use std::path::{Path, PathBuf};
+use std::process::Command;
 
 /// Manages the Qallow codebase and integrates it with the native app
 pub struct CodebaseManager {
@@ -12,7 +12,7 @@ pub struct CodebaseManager {
 impl CodebaseManager {
     pub fn new(root_path: &str, logger: AppLogger) -> Result<Self, String> {
         let path = PathBuf::from(root_path);
-        
+
         if !path.exists() {
             return Err(format!("Codebase path does not exist: {}", root_path));
         }
@@ -31,9 +31,13 @@ impl CodebaseManager {
     /// List all phases available in the codebase
     pub fn list_phases(&self) -> Result<Vec<String>, String> {
         let phases_dir = self.root_path.join("phases");
-        
+
         if !phases_dir.exists() {
-            return Ok(vec!["Phase13".to_string(), "Phase14".to_string(), "Phase15".to_string()]);
+            return Ok(vec![
+                "Phase13".to_string(),
+                "Phase14".to_string(),
+                "Phase15".to_string(),
+            ]);
         }
 
         let mut phases = Vec::new();
@@ -65,10 +69,10 @@ impl CodebaseManager {
 
         // Count Rust files
         self.count_files(&self.root_path, "rs", &mut stats.rust_files)?;
-        
+
         // Count Python files
         self.count_files(&self.root_path, "py", &mut stats.python_files)?;
-        
+
         // Count TOML files
         self.count_files(&self.root_path, "toml", &mut stats.config_files)?;
 
@@ -102,9 +106,7 @@ impl CodebaseManager {
 
     /// Count files with a specific extension
     fn count_files(&self, dir: &Path, extension: &str, count: &mut usize) -> Result<(), String> {
-        for entry in fs::read_dir(dir)
-            .map_err(|e| format!("Failed to read directory: {}", e))?
-        {
+        for entry in fs::read_dir(dir).map_err(|e| format!("Failed to read directory: {}", e))? {
             let entry = entry.map_err(|e| format!("Failed to read entry: {}", e))?;
             let path = entry.path();
 
@@ -112,7 +114,10 @@ impl CodebaseManager {
                 // Skip hidden directories and common non-code directories
                 if let Some(name) = path.file_name() {
                     if let Some(name_str) = name.to_str() {
-                        if name_str.starts_with('.') || name_str == "target" || name_str == "__pycache__" {
+                        if name_str.starts_with('.')
+                            || name_str == "target"
+                            || name_str == "__pycache__"
+                        {
                             continue;
                         }
                     }
@@ -129,7 +134,7 @@ impl CodebaseManager {
     /// Build the native app
     pub fn build_native_app(&self) -> Result<String, String> {
         let native_app_path = self.root_path.join("native_app");
-        
+
         if !native_app_path.exists() {
             return Err("Native app directory not found".to_string());
         }
@@ -153,7 +158,7 @@ impl CodebaseManager {
     /// Run tests for the codebase
     pub fn run_tests(&self) -> Result<String, String> {
         let native_app_path = self.root_path.join("native_app");
-        
+
         let output = Command::new("cargo")
             .arg("test")
             .current_dir(&native_app_path)
@@ -218,4 +223,3 @@ impl std::fmt::Display for CodebaseStats {
         )
     }
 }
-

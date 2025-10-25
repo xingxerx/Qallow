@@ -1,25 +1,21 @@
-use fltk::{prelude::*, *};
-use fltk::enums::Color;
-use std::sync::{Arc, Mutex};
 use crate::models::AppState;
+use fltk::enums::Color;
+use fltk::{prelude::*, *};
+use std::sync::{Arc, Mutex};
 
-pub fn create_settings_panel(
-    parent: &mut group::Tabs,
-    _state: Arc<Mutex<AppState>>,
-) {
-    let mut settings_group = group::Group::default()
-        .with_label("⚙️ Settings");
+pub fn create_settings_panel(parent: &mut group::Tabs, _state: Arc<Mutex<AppState>>) {
+    let mut settings_group = group::Group::default().with_label("⚙️ Settings");
 
-    let mut flex = group::Flex::default()
-        .with_size(1450, 950)
-        .column();
+    let mut flex = group::Flex::default().with_size(1450, 950).column();
     flex.set_color(Color::from_hex(0x0a0e27));
 
     // Title
-    let mut title = text::TextDisplay::default()
-        .with_size(1450, 40);
+    let mut title = text::TextDisplay::default().with_size(1450, 40);
     title.set_buffer(text::TextBuffer::default());
-    title.buffer().unwrap().set_text("Application Settings & Preferences");
+    title
+        .buffer()
+        .unwrap()
+        .set_text("Application Settings & Preferences");
     title.set_text_color(Color::from_hex(0x00d4ff));
 
     // Settings sections
@@ -29,9 +25,7 @@ pub fn create_settings_panel(
     create_vm_settings(&mut flex);
 
     // Buttons
-    let mut button_flex = group::Flex::default()
-        .with_size(1450, 50)
-        .row();
+    let mut button_flex = group::Flex::default().with_size(1450, 50).row();
 
     let mut save_btn = button::Button::default()
         .with_size(200, 50)
@@ -60,44 +54,40 @@ pub fn create_settings_panel(
 }
 
 fn create_app_settings(flex: &mut group::Flex) {
-    let mut section = group::Flex::default()
-        .with_size(1450, 150)
-        .column();
+    let mut section = group::Flex::default().with_size(1450, 150).column();
     section.set_color(Color::from_hex(0x1a1f3a));
 
-    let mut title = text::TextDisplay::default()
-        .with_size(1450, 30);
+    let mut title = text::TextDisplay::default().with_size(1450, 30);
     title.set_buffer(text::TextBuffer::default());
     title.buffer().unwrap().set_text("📱 Application Settings");
     title.set_text_color(Color::from_hex(0x00d4ff));
 
     // Auto-save interval
-    let mut auto_save_flex = group::Flex::default()
-        .with_size(1450, 40)
-        .row();
+    let mut auto_save_flex = group::Flex::default().with_size(1450, 40).row();
 
-    let mut auto_save_label = text::TextDisplay::default()
-        .with_size(400, 40);
+    let mut auto_save_label = text::TextDisplay::default().with_size(400, 40);
     auto_save_label.set_buffer(text::TextBuffer::default());
-    auto_save_label.buffer().unwrap().set_text("Auto-save interval (seconds):");
+    auto_save_label
+        .buffer()
+        .unwrap()
+        .set_text("Auto-save interval (seconds):");
     auto_save_label.set_text_color(Color::White);
 
-    let mut auto_save_input = text::TextEditor::default()
-        .with_size(100, 40);
+    let mut auto_save_input = text::TextEditor::default().with_size(100, 40);
     auto_save_input.set_buffer(text::TextBuffer::default());
     auto_save_input.buffer().unwrap().set_text("30");
 
     auto_save_flex.end();
 
     // Auto-recovery
-    let mut auto_recovery_flex = group::Flex::default()
-        .with_size(1450, 40)
-        .row();
+    let mut auto_recovery_flex = group::Flex::default().with_size(1450, 40).row();
 
-    let mut auto_recovery_label = text::TextDisplay::default()
-        .with_size(400, 40);
+    let mut auto_recovery_label = text::TextDisplay::default().with_size(400, 40);
     auto_recovery_label.set_buffer(text::TextBuffer::default());
-    auto_recovery_label.buffer().unwrap().set_text("Enable auto-recovery:");
+    auto_recovery_label
+        .buffer()
+        .unwrap()
+        .set_text("Enable auto-recovery:");
     auto_recovery_label.set_text_color(Color::White);
 
     let mut auto_recovery_check = button::CheckButton::default()
@@ -112,47 +102,36 @@ fn create_app_settings(flex: &mut group::Flex) {
 }
 
 fn create_logging_settings(flex: &mut group::Flex) {
-    let mut section = group::Flex::default()
-        .with_size(1450, 150)
-        .column();
+    let mut section = group::Flex::default().with_size(1450, 150).column();
     section.set_color(Color::from_hex(0x1a1f3a));
 
-    let mut title = text::TextDisplay::default()
-        .with_size(1450, 30);
+    let mut title = text::TextDisplay::default().with_size(1450, 30);
     title.set_buffer(text::TextBuffer::default());
     title.buffer().unwrap().set_text("📝 Logging Settings");
     title.set_text_color(Color::from_hex(0x00d4ff));
 
     // Log level
-    let mut log_level_flex = group::Flex::default()
-        .with_size(1450, 40)
-        .row();
+    let mut log_level_flex = group::Flex::default().with_size(1450, 40).row();
 
-    let mut log_level_label = text::TextDisplay::default()
-        .with_size(400, 40);
+    let mut log_level_label = text::TextDisplay::default().with_size(400, 40);
     log_level_label.set_buffer(text::TextBuffer::default());
     log_level_label.buffer().unwrap().set_text("Log level:");
     log_level_label.set_text_color(Color::White);
 
-    let mut log_level_choice = menu::Choice::default()
-        .with_size(150, 40);
+    let mut log_level_choice = menu::Choice::default().with_size(150, 40);
     log_level_choice.add_choice("DEBUG|INFO|WARN|ERROR");
 
     log_level_flex.end();
 
     // Log file path
-    let mut log_path_flex = group::Flex::default()
-        .with_size(1450, 40)
-        .row();
+    let mut log_path_flex = group::Flex::default().with_size(1450, 40).row();
 
-    let mut log_path_label = text::TextDisplay::default()
-        .with_size(400, 40);
+    let mut log_path_label = text::TextDisplay::default().with_size(400, 40);
     log_path_label.set_buffer(text::TextBuffer::default());
     log_path_label.buffer().unwrap().set_text("Log file path:");
     log_path_label.set_text_color(Color::White);
 
-    let mut log_path_input = text::TextEditor::default()
-        .with_size(400, 40);
+    let mut log_path_input = text::TextEditor::default().with_size(400, 40);
     log_path_input.set_buffer(text::TextBuffer::default());
     log_path_input.buffer().unwrap().set_text("qallow.log");
 
@@ -163,43 +142,36 @@ fn create_logging_settings(flex: &mut group::Flex) {
 }
 
 fn create_ui_settings(flex: &mut group::Flex) {
-    let mut section = group::Flex::default()
-        .with_size(1450, 150)
-        .column();
+    let mut section = group::Flex::default().with_size(1450, 150).column();
     section.set_color(Color::from_hex(0x1a1f3a));
 
-    let mut title = text::TextDisplay::default()
-        .with_size(1450, 30);
+    let mut title = text::TextDisplay::default().with_size(1450, 30);
     title.set_buffer(text::TextBuffer::default());
     title.buffer().unwrap().set_text("🎨 UI Settings");
     title.set_text_color(Color::from_hex(0x00d4ff));
 
     // Theme
-    let mut theme_flex = group::Flex::default()
-        .with_size(1450, 40)
-        .row();
+    let mut theme_flex = group::Flex::default().with_size(1450, 40).row();
 
-    let mut theme_label = text::TextDisplay::default()
-        .with_size(400, 40);
+    let mut theme_label = text::TextDisplay::default().with_size(400, 40);
     theme_label.set_buffer(text::TextBuffer::default());
     theme_label.buffer().unwrap().set_text("Theme:");
     theme_label.set_text_color(Color::White);
 
-    let mut theme_choice = menu::Choice::default()
-        .with_size(150, 40);
+    let mut theme_choice = menu::Choice::default().with_size(150, 40);
     theme_choice.add_choice("Dark|Light|Auto");
 
     theme_flex.end();
 
     // Auto-scroll terminal
-    let mut auto_scroll_flex = group::Flex::default()
-        .with_size(1450, 40)
-        .row();
+    let mut auto_scroll_flex = group::Flex::default().with_size(1450, 40).row();
 
-    let mut auto_scroll_label = text::TextDisplay::default()
-        .with_size(400, 40);
+    let mut auto_scroll_label = text::TextDisplay::default().with_size(400, 40);
     auto_scroll_label.set_buffer(text::TextBuffer::default());
-    auto_scroll_label.buffer().unwrap().set_text("Auto-scroll terminal:");
+    auto_scroll_label
+        .buffer()
+        .unwrap()
+        .set_text("Auto-scroll terminal:");
     auto_scroll_label.set_text_color(Color::White);
 
     let mut auto_scroll_check = button::CheckButton::default()
@@ -214,44 +186,40 @@ fn create_ui_settings(flex: &mut group::Flex) {
 }
 
 fn create_vm_settings(flex: &mut group::Flex) {
-    let mut section = group::Flex::default()
-        .with_size(1450, 150)
-        .column();
+    let mut section = group::Flex::default().with_size(1450, 150).column();
     section.set_color(Color::from_hex(0x1a1f3a));
 
-    let mut title = text::TextDisplay::default()
-        .with_size(1450, 30);
+    let mut title = text::TextDisplay::default().with_size(1450, 30);
     title.set_buffer(text::TextBuffer::default());
     title.buffer().unwrap().set_text("⚡ VM Settings");
     title.set_text_color(Color::from_hex(0x00d4ff));
 
     // Process timeout
-    let mut timeout_flex = group::Flex::default()
-        .with_size(1450, 40)
-        .row();
+    let mut timeout_flex = group::Flex::default().with_size(1450, 40).row();
 
-    let mut timeout_label = text::TextDisplay::default()
-        .with_size(400, 40);
+    let mut timeout_label = text::TextDisplay::default().with_size(400, 40);
     timeout_label.set_buffer(text::TextBuffer::default());
-    timeout_label.buffer().unwrap().set_text("Process timeout (seconds):");
+    timeout_label
+        .buffer()
+        .unwrap()
+        .set_text("Process timeout (seconds):");
     timeout_label.set_text_color(Color::White);
 
-    let mut timeout_input = text::TextEditor::default()
-        .with_size(100, 40);
+    let mut timeout_input = text::TextEditor::default().with_size(100, 40);
     timeout_input.set_buffer(text::TextBuffer::default());
     timeout_input.buffer().unwrap().set_text("300");
 
     timeout_flex.end();
 
     // Metrics collection
-    let mut metrics_flex = group::Flex::default()
-        .with_size(1450, 40)
-        .row();
+    let mut metrics_flex = group::Flex::default().with_size(1450, 40).row();
 
-    let mut metrics_label = text::TextDisplay::default()
-        .with_size(400, 40);
+    let mut metrics_label = text::TextDisplay::default().with_size(400, 40);
     metrics_label.set_buffer(text::TextBuffer::default());
-    metrics_label.buffer().unwrap().set_text("Enable metrics collection:");
+    metrics_label
+        .buffer()
+        .unwrap()
+        .set_text("Enable metrics collection:");
     metrics_label.set_text_color(Color::White);
 
     let mut metrics_check = button::CheckButton::default()
@@ -264,4 +232,3 @@ fn create_vm_settings(flex: &mut group::Flex) {
     section.end();
     flex.add(&section);
 }
-
