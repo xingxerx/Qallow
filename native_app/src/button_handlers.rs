@@ -1,12 +1,12 @@
 use crate::backend::process_manager::ProcessManager;
 use crate::codebase_manager::CodebaseManager;
 use crate::logging::AppLogger;
+use crate::messaging::UiMessage;
 use crate::models::{AppState, AuditLog, BuildType, LineType, LogLevel, Phase, TerminalLine};
 use chrono::Utc;
 use fltk::app::Sender;
-use crate::messaging::UiMessage;
-use std::thread;
 use std::sync::{Arc, Mutex};
+use std::thread;
 
 /// Handles all button click events and connects them to backend functionality
 pub struct ButtonHandler {
@@ -504,12 +504,28 @@ impl ButtonHandler {
             .clone();
         let logger = self.logger.clone();
         let state = self.state.clone();
-        let sender = self.ui_sender.clone().ok_or_else(|| "UI sender unavailable".to_string())?;
+        let sender = self
+            .ui_sender
+            .clone()
+            .ok_or_else(|| "UI sender unavailable".to_string())?;
         thread::spawn(move || {
             let res = mgr.build_native_app();
             if let Ok(mut s) = state.lock() {
-                s.add_terminal_line("🛠️ Build completed".to_string(), match &res { Ok(_) => LineType::Info, Err(_) => LineType::Error });
-                s.add_audit_log(match &res { Ok(_) => LogLevel::Success, Err(_) => LogLevel::Error }, "Codebase".to_string(), "Build finished".to_string());
+                s.add_terminal_line(
+                    "🛠️ Build completed".to_string(),
+                    match &res {
+                        Ok(_) => LineType::Info,
+                        Err(_) => LineType::Error,
+                    },
+                );
+                s.add_audit_log(
+                    match &res {
+                        Ok(_) => LogLevel::Success,
+                        Err(_) => LogLevel::Error,
+                    },
+                    "Codebase".to_string(),
+                    "Build finished".to_string(),
+                );
             }
             let _ = logger.info("ℹ️ Build finished (async)");
             sender.send(UiMessage::BuildDone(res));
@@ -563,12 +579,28 @@ impl ButtonHandler {
             .clone();
         let logger = self.logger.clone();
         let state = self.state.clone();
-        let sender = self.ui_sender.clone().ok_or_else(|| "UI sender unavailable".to_string())?;
+        let sender = self
+            .ui_sender
+            .clone()
+            .ok_or_else(|| "UI sender unavailable".to_string())?;
         thread::spawn(move || {
             let res = mgr.run_tests();
             if let Ok(mut s) = state.lock() {
-                s.add_terminal_line("🧪 Tests completed".to_string(), match &res { Ok(_) => LineType::Info, Err(_) => LineType::Error });
-                s.add_audit_log(match &res { Ok(_) => LogLevel::Success, Err(_) => LogLevel::Error }, "Codebase".to_string(), "Tests finished".to_string());
+                s.add_terminal_line(
+                    "🧪 Tests completed".to_string(),
+                    match &res {
+                        Ok(_) => LineType::Info,
+                        Err(_) => LineType::Error,
+                    },
+                );
+                s.add_audit_log(
+                    match &res {
+                        Ok(_) => LogLevel::Success,
+                        Err(_) => LogLevel::Error,
+                    },
+                    "Codebase".to_string(),
+                    "Tests finished".to_string(),
+                );
             }
             let _ = logger.info("ℹ️ Tests finished (async)");
             sender.send(UiMessage::TestsDone(res));
@@ -624,16 +656,27 @@ impl ButtonHandler {
             .ok_or_else(|| "Codebase manager not available".to_string())?
             .clone();
         let state = self.state.clone();
-        let sender = self.ui_sender.clone().ok_or_else(|| "UI sender unavailable".to_string())?;
+        let sender = self
+            .ui_sender
+            .clone()
+            .ok_or_else(|| "UI sender unavailable".to_string())?;
         thread::spawn(move || {
             let res = mgr.get_git_status().map(|s| {
                 let trimmed = s.trim();
-                if trimmed.is_empty() { "Working tree clean".to_string() } else { trimmed.to_string() }
+                if trimmed.is_empty() {
+                    "Working tree clean".to_string()
+                } else {
+                    trimmed.to_string()
+                }
             });
             if let Ok(mut st) = state.lock() {
                 match &res {
-                    Ok(msg) => st.add_terminal_line(format!("📁 Git status:\n{}", msg), LineType::Info),
-                    Err(err) => st.add_terminal_line(format!("Git status error: {}", err), LineType::Error),
+                    Ok(msg) => {
+                        st.add_terminal_line(format!("📁 Git status:\n{}", msg), LineType::Info)
+                    }
+                    Err(err) => {
+                        st.add_terminal_line(format!("Git status error: {}", err), LineType::Error)
+                    }
                 }
             }
             sender.send(UiMessage::GitStatusDone(res));
@@ -698,22 +741,33 @@ impl ButtonHandler {
             .ok_or_else(|| "Codebase manager not available".to_string())?
             .clone();
         let state = self.state.clone();
-        let sender = self.ui_sender.clone().ok_or_else(|| "UI sender unavailable".to_string())?;
+        let sender = self
+            .ui_sender
+            .clone()
+            .ok_or_else(|| "UI sender unavailable".to_string())?;
         thread::spawn(move || {
             let res = mgr.get_recent_commits(count);
             if let Ok(mut st) = state.lock() {
                 match &res {
                     Ok(list) => {
-                        let display = if list.is_empty() { "No commits available".to_string() } else { list.join("\n") };
-                        st.add_terminal_line(format!("📜 Recent commits:\n{}", display), LineType::Info);
+                        let display = if list.is_empty() {
+                            "No commits available".to_string()
+                        } else {
+                            list.join("\n")
+                        };
+                        st.add_terminal_line(
+                            format!("📜 Recent commits:\n{}", display),
+                            LineType::Info,
+                        );
                     }
-                    Err(err) => st.add_terminal_line(format!("Commits fetch error: {}", err), LineType::Error),
+                    Err(err) => st.add_terminal_line(
+                        format!("Commits fetch error: {}", err),
+                        LineType::Error,
+                    ),
                 }
             }
             sender.send(UiMessage::CommitsDone(res));
         });
         Ok(())
     }
-
-
 }

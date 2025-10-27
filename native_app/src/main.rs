@@ -6,27 +6,34 @@ mod codebase_manager;
 mod config;
 mod error_recovery;
 mod logging;
+mod messaging;
 mod models;
 mod shortcuts;
 mod shutdown;
 mod ui;
 mod utils;
-mod messaging;
 
 use backend::process_manager::ProcessManager;
 use button_handlers::ButtonHandler;
 use codebase_manager::CodebaseManager;
-use config::ConfigManager;
+use config::{AppConfig, ConfigManager};
 use fltk::enums::Color;
 use fltk::{dialog, prelude::*, *};
 use fltk_theme::ThemeType;
 use logging::AppLogger;
+use messaging::UiMessage;
 use models::{AppState, AuditLog, BuildType, LineType, LogLevel, TerminalLine};
 use shutdown::ShutdownManager;
+use std::env;
 use std::fs;
+use std::panic;
+use std::path::Path;
+use std::process::{Command, Stdio};
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
-use messaging::UiMessage;
+
+#[cfg(unix)]
+use std::os::unix::net::UnixStream;
 
 enum VmStatus {
     Running,
@@ -78,8 +85,32 @@ fn main() {
         }
     };
 
-    // Initialize FLTK
-    let app = app::App::default();
+    if !display_available() {
+        let _ = logger.warn("No graphical display detected (missing DISPLAY/WAYLAND_DISPLAY). Running CLI fallback pipeline instead.");
+        if let Err(e) = run_headless(&config, &logger) {
+            let _ = logger.error(&format!("Headless run failed: {}", e));
+            eprintln!("Headless execution failed: {}", e);
+            std::process::exit(1);
+        }
+        let _ = logger.info("Headless execution completed successfully.");
+        return;
+    }
+
+    // Initialize FLTK (with graceful fallback when display cannot be opened)
+    let app = match panic::catch_unwind(app::App::default) {
+        Ok(app) => app,
+        Err(_) => {
+            let _ = logger
+                .warn("FLTK failed to open the display. Running CLI fallback pipeline instead.");
+            if let Err(e) = run_headless(&config, &logger) {
+                let _ = logger.error(&format!("Headless run failed: {}", e));
+                eprintln!("Headless execution failed: {}", e);
+                std::process::exit(1);
+            }
+            let _ = logger.info("Headless execution completed successfully.");
+            return;
+        }
+    };
     // UI message channel for background tasks
     let (sender, receiver) = app::channel::<UiMessage>();
     let theme = fltk_theme::WidgetTheme::new(ThemeType::Dark);
@@ -279,8 +310,15 @@ fn main() {
             }
             btn_ref.deactivate();
             if let Ok(mut s) = state.lock() {
-                s.add_terminal_line("🛠️ Build started in background...".to_string(), LineType::Info);
-                s.add_audit_log(LogLevel::Info, "Codebase".to_string(), "Build started".to_string());
+                s.add_terminal_line(
+                    "🛠️ Build started in background...".to_string(),
+                    LineType::Info,
+                );
+                s.add_audit_log(
+                    LogLevel::Info,
+                    "Codebase".to_string(),
+                    "Build started".to_string(),
+                );
             }
             refresh_terminal(&state, &terminal_buffer);
             refresh_audit(
@@ -306,8 +344,15 @@ fn main() {
             }
             btn_ref.deactivate();
             if let Ok(mut s) = state.lock() {
-                s.add_terminal_line("🧪 Tests started in background...".to_string(), LineType::Info);
-                s.add_audit_log(LogLevel::Info, "Codebase".to_string(), "Tests started".to_string());
+                s.add_terminal_line(
+                    "🧪 Tests started in background...".to_string(),
+                    LineType::Info,
+                );
+                s.add_audit_log(
+                    LogLevel::Info,
+                    "Codebase".to_string(),
+                    "Tests started".to_string(),
+                );
             }
             refresh_terminal(&state, &terminal_buffer);
             refresh_audit(
@@ -334,7 +379,11 @@ fn main() {
             btn_ref.deactivate();
             if let Ok(mut s) = state.lock() {
                 s.add_terminal_line("📁 Git status fetching...".to_string(), LineType::Info);
-                s.add_audit_log(LogLevel::Info, "Codebase".to_string(), "Git status requested".to_string());
+                s.add_audit_log(
+                    LogLevel::Info,
+                    "Codebase".to_string(),
+                    "Git status requested".to_string(),
+                );
             }
             refresh_terminal(&state, &terminal_buffer);
             refresh_audit(
@@ -361,7 +410,11 @@ fn main() {
             btn_ref.deactivate();
             if let Ok(mut s) = state.lock() {
                 s.add_terminal_line("📜 Fetching recent commits...".to_string(), LineType::Info);
-                s.add_audit_log(LogLevel::Info, "Codebase".to_string(), "Recent commits requested".to_string());
+                s.add_audit_log(
+                    LogLevel::Info,
+                    "Codebase".to_string(),
+                    "Recent commits requested".to_string(),
+                );
             }
             refresh_terminal(&state, &terminal_buffer);
             refresh_audit(
@@ -526,8 +579,12 @@ fn main() {
                 }
                 UiMessage::GitStatusDone(res) => {
                     match res {
-                        Ok(status) => dialog::message_default(&format!("📁 Git Status:\n{}", status)),
-                        Err(e) => dialog::alert_default(&format!("Failed to fetch git status: {}", e)),
+                        Ok(status) => {
+                            dialog::message_default(&format!("📁 Git Status:\n{}", status))
+                        }
+                        Err(e) => {
+                            dialog::alert_default(&format!("Failed to fetch git status: {}", e))
+                        }
                     }
                     control_buttons.git_status_btn.activate();
                     refresh_terminal(&state, &terminal_buffer);
@@ -540,7 +597,11 @@ fn main() {
                 UiMessage::CommitsDone(res) => {
                     match res {
                         Ok(commits) => {
-                            let content = if commits.is_empty() { "No commits available".to_string() } else { commits.join("\n") };
+                            let content = if commits.is_empty() {
+                                "No commits available".to_string()
+                            } else {
+                                commits.join("\n")
+                            };
                             dialog::message_default(&format!("📜 Recent Commits:\n{}", content));
                         }
                         Err(e) => dialog::alert_default(&format!("Failed to fetch commits: {}", e)),
@@ -732,4 +793,90 @@ fn format_audit_entry(entry: &AuditLog) -> String {
         entry.component,
         entry.message
     )
+}
+
+fn display_available() -> bool {
+    #[cfg(any(target_os = "windows", target_os = "macos"))]
+    {
+        true
+    }
+    #[cfg(not(any(target_os = "windows", target_os = "macos")))]
+    {
+        if let Ok(display) = env::var("DISPLAY") {
+            if display.starts_with(':') {
+                let socket = display
+                    .trim_start_matches(':')
+                    .split('.')
+                    .next()
+                    .unwrap_or("0");
+                let socket_path = format!("/tmp/.X11-unix/X{}", socket);
+                if Path::new(&socket_path).exists() {
+                    return UnixStream::connect(socket_path).is_ok();
+                }
+            } else if display.starts_with("unix:") {
+                let socket = display
+                    .trim_start_matches("unix:")
+                    .split('.')
+                    .next()
+                    .unwrap_or("0");
+                let socket_path = format!("/tmp/.X11-unix/X{}", socket);
+                if Path::new(&socket_path).exists() {
+                    return UnixStream::connect(socket_path).is_ok();
+                }
+            } else {
+                return true;
+            }
+        }
+
+        if let (Ok(wayland_display), Ok(runtime_dir)) =
+            (env::var("WAYLAND_DISPLAY"), env::var("XDG_RUNTIME_DIR"))
+        {
+            let socket_path = Path::new(&runtime_dir).join(&wayland_display);
+            if socket_path.exists() {
+                return UnixStream::connect(socket_path).is_ok();
+            }
+        }
+
+        false
+    }
+}
+
+fn run_headless(config: &AppConfig, logger: &AppLogger) -> Result<(), String> {
+    let mut command = Command::new("./build/qallow");
+    command.arg("run");
+
+    let phase_lower = config.vm.default_phase.to_lowercase();
+    if phase_lower == "phase13" || phase_lower == "13" {
+        command.arg("--phase=13");
+        command.arg(format!("--ticks={}", config.vm.default_ticks));
+    } else if phase_lower == "phase15" || phase_lower == "15" {
+        command.arg("--phase=15");
+        command.arg(format!("--ticks={}", config.vm.default_ticks));
+    } else if phase_lower == "phase14" || phase_lower == "14" || phase_lower == "unified" {
+        command.arg("unified");
+    } else {
+        command.arg("unified");
+        let _ = logger.warn(&format!(
+            "Unknown default phase '{}'; defaulting to unified pipeline",
+            config.vm.default_phase
+        ));
+    }
+
+    if config.vm.default_build.eq_ignore_ascii_case("cuda") {
+        command.env("QALLOW_PREFERRED_BUILD", "CUDA");
+    }
+
+    command.stdout(Stdio::inherit()).stderr(Stdio::inherit());
+    let debug_cmd = format!("{:?}", command);
+    let _ = logger.info(&format!("▶ Running headless pipeline via {}", debug_cmd));
+
+    let status = command
+        .status()
+        .map_err(|e| format!("Failed to launch CLI run: {}", e))?;
+
+    if !status.success() {
+        return Err(format!("CLI run exited with status: {}", status));
+    }
+
+    Ok(())
 }

@@ -149,7 +149,9 @@ jobs:
             libxrandr-dev \
             libxrender-dev \
             libpango1.0-dev \
-            libcairo2-dev
+            libcairo2-dev \
+            libgl1-mesa-dev \
+            libglu1-mesa-dev
           sudo apt-get clean
           sudo rm -rf /var/lib/apt/lists/*
           echo "FLTK dependencies installed successfully"

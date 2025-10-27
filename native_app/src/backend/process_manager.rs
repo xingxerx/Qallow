@@ -1,6 +1,7 @@
 use crate::models::{BuildType, Phase};
 use crossbeam_channel::{unbounded, Receiver, Sender};
 use std::io::{BufRead, BufReader};
+use std::path::Path;
 use std::process::{Child, Command, Stdio};
 #[allow(unused_imports)]
 use std::sync::{Arc, Mutex};
@@ -69,7 +70,19 @@ impl ProcessManager {
 
         let binary_path = match build {
             BuildType::CPU => "/root/Qallow/build/qallow",
-            BuildType::CUDA => "/root/Qallow/build/qallow_unified",
+            BuildType::CUDA => {
+                if Path::new("/root/Qallow/build/qallow_unified_cuda").exists() {
+                    "/root/Qallow/build/qallow_unified_cuda"
+                } else if Path::new("/root/Qallow/build/qallow_unified").exists() {
+                    "/root/Qallow/build/qallow_unified"
+                } else if Path::new("/root/Qallow/build/qallow_unified_cpu").exists() {
+                    "/root/Qallow/build/qallow_unified_cpu"
+                } else {
+                    return Err(
+                        "Could not find CUDA unified binary (expected qallow_unified_cuda)".into(),
+                    );
+                }
+            }
         };
 
         let phase_arg = match phase {
