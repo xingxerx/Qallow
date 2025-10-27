@@ -38,6 +38,7 @@ function App() {
     }, 1000);
 
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleStartVM = async () => {

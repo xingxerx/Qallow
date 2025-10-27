@@ -5,13 +5,11 @@ cmake_minimum_required(VERSION 3.15)
 
 # Find required packages
 find_package(PkgConfig REQUIRED)
-pkg_check_modules(JSON_C json-c)
+pkg_check_modules(JSON_C REQUIRED IMPORTED_TARGET json-c)
 
-# Include directories
-include_directories(
+set(QALLOW_QUANTUM_INCLUDE_DIRS
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}/include
-    ${JSON_C_INCLUDE_DIRS}
 )
 
 # Source files
@@ -29,15 +27,34 @@ set(CUDAQ_QUICKSTART_SOURCES
 
 # Build quantum core library
 add_library(qallow_quantum_core STATIC ${QUANTUM_CORE_SOURCES})
-target_link_libraries(qallow_quantum_core ${JSON_C_LIBRARIES} m)
+target_include_directories(qallow_quantum_core
+    PUBLIC ${QALLOW_QUANTUM_INCLUDE_DIRS}
+)
+target_link_libraries(qallow_quantum_core
+    PUBLIC PkgConfig::JSON_C
+    PRIVATE m
+)
 
 # Build quantum algorithm suite library
 add_library(qallow_quantum_algorithms STATIC ${QUANTUM_ALGORITHM_SUITE_SOURCES})
-target_link_libraries(qallow_quantum_algorithms ${JSON_C_LIBRARIES} m)
+target_include_directories(qallow_quantum_algorithms
+    PUBLIC ${QALLOW_QUANTUM_INCLUDE_DIRS}
+)
+target_link_libraries(qallow_quantum_algorithms
+    PUBLIC PkgConfig::JSON_C
+    PRIVATE m
+)
 
 # Build CUDA-Q quickstart executable
 add_executable(cudaq_quickstart ${CUDAQ_QUICKSTART_SOURCES})
-target_link_libraries(cudaq_quickstart ${JSON_C_LIBRARIES} m)
+target_include_directories(cudaq_quickstart
+    PRIVATE ${QALLOW_QUANTUM_INCLUDE_DIRS}
+)
+target_link_libraries(cudaq_quickstart
+    PRIVATE
+        PkgConfig::JSON_C
+        m
+)
 
 # Installation
 install(TARGETS 
@@ -76,4 +93,3 @@ message(STATUS "  - Quantum Core Library: qallow_quantum_core")
 message(STATUS "  - Quantum Algorithms Library: qallow_quantum_algorithms")
 message(STATUS "  - CUDA-Q Quickstart Executable: cudaq_quickstart")
 message(STATUS "  - JSON-C Support: ${JSON_C_FOUND}")
-

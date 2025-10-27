@@ -32,6 +32,12 @@ app.use(cors());
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
+// Serve a minimal static web UI so the Simple Browser can control the backend
+const publicDir = path.join(__dirname, 'public');
+if (fs.existsSync(publicDir)) {
+  app.use(express.static(publicDir));
+}
+
 // Logger utility
 const logger = {
   info: (msg) => console.log(`[INFO] ${new Date().toISOString()} - ${msg}`),
@@ -53,6 +59,14 @@ const errorHandler = (err, req, res, next) => {
 // ============================================================================
 // API ENDPOINTS (for native app)
 // ============================================================================
+// Also mount the generic web API routes to enable VM control endpoints (/api/vm/*)
+try {
+  const apiWeb = require('./api-web');
+  app.use('/api', apiWeb);
+  logger.info('Mounted web API routes under /api');
+} catch (e) {
+  logger.warn('api-web routes not mounted (module missing or error). VM control may be unavailable.');
+}
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
