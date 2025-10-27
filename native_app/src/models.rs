@@ -19,6 +19,8 @@ pub struct AppState {
     pub energy: f64,
     pub risk: f64,
     pub mind_started_at: Option<DateTime<Utc>>,
+    pub simulation_speed: u32,
+    pub swarm: SwarmProfile,
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq)]
@@ -145,6 +147,8 @@ impl AppState {
             energy: 0.5,
             risk: 0.5,
             mind_started_at: None,
+            simulation_speed: 1,
+            swarm: SwarmProfile::default(),
         }
     }
 
@@ -196,11 +200,11 @@ impl AppState {
         self.modules = modules;
     }
 
-    pub fn push_telemetry(&mut self, step: u32, reward: f64, energy: f64, risk: f64) {
-        self.current_step = step;
-        self.reward = reward;
-        self.energy = energy;
-        self.risk = risk;
+pub fn push_telemetry(&mut self, step: u32, reward: f64, energy: f64, risk: f64) {
+    self.current_step = step;
+    self.reward = reward;
+    self.energy = energy;
+    self.risk = risk;
         let point = TelemetryPoint {
             step,
             reward,
@@ -223,6 +227,25 @@ impl AppState {
         self.risk = 0.5;
         self.telemetry.clear();
         self.terminal_output.clear();
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SwarmProfile {
+    pub instance_id: String,
+    pub weight_safety: f64,
+    pub weight_clarity: f64,
+    pub weight_human: f64,
+}
+
+impl Default for SwarmProfile {
+    fn default() -> Self {
+        Self {
+            instance_id: "swarm-000".to_string(),
+            weight_safety: 0.34,
+            weight_clarity: 0.33,
+            weight_human: 0.33,
+        }
     }
 }
 

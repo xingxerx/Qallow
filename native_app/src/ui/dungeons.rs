@@ -1,5 +1,6 @@
 use crate::dungeons::{read_recent_deliberations, DungeonConfig, DungeonManager};
 use crate::models::AppState;
+use fltk::enums::Color;
 use fltk::{prelude::*, *};
 use std::sync::{Arc, Mutex};
 
@@ -19,12 +20,12 @@ pub fn create_dungeons_tab(
 
     let mut control_row = group::Flex::default().with_size(1450, 80).row();
     let mut start_btn = button::Button::default().with_size(160, 80).with_label("▶ Start");
-    start_btn.set_color(enums::Color::from_hex(0x00ff64));
-    start_btn.set_label_color(enums::Color::Black);
+    start_btn.set_color(Color::from_hex(0x00ff64));
+    start_btn.set_label_color(Color::Black);
 
     let mut stop_btn = button::Button::default().with_size(160, 80).with_label("⏹ Stop");
-    stop_btn.set_color(enums::Color::from_hex(0xff6464));
-    stop_btn.set_label_color(enums::Color::White);
+    stop_btn.set_color(Color::from_hex(0xff6464));
+    stop_btn.set_label_color(Color::White);
 
     control_row.add(&start_btn);
     control_row.add(&stop_btn);
@@ -36,11 +37,11 @@ pub fn create_dungeons_tab(
         .buffer()
         .unwrap()
         .set_text("Select a dungeon and press start to begin the ritual.");
-    status_display.set_text_color(enums::Color::from_hex(0x00d4ff));
+    status_display.set_text_color(Color::from_hex(0x00d4ff));
 
     let mut log_display = text::TextDisplay::default().with_size(1450, 770);
     log_display.set_buffer(text::TextBuffer::default());
-    log_display.set_text_color(enums::Color::White);
+    log_display.set_text_color(Color::White);
 
     root.end();
     group.end();

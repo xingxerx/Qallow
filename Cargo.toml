@@ -1,6 +1,7 @@
 [workspace]
 members = [
     "native_app",
+    "quantum_optimizer",
 ]
 default-members = ["native_app"]
 resolver = "2"

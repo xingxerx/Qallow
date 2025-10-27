@@ -2,6 +2,18 @@
 
 A high-performance native desktop application for the Qallow Quantum-Photonic AGI System, built with **Rust** and **FLTK** for a modern, responsive user interface.
 
+## Quantum feature flag
+
+The native app now depends optionally on a separate workspace crate `quantum_optimizer`.
+
+- Default builds do not compile any quantum dependencies, keeping builds fast:
+  - `cargo build`
+
+- To enable quantum functionality in the native app, build with the `quantum` feature:
+  - `cargo build -p qallow-native --features quantum`
+
+The `quantum_optimizer` crate lives at `../quantum_optimizer` and exposes a small, reusable API for quantum optimization routines. This separation keeps the UI lean while avoiding duplication across projects.
+
 ## Features
 
 ### 📊 Dashboard

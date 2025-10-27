@@ -1,0 +1,18 @@
+[package]
+name = "quantum_optimizer"
+version = "0.1.0"
+edition = "2021"
+authors = ["Qallow Team"]
+description = "Reusable quantum optimization utilities for Qallow"
+license = "MIT"
+
+[lib]
+name = "quantum_optimizer"
+path = "src/lib.rs"
+
+[features]
+default = []
+
+[dependencies]
+thiserror = "1.0"
+# Keep this crate lightweight; add quantum deps behind features in the future

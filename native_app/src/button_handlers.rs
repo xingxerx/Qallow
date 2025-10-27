@@ -3,7 +3,7 @@ use crate::codebase_manager::CodebaseManager;
 use crate::logging::AppLogger;
 use crate::messaging::UiMessage;
 use crate::models::{AppState, AuditLog, BuildType, LineType, LogLevel, Phase, TerminalLine};
-use chrono::Utc;
+use chrono::{Local, Utc};
 use fltk::app::Sender;
 use std::sync::{Arc, Mutex};
 use std::thread;
@@ -18,6 +18,11 @@ pub struct ButtonHandler {
 }
 
 impl ButtonHandler {
+    fn log_ui_event(&self, button_label: &str, result: &str) {
+        let timestamp = Local::now().format("%H:%M:%S");
+        println!("[{}] {} -> {}", timestamp, button_label, result);
+    }
+
     pub fn new(
         state: Arc<Mutex<AppState>>,
         process_manager: Arc<Mutex<ProcessManager>>,
@@ -241,6 +246,80 @@ impl ButtonHandler {
         Ok(())
     }
 
+    /// Handle manual advance
+    pub fn on_step_once(&self) -> Result<(), String> {
+        let button_label = "⏭️ Advance";
+        let mut state = self
+            .state
+            .lock()
+            .map_err(|e| format!("State lock error: {}", e))?;
+
+        if state.vm_running {
+            let msg = "Cannot advance while VM is running".to_string();
+            self.log_ui_event(button_label, &msg);
+            return Err(msg);
+        }
+
+        let increment = state.simulation_speed.max(1);
+        state.current_step = state.current_step.saturating_add(increment);
+        state.total_steps = state.total_steps.saturating_add(increment);
+        state.reward += increment as f64 * 0.01;
+        state.energy = (state.energy + increment as f64 * 0.002).min(1.0);
+        state.risk = (state.risk * 0.98).max(0.0);
+
+        let reward = state.reward;
+        let energy = state.energy;
+        let risk = state.risk;
+
+        state.add_terminal_line(
+            format!(
+                "⏭️ Advanced {} ticks (reward {:.2}, energy {:.2}, risk {:.2})",
+                increment, reward, energy, risk
+            ),
+            LineType::Info,
+        );
+        state.add_audit_log(
+            LogLevel::Info,
+            "ControlPanel".to_string(),
+            format!("Manual advance of {} ticks", increment),
+        );
+
+        self.log_ui_event(
+            button_label,
+            &format!("Advanced consciousness by {} ticks", increment),
+        );
+        Ok(())
+    }
+
+    /// Update simulation tempo
+    pub fn on_set_tempo(&self, speed: u32) -> Result<(), String> {
+        let button_label = "🎚️ Tempo";
+        let mut state = self
+            .state
+            .lock()
+            .map_err(|e| format!("State lock error: {}", e))?;
+
+        let sanitized = match speed {
+            10 | 100 => speed,
+            _ => 1,
+        };
+        state.simulation_speed = sanitized;
+        state.add_terminal_line(
+            format!("🎚️ Simulation tempo set to {}x", sanitized),
+            LineType::Info,
+        );
+        state.add_audit_log(
+            LogLevel::Info,
+            "ControlPanel".to_string(),
+            format!("Tempo set to {}x", sanitized),
+        );
+        self.log_ui_event(
+            button_label,
+            &format!("Simulation tempo set to {}x", sanitized),
+        );
+        Ok(())
+    }
+
     /// Handle Build selection change
     pub fn on_build_selected(&self, build: BuildType) -> Result<(), String> {
         let mut state = self
@@ -367,6 +446,63 @@ impl ButtonHandler {
             metrics_json.len()
         ));
         Ok(metrics_json)
+    }
+
+    pub fn on_divine_inspection(&self) -> Result<String, String> {
+        let state = self
+            .state
+            .lock()
+            .map_err(|e| format!("State lock error: {}", e))?;
+        Ok(format!(
+            "Phase: {:?}\nBuild: {:?}\nStep: {}\nReward: {:.3}\nEnergy: {:.3}\nRisk: {:.3}\nTempo: {}x",
+            state.selected_phase,
+            state.selected_build,
+            state.current_step,
+            state.reward,
+            state.energy,
+            state.risk,
+            state.simulation_speed
+        ))
+    }
+
+    pub fn on_metrics_overview(&self) -> Result<String, String> {
+        let state = self
+            .state
+            .lock()
+            .map_err(|e| format!("State lock error: {}", e))?;
+        Ok(format!(
+            "Overlay Stability => O:{:.2} R:{:.2} M:{:.2} G:{:.2}\nEthics => S:{:.2} C:{:.2} H:{:.2}\nCoherence: {:.4}  Uptime: {}s",
+            state.metrics.overlay_stability.orbital,
+            state.metrics.overlay_stability.river,
+            state.metrics.overlay_stability.mycelial,
+            state.metrics.overlay_stability.global,
+            state.metrics.ethics_score.safety,
+            state.metrics.ethics_score.clarity,
+            state.metrics.ethics_score.human,
+            state.metrics.coherence,
+            state.metrics.uptime_seconds
+        ))
+    }
+
+    pub fn on_prophecy(&self) -> Result<String, String> {
+        let state = self
+            .state
+            .lock()
+            .map_err(|e| format!("State lock error: {}", e))?;
+        let tempo = state.simulation_speed.max(1) as f64;
+        let projected_reward = state.reward + tempo * 0.012;
+        let projected_coherence = (state.metrics.coherence * 0.97 + state.energy * 0.03).min(0.9999);
+        let outlook = if state.risk < 0.4 {
+            "favorable"
+        } else if state.risk < 0.7 {
+            "balanced"
+        } else {
+            "volatile"
+        };
+        Ok(format!(
+            "Projected reward {:.3}, coherence {:.4}. Outlook: {}.",
+            projected_reward, projected_coherence, outlook
+        ))
     }
 
     /// Handle Save Config button click
