@@ -6,6 +6,7 @@ import Terminal from './components/Terminal';
 import Metrics from './components/Metrics';
 import AuditLog from './components/AuditLog';
 import ControlPanel from './components/ControlPanel';
+import CodeImprovements from './components/CodeImprovements';
 
 function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -84,35 +85,41 @@ function App() {
       </header>
 
       <nav className="app-nav">
-        <button 
+        <button
           className={`nav-btn ${activeTab === 'dashboard' ? 'active' : ''}`}
           onClick={() => setActiveTab('dashboard')}
         >
           📊 Dashboard
         </button>
-        <button 
+        <button
           className={`nav-btn ${activeTab === 'terminal' ? 'active' : ''}`}
           onClick={() => setActiveTab('terminal')}
         >
           💻 Terminal
         </button>
-        <button 
+        <button
           className={`nav-btn ${activeTab === 'metrics' ? 'active' : ''}`}
           onClick={() => setActiveTab('metrics')}
         >
           📈 Metrics
         </button>
-        <button 
+        <button
           className={`nav-btn ${activeTab === 'audit' ? 'active' : ''}`}
           onClick={() => setActiveTab('audit')}
         >
           🔍 Audit Log
         </button>
-        <button 
+        <button
           className={`nav-btn ${activeTab === 'control' ? 'active' : ''}`}
           onClick={() => setActiveTab('control')}
         >
           ⚙️ Control
+        </button>
+        <button
+          className={`nav-btn ${activeTab === 'code' ? 'active' : ''}`}
+          onClick={() => setActiveTab('code')}
+        >
+          🔧 Code Improvements
         </button>
       </nav>
 
@@ -122,13 +129,14 @@ function App() {
         {activeTab === 'metrics' && <Metrics data={metrics} />}
         {activeTab === 'audit' && <AuditLog logs={auditLogs} />}
         {activeTab === 'control' && (
-          <ControlPanel 
+          <ControlPanel
             vmRunning={vmRunning}
             onStart={handleStartVM}
             onStop={handleStopVM}
             loading={loading}
           />
         )}
+        {activeTab === 'code' && <CodeImprovements />}
       </main>
     </div>
   );

@@ -5,6 +5,7 @@ import Terminal from './components/Terminal';
 import Metrics from './components/Metrics';
 import AuditLog from './components/AuditLog';
 import ControlPanel from './components/ControlPanel';
+import NeonDashboard from './neon/NeonDashboard';
 
 function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -74,6 +75,12 @@ function App() {
             📊 Dashboard
           </button>
           <button
+            className={`nav-item ${activeTab === 'neon' ? 'active' : ''}`}
+            onClick={() => setActiveTab('neon')}
+          >
+            🌌 Neon UI
+          </button>
+          <button
             className={`nav-item ${activeTab === 'metrics' ? 'active' : ''}`}
             onClick={() => setActiveTab('metrics')}
           >
@@ -101,6 +108,7 @@ function App() {
 
         <main className="main-content">
           {activeTab === 'dashboard' && <Dashboard isRunning={isRunning} />}
+          {activeTab === 'neon' && <NeonDashboard />}
           {activeTab === 'metrics' && <Metrics onRefresh={handleRefreshMetrics} />}
           {activeTab === 'terminal' && <Terminal output={terminalOutput} />}
           {activeTab === 'audit' && <AuditLog />}

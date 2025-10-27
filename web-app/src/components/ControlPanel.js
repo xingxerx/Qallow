@@ -6,6 +6,7 @@ function ControlPanel({ vmRunning, onStart, onStop, loading }) {
   const [ticks, setTicks] = useState(1000);
   const [build, setBuild] = useState('CPU');
   const [phase, setPhase] = useState('13');
+  const [executionMode, setExecutionMode] = useState('single'); // 'single' or 'unified'
   const [actionLoading, setActionLoading] = useState(false);
   const [actionMessage, setActionMessage] = useState('');
 
@@ -13,7 +14,17 @@ function ControlPanel({ vmRunning, onStart, onStop, loading }) {
 
   const handleStartWithParams = async () => {
     try {
-      await onStart({ ticks, build, phase });
+      if (executionMode === 'unified') {
+        // Start continuous unified execution
+        await axios.post(`${API_BASE}/vm/start-continuous`, {
+          ticks,
+          build,
+          continuous: true
+        });
+      } else {
+        // Start single phase
+        await onStart({ ticks, build, phase });
+      }
     } catch (error) {
       console.error('Error starting VM:', error);
     }
@@ -22,7 +33,7 @@ function ControlPanel({ vmRunning, onStart, onStop, loading }) {
   const handleExportMetrics = async () => {
     setActionLoading(true);
     try {
-      const response = await axios.get(`${API_BASE}/metrics/export`);
+      await axios.get(`${API_BASE}/metrics/export`);
       setActionMessage('✅ Metrics exported successfully');
       setTimeout(() => setActionMessage(''), 3000);
     } catch (error) {
@@ -36,7 +47,7 @@ function ControlPanel({ vmRunning, onStart, onStop, loading }) {
   const handleSaveConfig = async () => {
     setActionLoading(true);
     try {
-      const response = await axios.post(`${API_BASE}/config/save`, { ticks, build, phase });
+      await axios.post(`${API_BASE}/config/save`, { ticks, build, phase });
       setActionMessage('✅ Configuration saved successfully');
       setTimeout(() => setActionMessage(''), 3000);
     } catch (error) {
@@ -64,7 +75,7 @@ function ControlPanel({ vmRunning, onStart, onStop, loading }) {
   const handleReset = async () => {
     setActionLoading(true);
     try {
-      const response = await axios.post(`${API_BASE}/vm/reset`);
+      await axios.post(`${API_BASE}/vm/reset`);
       setActionMessage('✅ System reset successfully');
       setTimeout(() => setActionMessage(''), 3000);
     } catch (error) {
@@ -101,6 +112,19 @@ function ControlPanel({ vmRunning, onStart, onStop, loading }) {
         <h3>⚙️ Configuration</h3>
         <div className="config-group">
           <div className="config-item">
+            <label>Execution Mode</label>
+            <select
+              value={executionMode}
+              onChange={(e) => setExecutionMode(e.target.value)}
+              disabled={vmRunning}
+              className="config-select"
+            >
+              <option value="single">Single Phase</option>
+              <option value="unified">Unified (13→14→15 Loop)</option>
+            </select>
+          </div>
+
+          <div className="config-item">
             <label>Build Type</label>
             <select
               value={build}
@@ -114,17 +138,30 @@ function ControlPanel({ vmRunning, onStart, onStop, loading }) {
           </div>
 
           <div className="config-item">
-            <label>Phase</label>
-            <select
-              value={phase}
-              onChange={(e) => setPhase(e.target.value)}
-              disabled={vmRunning}
-              className="config-select"
-            >
-              <option value="13">Phase 13 - Quantum Circuit Optimization</option>
-              <option value="14">Phase 14 - Photonic Integration</option>
-              <option value="15">Phase 15 - AGI Synthesis</option>
-            </select>
+            <label>{executionMode === 'unified' ? 'Ticks per Phase' : 'Phase'}</label>
+            {executionMode === 'unified' ? (
+              <input
+                type="number"
+                value={ticks}
+                onChange={(e) => setTicks(parseInt(e.target.value))}
+                disabled={vmRunning}
+                className="config-input"
+                min="100"
+                max="10000"
+                step="100"
+              />
+            ) : (
+              <select
+                value={phase}
+                onChange={(e) => setPhase(e.target.value)}
+                disabled={vmRunning}
+                className="config-select"
+              >
+                <option value="13">Phase 13 - Quantum Circuit Optimization</option>
+                <option value="14">Phase 14 - Photonic Integration</option>
+                <option value="15">Phase 15 - AGI Synthesis</option>
+              </select>
+            )}
           </div>
 
           <div className="config-item">

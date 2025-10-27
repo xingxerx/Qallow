@@ -16,6 +16,9 @@ let vmProcess = null;
 let terminalOutput = [];
 let metrics = {};
 let auditLogs = [];
+let continuousMode = false;
+let currentPhase = 13;
+let cycleCount = 0;
 const MAX_OUTPUT_LINES = 1000;
 const MAX_LOGS = 500;
 
@@ -58,7 +61,10 @@ function addAuditLog(component, message, level = 'Info') {
 router.get('/status', (req, res) => {
   try {
     res.json({
-      vm_running: vmProcess !== null,
+      vm_running: vmProcess !== null || continuousMode,
+      continuous_mode: continuousMode,
+      current_phase: currentPhase,
+      cycle_count: cycleCount,
       terminal_output: terminalOutput,
       metrics: metrics,
       audit_logs: auditLogs,
@@ -163,7 +169,7 @@ router.post('/vm/start', (req, res) => {
 // POST /api/vm/stop - Stop the Qallow VM
 router.post('/vm/stop', (req, res) => {
   try {
-    if (vmProcess === null) {
+    if (vmProcess === null && !continuousMode) {
       return res.status(400).json({ error: 'VM not running' });
     }
 
@@ -171,17 +177,22 @@ router.post('/vm/stop', (req, res) => {
     addTerminalLine('⏹️ Stopping VM...', 'warning');
     addAuditLog('VM', 'Stopping VM', 'Warning');
 
-    vmProcess.kill('SIGTERM');
-    
-    // Force kill after 5 seconds if still running
-    setTimeout(() => {
-      if (vmProcess !== null) {
-        logger.warn('Force killing VM process');
-        vmProcess.kill('SIGKILL');
-      }
-    }, 5000);
+    // Stop continuous mode
+    continuousMode = false;
 
-    vmProcess = null;
+    if (vmProcess !== null) {
+      vmProcess.kill('SIGTERM');
+
+      // Force kill after 5 seconds if still running
+      setTimeout(() => {
+        if (vmProcess !== null) {
+          logger.warn('Force killing VM process');
+          vmProcess.kill('SIGKILL');
+        }
+      }, 5000);
+
+      vmProcess = null;
+    }
 
     logger.success('VM stopped');
     addTerminalLine('✅ VM stopped', 'success');
@@ -197,6 +208,132 @@ router.post('/vm/stop', (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+// POST /api/vm/start-continuous - Start continuous unified phase execution
+router.post('/vm/start-continuous', (req, res) => {
+  try {
+    if (vmProcess !== null) {
+      return res.status(400).json({ error: 'VM already running' });
+    }
+
+    const ticks = req.body.ticks || 1000;
+    const build = req.body.build || 'CPU';
+
+    logger.info(`Starting continuous unified execution (${build}, ticks per phase: ${ticks})`);
+    addTerminalLine(`🚀 Starting Continuous Unified Execution (${build} build, ${ticks} ticks per phase)`, 'info');
+    addAuditLog('VM', `Starting continuous unified execution with ${build} build`, 'Info');
+
+    continuousMode = true;
+    currentPhase = 13;
+    cycleCount = 0;
+
+    // Start the first phase
+    startNextPhase(ticks, build);
+
+    res.json({
+      success: true,
+      message: 'Continuous execution started',
+      timestamp: new Date().toISOString()
+    });
+  } catch (err) {
+    logger.error('Failed to start continuous execution', err);
+    addTerminalLine(`❌ Failed to start continuous execution: ${err.message}`, 'error');
+    addAuditLog('VM', `Failed to start continuous: ${err.message}`, 'Error');
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Helper function to start next phase in continuous mode
+function startNextPhase(ticks, build) {
+  if (!continuousMode || vmProcess !== null) {
+    return;
+  }
+
+  const qallowPath = '/root/Qallow/build/qallow';
+
+  if (!fs.existsSync(qallowPath)) {
+    const error = `Qallow executable not found at ${qallowPath}`;
+    logger.error(error);
+    addTerminalLine(`❌ ${error}`, 'error');
+    addAuditLog('VM', error, 'Error');
+    continuousMode = false;
+    return;
+  }
+
+  logger.info(`Starting phase ${currentPhase} (cycle ${cycleCount + 1})`);
+  addTerminalLine(`\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`, 'info');
+  addTerminalLine(`🔄 Cycle ${cycleCount + 1} - Phase ${currentPhase}`, 'info');
+  addTerminalLine(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`, 'info');
+  addAuditLog('VM', `Starting phase ${currentPhase} (cycle ${cycleCount + 1})`, 'Info');
+
+  const args = ['phase', currentPhase.toString(), `--ticks=${ticks}`];
+  if (build === 'CUDA') {
+    args.push('--cuda');
+  }
+
+  vmProcess = spawn(qallowPath, args, {
+    stdio: ['ignore', 'pipe', 'pipe'],
+    detached: false
+  });
+
+  // Handle stdout
+  vmProcess.stdout.on('data', (data) => {
+    const lines = data.toString().split('\n').filter(l => l.trim());
+    lines.forEach(line => {
+      addTerminalLine(line, 'success');
+      logger.info(`VM: ${line}`);
+    });
+  });
+
+  // Handle stderr
+  vmProcess.stderr.on('data', (data) => {
+    const lines = data.toString().split('\n').filter(l => l.trim());
+    lines.forEach(line => {
+      addTerminalLine(line, 'error');
+      logger.error(`VM stderr: ${line}`);
+    });
+  });
+
+  // Handle process exit - move to next phase
+  vmProcess.on('exit', (code, signal) => {
+    logger.info(`Phase ${currentPhase} completed with code ${code}`);
+    addTerminalLine(`✅ Phase ${currentPhase} completed (code: ${code})`, 'success');
+    addAuditLog('VM', `Phase ${currentPhase} completed`, 'Success');
+    vmProcess = null;
+
+    if (continuousMode) {
+      // Move to next phase
+      currentPhase++;
+      if (currentPhase > 15) {
+        // Cycle complete, restart from phase 13
+        currentPhase = 13;
+        cycleCount++;
+        addTerminalLine(`\n✨ Cycle ${cycleCount} complete! Restarting from Phase 13...`, 'info');
+        addAuditLog('VM', `Cycle ${cycleCount} complete, restarting`, 'Info');
+      }
+
+      // Start next phase after a short delay
+      setTimeout(() => {
+        if (continuousMode) {
+          startNextPhase(ticks, build);
+        }
+      }, 1000);
+    }
+  });
+
+  // Handle process error
+  vmProcess.on('error', (err) => {
+    logger.error('VM process error', err);
+    addTerminalLine(`❌ VM error: ${err.message}`, 'error');
+    addAuditLog('VM', `Process error: ${err.message}`, 'Error');
+    vmProcess = null;
+    continuousMode = false;
+  });
+
+  logger.success(`Phase ${currentPhase} started`);
+  addTerminalLine(`✅ Phase ${currentPhase} started`, 'success');
+  updateMetrics();
+}
 
 // GET /api/metrics - Get current metrics
 router.get('/metrics', (req, res) => {
