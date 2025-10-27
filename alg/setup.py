@@ -32,8 +32,6 @@ setup(
     install_requires=[
         "numpy>=1.20.0",
         "scipy>=1.7.0",
-        "qiskit>=0.39.0",
-        "qiskit-aer>=0.11.0",
     ],
     entry_points={
         "console_scripts": [

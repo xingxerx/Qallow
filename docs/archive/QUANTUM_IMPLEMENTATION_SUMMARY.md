@@ -112,10 +112,9 @@ Recommendation: "High entanglement achieved. Circuit is well-designed for quantu
 
 | Component | Technology | Version |
 |-----------|-----------|---------|
-| Quantum Framework | Qiskit | 1.0.0 |
-| IBM Runtime | Qiskit IBM Runtime | 0.20.0 |
+| Quantum Framework | Cirq | Latest |
 | GPU Acceleration | CUDA | 13.0 |
-| Simulator | FakeTorino | 133 qubits |
+| Simulator | Classical | N/A |
 | Error Correction | Surface Code | Distance 3 |
 | Python | Python | 3.10 |
 

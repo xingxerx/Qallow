@@ -136,5 +136,3 @@ trap cleanup EXIT
 
 # Wait for processes
 wait
-
-

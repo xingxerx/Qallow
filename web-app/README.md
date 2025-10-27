@@ -73,7 +73,7 @@ The app connects to the backend API at `http://localhost:3001/api`:
 
 ## Environment Variables
 
-Create `.env` file in the root:
+Create `.env` file in the project root:
 
 ```
 REACT_APP_API_URL=http://localhost:3001/api
@@ -96,4 +96,3 @@ The app uses a custom CSS theme with:
 ## License
 
 MIT
-

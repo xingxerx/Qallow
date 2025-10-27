@@ -147,14 +147,14 @@ phase,otoc_fidelity,ticks,ethics_delta
 
 ## Troubleshooting
 
-### Issue: `ModuleNotFoundError: No module named 'qiskit'`
+### Issue: `ModuleNotFoundError: No module named 'numpy'`
 
 **Solution:**
 ```bash
-pip install --break-system-packages qiskit qiskit-aer numpy
+pip install numpy scipy
 ```
 
-### Issue: Tests fail with Qiskit errors
+### Issue: Tests fail with import errors
 
 **Solution:** Ensure Python 3.10+
 ```bash

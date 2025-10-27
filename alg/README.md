@@ -596,7 +596,6 @@ cat /var/qallow/quantum_report.json
 
 - **QAOA**: Farhi et al., "A Quantum Approximate Optimization Algorithm" (2014)
 - **SPSA**: Spall, "Multivariate Stochastic Approximation Using Simultaneous Perturbation" (1992)
-- **Qiskit**: [qiskit.org](https://qiskit.org/)
 - **Cirq**: [quantumai.google/cirq](https://quantumai.google/cirq)
 - **Qallow**: [github.com/xingxerx/Qallow](https://github.com/xingxerx/Qallow)
 

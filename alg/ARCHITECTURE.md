@@ -330,7 +330,6 @@ def map_energy_to_gain(energy, alpha_min, alpha_max):
 - Python 3.8+
 - NumPy 1.20+
 - SciPy 1.7+
-- Qiskit 0.39+
 - 100 MB disk space
 - 1 GB RAM
 
@@ -350,7 +349,6 @@ def map_energy_to_gain(energy, alpha_min, alpha_max):
 
 - **QAOA**: Farhi et al., "A Quantum Approximate Optimization Algorithm" (2014)
 - **SPSA**: Spall, "Multivariate Stochastic Approximation Using Simultaneous Perturbation" (1992)
-- **Qiskit**: https://qiskit.org/
 - **Ising Model**: https://en.wikipedia.org/wiki/Ising_model
 
 ---

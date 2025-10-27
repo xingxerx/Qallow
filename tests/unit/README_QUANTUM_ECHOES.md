@@ -130,12 +130,12 @@ Where λ is the chaos exponent (information scrambling rate).
 ## Dependencies
 
 - `numpy` - Numerical computations
-- `qiskit` - Quantum circuit framework
-- `qiskit-aer` - Quantum simulator backend
+- `scipy` - Scientific computing
+- `cirq` - Quantum circuit framework (optional)
 
 Install with:
 ```bash
-pip install numpy qiskit qiskit-aer
+pip install numpy scipy
 ```
 
 ## Integration with Qallow
@@ -170,13 +170,13 @@ phase,otoc_fidelity,ticks,ethics_delta
 ## Troubleshooting
 
 ### Import Errors
-If you get `ModuleNotFoundError: No module named 'qiskit'`:
+If you get `ModuleNotFoundError: No module named 'numpy'`:
 ```bash
-pip install --break-system-packages qiskit qiskit-aer numpy
+pip install numpy scipy
 ```
 
 ### Test Failures
-If tests fail with Qiskit errors, ensure you're using Python 3.10+:
+If tests fail, ensure you're using Python 3.10+:
 ```bash
 python3 --version
 ```
