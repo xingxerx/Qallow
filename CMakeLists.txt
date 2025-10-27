@@ -151,6 +151,7 @@ if(QALLOW_ENABLE_CUDA)
     find_package(CUDAToolkit REQUIRED)
     target_link_libraries(qallow_backend_cuda PUBLIC CUDA::cudart)
     set_target_properties(qallow_backend_cuda PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+    add_custom_target(cudaq DEPENDS qallow_backend_cuda)
 endif()
 
 set(QALLOW_INTERFACE_SOURCES
@@ -313,6 +314,7 @@ if(QALLOW_ENABLE_CUDA)
 endif()
 
 add_subdirectory(alg_ccc)
+add_subdirectory(src/quantum)
 
 enable_testing()
 

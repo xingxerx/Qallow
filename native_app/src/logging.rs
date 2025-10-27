@@ -8,6 +8,7 @@ pub struct AppLogger {
     log_file: String,
     max_file_size: u64,
     max_backups: usize,
+    console_output: bool,
 }
 
 impl AppLogger {
@@ -16,7 +17,13 @@ impl AppLogger {
             log_file,
             max_file_size: max_file_size_mb * 1024 * 1024,
             max_backups,
+            console_output: false, // Disabled by default to prevent spam
         }
+    }
+
+    pub fn with_console_output(mut self, enabled: bool) -> Self {
+        self.console_output = enabled;
+        self
     }
 
     pub fn init(&self) -> Result<(), String> {
@@ -49,8 +56,10 @@ impl AppLogger {
         file.write_all(log_line.as_bytes())
             .map_err(|e| format!("Failed to write to log file: {}", e))?;
 
-        // Also print to console
-        print!("{}", log_line);
+        // Only print to console if enabled
+        if self.console_output {
+            print!("{}", log_line);
+        }
 
         Ok(())
     }

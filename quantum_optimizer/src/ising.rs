@@ -71,13 +71,15 @@ mod tests {
     fn simple_energy() {
         let problem = IsingProblem::new(
             2,
-            vec![1.0, -0.5],
-            vec![Coupling { i: 0, j: 1, weight: 0.25 }],
+            vec![0.0, 0.0],
+            vec![Coupling {
+                i: 0,
+                j: 1,
+                weight: -1.0,
+            }],
         );
-        // |00⟩ => spins [+1, +1]
-        let e00 = problem.energy_from_basis(0);
-        // |01⟩ => [+1, -1]
-        let e01 = problem.energy_from_basis(1);
-        assert!(e00 < e01);
+        let aligned = problem.energy_from_basis(0);
+        let misaligned = problem.energy_from_basis(1);
+        assert!(aligned < misaligned);
     }
 }
