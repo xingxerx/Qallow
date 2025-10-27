@@ -1,6 +1,7 @@
 pub mod audit_log;
 pub mod control_panel;
 pub mod dashboard;
+pub mod dungeons;
 pub mod help;
 pub mod metrics;
 pub mod settings;
@@ -16,13 +17,14 @@ pub struct MainUiHandles {
     pub terminal: terminal::TerminalView,
     pub audit: audit_log::AuditLogView,
     pub status_indicator: button::Button,
+    pub header_start_btn: button::Button,
 }
 
 pub fn create_main_ui(_wind: &mut window::Window, state: Arc<Mutex<AppState>>) -> MainUiHandles {
     let mut flex = group::Flex::default().with_size(1600, 1000).column();
 
     // Header
-    let status_indicator = create_header(&mut flex);
+    let (status_indicator, header_start_btn) = create_header(&mut flex);
 
     // Main content area with sidebar
     let main_flex = group::Flex::default().with_size(1600, 950).row();
@@ -57,6 +59,9 @@ pub fn create_main_ui(_wind: &mut window::Window, state: Arc<Mutex<AppState>>) -
     // Control Panel tab
     let control_buttons = control_panel::create_control_panel(&mut tabs, state.clone());
 
+    // Dungeons tab
+    let _dungeons = dungeons::create_dungeons_tab(&mut tabs, state.clone());
+
     // Settings tab
     settings::create_settings_panel(&mut tabs, state.clone());
 
@@ -74,10 +79,11 @@ pub fn create_main_ui(_wind: &mut window::Window, state: Arc<Mutex<AppState>>) -
         terminal: terminal_view,
         audit: audit_view,
         status_indicator,
+        header_start_btn,
     }
 }
 
-fn create_header(flex: &mut group::Flex) -> button::Button {
+fn create_header(flex: &mut group::Flex) -> (button::Button, button::Button) {
     let mut header = group::Flex::default().with_size(1600, 50).row();
     header.set_color(Color::from_hex(0x1a1f3a));
 
@@ -95,10 +101,16 @@ fn create_header(flex: &mut group::Flex) -> button::Button {
     status.set_color(Color::from_hex(0xff6464));
     status.set_label_color(Color::White);
 
+    let mut start_btn = button::Button::default()
+        .with_size(140, 50)
+        .with_label("▶ Start");
+    start_btn.set_color(Color::from_hex(0x00ff64));
+    start_btn.set_label_color(Color::Black);
+
     header.end();
     flex.add(&header);
 
-    status
+    (status, start_btn)
 }
 
 fn create_sidebar(flex: &mut group::Flex, _state: Arc<Mutex<AppState>>) {
@@ -132,9 +144,16 @@ fn create_sidebar(flex: &mut group::Flex, _state: Arc<Mutex<AppState>>) {
     control_btn.set_color(Color::from_hex(0x1a1f3a));
     control_btn.set_label_color(Color::from_hex(0x00d4ff));
 
+    let mut dungeon_btn = button::Button::default()
+        .with_size(150, 40)
+        .with_label("🗺️ Dungeons");
+    dungeon_btn.set_color(Color::from_hex(0x1a1f3a));
+    dungeon_btn.set_label_color(Color::from_hex(0x00d4ff));
+
     flex.add(&dashboard_btn);
     flex.add(&metrics_btn);
     flex.add(&terminal_btn);
     flex.add(&audit_btn);
     flex.add(&control_btn);
+    flex.add(&dungeon_btn);
 }
