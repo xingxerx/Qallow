@@ -9,6 +9,9 @@ const { spawn } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 
+const app = express();
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.json());
 const router = express.Router();
 
 // State management
@@ -90,14 +93,14 @@ router.post('/vm/start', (req, res) => {
       return res.status(400).json({ error: 'VM already running' });
     }
 
-    // Always run all phases 1-20 in order, with quantum and CUDA enabled
+    // Always run all valid phases 11-15 in order, with quantum and CUDA enabled
     const ticks = req.body.ticks || 120;
     const build = req.body.build || 'CUDA';
     const continuous = true;
 
-    logger.info(`Starting Qallow VM (phases 1-20, build: ${build}, ticks: ${ticks}, quantum: enabled)`);
-    addTerminalLine(`🚀 Starting Qallow Unified System (phases 1-20, build: ${build}, ticks: ${ticks}, quantum: enabled)`, 'info');
-    addAuditLog('VM', `Starting unified system with all phases, build ${build}, quantum enabled`, 'Info');
+    logger.info(`Starting Qallow VM (phases 11-15, build: ${build}, ticks: ${ticks}, quantum: enabled)`);
+    addTerminalLine(`🚀 Starting Qallow Unified System (phases 11-15, build: ${build}, ticks: ${ticks}, quantum: enabled)`, 'info');
+    addAuditLog('VM', `Starting unified system with valid phases, build ${build}, quantum enabled`, 'Info');
 
     // Set quantum env
     process.env.QALLOW_QISKIT = '1';
@@ -111,9 +114,9 @@ router.post('/vm/start', (req, res) => {
       return res.status(500).json({ error });
     }
 
-    // Start continuous loop from phase 1
+    // Start continuous loop from phase 11
     beginContinuousLoop({
-      startPhase: 1,
+      startPhase: 11,
       ticks,
       build
     });
@@ -503,4 +506,9 @@ setInterval(() => {
   }
 }, 2000);
 
-module.exports = router;
+app.use('/api', router);
+
+const PORT = process.env.PORT || 5050;
+app.listen(PORT, () => {
+  console.log(`[API] Web UI and API server running on http://localhost:${PORT}`);
+});

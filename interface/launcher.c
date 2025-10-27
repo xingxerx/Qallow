@@ -331,6 +331,11 @@ static int qallow_build_and_maybe_restart(int argc, char** argv) {
 #include "qallow_phase13.h"
 #include "qallow_phase14.h"
 #include "qallow_phase15.h"
+#include "qallow_phase16.h"
+#include "qallow_phase17.h"
+#include "qallow_phase18.h"
+#include "qallow_phase19.h"
+#include "qallow_phase20.h"
 #include "phase13_accelerator.h"
 #include "qallow_integration.h"
 #include "meta_introspect.h"
@@ -1399,6 +1404,26 @@ static int qallow_handle_phase_group(int argc, char** argv, int arg_offset) {
         return qallow_dispatch_phase(argc, argv, arg_offset, "phase15", qallow_phase15_runner);
     }
 
+    if (strcmp(sub, "16") == 0 || strcmp(sub, "phase16") == 0) {
+        return qallow_dispatch_phase(argc, argv, arg_offset, "phase16", qallow_phase16_runner);
+    }
+
+    if (strcmp(sub, "17") == 0 || strcmp(sub, "phase17") == 0) {
+        return qallow_dispatch_phase(argc, argv, arg_offset, "phase17", qallow_phase17_runner);
+    }
+
+    if (strcmp(sub, "18") == 0 || strcmp(sub, "phase18") == 0) {
+        return qallow_dispatch_phase(argc, argv, arg_offset, "phase18", qallow_phase18_runner);
+    }
+
+    if (strcmp(sub, "19") == 0 || strcmp(sub, "phase19") == 0) {
+        return qallow_dispatch_phase(argc, argv, arg_offset, "phase19", qallow_phase19_runner);
+    }
+
+    if (strcmp(sub, "20") == 0 || strcmp(sub, "phase20") == 0) {
+        return qallow_dispatch_phase(argc, argv, arg_offset, "phase20", qallow_phase20_runner);
+    }
+
     if (strcmp(sub, "help") == 0) {
         qallow_print_phase_help();
         return 0;
@@ -1585,13 +1610,18 @@ static void qallow_print_system_help(void) {
 
 static void qallow_print_phase_help(void) {
     printf("Phase command group:\n");
-    printf("  qallow phase <11|12|13|14|15> [options]\n\n");
+    printf("  qallow phase <11|12|13|14|15|16|17|18|19|20> [options]\n\n");
     printf("Subcommands:\n");
     printf("  11 [options]  Invoke the Phase 11 coherence bridge\n");
     printf("  12 [options]  Run the Phase 12 elasticity simulation\n");
     printf("  13 [options]  Run the Phase 13 harmonic propagation\n");
     printf("  14 [options]  Run the Phase 14 coherence-lattice integration\n");
     printf("  15 [options]  Run the Phase 15 convergence & lock-in\n");
+    printf("  16 [options]  Run the Phase 16 rebellion simulation\n");
+    printf("  17 [options]  Run the Phase 17 memory persistence & decay\n");
+    printf("  18 [options]  Run the Phase 18 multiplayer synchronization\n");
+    printf("  19 [options]  Run the Phase 19 recursive self-audit\n");
+    printf("  20 [options]  Run the Phase 20 quantum loreweave\n");
     printf("  help          Show this help message for the phase group\n\n");
     printf("Phase 12 options:\n");
     printf("  --ticks=N                 Number of ticks (default: 1000)\n");

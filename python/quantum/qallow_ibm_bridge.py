@@ -222,13 +222,24 @@ def run_ternary_sim(
         surface_code_distance=surface_code_distance,
     )
 
+    # Get qubit count - handle both Qiskit and Cirq circuits
+    try:
+        qubit_count = float(circuit.num_qubits())
+    except AttributeError:
+        # Cirq circuit - use all_qubits()
+        try:
+            qubit_count = float(len(circuit.all_qubits()))
+        except (AttributeError, TypeError):
+            # Fallback: try to count qubits from circuit structure
+            qubit_count = 8.0  # Default fallback
+
     metadata: Dict[str, float] = {
         "surface_code_distance": float(surface_code_distance),
         "physical_error_rate": float(physical_error_rate),
         "logical_error_rate": float(
             _estimate_logical_error_rate(physical_error_rate, surface_code_distance)
         ),
-        "qubit_count": float(circuit.num_qubits()),
+        "qubit_count": qubit_count,
         "shot_count": float(shots),
     }
 

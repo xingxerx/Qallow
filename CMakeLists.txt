@@ -106,6 +106,7 @@ set(QALLOW_BACKEND_CPU_SOURCES
     backend/cpu/verify.c
     src/quantum/entanglement_bridge.c
     src/qallow_phase13.c
+    backend/cpu/phase_wrapper_generic.c
 )
 
 add_library(qallow_backend_cpu STATIC ${QALLOW_BACKEND_CPU_SOURCES})
