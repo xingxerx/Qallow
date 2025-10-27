@@ -11,6 +11,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const http = require('http');
 const WebSocket = require('ws');
+const path = require('path');
 const apiWeb = require('./api-web');
 
 // Initialize Express app
@@ -21,6 +22,9 @@ const PORT = process.env.PORT || 3001;
 app.use(cors());
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
+
+// Serve static files from React build
+app.use(express.static(path.join(__dirname, '../web-app/build')));
 
 // Logger
 const logger = {
@@ -44,7 +48,12 @@ app.get('/health', (req, res) => {
 // Mount API routes
 app.use('/api', apiWeb);
 
-// 404 handler
+// Serve React app for all other routes
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../web-app/build/index.html'));
+});
+
+// 404 handler (fallback)
 app.use((req, res) => {
   res.status(404).json({
     error: 'Not found',

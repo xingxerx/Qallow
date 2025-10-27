@@ -225,6 +225,96 @@ router.get('/logs', (req, res) => {
   }
 });
 
+// GET /api/metrics/export - Export metrics to file
+router.get('/metrics/export', (req, res) => {
+  try {
+    const exportData = {
+      timestamp: new Date().toISOString(),
+      metrics: metrics,
+      terminal_output: terminalOutput,
+      audit_logs: auditLogs
+    };
+
+    const filename = `qallow_metrics_${Date.now()}.json`;
+    const filepath = path.join('/root/Qallow', filename);
+
+    fs.writeFileSync(filepath, JSON.stringify(exportData, null, 2));
+
+    logger.success(`Metrics exported to ${filename}`);
+    addAuditLog('Metrics', `Exported metrics to ${filename}`, 'Success');
+
+    res.json({
+      success: true,
+      filename: filename,
+      filepath: filepath,
+      timestamp: new Date().toISOString()
+    });
+  } catch (err) {
+    logger.error('Failed to export metrics', err);
+    addAuditLog('Metrics', `Failed to export: ${err.message}`, 'Error');
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/config/save - Save configuration
+router.post('/config/save', (req, res) => {
+  try {
+    const config = {
+      timestamp: new Date().toISOString(),
+      ticks: req.body.ticks || 1000,
+      build: req.body.build || 'CPU',
+      phase: req.body.phase || '13',
+      metrics: metrics
+    };
+
+    const filename = `qallow_config_${Date.now()}.json`;
+    const filepath = path.join('/root/Qallow', filename);
+
+    fs.writeFileSync(filepath, JSON.stringify(config, null, 2));
+
+    logger.success(`Configuration saved to ${filename}`);
+    addAuditLog('Config', `Saved configuration to ${filename}`, 'Success');
+
+    res.json({
+      success: true,
+      filename: filename,
+      filepath: filepath,
+      timestamp: new Date().toISOString()
+    });
+  } catch (err) {
+    logger.error('Failed to save config', err);
+    addAuditLog('Config', `Failed to save: ${err.message}`, 'Error');
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/vm/reset - Reset VM state
+router.post('/vm/reset', (req, res) => {
+  try {
+    if (vmProcess !== null) {
+      vmProcess.kill('SIGTERM');
+      vmProcess = null;
+    }
+
+    // Reset state
+    terminalOutput = [];
+    metrics = {};
+    auditLogs = [];
+
+    logger.success('VM state reset');
+    addAuditLog('VM', 'System reset', 'Success');
+
+    res.json({
+      success: true,
+      message: 'VM state reset',
+      timestamp: new Date().toISOString()
+    });
+  } catch (err) {
+    logger.error('Failed to reset VM', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Helper to update metrics
 function updateMetrics() {
   metrics = {
