@@ -79,10 +79,11 @@ router.post('/vm/start', (req, res) => {
 
     const ticks = req.body.ticks || 1000;
     const build = req.body.build || 'CPU';
-    
-    logger.info(`Starting Qallow VM (${build}, ticks: ${ticks})`);
-    addTerminalLine(`🚀 Starting Qallow Unified System (${build} build, ticks: ${ticks})`, 'info');
-    addAuditLog('VM', `Starting unified system with ${build} build`, 'Info');
+    const phase = req.body.phase || '13';
+
+    logger.info(`Starting Qallow VM (${build}, phase: ${phase}, ticks: ${ticks})`);
+    addTerminalLine(`🚀 Starting Qallow Unified System (${build} build, phase ${phase}, ticks: ${ticks})`, 'info');
+    addAuditLog('VM', `Starting unified system with ${build} build, phase ${phase}`, 'Info');
 
     const qallowPath = '/root/Qallow/build/qallow';
 
@@ -94,8 +95,13 @@ router.post('/vm/start', (req, res) => {
       return res.status(500).json({ error });
     }
 
-    // Use correct command format: qallow run unified (or qallow run pipeline)
-    vmProcess = spawn(qallowPath, ['run', 'unified'], {
+    // Use correct command format: qallow phase <N> with ticks
+    const args = ['phase', phase, `--ticks=${ticks}`];
+    if (build === 'CUDA') {
+      args.push('--cuda');
+    }
+
+    vmProcess = spawn(qallowPath, args, {
       stdio: ['ignore', 'pipe', 'pipe'],
       detached: false
     });

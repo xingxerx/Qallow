@@ -41,10 +41,15 @@ function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleStartVM = async () => {
+  const handleStartVM = async (params = {}) => {
     setLoading(true);
     try {
-      await axios.post(`${API_BASE}/vm/start`);
+      const payload = {
+        ticks: params.ticks || 1000,
+        build: params.build || 'CPU',
+        phase: params.phase || '13'
+      };
+      await axios.post(`${API_BASE}/vm/start`, payload);
       setVmRunning(true);
     } catch (error) {
       console.error('Failed to start VM:', error);

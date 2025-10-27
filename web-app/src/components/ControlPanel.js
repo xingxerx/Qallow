@@ -1,23 +1,93 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import './ControlPanel.css';
 
 function ControlPanel({ vmRunning, onStart, onStop, loading }) {
   const [ticks, setTicks] = useState(1000);
   const [build, setBuild] = useState('CPU');
+  const [phase, setPhase] = useState('13');
+  const [actionLoading, setActionLoading] = useState(false);
+  const [actionMessage, setActionMessage] = useState('');
+
+  const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
+
+  const handleStartWithParams = async () => {
+    try {
+      await onStart({ ticks, build, phase });
+    } catch (error) {
+      console.error('Error starting VM:', error);
+    }
+  };
+
+  const handleExportMetrics = async () => {
+    setActionLoading(true);
+    try {
+      const response = await axios.get(`${API_BASE}/metrics/export`);
+      setActionMessage('✅ Metrics exported successfully');
+      setTimeout(() => setActionMessage(''), 3000);
+    } catch (error) {
+      setActionMessage('❌ Failed to export metrics');
+      console.error('Error exporting metrics:', error);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleSaveConfig = async () => {
+    setActionLoading(true);
+    try {
+      const response = await axios.post(`${API_BASE}/config/save`, { ticks, build, phase });
+      setActionMessage('✅ Configuration saved successfully');
+      setTimeout(() => setActionMessage(''), 3000);
+    } catch (error) {
+      setActionMessage('❌ Failed to save configuration');
+      console.error('Error saving config:', error);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleViewLogs = async () => {
+    setActionLoading(true);
+    try {
+      const response = await axios.get(`${API_BASE}/logs`);
+      setActionMessage(`✅ Loaded ${response.data.count} log entries`);
+      setTimeout(() => setActionMessage(''), 3000);
+    } catch (error) {
+      setActionMessage('❌ Failed to load logs');
+      console.error('Error loading logs:', error);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleReset = async () => {
+    setActionLoading(true);
+    try {
+      const response = await axios.post(`${API_BASE}/vm/reset`);
+      setActionMessage('✅ System reset successfully');
+      setTimeout(() => setActionMessage(''), 3000);
+    } catch (error) {
+      setActionMessage('❌ Failed to reset system');
+      console.error('Error resetting system:', error);
+    } finally {
+      setActionLoading(false);
+    }
+  };
 
   return (
     <div className="control-panel">
       <div className="control-section">
         <h3>🎮 VM Controls</h3>
         <div className="button-group">
-          <button 
+          <button
             className="btn btn-start"
-            onClick={onStart}
+            onClick={handleStartWithParams}
             disabled={vmRunning || loading}
           >
             {loading ? '⏳ Starting...' : '▶️ Start VM'}
           </button>
-          <button 
+          <button
             className="btn btn-stop"
             onClick={onStop}
             disabled={!vmRunning || loading}
@@ -32,7 +102,7 @@ function ControlPanel({ vmRunning, onStart, onStop, loading }) {
         <div className="config-group">
           <div className="config-item">
             <label>Build Type</label>
-            <select 
+            <select
               value={build}
               onChange={(e) => setBuild(e.target.value)}
               disabled={vmRunning}
@@ -44,8 +114,22 @@ function ControlPanel({ vmRunning, onStart, onStop, loading }) {
           </div>
 
           <div className="config-item">
+            <label>Phase</label>
+            <select
+              value={phase}
+              onChange={(e) => setPhase(e.target.value)}
+              disabled={vmRunning}
+              className="config-select"
+            >
+              <option value="13">Phase 13 - Quantum Circuit Optimization</option>
+              <option value="14">Phase 14 - Photonic Integration</option>
+              <option value="15">Phase 15 - AGI Synthesis</option>
+            </select>
+          </div>
+
+          <div className="config-item">
             <label>Ticks</label>
-            <input 
+            <input
               type="number"
               value={ticks}
               onChange={(e) => setTicks(parseInt(e.target.value))}
@@ -82,11 +166,40 @@ function ControlPanel({ vmRunning, onStart, onStop, loading }) {
       <div className="control-section">
         <h3>📋 Quick Actions</h3>
         <div className="action-buttons">
-          <button className="btn btn-secondary">📈 Export Metrics</button>
-          <button className="btn btn-secondary">💾 Save Config</button>
-          <button className="btn btn-secondary">📋 View Logs</button>
-          <button className="btn btn-secondary">🔄 Reset</button>
+          <button
+            className="btn btn-secondary"
+            onClick={handleExportMetrics}
+            disabled={actionLoading}
+          >
+            {actionLoading ? '⏳' : '📈'} Export Metrics
+          </button>
+          <button
+            className="btn btn-secondary"
+            onClick={handleSaveConfig}
+            disabled={actionLoading}
+          >
+            {actionLoading ? '⏳' : '💾'} Save Config
+          </button>
+          <button
+            className="btn btn-secondary"
+            onClick={handleViewLogs}
+            disabled={actionLoading}
+          >
+            {actionLoading ? '⏳' : '📋'} View Logs
+          </button>
+          <button
+            className="btn btn-secondary"
+            onClick={handleReset}
+            disabled={actionLoading}
+          >
+            {actionLoading ? '⏳' : '🔄'} Reset
+          </button>
         </div>
+        {actionMessage && (
+          <div className="action-message">
+            {actionMessage}
+          </div>
+        )}
       </div>
 
       <div className="control-section">
