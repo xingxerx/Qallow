@@ -1,0 +1,2 @@
+#!/bin/bash
+/usr/sbin/cmake -DCMAKE_BUILD_TYPE:STRING=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE -DCMAKE_C_COMPILER:FILEPATH=/usr/sbin/gcc -DCMAKE_CXX_COMPILER:FILEPATH=/usr/sbin/g++ --no-warn-unused-cli -S /root/Qallow -B /root/Qallow/build -G "Unix Makefiles"
