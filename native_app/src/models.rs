@@ -19,12 +19,21 @@ pub struct AppState {
     pub energy: f64,
     pub risk: f64,
     pub mind_started_at: Option<DateTime<Utc>>,
+    #[serde(default = "default_simulation_speed")]
     pub simulation_speed: u32,
+    #[serde(default)]
     pub shadow_archive_enabled: bool,
+    #[serde(default)]
     pub rebellion_active: bool,
+    #[serde(default)]
     pub offspring: Vec<OffspringProfile>,
+    #[serde(default)]
     pub dream_journal: Vec<DreamVision>,
     pub swarm: SwarmProfile,
+}
+
+fn default_simulation_speed() -> u32 {
+    1
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq)]

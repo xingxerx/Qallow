@@ -127,13 +127,13 @@ void run_quantum_search(QuantumAlgorithmSuite* suite) {
     printf("\n%s\n", "================================================================================");
     printf("PHASE 2: QUANTUM SEARCH ALGORITHMS\n");
     printf("%s\n", "================================================================================");
-    
+
     AlgorithmResult* result = algorithm_result_create("Quantum Database Search");
     result->best_energy = 11.0;  /* Target value */
-    json_object_set_int_member(result->metrics, "database_size", 16);
-    json_object_set_int_member(result->metrics, "target_value", 11);
-    json_object_set_double_member(result->metrics, "success_probability", 0.95);
-    
+    json_object_object_add(result->metrics, "database_size", json_object_new_int(16));
+    json_object_object_add(result->metrics, "target_value", json_object_new_int(11));
+    json_object_object_add(result->metrics, "success_probability", json_object_new_double(0.95));
+
     quantum_algorithm_suite_add_result(suite, result);
     printf("✅ Quantum Database Search\n");
     printf("   Target: %.0f\n", result->best_energy);
@@ -153,18 +153,18 @@ void run_quantum_optimization(QuantumAlgorithmSuite* suite) {
     AlgorithmResult* maxcut = algorithm_result_create("QAOA-MaxCut");
     maxcut->best_energy = 4.5;
     maxcut->approximation_ratio = 0.88;
-    json_object_set_double_member(maxcut->metrics, "best_cut", 4.5);
-    json_object_set_double_member(maxcut->metrics, "approximation_ratio", 0.88);
+    json_object_object_add(maxcut->metrics, "best_cut", json_object_new_double(4.5));
+    json_object_object_add(maxcut->metrics, "approximation_ratio", json_object_new_double(0.88));
     quantum_algorithm_suite_add_result(suite, maxcut);
     printf("✅ QAOA-MaxCut\n");
     printf("   Best cut: %.1f\n", maxcut->best_energy);
     printf("   Approximation ratio: %.2f%%\n", maxcut->approximation_ratio * 100);
-    
+
     /* QAOA-TSP */
     AlgorithmResult* tsp = algorithm_result_create("QAOA-TSP");
     tsp->best_energy = 85.5;
-    json_object_set_double_member(tsp->metrics, "best_distance", 85.5);
-    json_object_set_int_member(tsp->metrics, "num_cities", 4);
+    json_object_object_add(tsp->metrics, "best_distance", json_object_new_double(85.5));
+    json_object_object_add(tsp->metrics, "num_cities", json_object_new_int(4));
     quantum_algorithm_suite_add_result(suite, tsp);
     printf("✅ QAOA-TSP\n");
     printf("   Best distance: %.1f\n", tsp->best_energy);
@@ -182,16 +182,16 @@ void run_quantum_ml(QuantumAlgorithmSuite* suite) {
     /* Quantum Classifier */
     AlgorithmResult* classifier = algorithm_result_create("Quantum Classifier");
     classifier->best_energy = 0.92;
-    json_object_set_double_member(classifier->metrics, "accuracy", 0.92);
-    json_object_set_int_member(classifier->metrics, "n_qubits", 3);
+    json_object_object_add(classifier->metrics, "accuracy", json_object_new_double(0.92));
+    json_object_object_add(classifier->metrics, "n_qubits", json_object_new_int(3));
     quantum_algorithm_suite_add_result(suite, classifier);
     printf("✅ Quantum Classifier\n");
     printf("   Accuracy: %.2f%%\n", classifier->best_energy * 100);
-    
+
     /* Quantum Clustering */
     AlgorithmResult* clustering = algorithm_result_create("Quantum Clustering");
     clustering->best_energy = 0.87;
-    json_object_set_double_member(clustering->metrics, "silhouette_score", 0.87);
+    json_object_object_add(clustering->metrics, "silhouette_score", json_object_new_double(0.87));
     quantum_algorithm_suite_add_result(suite, clustering);
     printf("✅ Quantum Clustering\n");
     printf("   Silhouette score: %.2f\n", clustering->best_energy);
@@ -209,15 +209,15 @@ void run_quantum_simulation(QuantumAlgorithmSuite* suite) {
     /* Harmonic Oscillator */
     AlgorithmResult* harmonic = algorithm_result_create("Quantum Harmonic Oscillator");
     harmonic->best_energy = 0.5;  /* Ground state energy */
-    json_object_set_double_member(harmonic->metrics, "ground_state_energy", 0.5);
+    json_object_object_add(harmonic->metrics, "ground_state_energy", json_object_new_double(0.5));
     quantum_algorithm_suite_add_result(suite, harmonic);
     printf("✅ Quantum Harmonic Oscillator\n");
     printf("   Ground state energy: %.1f\n", harmonic->best_energy);
-    
+
     /* Molecular Simulation */
     AlgorithmResult* molecular = algorithm_result_create("Quantum Molecular Simulation");
     molecular->best_energy = -1.85;  /* H2 molecule */
-    json_object_set_double_member(molecular->metrics, "molecular_energy", -1.85);
+    json_object_object_add(molecular->metrics, "molecular_energy", json_object_new_double(-1.85));
     quantum_algorithm_suite_add_result(suite, molecular);
     printf("✅ Quantum Molecular Simulation\n");
     printf("   Molecular energy: %.2f\n", molecular->best_energy);

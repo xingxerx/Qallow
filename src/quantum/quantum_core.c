@@ -191,7 +191,11 @@ QuantumLearningSystem* quantum_learning_system_create(const char* state_file) {
  * Record learning metric
  */
 void quantum_learning_system_record_metric(QuantumLearningSystem* sys, int metric) {
-    if (!sys || sys->history_size >= sys->history_capacity) return;
+    if (!sys) return;
+    if (sys->history_size >= sys->history_capacity) {
+        sys->history_capacity *= 2;
+        sys->history = realloc(sys->history, sys->history_capacity * sizeof(int));
+    }
     sys->history[sys->history_size++] = metric;
 }
 
