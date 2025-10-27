@@ -90,17 +90,19 @@ router.post('/vm/start', (req, res) => {
       return res.status(400).json({ error: 'VM already running' });
     }
 
-    const ticks = req.body.ticks || 1000;
-    const build = req.body.build || 'CPU';
-    const phase = req.body.phase || '13';
-    const continuous = req.body.continuous !== false;
+    // Always run all phases 1-20 in order, with quantum and CUDA enabled
+    const ticks = req.body.ticks || 120;
+    const build = req.body.build || 'CUDA';
+    const continuous = true;
 
-    logger.info(`Starting Qallow VM (${build}, phase: ${phase}, ticks: ${ticks})`);
-    addTerminalLine(`🚀 Starting Qallow Unified System (${build} build, phase ${phase}, ticks: ${ticks})`, 'info');
-    addAuditLog('VM', `Starting unified system with ${build} build, phase ${phase}`, 'Info');
+    logger.info(`Starting Qallow VM (phases 1-20, build: ${build}, ticks: ${ticks}, quantum: enabled)`);
+    addTerminalLine(`🚀 Starting Qallow Unified System (phases 1-20, build: ${build}, ticks: ${ticks}, quantum: enabled)`, 'info');
+    addAuditLog('VM', `Starting unified system with all phases, build ${build}, quantum enabled`, 'Info');
+
+    // Set quantum env
+    process.env.QALLOW_QISKIT = '1';
 
     const qallowPath = '/root/Qallow/build/qallow';
-
     if (!fs.existsSync(qallowPath)) {
       const error = `Qallow executable not found at ${qallowPath}`;
       logger.error(error);
@@ -109,34 +111,16 @@ router.post('/vm/start', (req, res) => {
       return res.status(500).json({ error });
     }
 
-    if (continuous) {
-      beginContinuousLoop({
-        startPhase: parseInt(phase, 10) || 13,
-        ticks,
-        build
-      });
-
-      res.json({
-        success: true,
-        message: 'Continuous loop started',
-        timestamp: new Date().toISOString()
-      });
-      return;
-    }
-
-    // Single-run execution (legacy behaviour)
-    launchSinglePhase({
-      phase,
+    // Start continuous loop from phase 1
+    beginContinuousLoop({
+      startPhase: 1,
       ticks,
       build
     });
-    logger.success('VM started successfully (single run)');
-    addTerminalLine('✅ VM started successfully (single run)', 'success');
-    addAuditLog('VM', 'VM started successfully (single run)', 'Success');
 
     res.json({
       success: true,
-      message: 'VM started (single run)',
+      message: 'Continuous loop started (phases 1-20, quantum, CUDA)',
       timestamp: new Date().toISOString()
     });
   } catch (err) {
@@ -294,7 +278,7 @@ function startNextPhase() {
       }
 
       let nextPhase = phaseToRun + 1;
-      if (nextPhase > 15) {
+      if (nextPhase > 20) {
         cycleCount += 1;
         nextPhase = startPhase;
         addTerminalLine(`\n✨ Cycle ${cycleCount} complete! Restarting from Phase ${startPhase}...`, 'info');

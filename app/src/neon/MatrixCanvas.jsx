@@ -11,7 +11,7 @@ export default function MatrixCanvas({ enabled = true }) {
     const ctx = canvas.getContext('2d');
     let w, h, columns, drops;
 
-    const glyphs = '01あいうえおカキクケコｱｲｳｴｵ01ΛλξπΣσµΩ<>[]{}/*+-=|';
+    const glyphs = '01';
     const fontSize = 14; // px
     const opacityTrail = 0.08; // lower = longer trails
 

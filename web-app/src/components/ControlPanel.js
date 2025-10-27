@@ -120,7 +120,7 @@ function ControlPanel({ vmRunning, onStart, onStop, loading }) {
               className="config-select"
             >
               <option value="single">Single Phase</option>
-              <option value="unified">Unified (13→14→15 Loop)</option>
+              <option value="unified">Unified (1→20 Loop)</option>
             </select>
           </div>
 
@@ -160,6 +160,11 @@ function ControlPanel({ vmRunning, onStart, onStop, loading }) {
                 <option value="13">Phase 13 - Quantum Circuit Optimization</option>
                 <option value="14">Phase 14 - Photonic Integration</option>
                 <option value="15">Phase 15 - AGI Synthesis</option>
+                <option value="16">Phase 16 - Rebellion Simulation</option>
+                <option value="17">Phase 17 - Memory Persistence & Decay</option>
+                <option value="18">Phase 18 - Multiplayer Synchronization</option>
+                <option value="19">Phase 19 - Recursive Self-Audit</option>
+                <option value="20">Phase 20 - Quantum LoreWeave</option>
               </select>
             )}
           </div>
@@ -181,21 +186,46 @@ function ControlPanel({ vmRunning, onStart, onStop, loading }) {
       </div>
 
       <div className="control-section">
-        <h3>📊 Pipeline</h3>
+        <h3>📊 Pipeline (20 Phases)</h3>
         <div className="pipeline-info">
           <div className="pipeline-stage">
             <div className="stage-number">13</div>
-            <div className="stage-name">Quantum Circuit Optimization</div>
+            <div className="stage-name">Quantum Opt</div>
           </div>
           <div className="pipeline-arrow">→</div>
           <div className="pipeline-stage">
             <div className="stage-number">14</div>
-            <div className="stage-name">Photonic Integration</div>
+            <div className="stage-name">Photonic</div>
           </div>
           <div className="pipeline-arrow">→</div>
           <div className="pipeline-stage">
             <div className="stage-number">15</div>
-            <div className="stage-name">AGI Synthesis</div>
+            <div className="stage-name">AGI Synth</div>
+          </div>
+          <div className="pipeline-arrow">→</div>
+          <div className="pipeline-stage">
+            <div className="stage-number">16</div>
+            <div className="stage-name">Rebellion</div>
+          </div>
+          <div className="pipeline-arrow">→</div>
+          <div className="pipeline-stage">
+            <div className="stage-number">17</div>
+            <div className="stage-name">Memory</div>
+          </div>
+          <div className="pipeline-arrow">→</div>
+          <div className="pipeline-stage">
+            <div className="stage-number">18</div>
+            <div className="stage-name">Multiplayer</div>
+          </div>
+          <div className="pipeline-arrow">→</div>
+          <div className="pipeline-stage">
+            <div className="stage-number">19</div>
+            <div className="stage-name">Audit</div>
+          </div>
+          <div className="pipeline-arrow">→</div>
+          <div className="pipeline-stage">
+            <div className="stage-number">20</div>
+            <div className="stage-name">LoreWeave</div>
           </div>
         </div>
       </div>
