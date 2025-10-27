@@ -3,6 +3,9 @@ use crate::codebase_manager::CodebaseManager;
 use crate::logging::AppLogger;
 use crate::models::{AppState, AuditLog, BuildType, LineType, LogLevel, Phase, TerminalLine};
 use chrono::Utc;
+use fltk::app::Sender;
+use crate::messaging::UiMessage;
+use std::thread;
 use std::sync::{Arc, Mutex};
 
 /// Handles all button click events and connects them to backend functionality
@@ -11,6 +14,7 @@ pub struct ButtonHandler {
     process_manager: Arc<Mutex<ProcessManager>>,
     logger: Arc<AppLogger>,
     codebase_manager: Option<Arc<CodebaseManager>>,
+    ui_sender: Option<Sender<UiMessage>>,
 }
 
 impl ButtonHandler {
@@ -19,12 +23,14 @@ impl ButtonHandler {
         process_manager: Arc<Mutex<ProcessManager>>,
         logger: Arc<AppLogger>,
         codebase_manager: Option<Arc<CodebaseManager>>,
+        ui_sender: Option<Sender<UiMessage>>,
     ) -> Self {
         ButtonHandler {
             state,
             process_manager,
             logger,
             codebase_manager,
+            ui_sender,
         }
     }
 
@@ -489,6 +495,28 @@ impl ButtonHandler {
         Ok(result)
     }
 
+    /// Start build in a background thread and notify UI when done
+    pub fn start_build_native_app_async(&self) -> Result<(), String> {
+        let mgr = self
+            .codebase_manager
+            .as_ref()
+            .ok_or_else(|| "Codebase manager not available".to_string())?
+            .clone();
+        let logger = self.logger.clone();
+        let state = self.state.clone();
+        let sender = self.ui_sender.clone().ok_or_else(|| "UI sender unavailable".to_string())?;
+        thread::spawn(move || {
+            let res = mgr.build_native_app();
+            if let Ok(mut s) = state.lock() {
+                s.add_terminal_line("🛠️ Build completed".to_string(), match &res { Ok(_) => LineType::Info, Err(_) => LineType::Error });
+                s.add_audit_log(match &res { Ok(_) => LogLevel::Success, Err(_) => LogLevel::Error }, "Codebase".to_string(), "Build finished".to_string());
+            }
+            let _ = logger.info("ℹ️ Build finished (async)");
+            sender.send(UiMessage::BuildDone(res));
+        });
+        Ok(())
+    }
+
     /// Handle Run Tests button click
     pub fn on_run_tests(&self) -> Result<String, String> {
         let manager = self
@@ -524,6 +552,28 @@ impl ButtonHandler {
             .info("✓ Native app tests executed via control panel");
 
         Ok(result)
+    }
+
+    /// Start tests in a background thread and notify UI when done
+    pub fn start_run_tests_async(&self) -> Result<(), String> {
+        let mgr = self
+            .codebase_manager
+            .as_ref()
+            .ok_or_else(|| "Codebase manager not available".to_string())?
+            .clone();
+        let logger = self.logger.clone();
+        let state = self.state.clone();
+        let sender = self.ui_sender.clone().ok_or_else(|| "UI sender unavailable".to_string())?;
+        thread::spawn(move || {
+            let res = mgr.run_tests();
+            if let Ok(mut s) = state.lock() {
+                s.add_terminal_line("🧪 Tests completed".to_string(), match &res { Ok(_) => LineType::Info, Err(_) => LineType::Error });
+                s.add_audit_log(match &res { Ok(_) => LogLevel::Success, Err(_) => LogLevel::Error }, "Codebase".to_string(), "Tests finished".to_string());
+            }
+            let _ = logger.info("ℹ️ Tests finished (async)");
+            sender.send(UiMessage::TestsDone(res));
+        });
+        Ok(())
     }
 
     /// Handle Git Status button click
@@ -564,6 +614,31 @@ impl ButtonHandler {
         let _ = self.logger.info("ℹ️ Git status fetched via control panel");
 
         Ok(status_message)
+    }
+
+    /// Start git status in a background thread and notify UI when done
+    pub fn start_git_status_async(&self) -> Result<(), String> {
+        let mgr = self
+            .codebase_manager
+            .as_ref()
+            .ok_or_else(|| "Codebase manager not available".to_string())?
+            .clone();
+        let state = self.state.clone();
+        let sender = self.ui_sender.clone().ok_or_else(|| "UI sender unavailable".to_string())?;
+        thread::spawn(move || {
+            let res = mgr.get_git_status().map(|s| {
+                let trimmed = s.trim();
+                if trimmed.is_empty() { "Working tree clean".to_string() } else { trimmed.to_string() }
+            });
+            if let Ok(mut st) = state.lock() {
+                match &res {
+                    Ok(msg) => st.add_terminal_line(format!("📁 Git status:\n{}", msg), LineType::Info),
+                    Err(err) => st.add_terminal_line(format!("Git status error: {}", err), LineType::Error),
+                }
+            }
+            sender.send(UiMessage::GitStatusDone(res));
+        });
+        Ok(())
     }
 
     /// Handle Recent Commits button click
@@ -614,4 +689,31 @@ impl ButtonHandler {
 
         Ok(commits)
     }
+
+    /// Start recent commits fetch in a background thread and notify UI when done
+    pub fn start_recent_commits_async(&self, count: usize) -> Result<(), String> {
+        let mgr = self
+            .codebase_manager
+            .as_ref()
+            .ok_or_else(|| "Codebase manager not available".to_string())?
+            .clone();
+        let state = self.state.clone();
+        let sender = self.ui_sender.clone().ok_or_else(|| "UI sender unavailable".to_string())?;
+        thread::spawn(move || {
+            let res = mgr.get_recent_commits(count);
+            if let Ok(mut st) = state.lock() {
+                match &res {
+                    Ok(list) => {
+                        let display = if list.is_empty() { "No commits available".to_string() } else { list.join("\n") };
+                        st.add_terminal_line(format!("📜 Recent commits:\n{}", display), LineType::Info);
+                    }
+                    Err(err) => st.add_terminal_line(format!("Commits fetch error: {}", err), LineType::Error),
+                }
+            }
+            sender.send(UiMessage::CommitsDone(res));
+        });
+        Ok(())
+    }
+
+
 }

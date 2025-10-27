@@ -36,6 +36,30 @@
 
 static int g_skip_build = 0;
 
+static int qallow_env_truthy_flag(const char* value) {
+    if (!value) {
+        return 0;
+    }
+    if (strcmp(value, "1") == 0) {
+        return 1;
+    }
+    char lowered[16];
+    size_t len = strlen(value);
+    if (len >= sizeof(lowered)) {
+        len = sizeof(lowered) - 1;
+    }
+    for (size_t i = 0; i < len; ++i) {
+        lowered[i] = (char)tolower((unsigned char)value[i]);
+    }
+    lowered[len] = '\0';
+    if (strcmp(lowered, "true") == 0 ||
+        strcmp(lowered, "yes") == 0 ||
+        strcmp(lowered, "on") == 0) {
+        return 1;
+    }
+    return 0;
+}
+
 static void qallow_dirname_inplace(char* path) {
     if (!path) {
         return;
@@ -622,6 +646,25 @@ static int qallow_handle_run(int argc, char** argv, int arg_offset, run_profile_
     const char* integrate_phases[8];
     int integrate_count = 0;
     bool integrate_no_split = false;
+    bool integrate_phase11 = false;
+    bool integrate_phase12 = false;
+    bool integrate_phase13 = false;
+    bool integrate_phase14 = false;
+    bool integrate_phase15 = false;
+    int integrate_ticks_override = -1;
+    bool integrate_print_summary = true;
+    int phase11_ticks_override = -1;
+    const char* phase11_states_override = NULL;
+    bool phase11_force_hardware = false;
+    int phase12_ticks_override = -1;
+    double phase12_eps_override = -1.0;
+    const char* phase12_log_override = NULL;
+    const char* phase12_audit_override = NULL;
+    int phase13_nodes_override = -1;
+    int phase13_ticks_override = -1;
+    double phase13_coupling_override = -1.0;
+    const char* phase13_log_override = NULL;
+    const char* phase13_audit_override = NULL;
     bool self_audit = false;
     const char* self_audit_path = NULL;
     const char* pocket_map_path = NULL;
@@ -655,6 +698,113 @@ static int qallow_handle_run(int argc, char** argv, int arg_offset, run_profile_
 
         if (strcmp(arg, "--no-split") == 0) {
             integrate_no_split = true;
+            continue;
+        }
+
+        if (strcmp(arg, "--integrate-no-summary") == 0) {
+            integrate_print_summary = false;
+            continue;
+        }
+
+        if (strncmp(arg, "--integrate-ticks=", strlen("--integrate-ticks=")) == 0) {
+            integrate_ticks_override = atoi(arg + strlen("--integrate-ticks="));
+            if (integrate_ticks_override < 1) {
+                integrate_ticks_override = -1;
+            }
+            continue;
+        }
+
+        if (strncmp(arg, "--integrate-phase11-ticks=", strlen("--integrate-phase11-ticks=")) == 0) {
+            phase11_ticks_override = atoi(arg + strlen("--integrate-phase11-ticks="));
+            if (phase11_ticks_override < 1) {
+                phase11_ticks_override = -1;
+            } else {
+                integrate_phase11 = true;
+            }
+            continue;
+        }
+
+        if (strncmp(arg, "--integrate-phase11-states=", strlen("--integrate-phase11-states=")) == 0) {
+            phase11_states_override = arg + strlen("--integrate-phase11-states=");
+            integrate_phase11 = true;
+            continue;
+        }
+
+        if (strcmp(arg, "--integrate-phase11-hardware") == 0) {
+            phase11_force_hardware = true;
+            integrate_phase11 = true;
+            continue;
+        }
+
+        if (strncmp(arg, "--integrate-phase12-ticks=", strlen("--integrate-phase12-ticks=")) == 0) {
+            phase12_ticks_override = atoi(arg + strlen("--integrate-phase12-ticks="));
+            if (phase12_ticks_override < 1) {
+                phase12_ticks_override = -1;
+            } else {
+                integrate_phase12 = true;
+            }
+            continue;
+        }
+
+        if (strncmp(arg, "--integrate-phase12-eps=", strlen("--integrate-phase12-eps=")) == 0) {
+            phase12_eps_override = atof(arg + strlen("--integrate-phase12-eps="));
+            if (phase12_eps_override < 0.0) {
+                phase12_eps_override = 0.0;
+            }
+            integrate_phase12 = true;
+            continue;
+        }
+
+        if (strncmp(arg, "--integrate-phase12-log=", strlen("--integrate-phase12-log=")) == 0) {
+            phase12_log_override = arg + strlen("--integrate-phase12-log=");
+            integrate_phase12 = true;
+            continue;
+        }
+
+        if (strncmp(arg, "--integrate-phase12-audit-tag=", strlen("--integrate-phase12-audit-tag=")) == 0) {
+            phase12_audit_override = arg + strlen("--integrate-phase12-audit-tag=");
+            integrate_phase12 = true;
+            continue;
+        }
+
+        if (strncmp(arg, "--integrate-phase13-nodes=", strlen("--integrate-phase13-nodes=")) == 0) {
+            phase13_nodes_override = atoi(arg + strlen("--integrate-phase13-nodes="));
+            if (phase13_nodes_override < 2) {
+                phase13_nodes_override = 2;
+            }
+            integrate_phase13 = true;
+            continue;
+        }
+
+        if (strncmp(arg, "--integrate-phase13-ticks=", strlen("--integrate-phase13-ticks=")) == 0) {
+            phase13_ticks_override = atoi(arg + strlen("--integrate-phase13-ticks="));
+            if (phase13_ticks_override < 1) {
+                phase13_ticks_override = -1;
+            } else {
+                integrate_phase13 = true;
+            }
+            continue;
+        }
+
+        if (strncmp(arg, "--integrate-phase13-k=", strlen("--integrate-phase13-k=")) == 0) {
+            phase13_coupling_override = atof(arg + strlen("--integrate-phase13-k="));
+            if (phase13_coupling_override <= 0.0) {
+                phase13_coupling_override = -1.0;
+            } else {
+                integrate_phase13 = true;
+            }
+            continue;
+        }
+
+        if (strncmp(arg, "--integrate-phase13-log=", strlen("--integrate-phase13-log=")) == 0) {
+            phase13_log_override = arg + strlen("--integrate-phase13-log=");
+            integrate_phase13 = true;
+            continue;
+        }
+
+        if (strncmp(arg, "--integrate-phase13-audit-tag=", strlen("--integrate-phase13-audit-tag=")) == 0) {
+            phase13_audit_override = arg + strlen("--integrate-phase13-audit-tag=");
+            integrate_phase13 = true;
             continue;
         }
 
@@ -853,37 +1003,235 @@ run_parse_done:
     }
 
     if (integrate_requested) {
+        if (integrate_count > 0) {
+            for (int idx = 0; idx < integrate_count; ++idx) {
+                const char* phase_token = integrate_phases[idx];
+                if (!phase_token || !*phase_token) {
+                    continue;
+                }
+                bool recognized = false;
+                if (strcmp(phase_token, "all") == 0 ||
+                    strcmp(phase_token, "full") == 0 ||
+                    strcmp(phase_token, "unified") == 0) {
+                    integrate_phase11 = true;
+                    integrate_phase12 = true;
+                    integrate_phase13 = true;
+                    integrate_phase14 = true;
+                    integrate_phase15 = true;
+                    recognized = true;
+                } else if (strcmp(phase_token, "phase11") == 0 || strcmp(phase_token, "11") == 0 ||
+                           strcmp(phase_token, "bridge") == 0 || strcmp(phase_token, "coherence") == 0) {
+                    integrate_phase11 = true;
+                    recognized = true;
+                } else if (strcmp(phase_token, "phase12") == 0 || strcmp(phase_token, "12") == 0 ||
+                           strcmp(phase_token, "elasticity") == 0) {
+                    integrate_phase12 = true;
+                    recognized = true;
+                } else if (strcmp(phase_token, "phase13") == 0 || strcmp(phase_token, "13") == 0 ||
+                           strcmp(phase_token, "harmonic") == 0) {
+                    integrate_phase13 = true;
+                    recognized = true;
+                } else if (strcmp(phase_token, "phase14") == 0 || strcmp(phase_token, "14") == 0 ||
+                           strcmp(phase_token, "entanglement") == 0 || strcmp(phase_token, "coherence-lattice") == 0) {
+                    integrate_phase14 = true;
+                    recognized = true;
+                } else if (strcmp(phase_token, "phase15") == 0 || strcmp(phase_token, "15") == 0 ||
+                           strcmp(phase_token, "singularity") == 0 || strcmp(phase_token, "lock-in") == 0 ||
+                           strcmp(phase_token, "lockin") == 0) {
+                    integrate_phase15 = true;
+                    recognized = true;
+                }
+
+                if (!recognized) {
+                    fprintf(stderr, "[ERROR] Unknown integration phase: %s\n", phase_token);
+                    return 1;
+                }
+            }
+        }
+
+        if (!integrate_phase11 && !integrate_phase12 && !integrate_phase13 &&
+            !integrate_phase14 && !integrate_phase15) {
+            integrate_phase12 = true;
+            integrate_phase13 = true;
+            integrate_phase14 = true;
+            integrate_phase15 = true;
+            if (qallow_env_truthy_flag(getenv("QALLOW_QISKIT"))) {
+                integrate_phase11 = true;
+            }
+        }
+
+        if (integrate_phase11) {
+            if (phase11_ticks_override < 1) {
+                phase11_ticks_override = 64;
+            }
+            if (!phase11_states_override || !*phase11_states_override) {
+                phase11_states_override = "-1,0,1";
+            }
+        }
+        if (integrate_phase12) {
+            if (phase12_ticks_override < 1) {
+                phase12_ticks_override = 120;
+            }
+            if (phase12_eps_override < 0.0) {
+                phase12_eps_override = 0.0001;
+            }
+        }
+        if (integrate_phase13) {
+            if (phase13_nodes_override < 2) {
+                phase13_nodes_override = 8;
+            }
+            if (phase13_ticks_override < 1) {
+                phase13_ticks_override = 120;
+            }
+            if (phase13_coupling_override <= 0.0) {
+                phase13_coupling_override = 0.002;
+            }
+        }
+        if (integrate_ticks_override < 1) {
+            integrate_ticks_override = 64;
+        }
+
+        uint32_t lattice_mask = 0u;
+        if (integrate_phase14) {
+            lattice_mask |= QALLOW_LATTICE_PHASE14;
+        }
+        if (integrate_phase15) {
+            lattice_mask |= QALLOW_LATTICE_PHASE15;
+        }
+
+        if (!integrate_phase11 && !integrate_phase12 && !integrate_phase13 && lattice_mask == 0u) {
+            fprintf(stderr, "[ERROR] No valid phases selected for integration\n");
+            return 1;
+        }
+
         qallow_lattice_config_t config;
         qallow_lattice_config_init(&config);
         config.no_split = integrate_no_split;
+        config.print_summary = integrate_print_summary;
+        if (integrate_ticks_override > 0) {
+            config.ticks = integrate_ticks_override;
+        }
+        config.phase_mask = lattice_mask;
 
-        if (integrate_count > 0) {
-            config.phase_mask = 0u;
-            for (int idx = 0; idx < integrate_count; ++idx) {
-                const char* phase_name = integrate_phases[idx];
-                if (strcmp(phase_name, "phase14") == 0 || strcmp(phase_name, "14") == 0 || strcmp(phase_name, "entanglement") == 0) {
-                    qallow_lattice_config_enable(&config, QALLOW_LATTICE_PHASE14, true);
-                    continue;
-                }
-                if (strcmp(phase_name, "phase15") == 0 || strcmp(phase_name, "15") == 0 || strcmp(phase_name, "singularity") == 0) {
-                    qallow_lattice_config_enable(&config, QALLOW_LATTICE_PHASE15, true);
-                    continue;
-                }
-
-                fprintf(stderr, "[ERROR] Unknown integration phase: %s\n", phase_name);
-                return 1;
+        if (integrate_phase11) {
+            printf("[INTEGRATE] Running Phase 11 coherence bridge...\n");
+            const char* phase11_args[8];
+            int argc11 = 0;
+            phase11_args[argc11++] = argv[0];
+            phase11_args[argc11++] = "phase11";
+            char ticks_buf[32];
+            if (phase11_ticks_override > 0) {
+                snprintf(ticks_buf, sizeof(ticks_buf), "--ticks=%d", phase11_ticks_override);
+                phase11_args[argc11++] = ticks_buf;
             }
-            if (config.phase_mask == 0u) {
-                fprintf(stderr, "[ERROR] No valid phases selected for integration\n");
-                return 1;
+            char states_buf[160];
+            if (phase11_states_override && *phase11_states_override) {
+                snprintf(states_buf, sizeof(states_buf), "--states=%s", phase11_states_override);
+                phase11_args[argc11++] = states_buf;
+            }
+            if (phase11_force_hardware) {
+                phase11_args[argc11++] = "--hardware-only";
+            }
+            int rc = qallow_phase11_runner(argc11, (char**)phase11_args);
+            if (rc != 0) {
+                fprintf(stderr, "[ERROR] Phase 11 integration failed (code=%d)\n", rc);
+                return rc;
             }
         }
 
-        int rc = qallow_lattice_integrate(&config);
-        if (rc != 0) {
-            fprintf(stderr, "[ERROR] Unified lattice integration failed (code=%d)\n", rc);
+        if (integrate_phase12) {
+            printf("[INTEGRATE] Running Phase 12 elasticity...\n");
+            const char* phase12_args[8];
+            int argc12 = 0;
+            phase12_args[argc12++] = argv[0];
+            phase12_args[argc12++] = "phase12";
+            char ticks_buf[32];
+            if (phase12_ticks_override > 0) {
+                snprintf(ticks_buf, sizeof(ticks_buf), "--ticks=%d", phase12_ticks_override);
+                phase12_args[argc12++] = ticks_buf;
+            }
+            char eps_buf[48];
+            if (phase12_eps_override >= 0.0) {
+                snprintf(eps_buf, sizeof(eps_buf), "--eps=%.6f", phase12_eps_override);
+                phase12_args[argc12++] = eps_buf;
+            }
+            char log_buf[PATH_MAX];
+            if (phase12_log_override && *phase12_log_override) {
+                if (snprintf(log_buf, sizeof(log_buf), "--log=%s", phase12_log_override) >= (int)sizeof(log_buf)) {
+                    fprintf(stderr, "[ERROR] Phase 12 log path too long\n");
+                    return 1;
+                }
+                phase12_args[argc12++] = log_buf;
+            }
+            char audit_buf[256];
+            if (phase12_audit_override && *phase12_audit_override) {
+                if (snprintf(audit_buf, sizeof(audit_buf), "--audit-tag=%s", phase12_audit_override) >= (int)sizeof(audit_buf)) {
+                    fprintf(stderr, "[ERROR] Phase 12 audit tag too long\n");
+                    return 1;
+                }
+                phase12_args[argc12++] = audit_buf;
+            }
+            int rc = qallow_phase12_runner(argc12, (char**)phase12_args);
+            if (rc != 0) {
+                fprintf(stderr, "[ERROR] Phase 12 integration failed (code=%d)\n", rc);
+                return rc;
+            }
         }
-        return rc;
+
+        if (integrate_phase13) {
+            printf("[INTEGRATE] Running Phase 13 harmonic propagation...\n");
+            const char* phase13_args[10];
+            int argc13 = 0;
+            phase13_args[argc13++] = argv[0];
+            phase13_args[argc13++] = "phase13";
+            char nodes_buf[32];
+            if (phase13_nodes_override > 0) {
+                snprintf(nodes_buf, sizeof(nodes_buf), "--nodes=%d", phase13_nodes_override);
+                phase13_args[argc13++] = nodes_buf;
+            }
+            char ticks_buf[32];
+            if (phase13_ticks_override > 0) {
+                snprintf(ticks_buf, sizeof(ticks_buf), "--ticks=%d", phase13_ticks_override);
+                phase13_args[argc13++] = ticks_buf;
+            }
+            char k_buf[48];
+            if (phase13_coupling_override > 0.0) {
+                snprintf(k_buf, sizeof(k_buf), "--k=%.6f", phase13_coupling_override);
+                phase13_args[argc13++] = k_buf;
+            }
+            char log_buf[PATH_MAX];
+            if (phase13_log_override && *phase13_log_override) {
+                if (snprintf(log_buf, sizeof(log_buf), "--log=%s", phase13_log_override) >= (int)sizeof(log_buf)) {
+                    fprintf(stderr, "[ERROR] Phase 13 log path too long\n");
+                    return 1;
+                }
+                phase13_args[argc13++] = log_buf;
+            }
+            char audit_buf[256];
+            if (phase13_audit_override && *phase13_audit_override) {
+                if (snprintf(audit_buf, sizeof(audit_buf), "--audit-tag=%s", phase13_audit_override) >= (int)sizeof(audit_buf)) {
+                    fprintf(stderr, "[ERROR] Phase 13 audit tag too long\n");
+                    return 1;
+                }
+                phase13_args[argc13++] = audit_buf;
+            }
+            int rc = qallow_phase13_runner(argc13, (char**)phase13_args);
+            if (rc != 0) {
+                fprintf(stderr, "[ERROR] Phase 13 integration failed (code=%d)\n", rc);
+                return rc;
+            }
+        }
+
+        if (lattice_mask != 0u) {
+            int rc = qallow_lattice_integrate(&config);
+            if (rc != 0) {
+                fprintf(stderr, "[ERROR] Unified lattice integration failed (code=%d)\n", rc);
+                return rc;
+            }
+        }
+
+        printf("[INTEGRATE] Unified phase execution complete.\n");
+        return 0;
     }
 
     if (dl_model_path) {
@@ -950,6 +1298,21 @@ static int qallow_handle_run_group(int argc, char** argv, int arg_offset) {
 
     if (strcmp(sub, "live") == 0) {
         return qallow_handle_run(argc, argv, arg_offset + 1, RUN_PROFILE_LIVE);
+    }
+
+    if (strcmp(sub, "unified") == 0 || strcmp(sub, "pipeline") == 0) {
+        int trailing = argc - (arg_offset + 1);
+        int new_argc = 3 + trailing;
+        const char* run_argv[3 + trailing + 1];
+        int pos = 0;
+        run_argv[pos++] = argv[0];
+        run_argv[pos++] = "run";
+        run_argv[pos++] = "--integrate";
+        for (int i = 0; i < trailing; ++i) {
+            run_argv[pos++] = argv[arg_offset + 1 + i];
+        }
+        run_argv[pos] = NULL;
+        return qallow_handle_run(new_argc, (char**)run_argv, 2, RUN_PROFILE_STANDARD);
     }
 
     if (strcmp(sub, "accelerator") == 0) {
@@ -1174,6 +1537,7 @@ static void qallow_print_run_help(void) {
     printf("  vm [options]        Execute the unified VM workflow (default when omitted)\n");
     printf("  bench [options]     Run the VM in benchmark profile (alias of vm --bench)\n");
     printf("  live [options]      Run the VM with live ingestion profile (alias of vm --live)\n");
+    printf("  unified|pipeline    Run the phase12-15 pipeline with default integrated settings\n");
     printf("  accelerator [options]  Launch the Phase-13 accelerator directly\n");
     printf("  entangle [options]  Generate GHZ/W entanglement data via QuTiP bridge\n");
     printf("  help                Show this help message for the run group\n\n");
@@ -1182,6 +1546,10 @@ static void qallow_print_run_help(void) {
     printf("  --live              Enable live ingestion profile (same as `qallow run live`)\n");
     printf("  --hardware          Route Phase 11 through IBM Quantum hardware\n");
     printf("  --dashboard=<N|off> Control dashboard frequency (ticks) or disable output\n");
+    printf("  --integrate [list]  Run sequential phases (defaults: 12-15, ticks=120/120, lattice=64)\n");
+    printf("                      Overrides: --integrate-phase12-ticks=NN --integrate-phase13-k=VAL --integrate-ticks=NN\n");
+    printf("                      Add phase11 via `--integrate phase11` (requires QALLOW_QISKIT=1 for the bridge)\n");
+    printf("                      Additional flags: --no-split --integrate-no-summary --integrate-phase11-hardware\n");
     printf("  --self-audit        Enable phase16 meta-introspect logging\n");
     printf("  --self-audit-path <DIR> Override auditor log directory (implies --self-audit)\n");
     printf("  --export-pocket-map <FILE> Emit audited pocket status JSON after run\n");

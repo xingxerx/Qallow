@@ -2,47 +2,19 @@
 applyTo: '**'
 ---
 
-# Qallow Agent Guide
-- Maintain MCP persistent memory for architecture, ethics mandates, and user-specific workflows; refresh context when build scripts or docs change.
-- Auto-confirm safe tasks (code, tests, docs, commits, pushes); pause for explicit approval before destructive commands like rm/kill/force-push/system configuration edits.
-- Primary code roots: CPU backend in `backend/cpu/`, CUDA kernels in `backend/cuda/`, public APIs in `include/qallow/`, orchestration in `interface/main.c`, ethics engines under `algorithms/`.
-
-## Architecture & Data Flow
-- Phase pipeline lives in `interface/main.c`; it wires adaptive ingest → multi-pocket routing → ethics phases (8-10) → quantum bridge (11) → elasticity/harmonics (12-13).
-- Shared structs and constants sit in `core/include/`; modify headers plus both backends whenever a phase contract changes.
-- Telemetry and logging flow through `include/qallow/logging.h` into `data/logs/`; profiling relies on `QALLOW_PROFILE_SCOPE` from `include/qallow/profiling.h`.
-- Python bridge for quantum hardware resides in `python/quantum/run_phase11_bridge.py`; CLI detects interpreters via `QALLOW_PYTHON` and `.env`.
-- Optional SDL visualizer targets `interface/qallow_ui.c`; guard changes because it builds only when SDL2 + SDL2_ttf are detected.
-
-## Build & Run
-- Standard workflow: `./scripts/build_all.sh [--cpu|--cuda|--auto] [--build-type <cfg>]`; script seeds `build/` and runs `ctest`.
-- Manual CMake path: `cmake -S . -B build -DQALLOW_ENABLE_CUDA=ON && cmake --build build --parallel`.
-- Makefile shim: `make ACCELERATOR=CPU|CUDA` yields deterministic binaries under `build/CPU/` and `build/CUDA/`.
-- Entry binaries: `build/qallow` (phase runner CLI) and `build/qallow_unified`; keep CLI flags in sync with docs and scripts.
-- End-to-end demos: `./scripts/run_unified_agi.sh` for the unified pipeline; `python examples/quantum_adaptive_demo.py --runner ./build/qallow_unified` for quantum feedback loops.
-
-## Testing & QA
-- Core test suite lives in CTest (`unit_ethics_core`, `unit_dl_integration`, optional `unit_cuda_parallel`); run with `ctest --test-dir build --output-on-failure`.
-- Smoke harness `tests/smoke/test_modules.sh` recompiles CPU artifacts and checks phases 12/13 plus governance markers in `build/test_modules.log`.
-- CUDA edits require `ctest -R cuda` and Nsight evidence when tuning kernels or performance-critical loops.
-- Integration tests under `tests/integration/` assert telemetry structure; update paired CSV fixtures in `data/logs/` when schemas evolve.
-
-## Coding Patterns
-- C targets C11, CUDA sources use C++17; keep cross-phase signatures in `core/include/` and `include/qallow/`.
-- Always route logging through `qallow_log_*` and load environment defaults with `qallow_env_load`; avoid raw `printf` in backend code.
-- Wrap hot loops in `QALLOW_PROFILE_SCOPE("label")`; implementations live in `src/runtime/profiling.cpp`.
-- Ethics modules must preserve the Axiom `E = S + C + H`; coordinate changes across `algorithms/ethics_*.c` and propagate metrics types.
-- Extending a phase means updating CPU (`backend/cpu/phaseXX_*.c`), CUDA (`backend/cuda/*.cu`), and the orchestration glue in `src/qallow_phase13.c`.
-
-## Integration Notes
-- IBM Quantum configuration flows through `.env` keys (`QALLOW_QISKIT`, `_BACKEND`) and the bridge invoked from `interface/main.c`.
-- External dependencies: `spdlog` via FetchContent, optional SDL2/SDL2_ttf, CUDA Toolkit ≥ 12; ensure CMake options and docs stay aligned.
-- Vendored `mcp-memory-service/` is an upstream MCP provider; avoid edits unless syncing with its own instructions and licensing.
-- Telemetry outputs drive dashboards in `docs/` and `data/logs/`; document schema changes in `docs/ARCHITECTURE_SPEC.md` and `README.md`.
-
-## Workflow Reminders
-- Follow Conventional Commits and reference issues; run the formatters listed in `CONTRIBUTING.md` (clang-format, cmake-format, markdownlint).
-- Prefer scripts in `scripts/` (`build_wrapper.sh`, `run_auto.sh`, `run_latest.sh`) to mirror CI build flags.
-- Raise clarifying questions when ethics implications or module ownership is uncertain; err on transparency before modifying critical paths.
-- After changes, report which builds/tests were executed and any residual risks so maintainers can validate quickly.
-
+# Qallow Agent Playbook
+- Core runtime is C/CUDA: orchestration in `interface/launcher.c` + `interface/main.c`, CPU phases in `backend/cpu/`, GPU mirrors in `backend/cuda/`, shared contracts in `core/include/` and `include/qallow/`. Change a struct once, update both backends and the orchestrator.
+- Phase flow: ingest/adaptive → ethics (8–10) → quantum bridge (11) → elasticity/harmonics (12–13) → lattice convergence (14–15). The CLI (`qallow run`) now exposes `--integrate` to execute these sequentially; use overrides like `--integrate-phase13-ticks=400` or `--integrate-ticks=256`.
+- Phase 11 runs through `python/quantum/run_phase11_bridge.py`; it expects a Qiskit environment (set `QALLOW_QISKIT=1` and ensure the selected backend exposes `Circuit.num_qubits()`).
+- Telemetry funnels through `src/runtime/telemetry_outputs.c` into `data/logs/`. Use `qallow_log_*`/`QALLOW_PROFILE_SCOPE` around hot paths; raw `printf` is reserved for the CLI layer.
+- Ethics math (`E = S + C + H`) lives in `algorithms/ethics_*.c`; any metric addition must ripple into `ethics_state_t`, exporters, and the CSV/JSON summaries that dashboards consume.
+- Build paths: `./scripts/build_all.sh [--cpu|--cuda]` is the maintainer workflow; manual alternative is `cmake -S . -B build -DQALLOW_ENABLE_CUDA=ON && cmake --build build --parallel`. Scripts such as `build_unified_linux.sh` or `scripts/build_unified_ethics.sh` are legacy—prefer the CMake build.
+- Main binaries: `build/qallow` (phase runner CLI) and `build/qallow_unified_cpu|cuda` (packaged run). Rust native app lives in `native_app/` and runs with `cargo run`.
+- Native app (Rust/FLTK): entry `native_app/src/main.rs`; UI under `native_app/src/ui/**`. Use FLTK `app::channel` + `UiMessage` (`native_app/src/messaging.rs`) for non-blocking tasks; start work in threads from `button_handlers.rs` (`start_*_async`) and handle results in the main loop. Process launching is in `native_app/src/backend/process_manager.rs`.
+- Typical end-to-end run: `./build/qallow run unified` (defaults to phases 12–15 with ticks=120/120 and lattice ticks=64). Add overrides like `--integrate-phase13-k=0.003` after `unified` when needed. Phase 11 joins automatically once `QALLOW_QISKIT=1` is set and the bridge matches the active Qiskit release.
+ - Direct phase runs: `./build/qallow phase 13|14|15 --ticks=...` (phase "1" is invalid). Use `--integrate-*` flags only with the integrated runner.
+- Testing: run `ctest --test-dir build --output-on-failure` after C/CUDA changes. Use `tests/sequential_phase_benchmark.sh` to time phases 1–13 and regenerate `data/logs/sequential_benchmark.csv`. CUDA edits should also run `ctest -R cuda` plus Nsight profiling if performance is touched.
+- Docs & conventions: follow the patterns in `README.md` and `docs/ARCHITECTURE_SPEC.md`. Logging schema changes or CLI flag updates must be reflected there and in `scripts/` wrappers.
+- External surfaces: `mcp-memory-service/` is vendored—avoid modifications unless coordinating upstream. SDL-based UI (`interface/qallow_ui.c`) builds only when SDL2 + SDL2_ttf are detected; guard code with compile-time checks.
+- **MCP Memory Server Integration**: GitHub Copilot integrates with a persistent memory MCP server via `.vscode/mcp.json`. The memory server (SQLite-vec backend) runs locally and provides semantic search, memory storage, and recall tools. Configure in VS Code: open Copilot Chat, select Agent mode, click the tools icon, and the memory server tools will appear. Use `/mcp.memory.*` commands in chat to store/recall context. The server persists memories in `/root/.local/share/mcp-memory/` and supports multi-session context awareness.
+- Report back with executed build/test commands and any ethics/telemetry impacts; transparency is expected for changes touching the AGI phases.

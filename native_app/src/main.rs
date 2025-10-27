@@ -11,6 +11,7 @@ mod shortcuts;
 mod shutdown;
 mod ui;
 mod utils;
+mod messaging;
 
 use backend::process_manager::ProcessManager;
 use button_handlers::ButtonHandler;
@@ -25,6 +26,7 @@ use shutdown::ShutdownManager;
 use std::fs;
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
+use messaging::UiMessage;
 
 enum VmStatus {
     Running,
@@ -78,6 +80,8 @@ fn main() {
 
     // Initialize FLTK
     let app = app::App::default();
+    // UI message channel for background tasks
+    let (sender, receiver) = app::channel::<UiMessage>();
     let theme = fltk_theme::WidgetTheme::new(ThemeType::Dark);
     theme.apply();
 
@@ -93,6 +97,7 @@ fn main() {
         process_manager.clone(),
         Arc::new(logger.clone()),
         codebase_mgr.clone(),
+        Some(sender.clone()),
     ));
 
     // Create main window
@@ -265,17 +270,24 @@ fn main() {
         let terminal_buffer = terminal_buffer.clone();
         let audit_buffer = audit_buffer.clone();
         let audit_filter_choice = audit_filter_choice.clone();
-        move |_| match handler.on_build_native_app() {
-            Ok(message) => {
-                refresh_terminal(&state, &terminal_buffer);
-                refresh_audit(
-                    &state,
-                    &audit_buffer,
-                    current_audit_filter(&audit_filter_choice),
-                );
-                dialog::message_default(&format!("✓ {}", message));
+        let mut btn_ref = control_buttons.build_app_btn.clone();
+        move |_| {
+            // Kick off background build; immediate UI feedback
+            if let Err(e) = handler.start_build_native_app_async() {
+                dialog::alert_default(&format!("Build failed to start: {}", e));
+                return;
             }
-            Err(e) => dialog::alert_default(&format!("Build failed: {}", e)),
+            btn_ref.deactivate();
+            if let Ok(mut s) = state.lock() {
+                s.add_terminal_line("🛠️ Build started in background...".to_string(), LineType::Info);
+                s.add_audit_log(LogLevel::Info, "Codebase".to_string(), "Build started".to_string());
+            }
+            refresh_terminal(&state, &terminal_buffer);
+            refresh_audit(
+                &state,
+                &audit_buffer,
+                current_audit_filter(&audit_filter_choice),
+            );
         }
     });
 
@@ -286,17 +298,23 @@ fn main() {
         let terminal_buffer = terminal_buffer.clone();
         let audit_buffer = audit_buffer.clone();
         let audit_filter_choice = audit_filter_choice.clone();
-        move |_| match handler.on_run_tests() {
-            Ok(message) => {
-                refresh_terminal(&state, &terminal_buffer);
-                refresh_audit(
-                    &state,
-                    &audit_buffer,
-                    current_audit_filter(&audit_filter_choice),
-                );
-                dialog::message_default(&format!("✓ {}", message));
+        let mut btn_ref = control_buttons.run_tests_btn.clone();
+        move |_| {
+            if let Err(e) = handler.start_run_tests_async() {
+                dialog::alert_default(&format!("Tests failed to start: {}", e));
+                return;
             }
-            Err(e) => dialog::alert_default(&format!("Tests failed: {}", e)),
+            btn_ref.deactivate();
+            if let Ok(mut s) = state.lock() {
+                s.add_terminal_line("🧪 Tests started in background...".to_string(), LineType::Info);
+                s.add_audit_log(LogLevel::Info, "Codebase".to_string(), "Tests started".to_string());
+            }
+            refresh_terminal(&state, &terminal_buffer);
+            refresh_audit(
+                &state,
+                &audit_buffer,
+                current_audit_filter(&audit_filter_choice),
+            );
         }
     });
 
@@ -307,17 +325,23 @@ fn main() {
         let terminal_buffer = terminal_buffer.clone();
         let audit_buffer = audit_buffer.clone();
         let audit_filter_choice = audit_filter_choice.clone();
-        move |_| match handler.on_git_status() {
-            Ok(status) => {
-                refresh_terminal(&state, &terminal_buffer);
-                refresh_audit(
-                    &state,
-                    &audit_buffer,
-                    current_audit_filter(&audit_filter_choice),
-                );
-                dialog::message_default(&format!("📁 Git Status:\n{}", status));
+        let mut btn_ref = control_buttons.git_status_btn.clone();
+        move |_| {
+            if let Err(e) = handler.start_git_status_async() {
+                dialog::alert_default(&format!("Git status failed to start: {}", e));
+                return;
             }
-            Err(e) => dialog::alert_default(&format!("Failed to fetch git status: {}", e)),
+            btn_ref.deactivate();
+            if let Ok(mut s) = state.lock() {
+                s.add_terminal_line("📁 Git status fetching...".to_string(), LineType::Info);
+                s.add_audit_log(LogLevel::Info, "Codebase".to_string(), "Git status requested".to_string());
+            }
+            refresh_terminal(&state, &terminal_buffer);
+            refresh_audit(
+                &state,
+                &audit_buffer,
+                current_audit_filter(&audit_filter_choice),
+            );
         }
     });
 
@@ -328,22 +352,23 @@ fn main() {
         let terminal_buffer = terminal_buffer.clone();
         let audit_buffer = audit_buffer.clone();
         let audit_filter_choice = audit_filter_choice.clone();
-        move |_| match handler.on_recent_commits(5) {
-            Ok(commits) => {
-                refresh_terminal(&state, &terminal_buffer);
-                refresh_audit(
-                    &state,
-                    &audit_buffer,
-                    current_audit_filter(&audit_filter_choice),
-                );
-                let content = if commits.is_empty() {
-                    "No commits available".to_string()
-                } else {
-                    commits.join("\n")
-                };
-                dialog::message_default(&format!("📜 Recent Commits:\n{}", content));
+        let mut btn_ref = control_buttons.recent_commits_btn.clone();
+        move |_| {
+            if let Err(e) = handler.start_recent_commits_async(5) {
+                dialog::alert_default(&format!("Failed to start commits fetch: {}", e));
+                return;
             }
-            Err(e) => dialog::alert_default(&format!("Failed to fetch commits: {}", e)),
+            btn_ref.deactivate();
+            if let Ok(mut s) = state.lock() {
+                s.add_terminal_line("📜 Fetching recent commits...".to_string(), LineType::Info);
+                s.add_audit_log(LogLevel::Info, "Codebase".to_string(), "Recent commits requested".to_string());
+            }
+            refresh_terminal(&state, &terminal_buffer);
+            refresh_audit(
+                &state,
+                &audit_buffer,
+                current_audit_filter(&audit_filter_choice),
+            );
         }
     });
 
@@ -470,6 +495,66 @@ fn main() {
 
     // Run event loop
     while app.wait() {
+        // Process async UI messages
+        while let Some(msg) = receiver.recv() {
+            match msg {
+                UiMessage::BuildDone(res) => {
+                    match res {
+                        Ok(message) => dialog::message_default(&format!("✓ {}", message)),
+                        Err(e) => dialog::alert_default(&format!("Build failed: {}", e)),
+                    }
+                    control_buttons.build_app_btn.activate();
+                    refresh_terminal(&state, &terminal_buffer);
+                    refresh_audit(
+                        &state,
+                        &audit_buffer,
+                        current_audit_filter(&audit_filter_choice),
+                    );
+                }
+                UiMessage::TestsDone(res) => {
+                    match res {
+                        Ok(message) => dialog::message_default(&format!("✓ {}", message)),
+                        Err(e) => dialog::alert_default(&format!("Tests failed: {}", e)),
+                    }
+                    control_buttons.run_tests_btn.activate();
+                    refresh_terminal(&state, &terminal_buffer);
+                    refresh_audit(
+                        &state,
+                        &audit_buffer,
+                        current_audit_filter(&audit_filter_choice),
+                    );
+                }
+                UiMessage::GitStatusDone(res) => {
+                    match res {
+                        Ok(status) => dialog::message_default(&format!("📁 Git Status:\n{}", status)),
+                        Err(e) => dialog::alert_default(&format!("Failed to fetch git status: {}", e)),
+                    }
+                    control_buttons.git_status_btn.activate();
+                    refresh_terminal(&state, &terminal_buffer);
+                    refresh_audit(
+                        &state,
+                        &audit_buffer,
+                        current_audit_filter(&audit_filter_choice),
+                    );
+                }
+                UiMessage::CommitsDone(res) => {
+                    match res {
+                        Ok(commits) => {
+                            let content = if commits.is_empty() { "No commits available".to_string() } else { commits.join("\n") };
+                            dialog::message_default(&format!("📜 Recent Commits:\n{}", content));
+                        }
+                        Err(e) => dialog::alert_default(&format!("Failed to fetch commits: {}", e)),
+                    }
+                    control_buttons.recent_commits_btn.activate();
+                    refresh_terminal(&state, &terminal_buffer);
+                    refresh_audit(
+                        &state,
+                        &audit_buffer,
+                        current_audit_filter(&audit_filter_choice),
+                    );
+                }
+            }
+        }
         if last_uptime_update.elapsed() >= Duration::from_millis(500) {
             if let Ok(mut state_guard) = state.lock() {
                 state_guard.update_uptime();
