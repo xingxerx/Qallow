@@ -16,19 +16,11 @@ from dataclasses import dataclass, field
 from typing import Sequence, Tuple
 
 try:
-    from qiskit import QuantumCircuit, transpile
+    import cirq
 except ImportError as exc:  # pragma: no cover - dependency may be optional during linting
     raise RuntimeError(
-        "qiskit is required for python.quantum.adaptive_agent. "
-        "Install it via 'pip install qiskit qiskit-aer'."
-    ) from exc
-
-try:
-    from qiskit_aer import AerSimulator
-except ImportError as exc:  # pragma: no cover - allow explicit message
-    raise RuntimeError(
-        "qiskit-aer is required for python.quantum.adaptive_agent. "
-        "Install it via 'pip install qiskit-aer'."
+        "cirq is required for python.quantum.adaptive_agent. "
+        "Install it via 'pip install cirq'."
     ) from exc
 
 

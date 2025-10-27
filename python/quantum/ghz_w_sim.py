@@ -2,9 +2,8 @@
 """Generate GHZ/W multipartite entanglement probabilities using QuTiP.
 
 The script prints key=value pairs so native code can parse the output.
-It attempts to validate the generated state with Qiskit first; if Qiskit is
-unavailable it falls back to Cirq. The caller can disable validation by
-omitting --validate.
+It attempts to validate the generated state with Cirq. The caller can disable
+validation by omitting --validate.
 """
 
 from __future__ import annotations
@@ -46,25 +45,8 @@ def build_state(name: str, qubits: int):
 
 
 def validate_with_qiskit(state_vector: np.ndarray, qubits: int, name: str) -> Optional[Tuple[str, float]]:
-    try:
-        from qiskit import QuantumCircuit
-        from qiskit.quantum_info import Statevector
-    except Exception:
-        return None
-
-    try:
-        qc = QuantumCircuit(qubits)
-        if name.lower().startswith("ghz"):
-            qc.h(0)
-            for idx in range(1, qubits):
-                qc.cx(0, idx)
-        else:
-            qc.initialize(state_vector, list(range(qubits)))
-        sv = Statevector.from_label("0" * qubits).evolve(qc)
-        fidelity = float(np.abs(np.vdot(state_vector.conjugate(), sv.data)) ** 2)
-        return ("qiskit", fidelity)
-    except Exception:
-        return None
+    """Deprecated: Use validate_with_cirq instead."""
+    return None
 
 
 def validate_with_cirq(state_vector: np.ndarray, qubits: int) -> Optional[Tuple[str, float]]:
@@ -100,11 +82,9 @@ def main() -> int:
     fidelity = 1.0
 
     if args.validate:
-        validation = validate_with_qiskit(vector, args.qubits, args.state)
+        validation = validate_with_cirq(vector, args.qubits)
         if validation is None:
-            validation = validate_with_cirq(vector, args.qubits)
-        if validation is None:
-            print("ERROR=No quantum backend available (install qiskit or cirq)", file=sys.stderr)
+            print("ERROR=No quantum backend available (install cirq)", file=sys.stderr)
             return 4
         backend, fidelity = validation
 

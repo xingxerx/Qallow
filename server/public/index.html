@@ -3,118 +3,53 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Qallow Simple Control Panel</title>
-  <style>
-    body { font-family: system-ui, sans-serif; margin: 0; padding: 16px; background: #0f1220; color: #e8eefc; }
-    h1 { margin: 0 0 12px; font-size: 20px; }
-    .row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
-    button { background: #1a1f3a; color: #00d4ff; border: 1px solid #2a2f4f; padding: 8px 12px; border-radius: 8px; cursor: pointer; }
-    button:hover { background: #22284a; }
-    .panel { background: #12162b; border: 1px solid #2a2f4f; border-radius: 10px; padding: 12px; margin-top: 12px; }
-    pre { background: #0b0e1a; padding: 8px; border-radius: 8px; overflow: auto; max-height: 240px; border: 1px solid #1f2440; }
-    small { color: #8aa1c1; }
-    .ok { color: #43d08a; }
-    .warn { color: #ffd166; }
-    .err { color: #ff6b6b; }
-  </style>
+  <title>Qallow Control • Neon</title>
+  <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
-  <h1>Qallow Simple Control Panel</h1>
-  <div class="row">
-    <button id="btnHealth">Health</button>
-    <button id="btnStart">Start VM</button>
-    <button id="btnStop">Stop VM</button>
-    <button id="btnMetrics">Metrics</button>
-    <button id="btnLogs">Logs</button>
-  </div>
-  <div class="row">
-    <button id="btnGrover">Run Grover</button>
-    <button id="btnBell">Run Bell</button>
-    <button id="btnDeutsch">Run Deutsch</button>
-    <button id="btnAll">Run All</button>
-  </div>
+  <!-- Matrix rain background -->
+  <canvas id="matrix" class="matrix-bg" aria-hidden="true"></canvas>
 
-  <div class="panel">
-    <div><strong>Status</strong> — <small id="statusTs">n/a</small></div>
-    <pre id="statusOut">(none)</pre>
-  </div>
+  <main class="container">
+    <header class="header">
+      <h1>Qallow Simple Control Panel</h1>
+      <div class="controls-right">
+        <label class="toggle">
+          <input type="checkbox" id="toggleMatrix" checked />
+          <span>Matrix mode</span>
+        </label>
+      </div>
+    </header>
 
-  <div class="panel">
-    <div><strong>Terminal</strong></div>
-    <pre id="terminalOut">(none)</pre>
-  </div>
+    <section class="row">
+      <button id="btnHealth" class="btn">Health</button>
+      <button id="btnStart" class="btn btn-primary">Start VM</button>
+      <button id="btnStop" class="btn btn-danger">Stop VM</button>
+      <button id="btnMetrics" class="btn">Metrics</button>
+      <button id="btnLogs" class="btn">Logs</button>
+    </section>
+    <section class="row">
+      <button id="btnGrover" class="btn">Run Grover</button>
+      <button id="btnBell" class="btn">Run Bell</button>
+      <button id="btnDeutsch" class="btn">Run Deutsch</button>
+      <button id="btnAll" class="btn">Run All</button>
+    </section>
 
-  <div class="panel">
-    <div><strong>Audit Log</strong></div>
-    <pre id="auditOut">(none)</pre>
-  </div>
+    <section class="panel">
+      <div class="panel-title">Status <small id="statusTs">n/a</small></div>
+      <pre id="statusOut" class="code">(none)</pre>
+    </section>
+    <section class="panel">
+      <div class="panel-title">Terminal</div>
+      <pre id="terminalOut" class="code">(none)</pre>
+    </section>
+    <section class="panel">
+      <div class="panel-title">Audit Log</div>
+      <pre id="auditOut" class="code">(none)</pre>
+    </section>
+  </main>
 
-  <script>
-    const $ = (id) => document.getElementById(id);
-    const set = (id, val) => $(id).textContent = val;
-
-    async function jget(path) {
-      const r = await fetch(path);
-      if (!r.ok) throw new Error(`${r.status} ${r.statusText}`);
-      return r.json();
-    }
-    async function jpost(path, body) {
-      const r = await fetch(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body || {}) });
-      if (!r.ok) throw new Error(`${r.status} ${r.statusText}`);
-      return r.json();
-    }
-
-    function show(obj) { return JSON.stringify(obj, null, 2); }
-
-    async function refreshStatus() {
-      try {
-        const st = await jget('/api/status');
-        set('statusTs', new Date().toLocaleTimeString());
-        set('statusOut', show(st));
-
-        if (st.terminal_output && st.terminal_output.length) {
-          set('terminalOut', st.terminal_output.map(l => `[${l.type}] ${l.timestamp}  ${l.content}`).join('\n'));
-        }
-        if (st.audit_logs && st.audit_logs.length) {
-          set('auditOut', st.audit_logs.map(l => `[${l.level}] ${l.timestamp} ${l.component} - ${l.message}`).join('\n'));
-        }
-      } catch (e) {
-        set('statusOut', `Error: ${e.message}`);
-      }
-    }
-
-    $('btnHealth').onclick = async () => {
-      try { set('statusOut', show(await jget('/api/health'))); } catch (e) { set('statusOut', e.message); }
-    };
-    $('btnStart').onclick = async () => {
-      try { set('statusOut', show(await jpost('/api/vm/start', { ticks: 120, build: 'CPU' }))); await refreshStatus(); } catch (e) { set('statusOut', e.message); }
-    };
-    $('btnStop').onclick = async () => {
-      try { set('statusOut', show(await jpost('/api/vm/stop', {}))); await refreshStatus(); } catch (e) { set('statusOut', e.message); }
-    };
-    $('btnMetrics').onclick = async () => {
-      try { set('statusOut', show(await jget('/api/metrics'))); } catch (e) { set('statusOut', e.message); }
-    };
-    $('btnLogs').onclick = async () => {
-      try { set('statusOut', show(await jget('/api/logs'))); } catch (e) { set('statusOut', e.message); }
-    };
-
-    $('btnGrover').onclick = async () => {
-      try { set('statusOut', show(await jpost('/api/quantum/run-grover', { num_qubits: 3, target_state: 5 }))); } catch (e) { set('statusOut', e.message); }
-    };
-    $('btnBell').onclick = async () => {
-      try { set('statusOut', show(await jpost('/api/quantum/run-bell-state', {}))); } catch (e) { set('statusOut', e.message); }
-    };
-    $('btnDeutsch').onclick = async () => {
-      try { set('statusOut', show(await jpost('/api/quantum/run-deutsch', {}))); } catch (e) { set('statusOut', e.message); }
-    };
-    $('btnAll').onclick = async () => {
-      try { set('statusOut', show(await jpost('/api/quantum/run-all', {}))); } catch (e) { set('statusOut', e.message); }
-    };
-
-    // Initial and periodic refresh
-    refreshStatus();
-    setInterval(refreshStatus, 3000);
-  </script>
+  <script src="/matrix.js"></script>
+  <script src="/app.js"></script>
 </body>
 </html>

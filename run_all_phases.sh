@@ -8,9 +8,14 @@ set -e
 QALLOW_BIN="/root/Qallow/build/qallow"
 LOG_DIR="data/logs"
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+OUTPUT_LOG="$LOG_DIR/phases_${TIMESTAMP}.log"
 
 # Create log directory
 mkdir -p "$LOG_DIR"
+
+# Redirect all output to log file AND stdout (no duplication)
+exec > >(tee -a "$OUTPUT_LOG")
+exec 2>&1
 
 echo ""
 echo "╔════════════════════════════════════════════════════════════════════════╗"
