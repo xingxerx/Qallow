@@ -19,12 +19,18 @@ let auditLogs = [];
 let continuousMode = false;
 let currentPhase = 13;
 let cycleCount = 0;
+let loopConfig = {
+  startPhase: 13,
+  ticks: 1000,
+  build: 'CPU'
+};
 const MAX_OUTPUT_LINES = 1000;
 const MAX_LOGS = 500;
 
 // Logger
 const logger = {
   info: (msg) => console.log(`[API] ${new Date().toISOString()} - ${msg}`),
+  warn: (msg) => console.warn(`[API WARN] ${new Date().toISOString()} - ⚠️ ${msg}`),
   error: (msg, err) => {
     console.error(`[API ERROR] ${new Date().toISOString()} - ${msg}`);
     if (err) console.error(`  ${err.message}`);
@@ -65,6 +71,7 @@ router.get('/status', (req, res) => {
       continuous_mode: continuousMode,
       current_phase: currentPhase,
       cycle_count: cycleCount,
+      loop_config: loopConfig,
       terminal_output: terminalOutput,
       metrics: metrics,
       audit_logs: auditLogs,
@@ -86,6 +93,7 @@ router.post('/vm/start', (req, res) => {
     const ticks = req.body.ticks || 1000;
     const build = req.body.build || 'CPU';
     const phase = req.body.phase || '13';
+    const continuous = req.body.continuous !== false;
 
     logger.info(`Starting Qallow VM (${build}, phase: ${phase}, ticks: ${ticks})`);
     addTerminalLine(`🚀 Starting Qallow Unified System (${build} build, phase ${phase}, ticks: ${ticks})`, 'info');
@@ -101,61 +109,34 @@ router.post('/vm/start', (req, res) => {
       return res.status(500).json({ error });
     }
 
-    // Use correct command format: qallow phase <N> with ticks
-    const args = ['phase', phase, `--ticks=${ticks}`];
-    if (build === 'CUDA') {
-      args.push('--cuda');
+    if (continuous) {
+      beginContinuousLoop({
+        startPhase: parseInt(phase, 10) || 13,
+        ticks,
+        build
+      });
+
+      res.json({
+        success: true,
+        message: 'Continuous loop started',
+        timestamp: new Date().toISOString()
+      });
+      return;
     }
 
-    vmProcess = spawn(qallowPath, args, {
-      stdio: ['ignore', 'pipe', 'pipe'],
-      detached: false
+    // Single-run execution (legacy behaviour)
+    launchSinglePhase({
+      phase,
+      ticks,
+      build
     });
-
-    // Handle stdout
-    vmProcess.stdout.on('data', (data) => {
-      const lines = data.toString().split('\n').filter(l => l.trim());
-      lines.forEach(line => {
-        addTerminalLine(line, 'success');
-        logger.info(`VM: ${line}`);
-      });
-    });
-
-    // Handle stderr
-    vmProcess.stderr.on('data', (data) => {
-      const lines = data.toString().split('\n').filter(l => l.trim());
-      lines.forEach(line => {
-        addTerminalLine(line, 'error');
-        logger.error(`VM stderr: ${line}`);
-      });
-    });
-
-    // Handle process exit
-    vmProcess.on('exit', (code, signal) => {
-      logger.info(`VM process exited with code ${code}, signal ${signal}`);
-      addTerminalLine(`⏹️ VM process exited (code: ${code})`, 'warning');
-      addAuditLog('VM', `Process exited with code ${code}`, 'Warning');
-      vmProcess = null;
-    });
-
-    // Handle process error
-    vmProcess.on('error', (err) => {
-      logger.error('VM process error', err);
-      addTerminalLine(`❌ VM error: ${err.message}`, 'error');
-      addAuditLog('VM', `Process error: ${err.message}`, 'Error');
-      vmProcess = null;
-    });
-
-    logger.success('VM started successfully');
-    addTerminalLine('✅ VM started successfully', 'success');
-    addAuditLog('VM', 'VM started successfully', 'Success');
-
-    // Simulate metrics updates
-    updateMetrics();
+    logger.success('VM started successfully (single run)');
+    addTerminalLine('✅ VM started successfully (single run)', 'success');
+    addAuditLog('VM', 'VM started successfully (single run)', 'Success');
 
     res.json({
       success: true,
-      message: 'VM started',
+      message: 'VM started (single run)',
       timestamp: new Date().toISOString()
     });
   } catch (err) {
@@ -179,6 +160,8 @@ router.post('/vm/stop', (req, res) => {
 
     // Stop continuous mode
     continuousMode = false;
+    currentPhase = loopConfig.startPhase;
+    cycleCount = 0;
 
     if (vmProcess !== null) {
       vmProcess.kill('SIGTERM');
@@ -218,17 +201,9 @@ router.post('/vm/start-continuous', (req, res) => {
 
     const ticks = req.body.ticks || 1000;
     const build = req.body.build || 'CPU';
+    const startPhase = parseInt(req.body.phase || 13, 10) || 13;
 
-    logger.info(`Starting continuous unified execution (${build}, ticks per phase: ${ticks})`);
-    addTerminalLine(`🚀 Starting Continuous Unified Execution (${build} build, ${ticks} ticks per phase)`, 'info');
-    addAuditLog('VM', `Starting continuous unified execution with ${build} build`, 'Info');
-
-    continuousMode = true;
-    currentPhase = 13;
-    cycleCount = 0;
-
-    // Start the first phase
-    startNextPhase(ticks, build);
+    beginContinuousLoop({ startPhase, ticks, build });
 
     res.json({
       success: true,
@@ -244,11 +219,106 @@ router.post('/vm/start-continuous', (req, res) => {
 });
 
 // Helper function to start next phase in continuous mode
-function startNextPhase(ticks, build) {
-  if (!continuousMode || vmProcess !== null) {
-    return;
+function beginContinuousLoop({ startPhase, ticks, build }) {
+  if (vmProcess !== null) {
+    throw new Error('VM already running');
   }
 
+  loopConfig = {
+    startPhase,
+    ticks,
+    build
+  };
+  continuousMode = true;
+  currentPhase = startPhase;
+  cycleCount = 0;
+
+  addTerminalLine(`♾️ Continuous loop engaged (start phase ${startPhase}, ticks ${ticks}, build ${build})`, 'info');
+  addAuditLog('VM', `Continuous loop engaged starting at phase ${startPhase}`, 'Info');
+  logger.info(`Continuous loop engaged starting at phase ${startPhase}, ticks=${ticks}, build=${build}`);
+  logger.success('Continuous loop engaged');
+  addTerminalLine('✅ Continuous execution started', 'success');
+  addAuditLog('VM', 'Continuous execution started', 'Success');
+
+  const started = startNextPhase();
+  if (!started) {
+    continuousMode = false;
+    throw new Error('Failed to spawn initial phase');
+  }
+}
+
+function launchSinglePhase({ phase, ticks, build }) {
+  addTerminalLine(`▶️ Launching single phase ${phase}`, 'info');
+  addAuditLog('VM', `Launching single phase ${phase}`, 'Info');
+  const started = spawnPhaseProcess({
+    phase,
+    ticks,
+    build,
+    onExit: (code) => {
+      addTerminalLine(`⏹️ Single phase ${phase} exited with code ${code}`, code === 0 ? 'success' : 'warning');
+      addAuditLog('VM', `Single phase ${phase} exited with code ${code}`, code === 0 ? 'Success' : 'Warning');
+    }
+  });
+  if (!started) {
+    throw new Error('Failed to launch phase');
+  }
+}
+
+function startNextPhase() {
+  if (!continuousMode || vmProcess !== null) {
+    return false;
+  }
+
+  const { startPhase, ticks, build } = loopConfig;
+  const phaseToRun = currentPhase;
+
+  addTerminalLine(`\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`, 'info');
+  addTerminalLine(`🔄 Cycle ${cycleCount + 1} - Phase ${phaseToRun}`, 'info');
+  addTerminalLine(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`, 'info');
+  addAuditLog('VM', `Starting phase ${phaseToRun} (cycle ${cycleCount + 1})`, 'Info');
+
+  const started = spawnPhaseProcess({
+    phase: phaseToRun,
+    ticks,
+    build,
+    onExit: (code) => {
+      if (!continuousMode) {
+        return;
+      }
+
+      if (code !== 0) {
+        addTerminalLine(`⚠️ Phase ${phaseToRun} exited with code ${code}, halting loop`, 'warning');
+        addAuditLog('VM', `Phase ${phaseToRun} exited with code ${code}, loop halted`, 'Warning');
+        continuousMode = false;
+        return;
+      }
+
+      let nextPhase = phaseToRun + 1;
+      if (nextPhase > 15) {
+        cycleCount += 1;
+        nextPhase = startPhase;
+        addTerminalLine(`\n✨ Cycle ${cycleCount} complete! Restarting from Phase ${startPhase}...`, 'info');
+        addAuditLog('VM', `Cycle ${cycleCount} complete, restarting from phase ${startPhase}`, 'Info');
+      }
+      currentPhase = nextPhase;
+
+      setTimeout(() => {
+        if (continuousMode) {
+          startNextPhase();
+        }
+      }, 1000);
+    }
+  });
+
+  if (!started) {
+    continuousMode = false;
+    return false;
+  }
+
+  return true;
+}
+
+function spawnPhaseProcess({ phase, ticks, build, onExit }) {
   const qallowPath = '/root/Qallow/build/qallow';
 
   if (!fs.existsSync(qallowPath)) {
@@ -256,17 +326,12 @@ function startNextPhase(ticks, build) {
     logger.error(error);
     addTerminalLine(`❌ ${error}`, 'error');
     addAuditLog('VM', error, 'Error');
-    continuousMode = false;
-    return;
+    return false;
   }
 
-  logger.info(`Starting phase ${currentPhase} (cycle ${cycleCount + 1})`);
-  addTerminalLine(`\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`, 'info');
-  addTerminalLine(`🔄 Cycle ${cycleCount + 1} - Phase ${currentPhase}`, 'info');
-  addTerminalLine(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`, 'info');
-  addAuditLog('VM', `Starting phase ${currentPhase} (cycle ${cycleCount + 1})`, 'Info');
+  logger.info(`Spawning phase ${phase} (ticks=${ticks}, build=${build})`);
 
-  const args = ['phase', currentPhase.toString(), `--ticks=${ticks}`];
+  const args = ['phase', phase.toString(), `--ticks=${ticks}`];
   if (build === 'CUDA') {
     args.push('--cuda');
   }
@@ -276,7 +341,6 @@ function startNextPhase(ticks, build) {
     detached: false
   });
 
-  // Handle stdout
   vmProcess.stdout.on('data', (data) => {
     const lines = data.toString().split('\n').filter(l => l.trim());
     lines.forEach(line => {
@@ -285,7 +349,6 @@ function startNextPhase(ticks, build) {
     });
   });
 
-  // Handle stderr
   vmProcess.stderr.on('data', (data) => {
     const lines = data.toString().split('\n').filter(l => l.trim());
     lines.forEach(line => {
@@ -294,45 +357,30 @@ function startNextPhase(ticks, build) {
     });
   });
 
-  // Handle process exit - move to next phase
   vmProcess.on('exit', (code, signal) => {
-    logger.info(`Phase ${currentPhase} completed with code ${code}`);
-    addTerminalLine(`✅ Phase ${currentPhase} completed (code: ${code})`, 'success');
-    addAuditLog('VM', `Phase ${currentPhase} completed`, 'Success');
+    logger.info(`Phase ${phase} exited with code ${code}, signal ${signal}`);
+    addTerminalLine(`✅ Phase ${phase} completed (code: ${code})`, code === 0 ? 'success' : 'warning');
+    addAuditLog('VM', `Phase ${phase} completed (code: ${code})`, code === 0 ? 'Success' : 'Warning');
     vmProcess = null;
-
-    if (continuousMode) {
-      // Move to next phase
-      currentPhase++;
-      if (currentPhase > 15) {
-        // Cycle complete, restart from phase 13
-        currentPhase = 13;
-        cycleCount++;
-        addTerminalLine(`\n✨ Cycle ${cycleCount} complete! Restarting from Phase 13...`, 'info');
-        addAuditLog('VM', `Cycle ${cycleCount} complete, restarting`, 'Info');
-      }
-
-      // Start next phase after a short delay
-      setTimeout(() => {
-        if (continuousMode) {
-          startNextPhase(ticks, build);
-        }
-      }, 1000);
+    if (typeof onExit === 'function') {
+      onExit(code, signal);
     }
   });
 
-  // Handle process error
   vmProcess.on('error', (err) => {
     logger.error('VM process error', err);
     addTerminalLine(`❌ VM error: ${err.message}`, 'error');
     addAuditLog('VM', `Process error: ${err.message}`, 'Error');
     vmProcess = null;
-    continuousMode = false;
+    if (continuousMode) {
+      continuousMode = false;
+    }
   });
 
-  logger.success(`Phase ${currentPhase} started`);
-  addTerminalLine(`✅ Phase ${currentPhase} started`, 'success');
+  logger.success(`Phase ${phase} started`);
+  addTerminalLine(`✅ Phase ${phase} started`, 'success');
   updateMetrics();
+  return true;
 }
 
 // GET /api/metrics - Get current metrics
@@ -472,4 +520,3 @@ setInterval(() => {
 }, 2000);
 
 module.exports = router;
-
