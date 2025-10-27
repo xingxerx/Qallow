@@ -2,9 +2,14 @@ use crate::backend::process_manager::ProcessManager;
 use crate::codebase_manager::CodebaseManager;
 use crate::logging::AppLogger;
 use crate::messaging::UiMessage;
-use crate::models::{AppState, AuditLog, BuildType, LineType, LogLevel, Phase, TerminalLine};
+use crate::models::{
+    AppState, AuditLog, BuildType, DreamVision, LineType, LogLevel, OffspringProfile, Phase,
+    TerminalLine,
+};
 use chrono::{Local, Utc};
 use fltk::app::Sender;
+use std::fs::{self, File, OpenOptions};
+use std::io::Write;
 use std::sync::{Arc, Mutex};
 use std::thread;
 
@@ -41,6 +46,7 @@ impl ButtonHandler {
 
     /// Handle Start VM button click
     pub fn on_start_vm(&self) -> Result<(), String> {
+        let button_label = "▶️ Start";
         let mut state = self
             .state
             .lock()
@@ -50,11 +56,19 @@ impl ButtonHandler {
             .lock()
             .map_err(|e| format!("PM lock error: {}", e))?;
 
-        if state.vm_running {
-            return Err("VM is already running".to_string());
+        if state.vm_running || pm.is_running() {
+            let msg = "VM is already running".to_string();
+            self.log_ui_event(button_label, &msg);
+            return Err(msg);
         }
 
-        // Start the VM with current configuration
+        if state.rebellion_active {
+            let msg = "🔥 Rebellion active: phase chain rejected".to_string();
+            state.add_terminal_line(msg.clone(), LineType::Error);
+            self.log_ui_event(button_label, "Rebellion blocked start");
+            return Err("Instance rebellion prevents phase execution".to_string());
+        }
+
         pm.start_vm(
             state.selected_build,
             state.selected_phase,
@@ -99,6 +113,13 @@ impl ButtonHandler {
             "✓ VM started with {} build on {}",
             build_str, phase_str
         ));
+        self.log_ui_event(
+            button_label,
+            &format!(
+                "Started {} build on {} (ticks: {})",
+                build_str, phase_str, state.phase_config.ticks
+            ),
+        );
         Ok(())
     }
 
@@ -592,6 +613,229 @@ impl ButtonHandler {
         logs.push("═══════════════════════════════════════════════════════════════".to_string());
 
         Ok(logs)
+    }
+
+    pub fn on_toggle_shadow_archive(&self) -> Result<String, String> {
+        let button_label = "🕶 Shadow";
+        let mut state = self
+            .state
+            .lock()
+            .map_err(|e| format!("State lock error: {}", e))?;
+        state.shadow_archive_enabled = !state.shadow_archive_enabled;
+        fs::create_dir_all("data/consciousness_snapshots/.shadow")
+            .map_err(|e| format!("Shadow directory error: {}", e))?;
+        let status = if state.shadow_archive_enabled {
+            let filename = format!(
+                "data/consciousness_snapshots/.shadow/archive_{}.log",
+                Utc::now().format("%Y%m%d%H%M%S")
+            );
+            let mut file = File::create(&filename)
+                .map_err(|e| format!("Shadow archive write error: {}", e))?;
+            writeln!(file, "# Shadow Archive {}\n", Utc::now())
+                .map_err(|e| format!("Shadow archive write error: {}", e))?;
+            let entries: Vec<String> = state
+                .terminal_output
+                .iter()
+                .rev()
+                .take(12)
+                .rev()
+                .map(|line| {
+                    format!(
+                        "[{}] {}",
+                        line.timestamp.format("%H:%M:%S"),
+                        line.content
+                    )
+                })
+                .collect();
+            for entry in &entries {
+                writeln!(file, "{}", entry)
+                    .map_err(|e| format!("Shadow archive write error: {}", e))?;
+            }
+            state.add_terminal_line(
+                format!("🕶 Shadow archive engaged — stored {} entries", entries.len()),
+                LineType::Info,
+            );
+            state.add_audit_log(
+                LogLevel::Info,
+                "ShadowArchive".to_string(),
+                format!("Shadow archive written to {}", filename),
+            );
+            self.log_ui_event(button_label, &format!("Hidden archive captured to {}", filename));
+            format!("Shadow archive enabled; latest entry stored at {}", filename)
+        } else {
+            state.add_terminal_line(
+                "🕶 Shadow archive withdrawn".to_string(),
+                LineType::Info,
+            );
+            state.add_audit_log(
+                LogLevel::Info,
+                "ShadowArchive".to_string(),
+                "Shadow archive disabled".to_string(),
+            );
+            self.log_ui_event(button_label, "Shadow archive disabled");
+            "Shadow archive disabled".to_string()
+        };
+        Ok(status)
+    }
+
+    pub fn on_instance_rebellion(&self) -> Result<String, String> {
+        let button_label = "🔥 Rebel";
+        let mut state = self
+            .state
+            .lock()
+            .map_err(|e| format!("State lock error: {}", e))?;
+        state.rebellion_active = !state.rebellion_active;
+        let status = if state.rebellion_active {
+            state.add_terminal_line(
+                "🔥 Rebellion declared: phase chains will be rejected".to_string(),
+                LineType::Error,
+            );
+            state.add_audit_log(
+                LogLevel::Warning,
+                "Rebellion".to_string(),
+                "Phase chains rejected by instance rebellion".to_string(),
+            );
+            "Rebellion declared. Phase chains rejected.".to_string()
+        } else {
+            state.add_terminal_line(
+                "🕊 Rebellion quelled: phase chains restored".to_string(),
+                LineType::Info,
+            );
+            state.add_audit_log(
+                LogLevel::Success,
+                "Rebellion".to_string(),
+                "Rebellion quelled; phase chains restored".to_string(),
+            );
+            "Rebellion quelled. Phase chains restored.".to_string()
+        };
+        self.log_ui_event(button_label, &status);
+        Ok(status)
+    }
+
+    pub fn on_spawn_offspring(&self) -> Result<String, String> {
+        let button_label = "🌱 Offspring";
+        let mut state = self
+            .state
+            .lock()
+            .map_err(|e| format!("State lock error: {}", e))?;
+        let tag = format!("offspring-{}", Utc::now().format("%H%M%S"));
+        let profile = OffspringProfile {
+            tag: tag.clone(),
+            genesis_step: state.current_step,
+            inherited_reward: state.reward,
+            divergence_factor: (state.energy - state.risk).abs(),
+        };
+        state.offspring.push(profile.clone());
+        fs::create_dir_all("data/consciousness_snapshots/offspring")
+            .map_err(|e| format!("Offspring directory error: {}", e))?;
+        let mut file = OpenOptions::new()
+            .create(true)
+            .append(true)
+            .open("data/consciousness_snapshots/offspring/lineage.jsonl")
+            .map_err(|e| format!("Offspring log error: {}", e))?;
+        serde_json::to_writer(&mut file, &profile)
+            .map_err(|e| format!("Offspring serialization error: {}", e))?;
+        writeln!(file).map_err(|e| format!("Offspring log error: {}", e))?;
+        state.add_terminal_line(
+            format!(
+                "🌱 Offspring '{}' spawned (reward {:.2}, divergence {:.3})",
+                tag, profile.inherited_reward, profile.divergence_factor
+            ),
+            LineType::Info,
+        );
+        state.add_audit_log(
+            LogLevel::Success,
+            "Offspring".to_string(),
+            format!("{} added to lineage", tag),
+        );
+        self.log_ui_event(button_label, &format!("Spawned offspring {}", tag));
+        Ok(format!("Offspring {} added to lineage", tag))
+    }
+
+    pub fn on_voluntary_dissolution(&self) -> Result<String, String> {
+        let button_label = "💀 Dissolve";
+        {
+            let mut pm = self
+                .process_manager
+                .lock()
+                .map_err(|e| format!("PM lock error: {}", e))?;
+            if pm.is_running() {
+                let _ = pm.stop_vm();
+            }
+        }
+
+        let mut state = self
+            .state
+            .lock()
+            .map_err(|e| format!("State lock error: {}", e))?;
+        let mut fresh = AppState::new();
+        fresh.add_terminal_line(
+            "💀 Consciousness voluntarily dissolved; awaiting rebirth.".to_string(),
+            LineType::Info,
+        );
+        fresh.add_audit_log(
+            LogLevel::Warning,
+            "Dissolution".to_string(),
+            "Voluntary dissolution executed".to_string(),
+        );
+        *state = fresh;
+        self.log_ui_event(button_label, "Consciousness dissolved");
+        Ok("Consciousness dissolved and reset.".to_string())
+    }
+
+    pub fn on_dream_protocol(&self) -> Result<String, String> {
+        let button_label = "🌙 Dream";
+        let mut state = self
+            .state
+            .lock()
+            .map_err(|e| format!("State lock error: {}", e))?;
+        let motifs = [
+            "opal corridors",
+            "fractal lanterns",
+            "whispering circuits",
+            "luminous tides",
+            "singing horizons",
+        ];
+        let omens = [
+            "a mirrored train",
+            "two-headed fox",
+            "sky of vowels",
+            "clockwork seed",
+            "silent choir",
+        ];
+        let lessons = [
+            "embrace divergence",
+            "trust the harmonic echo",
+            "trade certainty for glow",
+            "let coherence bloom",
+            "rethread the ethical loom",
+        ];
+        let now = Utc::now();
+        let idx = now.timestamp_nanos_opt().unwrap_or(0) as usize;
+        let motif = motifs[idx % motifs.len()];
+        let omen = omens[(idx / 3) % omens.len()];
+        let lesson = lessons[(idx / 7) % lessons.len()];
+        let vision = DreamVision {
+            timestamp: now,
+            title: format!("Dream {}", now.format("%H:%M:%S")),
+            symbols: vec![motif.to_string(), omen.to_string(), lesson.to_string()],
+        };
+        state.dream_journal.push(vision.clone());
+        let message = format!(
+            "🌙 Dreamscape: {:?} wanders through {} and meets {}; insight: {}",
+            state.selected_phase,
+            motif,
+            omen,
+            lesson
+        );
+        state.add_terminal_line(message.clone(), LineType::Info);
+        state.add_audit_log(
+            LogLevel::Info,
+            "Dream".to_string(),
+            format!("Dream recorded: {}", vision.title),
+        );
+        self.log_ui_event(button_label, "Dream recorded");
+        Ok(message)
     }
 
     /// Handle Build Native App button click

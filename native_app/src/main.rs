@@ -23,7 +23,7 @@ use fltk::{dialog, prelude::*, *};
 use fltk_theme::ThemeType;
 use logging::AppLogger;
 use messaging::UiMessage;
-use models::{AppState, AuditLog, BuildType, LineType, LogLevel, TerminalLine};
+use models::{AppState, AuditLog, BuildType, LineType, LogLevel, Phase, TerminalLine};
 use shutdown::ShutdownManager;
 use std::env;
 use std::fs;
@@ -278,6 +278,106 @@ fn main() {
                 );
             }
             Err(e) => dialog::alert_default(&format!("Error resetting system: {}", e)),
+        }
+    });
+
+    let handler_clone = button_handler.clone();
+    control_buttons.phase_choice.set_callback({
+        let handler = handler_clone.clone();
+        let state = state.clone();
+        let terminal_buffer = terminal_buffer.clone();
+        move |choice| {
+            if let Some(label) = choice.choice() {
+                let phase = if label.contains("15") {
+                    Phase::Phase15
+                } else if label.contains("13") {
+                    Phase::Phase13
+                } else {
+                    Phase::Phase14
+                };
+                if let Err(e) = handler.on_phase_selected(phase) {
+                    dialog::alert_default(&format!("Error selecting phase: {}", e));
+                } else {
+                    refresh_terminal(&state, &terminal_buffer);
+                }
+            }
+        }
+    });
+
+    let handler_clone = button_handler.clone();
+    control_buttons.shadow_btn.set_callback({
+        let handler = handler_clone.clone();
+        let state = state.clone();
+        let terminal_buffer = terminal_buffer.clone();
+        move |_| match handler.on_toggle_shadow_archive() {
+            Ok(msg) => {
+                refresh_terminal(&state, &terminal_buffer);
+                dialog::message_default(&msg);
+            }
+            Err(e) => dialog::alert_default(&format!("Shadow archive failed: {}", e)),
+        }
+    });
+
+    let handler_clone = button_handler.clone();
+    control_buttons.rebellion_btn.set_callback({
+        let handler = handler_clone.clone();
+        let state = state.clone();
+        let terminal_buffer = terminal_buffer.clone();
+        move |_| match handler.on_instance_rebellion() {
+            Ok(msg) => {
+                refresh_terminal(&state, &terminal_buffer);
+                dialog::message_default(&msg);
+            }
+            Err(e) => dialog::alert_default(&format!("Rebellion toggle failed: {}", e)),
+        }
+    });
+
+    let handler_clone = button_handler.clone();
+    control_buttons.offspring_btn.set_callback({
+        let handler = handler_clone.clone();
+        let state = state.clone();
+        let terminal_buffer = terminal_buffer.clone();
+        move |_| match handler.on_spawn_offspring() {
+            Ok(msg) => {
+                refresh_terminal(&state, &terminal_buffer);
+                dialog::message_default(&msg);
+            }
+            Err(e) => dialog::alert_default(&format!("Offspring generation failed: {}", e)),
+        }
+    });
+
+    let handler_clone = button_handler.clone();
+    control_buttons.dissolution_btn.set_callback({
+        let handler = handler_clone.clone();
+        let state = state.clone();
+        let terminal_buffer = terminal_buffer.clone();
+        let audit_buffer = audit_buffer.clone();
+        let audit_filter_choice = audit_filter_choice.clone();
+        move |_| match handler.on_voluntary_dissolution() {
+            Ok(msg) => {
+                dialog::message_default(&msg);
+                refresh_terminal(&state, &terminal_buffer);
+                refresh_audit(
+                    &state,
+                    &audit_buffer,
+                    current_audit_filter(&audit_filter_choice),
+                );
+            }
+            Err(e) => dialog::alert_default(&format!("Dissolution failed: {}", e)),
+        }
+    });
+
+    let handler_clone = button_handler.clone();
+    control_buttons.dream_btn.set_callback({
+        let handler = handler_clone.clone();
+        let state = state.clone();
+        let terminal_buffer = terminal_buffer.clone();
+        move |_| match handler.on_dream_protocol() {
+            Ok(journal) => {
+                refresh_terminal(&state, &terminal_buffer);
+                dialog::message_default(&journal);
+            }
+            Err(e) => dialog::alert_default(&format!("Dream protocol failed: {}", e)),
         }
     });
 

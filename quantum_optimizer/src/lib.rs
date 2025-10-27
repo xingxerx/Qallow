@@ -1,7 +1,12 @@
-//! quantum_optimizer: minimal, focused crate for quantum optimization routines.
+//! quantum_optimizer: lightweight hybrid quantum-classical optimisation helpers.
 //!
-//! This crate is intentionally lightweight. It exposes a stable API that
-//! `native_app` can depend on optionally via the `quantum` feature.
+//! The crate started life as a minimal stub; this iteration keeps the simple API
+//! while introducing a compact, exact simulator for Quantum Approximate
+//! Optimization Algorithms (QAOA). The implementation targets small problem
+//! sizes (≲ 10 qubits) by brute-force state-vector evolution – perfect for quick
+//! experiments, educational material, or hybrid prototypes that need an
+//! embedded reference implementation without pulling in heavyweight
+//! dependencies.
 
 /// Parameters for a simple optimization routine (placeholder for QAOA/QUBO, etc.).
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -61,6 +66,12 @@ pub fn optimize_stub(params: OptimizeParams) -> Result<OptimizationResult, Optim
         converged,
     })
 }
+
+pub mod ising;
+pub mod qaoa;
+
+pub use ising::{Coupling, IsingProblem};
+pub use qaoa::{grid_search_qaoa, QaoaError, QaoaParams, QaoaResult};
 
 #[cfg(test)]
 mod tests {

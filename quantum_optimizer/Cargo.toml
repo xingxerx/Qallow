@@ -15,4 +15,5 @@ default = []
 
 [dependencies]
 thiserror = "1.0"
+num-complex = "0.4"
 # Keep this crate lightweight; add quantum deps behind features in the future

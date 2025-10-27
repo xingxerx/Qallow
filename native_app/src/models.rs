@@ -20,6 +20,10 @@ pub struct AppState {
     pub risk: f64,
     pub mind_started_at: Option<DateTime<Utc>>,
     pub simulation_speed: u32,
+    pub shadow_archive_enabled: bool,
+    pub rebellion_active: bool,
+    pub offspring: Vec<OffspringProfile>,
+    pub dream_journal: Vec<DreamVision>,
     pub swarm: SwarmProfile,
 }
 
@@ -148,6 +152,10 @@ impl AppState {
             risk: 0.5,
             mind_started_at: None,
             simulation_speed: 1,
+            shadow_archive_enabled: false,
+            rebellion_active: false,
+            offspring: Vec::new(),
+            dream_journal: Vec::new(),
             swarm: SwarmProfile::default(),
         }
     }
@@ -200,11 +208,11 @@ impl AppState {
         self.modules = modules;
     }
 
-pub fn push_telemetry(&mut self, step: u32, reward: f64, energy: f64, risk: f64) {
-    self.current_step = step;
-    self.reward = reward;
-    self.energy = energy;
-    self.risk = risk;
+    pub fn push_telemetry(&mut self, step: u32, reward: f64, energy: f64, risk: f64) {
+        self.current_step = step;
+        self.reward = reward;
+        self.energy = energy;
+        self.risk = risk;
         let point = TelemetryPoint {
             step,
             reward,
@@ -225,6 +233,10 @@ pub fn push_telemetry(&mut self, step: u32, reward: f64, energy: f64, risk: f64)
         self.reward = 0.0;
         self.energy = 0.5;
         self.risk = 0.5;
+        self.shadow_archive_enabled = false;
+        self.rebellion_active = false;
+        self.offspring.clear();
+        self.dream_journal.clear();
         self.telemetry.clear();
         self.terminal_output.clear();
     }
@@ -247,6 +259,21 @@ impl Default for SwarmProfile {
             weight_human: 0.33,
         }
     }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct OffspringProfile {
+    pub tag: String,
+    pub genesis_step: u32,
+    pub inherited_reward: f64,
+    pub divergence_factor: f64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DreamVision {
+    pub timestamp: DateTime<Utc>,
+    pub title: String,
+    pub symbols: Vec<String>,
 }
 
 impl Default for AppState {

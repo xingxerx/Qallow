@@ -18,6 +18,7 @@ pub struct MainUiHandles {
     pub audit: audit_log::AuditLogView,
     pub status_indicator: button::Button,
     pub header_start_btn: button::Button,
+    pub tabs: group::Tabs,
 }
 
 pub fn create_main_ui(_wind: &mut window::Window, state: Arc<Mutex<AppState>>) -> MainUiHandles {
@@ -80,6 +81,7 @@ pub fn create_main_ui(_wind: &mut window::Window, state: Arc<Mutex<AppState>>) -
         audit: audit_view,
         status_indicator,
         header_start_btn,
+        tabs,
     }
 }
 

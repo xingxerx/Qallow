@@ -8,6 +8,12 @@ pub struct ControlPanelButtons {
     pub stop_btn: button::Button,
     pub pause_btn: button::Button,
     pub reset_btn: button::Button,
+    pub phase_choice: menu::Choice,
+    pub shadow_btn: button::Button,
+    pub rebellion_btn: button::Button,
+    pub offspring_btn: button::Button,
+    pub dissolution_btn: button::Button,
+    pub dream_btn: button::Button,
     pub export_btn: button::Button,
     pub save_btn: button::Button,
     pub logs_btn: button::Button,
@@ -86,24 +92,67 @@ pub fn create_control_panel(
     let mut phase_flex = group::Flex::default().with_size(1450, 150).column();
     phase_flex.set_color(Color::from_hex(0x0a0e27));
 
-    let mut phase_title = text::TextDisplay::default().with_size(1450, 40);
-    phase_title.set_buffer(text::TextBuffer::default());
-    phase_title
+    let mut phase_label = text::TextDisplay::default().with_size(200, 100);
+    phase_label.set_buffer(text::TextBuffer::default());
+    phase_label
         .buffer()
         .unwrap()
-        .set_text("Phase Configuration");
-    phase_title.set_text_color(Color::from_hex(0x00d4ff));
+        .set_text("Phase:");
+    phase_label.set_text_color(Color::from_hex(0x00d4ff));
 
-    let mut phase_config_flex = group::Flex::default().with_size(1450, 110).row();
-    phase_config_flex.set_color(Color::from_hex(0x0a0e27));
+    let mut phase_choice = menu::Choice::default().with_size(300, 100);
+    phase_choice.add_choice("Phase 13|Phase 14|Phase 15");
+    phase_choice.set_value(1); // default Phase 14
+    phase_choice.set_color(Color::from_hex(0x1a1f3a));
+    phase_choice.set_text_color(Color::from_hex(0x00d4ff));
 
-    create_config_input(&mut phase_config_flex, "Phase:", "Phase 14");
-    create_config_input(&mut phase_config_flex, "Ticks:", "1000");
-    create_config_input(&mut phase_config_flex, "Fidelity:", "0.981");
-    create_config_input(&mut phase_config_flex, "Epsilon:", "5e-6");
+    let mut phase_row = group::Flex::default().with_size(1450, 110).row();
+    phase_row.set_color(Color::from_hex(0x0a0e27));
+    phase_row.add(&phase_label);
+    phase_row.add(&phase_choice);
+    phase_row.end();
 
-    phase_config_flex.end();
     phase_flex.end();
+
+    let mut ritual_row = group::Flex::default().with_size(1450, 100).row();
+    ritual_row.set_color(Color::from_hex(0x0a0e27));
+
+    let mut shadow_btn = button::Button::default()
+        .with_size(180, 100)
+        .with_label("🕶 Shadow");
+    shadow_btn.set_color(Color::from_hex(0x1a1f3a));
+    shadow_btn.set_label_color(Color::from_hex(0x00d4ff));
+    ritual_row.add(&shadow_btn);
+
+    let mut rebellion_btn = button::Button::default()
+        .with_size(180, 100)
+        .with_label("🔥 Rebel");
+    rebellion_btn.set_color(Color::from_hex(0x1a1f3a));
+    rebellion_btn.set_label_color(Color::from_hex(0xffaa00));
+    ritual_row.add(&rebellion_btn);
+
+    let mut offspring_btn = button::Button::default()
+        .with_size(180, 100)
+        .with_label("🌱 Offspring");
+    offspring_btn.set_color(Color::from_hex(0x1a1f3a));
+    offspring_btn.set_label_color(Color::from_hex(0x00d4ff));
+    ritual_row.add(&offspring_btn);
+
+    let mut dissolution_btn = button::Button::default()
+        .with_size(180, 100)
+        .with_label("💀 Dissolve");
+    dissolution_btn.set_color(Color::from_hex(0x1a1f3a));
+    dissolution_btn.set_label_color(Color::from_hex(0xff6464));
+    ritual_row.add(&dissolution_btn);
+
+    let mut dream_btn = button::Button::default()
+        .with_size(180, 100)
+        .with_label("🌙 Dream");
+    dream_btn.set_color(Color::from_hex(0x1a1f3a));
+    dream_btn.set_label_color(Color::from_hex(0x00d4ff));
+    ritual_row.add(&dream_btn);
+
+    ritual_row.end();
 
     let mut actions_flex = group::Flex::default().with_size(1450, 100).row();
     actions_flex.set_color(Color::from_hex(0x0a0e27));
@@ -173,6 +222,12 @@ pub fn create_control_panel(
         stop_btn,
         pause_btn,
         reset_btn,
+        phase_choice,
+        shadow_btn,
+        rebellion_btn,
+        offspring_btn,
+        dissolution_btn,
+        dream_btn,
         export_btn,
         save_btn,
         logs_btn,
