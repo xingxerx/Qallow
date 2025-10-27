@@ -1,7 +1,5 @@
 [workspace]
 members = [
-    "rust/app",
-    "rust/ui",
     "native_app",
 ]
 default-members = ["native_app"]
