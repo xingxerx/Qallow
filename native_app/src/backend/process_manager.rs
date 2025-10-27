@@ -158,6 +158,97 @@ impl ProcessManager {
         }
     }
 
+    /// Start unified system - runs all phases (13, 14, 15) together
+    pub fn start_vm_unified(&mut self, build: BuildType, ticks: u32) -> Result<(), String> {
+        if self.process.is_some() {
+            return Err("VM already running".to_string());
+        }
+
+        let binary_path = match build {
+            BuildType::CPU => "/root/Qallow/build/qallow",
+            BuildType::CUDA => {
+                if Path::new("/root/Qallow/build/qallow_unified_cuda").exists() {
+                    "/root/Qallow/build/qallow_unified_cuda"
+                } else if Path::new("/root/Qallow/build/qallow_unified").exists() {
+                    "/root/Qallow/build/qallow_unified"
+                } else if Path::new("/root/Qallow/build/qallow_unified_cpu").exists() {
+                    "/root/Qallow/build/qallow_unified_cpu"
+                } else {
+                    return Err(
+                        "Could not find CUDA unified binary (expected qallow_unified_cuda)".into(),
+                    );
+                }
+            }
+        };
+
+        let ticks_arg = format!("--ticks={}", ticks);
+
+        // Run unified pipeline: phase 13 -> 14 -> 15
+        let mut cmd = Command::new(binary_path);
+        cmd.arg("run")
+            .arg("unified")
+            .arg(&ticks_arg)
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped());
+
+        match cmd.spawn() {
+            Ok(mut child) => {
+                let stdout = child.stdout.take();
+                let stderr = child.stderr.take();
+                let tx = self.output_tx.clone();
+
+                // Store metadata - use Phase14 as representative
+                let start_time = SystemTime::now()
+                    .duration_since(UNIX_EPOCH)
+                    .unwrap_or_default()
+                    .as_secs();
+                self.metadata = Some(ProcessMetadata {
+                    start_time,
+                    phase: Phase::Phase14,
+                    build,
+                    ticks,
+                });
+                self.retry_count = 0;
+
+                // Spawn thread to read stdout
+                if let Some(stdout) = stdout {
+                    let tx_clone = tx.clone();
+                    std::thread::spawn(move || {
+                        let reader = BufReader::new(stdout);
+                        for line in reader.lines() {
+                            if let Ok(line) = line {
+                                let _ = tx_clone.send(line);
+                            }
+                        }
+                    });
+                }
+
+                // Spawn thread to read stderr
+                if let Some(stderr) = stderr {
+                    let tx_clone = tx.clone();
+                    std::thread::spawn(move || {
+                        let reader = BufReader::new(stderr);
+                        for line in reader.lines() {
+                            if let Ok(line) = line {
+                                let _ = tx_clone.send(format!("[ERROR] {}", line));
+                            }
+                        }
+                    });
+                }
+
+                self.process = Some(child);
+                Ok(())
+            }
+            Err(e) => {
+                self.retry_count += 1;
+                Err(format!(
+                    "Failed to start unified process (attempt {}): {}",
+                    self.retry_count, e
+                ))
+            }
+        }
+    }
+
     pub fn stop_vm(&mut self) -> Result<(), String> {
         if let Some(mut child) = self.process.take() {
             // Try graceful termination first

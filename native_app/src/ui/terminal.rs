@@ -26,7 +26,7 @@ pub fn create_terminal(tabs: &mut group::Tabs, state: Arc<Mutex<AppState>>) -> T
 
     let mut terminal_buffer = text::TextBuffer::default();
 
-    let mut terminal_output = text::TextEditor::default().with_size(1450, 850);
+    let mut terminal_output = text::TextDisplay::default().with_size(1450, 850);
     terminal_output.set_buffer(terminal_buffer.clone());
     terminal_output.set_color(Color::from_hex(0x0a0e27));
     terminal_output.set_text_color(Color::from_hex(0x00ff64));

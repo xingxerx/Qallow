@@ -18,7 +18,7 @@ pub struct MainUiHandles {
     pub audit: audit_log::AuditLogView,
     pub status_indicator: button::Button,
     pub header_start_btn: button::Button,
-    pub tabs: group::Tabs,
+    pub dungeons: dungeons::DungeonsView,
 }
 
 pub fn create_main_ui(_wind: &mut window::Window, state: Arc<Mutex<AppState>>) -> MainUiHandles {
@@ -61,7 +61,7 @@ pub fn create_main_ui(_wind: &mut window::Window, state: Arc<Mutex<AppState>>) -
     let control_buttons = control_panel::create_control_panel(&mut tabs, state.clone());
 
     // Dungeons tab
-    let _dungeons = dungeons::create_dungeons_tab(&mut tabs, state.clone());
+    let dungeons_view = dungeons::create_dungeons_tab(&mut tabs, state.clone());
 
     // Settings tab
     settings::create_settings_panel(&mut tabs, state.clone());
@@ -81,7 +81,7 @@ pub fn create_main_ui(_wind: &mut window::Window, state: Arc<Mutex<AppState>>) -
         audit: audit_view,
         status_indicator,
         header_start_btn,
-        tabs,
+        dungeons: dungeons_view,
     }
 }
 

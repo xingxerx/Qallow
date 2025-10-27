@@ -1,0 +1,151 @@
+.audit-log-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: rgba(26, 31, 58, 0.8);
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.audit-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+  background: rgba(0, 212, 255, 0.05);
+}
+
+.audit-header h3 {
+  color: #00d4ff;
+  font-size: 16px;
+  margin: 0;
+}
+
+.filter-controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.filter-select {
+  padding: 6px 12px;
+  background: rgba(0, 212, 255, 0.1);
+  border: 1px solid #00d4ff;
+  color: #00d4ff;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.filter-select:hover {
+  background: rgba(0, 212, 255, 0.2);
+}
+
+.log-count {
+  font-size: 12px;
+  color: rgba(0, 212, 255, 0.6);
+}
+
+.audit-logs {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+}
+
+.audit-empty {
+  color: rgba(0, 212, 255, 0.5);
+  text-align: center;
+  padding: 40px 20px;
+  font-style: italic;
+}
+
+.audit-entry {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  margin-bottom: 8px;
+  background: rgba(0, 212, 255, 0.05);
+  border-left: 3px solid #00d4ff;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.audit-entry:hover {
+  background: rgba(0, 212, 255, 0.1);
+  box-shadow: 0 0 10px rgba(0, 212, 255, 0.1);
+}
+
+.audit-entry.info {
+  border-left-color: #00d4ff;
+}
+
+.audit-entry.success {
+  border-left-color: #00ff64;
+}
+
+.audit-entry.warning {
+  border-left-color: #ffb347;
+}
+
+.audit-entry.error {
+  border-left-color: #ff6464;
+}
+
+.entry-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+  min-width: 24px;
+  text-align: center;
+}
+
+.entry-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.entry-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.entry-component {
+  font-weight: bold;
+  color: #00d4ff;
+  font-size: 12px;
+}
+
+.entry-time {
+  font-size: 11px;
+  color: rgba(0, 212, 255, 0.5);
+  flex-shrink: 0;
+}
+
+.entry-message {
+  color: rgba(0, 212, 255, 0.8);
+  font-size: 13px;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+/* Scrollbar */
+.audit-logs::-webkit-scrollbar {
+  width: 8px;
+}
+
+.audit-logs::-webkit-scrollbar-track {
+  background: rgba(0, 212, 255, 0.05);
+}
+
+.audit-logs::-webkit-scrollbar-thumb {
+  background: #00d4ff;
+  border-radius: 4px;
+}
+
+.audit-logs::-webkit-scrollbar-thumb:hover {
+  background: #00ff64;
+}
+

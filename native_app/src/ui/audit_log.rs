@@ -9,6 +9,7 @@ pub struct AuditLogView {
     pub filter_choice: menu::Choice,
     pub clear_btn: button::Button,
     pub export_btn: button::Button,
+    pub copy_btn: button::Button,
 }
 
 pub fn create_audit_log(tabs: &mut group::Tabs, state: Arc<Mutex<AppState>>) -> AuditLogView {
@@ -42,7 +43,7 @@ pub fn create_audit_log(tabs: &mut group::Tabs, state: Arc<Mutex<AppState>>) -> 
     filter_flex.end();
 
     let mut log_buffer = text::TextBuffer::default();
-    let mut log_display = text::TextEditor::default().with_size(1450, 800);
+    let mut log_display = text::TextDisplay::default().with_size(1450, 800);
     log_display.set_buffer(log_buffer.clone());
     log_display.set_color(Color::from_hex(0x0a0e27));
     log_display.set_text_color(Color::from_hex(0x00ff64));
@@ -91,6 +92,16 @@ pub fn create_audit_log(tabs: &mut group::Tabs, state: Arc<Mutex<AppState>>) -> 
     export_btn.set_color(Color::from_hex(0x1a1f3a));
     export_btn.set_label_color(Color::from_hex(0x00d4ff));
 
+    let mut copy_btn = button::Button::default()
+        .with_size(100, 50)
+        .with_label("Copy");
+    copy_btn.set_color(Color::from_hex(0x1a1f3a));
+    copy_btn.set_label_color(Color::from_hex(0x00d4ff));
+
+    button_flex.add(&clear_btn);
+    button_flex.add(&export_btn);
+    button_flex.add(&copy_btn);
+
     let mut search_label = text::TextDisplay::default().with_size(100, 50);
     let mut search_label_buffer = text::TextBuffer::default();
     search_label.set_buffer(search_label_buffer.clone());
@@ -102,6 +113,8 @@ pub fn create_audit_log(tabs: &mut group::Tabs, state: Arc<Mutex<AppState>>) -> 
     search_input.set_buffer(search_buffer);
     search_input.set_color(Color::from_hex(0x1a1f3a));
     search_input.set_text_color(Color::White);
+    button_flex.add(&search_label);
+    button_flex.add(&search_input);
 
     button_flex.end();
 
@@ -114,5 +127,6 @@ pub fn create_audit_log(tabs: &mut group::Tabs, state: Arc<Mutex<AppState>>) -> 
         filter_choice,
         clear_btn,
         export_btn,
+        copy_btn,
     }
 }

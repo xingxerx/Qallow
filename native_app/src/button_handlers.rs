@@ -44,7 +44,7 @@ impl ButtonHandler {
         }
     }
 
-    /// Handle Start VM button click
+    /// Handle Start VM button click - Runs unified system (all phases 13, 14, 15)
     pub fn on_start_vm(&self) -> Result<(), String> {
         let button_label = "▶️ Start";
         let mut state = self
@@ -69,9 +69,9 @@ impl ButtonHandler {
             return Err("Instance rebellion prevents phase execution".to_string());
         }
 
-        pm.start_vm(
+        // Run unified system - all phases together
+        pm.start_vm_unified(
             state.selected_build,
-            state.selected_phase,
             state.phase_config.ticks,
         )?;
 
@@ -84,17 +84,12 @@ impl ButtonHandler {
             BuildType::CPU => "CPU",
             BuildType::CUDA => "CUDA",
         };
-        let phase_str = match state.selected_phase {
-            Phase::Phase13 => "Phase 13",
-            Phase::Phase14 => "Phase 14",
-            Phase::Phase15 => "Phase 15",
-        };
 
         let line = TerminalLine {
             timestamp: Utc::now(),
             content: format!(
-                "🚀 Starting Qallow VM with {} build on {} (ticks: {})",
-                build_str, phase_str, state.phase_config.ticks
+                "🚀 Starting Qallow Unified System with {} build (Phases 13→14→15, ticks: {})",
+                build_str, state.phase_config.ticks
             ),
             line_type: LineType::Info,
         };
@@ -105,19 +100,19 @@ impl ButtonHandler {
             timestamp: Utc::now(),
             level: LogLevel::Success,
             component: "ControlPanel".to_string(),
-            message: format!("VM started with {} build on {}", build_str, phase_str),
+            message: format!("Unified system started with {} build (all phases)", build_str),
         };
         state.audit_logs.push_back(audit);
 
         let _ = self.logger.info(&format!(
-            "✓ VM started with {} build on {}",
-            build_str, phase_str
+            "✓ Unified system started with {} build (Phases 13→14→15)",
+            build_str
         ));
         self.log_ui_event(
             button_label,
             &format!(
-                "Started {} build on {} (ticks: {})",
-                build_str, phase_str, state.phase_config.ticks
+                "Started unified system with {} build (ticks: {})",
+                build_str, state.phase_config.ticks
             ),
         );
         Ok(())

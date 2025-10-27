@@ -1,6 +1,7 @@
 #![allow(dead_code)]
 
 mod backend;
+mod clipboard;
 mod button_handlers;
 mod codebase_manager;
 mod config;
@@ -15,6 +16,7 @@ mod ui;
 mod utils;
 
 use backend::process_manager::ProcessManager;
+use clipboard::ClipboardService;
 use button_handlers::ButtonHandler;
 use codebase_manager::CodebaseManager;
 use config::{AppConfig, ConfigManager};
@@ -153,9 +155,14 @@ fn main() {
     let mut terminal_export_btn = ui_handles.terminal.export_btn.clone();
     let mut audit_clear_btn = ui_handles.audit.clear_btn.clone();
     let mut audit_export_btn = ui_handles.audit.export_btn.clone();
+    let mut audit_copy_btn = ui_handles.audit.copy_btn.clone();
     let status_indicator = ui_handles.status_indicator.clone();
     let mut header_start_btn = ui_handles.header_start_btn.clone();
     let mut control_buttons = ui_handles.control;
+    let mut dungeon_copy_status_btn = ui_handles.dungeons.copy_status_btn.clone();
+    let mut dungeon_copy_log_btn = ui_handles.dungeons.copy_log_btn.clone();
+    let dungeon_status_editor = ui_handles.dungeons.status_display.clone();
+    let dungeon_log_editor = ui_handles.dungeons.log_display.clone();
 
     refresh_terminal(&state, &terminal_buffer);
     refresh_audit(
@@ -606,9 +613,10 @@ fn main() {
 
     terminal_copy_btn.set_callback({
         let terminal_buffer = terminal_buffer.clone();
+        let clipboard = ClipboardService::global();
         move |_| {
             let text = terminal_buffer.text();
-            fltk::app::copy(&text);
+            clipboard.copy_text(&text);
             dialog::message_default("Terminal output copied to clipboard");
         }
     });
@@ -651,6 +659,38 @@ fn main() {
             match fs::write("qallow_audit_export.log", text) {
                 Ok(_) => dialog::message_default("Audit log exported to qallow_audit_export.log"),
                 Err(e) => dialog::alert_default(&format!("Failed to export audit log: {}", e)),
+            }
+        }
+    });
+
+    audit_copy_btn.set_callback({
+        let audit_buffer = audit_buffer.clone();
+        let clipboard = ClipboardService::global();
+        move |_| {
+            let text = audit_buffer.text();
+            clipboard.copy_text(&text);
+            dialog::message_default("Audit log copied to clipboard");
+        }
+    });
+
+    dungeon_copy_status_btn.set_callback({
+        let editor = dungeon_status_editor.clone();
+        let clipboard = ClipboardService::global();
+        move |_| {
+            if let Some(buf) = editor.buffer() {
+                clipboard.copy_text(&buf.text());
+                dialog::message_default("Dungeon status copied to clipboard");
+            }
+        }
+    });
+
+    dungeon_copy_log_btn.set_callback({
+        let editor = dungeon_log_editor.clone();
+        let clipboard = ClipboardService::global();
+        move |_| {
+            if let Some(buf) = editor.buffer() {
+                clipboard.copy_text(&buf.text());
+                dialog::message_default("Dungeon log copied to clipboard");
             }
         }
     });

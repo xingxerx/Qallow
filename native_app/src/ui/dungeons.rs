@@ -4,11 +4,14 @@ use fltk::enums::Color;
 use fltk::{prelude::*, *};
 use std::sync::{Arc, Mutex};
 
+#[derive(Clone)]
 pub struct DungeonsView {
     pub start_btn: button::Button,
     pub stop_btn: button::Button,
     pub log_display: text::TextDisplay,
     pub status_display: text::TextDisplay,
+    pub copy_status_btn: button::Button,
+    pub copy_log_btn: button::Button,
 }
 
 pub fn create_dungeons_tab(
@@ -31,17 +34,35 @@ pub fn create_dungeons_tab(
     control_row.add(&stop_btn);
     control_row.end();
 
+    let status_buffer = text::TextBuffer::default();
     let mut status_display = text::TextDisplay::default().with_size(1450, 100);
-    status_display.set_buffer(text::TextBuffer::default());
+    status_display.set_buffer(status_buffer.clone());
     status_display
         .buffer()
         .unwrap()
         .set_text("Select a dungeon and press start to begin the ritual.");
     status_display.set_text_color(Color::from_hex(0x00d4ff));
 
-    let mut log_display = text::TextDisplay::default().with_size(1450, 770);
-    log_display.set_buffer(text::TextBuffer::default());
+    let log_buffer = text::TextBuffer::default();
+    let mut log_display = text::TextDisplay::default().with_size(1450, 720);
+    log_display.set_buffer(log_buffer.clone());
     log_display.set_text_color(Color::White);
+
+    let mut copy_row = group::Flex::default().with_size(1450, 50).row();
+    let mut copy_status_btn = button::Button::default()
+        .with_size(120, 50)
+        .with_label("Copy Status");
+    copy_status_btn.set_color(Color::from_hex(0x1a1f3a));
+    copy_status_btn.set_label_color(Color::from_hex(0x00d4ff));
+    copy_row.add(&copy_status_btn);
+
+    let mut copy_log_btn = button::Button::default()
+        .with_size(120, 50)
+        .with_label("Copy Log");
+    copy_log_btn.set_color(Color::from_hex(0x1a1f3a));
+    copy_log_btn.set_label_color(Color::from_hex(0x00d4ff));
+    copy_row.add(&copy_log_btn);
+    copy_row.end();
 
     root.end();
     group.end();
@@ -93,5 +114,7 @@ pub fn create_dungeons_tab(
         stop_btn,
         log_display,
         status_display,
+        copy_status_btn,
+        copy_log_btn,
     }
 }
