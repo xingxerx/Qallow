@@ -17,7 +17,7 @@ pub fn create_dungeons_tab(
     let group = group::Group::default().with_label("🗺️ Dungeons");
     let root = group::Flex::default().with_size(1450, 950).column();
 
-    let control_row = group::Flex::default().with_size(1450, 80).row();
+    let mut control_row = group::Flex::default().with_size(1450, 80).row();
     let mut start_btn = button::Button::default().with_size(160, 80).with_label("▶ Start");
     start_btn.set_color(enums::Color::from_hex(0x00ff64));
     start_btn.set_label_color(enums::Color::Black);

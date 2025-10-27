@@ -4,6 +4,7 @@ mod backend;
 mod button_handlers;
 mod codebase_manager;
 mod config;
+mod dungeons;
 mod error_recovery;
 mod logging;
 mod messaging;
