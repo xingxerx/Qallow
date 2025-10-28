@@ -295,7 +295,17 @@ fn main() {
         let terminal_buffer = terminal_buffer.clone();
         move |choice| {
             if let Some(label) = choice.choice() {
-                let phase = if label.contains("15") {
+                let phase = if label.contains("20") {
+                    Phase::Phase20
+                } else if label.contains("19") {
+                    Phase::Phase19
+                } else if label.contains("18") {
+                    Phase::Phase18
+                } else if label.contains("17") {
+                    Phase::Phase17
+                } else if label.contains("16") {
+                    Phase::Phase16
+                } else if label.contains("15") {
                     Phase::Phase15
                 } else if label.contains("13") {
                     Phase::Phase13

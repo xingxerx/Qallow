@@ -89,6 +89,7 @@ impl ProcessManager {
             Phase::Phase13 => "13",
             Phase::Phase14 => "14",
             Phase::Phase15 => "15",
+            _ => todo!(),
         };
 
         let ticks_arg = format!("--ticks={}", ticks);

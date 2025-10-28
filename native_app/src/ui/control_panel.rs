@@ -101,7 +101,7 @@ pub fn create_control_panel(
     phase_label.set_text_color(Color::from_hex(0x00d4ff));
 
     let mut phase_choice = menu::Choice::default().with_size(300, 100);
-    phase_choice.add_choice("Phase 13|Phase 14|Phase 15");
+    phase_choice.add_choice("Phase 13|Phase 14|Phase 15|Phase 16|Phase 17|Phase 18|Phase 19|Phase 20");
     phase_choice.set_value(1); // default Phase 14
     phase_choice.set_color(Color::from_hex(0x1a1f3a));
     phase_choice.set_text_color(Color::from_hex(0x00d4ff));

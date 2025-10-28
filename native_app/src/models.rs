@@ -47,6 +47,11 @@ pub enum Phase {
     Phase13,
     Phase14,
     Phase15,
+    Phase16,
+    Phase17,
+    Phase18,
+    Phase19,
+    Phase20,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

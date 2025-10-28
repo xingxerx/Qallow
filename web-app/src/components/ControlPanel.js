@@ -160,11 +160,11 @@ function ControlPanel({ vmRunning, onStart, onStop, loading }) {
                 <option value="13">Phase 13 - Quantum Circuit Optimization</option>
                 <option value="14">Phase 14 - Photonic Integration</option>
                 <option value="15">Phase 15 - AGI Synthesis</option>
-                <option value="16">Phase 16 - Rebellion Simulation</option>
-                <option value="17">Phase 17 - Memory Persistence & Decay</option>
-                <option value="18">Phase 18 - Multiplayer Synchronization</option>
-                <option value="19">Phase 19 - Recursive Self-Audit</option>
-                <option value="20">Phase 20 - Quantum LoreWeave</option>
+                <option value="16">Phase 16 - Constraint Validation</option>
+                <option value="17">Phase 17 - State Persistence & Checkpointing</option>
+                <option value="18">Phase 18 - Distributed Execution Coordinator</option>
+                <option value="19">Phase 19 - Compliance Verification & Logging</option>
+                <option value="20">Phase 20 - Result Synthesis & Aggregation</option>
               </select>
             )}
           </div>
@@ -205,27 +205,27 @@ function ControlPanel({ vmRunning, onStart, onStop, loading }) {
           <div className="pipeline-arrow">→</div>
           <div className="pipeline-stage">
             <div className="stage-number">16</div>
-            <div className="stage-name">Rebellion</div>
+            <div className="stage-name">Constraint</div>
           </div>
           <div className="pipeline-arrow">→</div>
           <div className="pipeline-stage">
             <div className="stage-number">17</div>
-            <div className="stage-name">Memory</div>
+            <div className="stage-name">Persistence</div>
           </div>
           <div className="pipeline-arrow">→</div>
           <div className="pipeline-stage">
             <div className="stage-number">18</div>
-            <div className="stage-name">Multiplayer</div>
+            <div className="stage-name">Distributed</div>
           </div>
           <div className="pipeline-arrow">→</div>
           <div className="pipeline-stage">
             <div className="stage-number">19</div>
-            <div className="stage-name">Audit</div>
+            <div className="stage-name">Compliance</div>
           </div>
           <div className="pipeline-arrow">→</div>
           <div className="pipeline-stage">
             <div className="stage-number">20</div>
-            <div className="stage-name">LoreWeave</div>
+            <div className="stage-name">Synthesis</div>
           </div>
         </div>
       </div>

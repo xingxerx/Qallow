@@ -399,12 +399,14 @@ impl ButtonHandler {
             Phase::Phase13 => "Phase 13",
             Phase::Phase14 => "Phase 14",
             Phase::Phase15 => "Phase 15",
+            _ => todo!(),
         };
 
         let phase_desc = match phase {
             Phase::Phase13 => "Quantum Circuit Optimization",
             Phase::Phase14 => "Photonic Integration",
             Phase::Phase15 => "AGI Synthesis",
+            _ => todo!(),
         };
 
         state.selected_phase = phase;
