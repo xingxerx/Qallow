@@ -13,6 +13,7 @@ const http = require('http');
 const WebSocket = require('ws');
 const path = require('path');
 const apiWeb = require('./api-web');
+const EntanglementServer = require('./entanglement-server');
 
 // Initialize Express app
 const app = express();
@@ -104,6 +105,12 @@ wss.on('connection', (ws) => {
   });
 });
 
+// Start entanglement server
+const entanglementServer = new EntanglementServer(3002);
+entanglementServer.start().catch(err => {
+  logger.error('Failed to start entanglement server', err);
+});
+
 // Start server
 server.listen(PORT, () => {
   logger.success(`╔════════════════════════════════════════════════════════════╗`);
@@ -111,6 +118,7 @@ server.listen(PORT, () => {
   logger.success(`╚════════════════════════════════════════════════════════════╝`);
   logger.success(`Web API server running on http://localhost:${PORT}`);
   logger.success(`WebSocket available at ws://localhost:${PORT}`);
+  logger.success(`Entanglement server running on ws://localhost:3002`);
   logger.success(`React app connects to this server for VM management`);
   logger.success(`Status: Ready for web app connections`);
   logger.info('');
