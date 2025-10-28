@@ -8,7 +8,7 @@ Qallow is a quantum-photonic AGI system that combines:
 - **Quantum Computing**: Quantum algorithms and optimization
 - **Ethics-First Design**: Safety, Clarity, and Human values
 - **Real-time Monitoring**: Live dashboards and telemetry
-- **Multi-Phase Pipeline**: 13+ research phases
+- **Multi-Phase Pipeline**: 20 research phases
 
 ## Step 1: Verify Installation
 

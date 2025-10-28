@@ -44,7 +44,7 @@ phase14_runner (main.c) ← Python QAOA tuner (subprocess)
     ↓
 phase15_runner (main.c)
     ↓
-VM state machine + ethics + governance (13+ phases)
+VM state machine + ethics + governance (20 phases)
 ```
 
 ### Rust Quantum Pipeline (Pure Algorithms)
@@ -278,7 +278,7 @@ qallow_quantum help
 | **Unified command** | ❌ | ✅ |
 | **Automatic orchestration** | ❌ | ✅ |
 | **QAOA native** | ❌ (Python subprocess) | ✅ (Rust) |
-| **Quantum-focused** | ❌ (13+ phases) | ✅ (Phase 14/15 only) |
+| **Quantum-focused** | ❌ (20 phases) | ✅ (Phase 14/15 only) |
 | **JSON exports** | ✅ | ✅ (enhanced) |
 | **Performance** | ~3s (with tuner) | ~3s (native) |
 | **Portability** | Linux + CUDA | Any OS + Rust |

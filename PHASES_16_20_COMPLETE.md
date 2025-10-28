@@ -59,7 +59,7 @@ Successfully implemented 5 advanced quantum-enhanced phases (16-20) extending th
 **Updated**: `web-app/src/components/ControlPanel.js`
 - Added phases 16-20 to phase selector
 - Updated execution mode description (1→20 Loop)
-- Extended pipeline visualization (13 phases shown)
+- Extended pipeline visualization (20 phases shown)
 - All controls support new phases
 
 ### 4. Documentation

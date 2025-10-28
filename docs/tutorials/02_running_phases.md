@@ -4,7 +4,7 @@
 
 ## Overview of Phases
 
-Qallow has 13+ research phases:
+Qallow has 20 research phases:
 
 | Phase | Name | Purpose | Time |
 |-------|------|---------|------|

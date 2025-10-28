@@ -177,7 +177,7 @@ CSV/JSON Logs (data/logs/)
 ## ✨ Key Features Verified
 
 ✅ **Unified AGI Framework**
-- 13+ research phases accessible from single entry point
+- 20 research phases accessible from single entry point
 - Modular architecture with clean boundaries
 - Deterministic execution with reproducible results
 

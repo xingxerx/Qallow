@@ -1,7 +1,7 @@
 # Qallow Capabilities & Glossary
 
 ## Runtime Highlights
-- Unified quantum-photonic AGI runtime that strings together 13+ research phases behind a single CLI (`qallow`, `qallow_unified`).
+- Unified quantum-photonic AGI runtime that strings together 20 research phases behind a single CLI (`qallow`, `qallow_unified`).
 - Dual hardware backends: portable CPU implementation plus CUDA acceleration, with profiling hooks for Nsight and custom timers.
 - Ethics-first orchestration enforcing the sustainability + compassion + harmony axiom (E = S + C + H) across ingestion, reasoning, and feedback loops.
 - Closed-loop telemetry with deterministic CSV/JSON outputs, live dashboards, and audit trails under `data/logs/` and `data/quantum/`.

@@ -2,7 +2,7 @@
 
 ## 🏗️ System Overview
 
-Qallow is an **integrated quantum-photonic AGI runtime** with 13 research phases working together as one unified system:
+Qallow is an **integrated quantum-photonic AGI runtime** with 20 research phases working together as one unified system:
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -182,7 +182,7 @@ Output & Feedback
 
 ✅ **Single Entry Point**
 - One command: `./build/qallow`
-- All 13 phases accessible
+- All 20 phases accessible
 - Unified configuration
 
 ✅ **Hardware Flexibility**
@@ -236,7 +236,7 @@ Output & Feedback
 
 | Metric | Value |
 |--------|-------|
-| **Phases** | 13 research phases |
+| **Phases** | 20 research phases |
 | **Hardware** | CPU & CUDA |
 | **Telemetry** | Full coverage |
 | **Ethics** | Integrated |

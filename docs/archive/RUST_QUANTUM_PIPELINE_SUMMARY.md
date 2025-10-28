@@ -17,7 +17,7 @@ Successfully implemented a **quantum-algorithm-focused unified pipeline** in Rus
   ./build/qallow phase 15 --ticks=800 --eps=5e-6 --export=data/logs/phase15.json
   ```
 - **Manual orchestration:** User must capture Phase 14 output and pass to Phase 15
-- **Scope:** General-purpose VM with 13+ phases and governance layers
+- **Scope:** General-purpose VM with 20 phases and governance layers
 - **QAOA tuner:** Python subprocess (Qiskit Estimator, had import failures)
 - **Build:** C + CMake + optional CUDA
 

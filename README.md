@@ -5,7 +5,7 @@
 **The Complete Quantum-Photonic AGI System**
 
 [![Status](https://img.shields.io/badge/Status-Production%20Ready-brightgreen)]()
-[![Phases](https://img.shields.io/badge/Phases-13%20Research%20Phases-blue)]()
+[![Phases](https://img.shields.io/badge/Phases-20%20Research%20Phases-blue)]()
 [![Hardware](https://img.shields.io/badge/Hardware-CPU%20%26%20CUDA-green)]()
 [![License](https://img.shields.io/badge/License-MIT-blue)]()
 
@@ -23,14 +23,14 @@
 - **⚡ Hardware Acceleration** – CPU fallback with CUDA optimization
 - **📊 Closed-Loop Telemetry** – performance, ethics, and operator feedback
 
-The project ships **13 research phases** that can be executed from a single entry point, with deterministic telemetry for reproducible analysis.
+The project ships **20 research phases** that can be executed from a single entry point, with deterministic telemetry for reproducible analysis.
 
 ---
 
 ## ✨ Key Features
 
 ✅ **Unified AGI Framework**
-- 13 research phases (adaptive chronometrics, multi-pocket orchestration, ethics monitoring, etc.)
+- 20 research phases (adaptive chronometrics, multi-pocket orchestration, ethics monitoring, quantum acceleration, etc.)
 - Single entry point for complete workflow
 - Modular architecture with clean boundaries
 
@@ -116,7 +116,7 @@ python examples/quantum_adaptive_demo.py --episodes 5 --simulate
 
 ### How Qallow Works as One Unit
 
-Qallow is designed as an **integrated quantum-photonic AGI system** with 13 research phases working together:
+Qallow is designed as an **integrated quantum-photonic AGI system** with 20 research phases working together:
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -246,7 +246,7 @@ The script:
 
 ## 📊 Phase Overview
 
-All 13 research phases with their purposes, inputs, and outputs:
+All 20 research phases with their purposes, inputs, and outputs:
 
 | Phase | Purpose | Inputs | Outputs |
 |-------|---------|--------|---------|

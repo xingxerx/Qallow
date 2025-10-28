@@ -25,14 +25,14 @@ The main `/root/Qallow/README.md` has been completely redesigned to be more visu
 
 ### 4. **System Architecture** (Lines 115-245)
 **NEW COMPREHENSIVE SECTION** showing:
-- Complete system diagram with all 13 phases
+- Complete system diagram with all 20 phases
 - How phases work together as one unit
 - Module structure breakdown
 - Data flow architecture
 - Adaptive quantum decision demo
 
 ### 5. **Phase Overview Table** (Lines 247-267)
-- All 13 phases with purposes, inputs, outputs
+- All 20 phases with purposes, inputs, outputs
 - Better formatting with emojis
 - Link to detailed specs
 
@@ -176,7 +176,7 @@ The updated README now clearly shows:
 
 Users can now:
 - Understand the complete system architecture
-- See how all 13 phases work together
+- See how all 20 phases work together
 - Build and run the system with clear examples
 - Integrate quantum optimization (Phase 14-15)
 - Monitor with comprehensive telemetry
