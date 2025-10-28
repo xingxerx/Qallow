@@ -1617,9 +1617,9 @@ static void qallow_print_phase_help(void) {
     printf("  13 [options]  Run the Phase 13 harmonic propagation\n");
     printf("  14 [options]  Run the Phase 14 coherence-lattice integration\n");
     printf("  15 [options]  Run the Phase 15 convergence & lock-in\n");
-    printf("  16 [options]  Run the Phase 16 rebellion simulation\n");
-    printf("  17 [options]  Run the Phase 17 memory persistence & decay\n");
-    printf("  18 [options]  Run the Phase 18 multiplayer synchronization\n");
+    printf("  16 [options]  Run the Phase 16 constraint validation\n");
+    printf("  17 [options]  Run the Phase 17 state persistence & checkpointing\n");
+    printf("  18 [options]  Run the Phase 18 distributed execution coordinator\n");
     printf("  19 [options]  Run the Phase 19 recursive self-audit\n");
     printf("  20 [options]  Run the Phase 20 quantum loreweave\n");
     printf("  help          Show this help message for the phase group\n\n");

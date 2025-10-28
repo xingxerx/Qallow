@@ -104,13 +104,13 @@ tail -f data/logs/phases_*.log
 
 | Phase | Name | Type |
 |-------|------|------|
-| 1-10 | Foundation & Ethics | Core |
-| 11-15 | Quantum & AGI | Quantum |
-| 16 | Rebellion Simulation | Advanced |
-| 17 | Memory Persistence | Advanced |
-| 18 | Multiplayer Sync | Advanced |
-| 19 | Self-Audit | Advanced |
-| 20 | Quantum LoreWeave | Advanced |
+| 1-10 | Initialization & Validation | Core |
+| 11-15 | Quantum Optimization | Quantum |
+| 16 | Constraint Validation | Advanced |
+| 17 | State Persistence | Advanced |
+| 18 | Distributed Execution | Advanced |
+| 19 | Compliance Verification | Advanced |
+| 20 | Result Synthesis | Advanced |
 
 ---
 

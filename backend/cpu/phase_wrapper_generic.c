@@ -29,11 +29,11 @@ static int execute_phase_binary(int phase_num, int argc, char** argv) {
         NULL,
         NULL,
         NULL,
-        "phases/phase_16_rebellion",      // 16
-        "phases/phase_17_memory",         // 17
-        "phases/phase_18_multiplayer",    // 18
-        "phases/phase_19_audit",          // 19
-        "phases/phase_20_loreweave"       // 20
+        "phases/phase_16_constraint_validation",  // 16
+        "phases/phase_17_memory",                 // 17
+        "phases/phase_18_multiplayer",            // 18
+        "phases/phase_19_audit",                  // 19
+        "phases/phase_20_result_synthesis"        // 20
     };
     
     if (phase_num < 16 || phase_num > 20) {

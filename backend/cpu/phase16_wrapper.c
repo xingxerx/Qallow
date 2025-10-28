@@ -15,7 +15,7 @@ int qallow_phase16_runner(int argc, char** argv) {
     // This wrapper executes it as a subprocess
     
     // Build the command to execute the phase 16 binary
-    const char* phase16_path = "phases/phase_16_rebellion";
+    const char* phase16_path = "phases/phase_16_constraint_validation";
     
     // Check if the phase 16 binary exists
     if (access(phase16_path, X_OK) != 0) {

@@ -440,8 +440,8 @@ run_phase() {
       fi
       ;;
     20)
-      phase_banner 20 "Quantum LoreWeave & Archive Binding"
-      if run_qallow_phase_capture 20 "--ticks=100" "--archive_states=8"; then
+      phase_banner 20 "Result Synthesis & Aggregation"
+      if run_qallow_phase_capture 20; then
         tail_output 5
         cleanup_output_file
         echo ""
