@@ -8,11 +8,17 @@ const express = require('express');
 const { spawn } = require('child_process');
 const path = require('path');
 const fs = require('fs');
+const QallowMonitor = require('./monitoring');
+const ImprovementTracker = require('./improvement-tracker');
 
 const app = express();
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 const router = express.Router();
+
+// Initialize monitoring and tracking systems
+const monitor = new QallowMonitor();
+const improvementTracker = new ImprovementTracker();
 
 // State management
 let vmProcess = null;
@@ -29,6 +35,24 @@ let loopConfig = {
 };
 const MAX_OUTPUT_LINES = 1000;
 const MAX_LOGS = 500;
+
+// Performance tracking
+let performanceMetrics = {
+  phaseTimings: {},
+  cycleTimings: [],
+  phaseSuccessRates: {},
+  healthStatus: 'HEALTHY',
+  lastUpdateTime: Date.now()
+};
+
+// Real-time metrics collection
+let realtimeMetrics = {
+  coherence: [],
+  fidelity: [],
+  stability: [],
+  ethicalScore: [],
+  systemLoad: []
+};
 
 // Logger
 const logger = {
@@ -67,7 +91,7 @@ function addAuditLog(component, message, level = 'Info') {
 }
 
 // GET /api/status - Get current system status
-router.get('/status', (req, res) => {
+router.get('/status', (_req, res) => {
   try {
     res.json({
       vm_running: vmProcess !== null || continuousMode,
@@ -77,11 +101,39 @@ router.get('/status', (req, res) => {
       loop_config: loopConfig,
       terminal_output: terminalOutput,
       metrics: metrics,
+      performance_metrics: performanceMetrics,
+      realtime_metrics: realtimeMetrics,
       audit_logs: auditLogs,
       timestamp: new Date().toISOString()
     });
   } catch (err) {
     logger.error('Failed to get status', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/performance - Get performance analytics
+router.get('/performance', (_req, res) => {
+  try {
+    const avgPhaseTime = Object.values(performanceMetrics.phaseTimings).length > 0
+      ? Object.values(performanceMetrics.phaseTimings).reduce((a, b) => a + b, 0) / Object.values(performanceMetrics.phaseTimings).length
+      : 0;
+
+    const avgCycleTime = performanceMetrics.cycleTimings.length > 0
+      ? performanceMetrics.cycleTimings.reduce((a, b) => a + b, 0) / performanceMetrics.cycleTimings.length
+      : 0;
+
+    res.json({
+      performance_metrics: performanceMetrics,
+      averages: {
+        phase_time_ms: avgPhaseTime,
+        cycle_time_ms: avgCycleTime
+      },
+      realtime_metrics: realtimeMetrics,
+      timestamp: new Date().toISOString()
+    });
+  } catch (err) {
+    logger.error('Failed to get performance metrics', err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -93,14 +145,13 @@ router.post('/vm/start', (req, res) => {
       return res.status(400).json({ error: 'VM already running' });
     }
 
-    // Always run all valid phases 11-15 in order, with quantum and CUDA enabled
+    // Always run all valid phases 1-20 in order, with quantum and CUDA enabled
     const ticks = req.body.ticks || 120;
     const build = req.body.build || 'CUDA';
-    const continuous = true;
 
-    logger.info(`Starting Qallow VM (phases 11-15, build: ${build}, ticks: ${ticks}, quantum: enabled)`);
-    addTerminalLine(`🚀 Starting Qallow Unified System (phases 11-15, build: ${build}, ticks: ${ticks}, quantum: enabled)`, 'info');
-    addAuditLog('VM', `Starting unified system with valid phases, build ${build}, quantum enabled`, 'Info');
+    logger.info(`Starting Qallow VM (phases 1-20, build: ${build}, ticks: ${ticks}, quantum: enabled)`);
+    addTerminalLine(`🚀 Starting Qallow Unified System (phases 1-20, build: ${build}, ticks: ${ticks}, quantum: enabled)`, 'info');
+    addAuditLog('VM', `Starting unified system with all phases 1-20, build ${build}, quantum enabled`, 'Info');
 
     // Set quantum env
     process.env.QALLOW_QISKIT = '1';
@@ -114,9 +165,9 @@ router.post('/vm/start', (req, res) => {
       return res.status(500).json({ error });
     }
 
-    // Start continuous loop from phase 11
+    // Start continuous loop from phase 1
     beginContinuousLoop({
-      startPhase: 11,
+      startPhase: 1,
       ticks,
       build
     });
@@ -206,6 +257,7 @@ router.post('/vm/start-continuous', (req, res) => {
 });
 
 // Helper function to start next phase in continuous mode
+let cycleStartTime = 0;
 function beginContinuousLoop({ startPhase, ticks, build }) {
   if (vmProcess !== null) {
     throw new Error('VM already running');
@@ -219,6 +271,7 @@ function beginContinuousLoop({ startPhase, ticks, build }) {
   continuousMode = true;
   currentPhase = startPhase;
   cycleCount = 0;
+  cycleStartTime = Date.now();
 
   addTerminalLine(`♾️ Continuous loop engaged (start phase ${startPhase}, ticks ${ticks}, build ${build})`, 'info');
   addAuditLog('VM', `Continuous loop engaged starting at phase ${startPhase}`, 'Info');
@@ -283,9 +336,14 @@ function startNextPhase() {
       let nextPhase = phaseToRun + 1;
       if (nextPhase > 20) {
         cycleCount += 1;
+        const cycleEndTime = Date.now();
+        const cycleDuration = cycleEndTime - cycleStartTime;
+        performanceMetrics.cycleTimings.push(cycleDuration);
+
         nextPhase = startPhase;
-        addTerminalLine(`\n✨ Cycle ${cycleCount} complete! Restarting from Phase ${startPhase}...`, 'info');
-        addAuditLog('VM', `Cycle ${cycleCount} complete, restarting from phase ${startPhase}`, 'Info');
+        cycleStartTime = Date.now();
+        addTerminalLine(`\n✨ Cycle ${cycleCount} complete! (duration: ${cycleDuration}ms) Restarting from Phase ${startPhase}...`, 'info');
+        addAuditLog('VM', `Cycle ${cycleCount} complete (duration: ${cycleDuration}ms), restarting from phase ${startPhase}`, 'Info');
       }
       currentPhase = nextPhase;
 
@@ -323,6 +381,7 @@ function spawnPhaseProcess({ phase, ticks, build, onExit }) {
     args.push('--cuda');
   }
 
+  const phaseStartTime = Date.now();
   vmProcess = spawn(qallowPath, args, {
     stdio: ['ignore', 'pipe', 'pipe'],
     detached: false
@@ -333,6 +392,9 @@ function spawnPhaseProcess({ phase, ticks, build, onExit }) {
     lines.forEach(line => {
       addTerminalLine(line, 'success');
       logger.info(`VM: ${line}`);
+
+      // Extract metrics from output
+      extractMetricsFromOutput(line);
     });
   });
 
@@ -345,9 +407,27 @@ function spawnPhaseProcess({ phase, ticks, build, onExit }) {
   });
 
   vmProcess.on('exit', (code, signal) => {
-    logger.info(`Phase ${phase} exited with code ${code}, signal ${signal}`);
-    addTerminalLine(`✅ Phase ${phase} completed (code: ${code})`, code === 0 ? 'success' : 'warning');
-    addAuditLog('VM', `Phase ${phase} completed (code: ${code})`, code === 0 ? 'Success' : 'Warning');
+    const phaseEndTime = Date.now();
+    const phaseDuration = phaseEndTime - phaseStartTime;
+
+    // Track phase timing
+    if (!performanceMetrics.phaseTimings[phase]) {
+      performanceMetrics.phaseTimings[phase] = [];
+    }
+    performanceMetrics.phaseTimings[phase].push(phaseDuration);
+
+    // Track success rate
+    if (!performanceMetrics.phaseSuccessRates[phase]) {
+      performanceMetrics.phaseSuccessRates[phase] = { success: 0, total: 0 };
+    }
+    performanceMetrics.phaseSuccessRates[phase].total += 1;
+    if (code === 0) {
+      performanceMetrics.phaseSuccessRates[phase].success += 1;
+    }
+
+    logger.info(`Phase ${phase} exited with code ${code}, signal ${signal}, duration: ${phaseDuration}ms`);
+    addTerminalLine(`✅ Phase ${phase} completed (code: ${code}, duration: ${phaseDuration}ms)`, code === 0 ? 'success' : 'warning');
+    addAuditLog('VM', `Phase ${phase} completed (code: ${code}, duration: ${phaseDuration}ms)`, code === 0 ? 'Success' : 'Warning');
     vmProcess = null;
     if (typeof onExit === 'function') {
       onExit(code, signal);
@@ -384,7 +464,7 @@ router.get('/metrics', (req, res) => {
 });
 
 // GET /api/logs - Get audit logs
-router.get('/logs', (req, res) => {
+router.get('/logs', (_req, res) => {
   try {
     res.json({
       logs: auditLogs,
@@ -393,6 +473,104 @@ router.get('/logs', (req, res) => {
     });
   } catch (err) {
     logger.error('Failed to get logs', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/health - Get system health status
+router.get('/health', (_req, res) => {
+  try {
+    const healthCheck = monitor.performHealthCheck(metrics, currentPhase);
+    const healthSummary = monitor.getHealthSummary();
+
+    res.json({
+      current_health: healthCheck,
+      health_summary: healthSummary,
+      timestamp: new Date().toISOString()
+    });
+  } catch (err) {
+    logger.error('Failed to get health status', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/optimizations - Get optimization recommendations
+router.get('/optimizations', (_req, res) => {
+  try {
+    const recommendations = monitor.generateOptimizations(
+      metrics,
+      performanceMetrics.phaseTimings,
+      performanceMetrics.cycleTimings
+    );
+
+    res.json({
+      recommendations,
+      count: recommendations.length,
+      timestamp: new Date().toISOString()
+    });
+  } catch (err) {
+    logger.error('Failed to get optimizations', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/improvements/log - Log an improvement
+router.post('/improvements/log', (req, res) => {
+  try {
+    const { category, title, description, impact, files } = req.body;
+
+    if (!category || !title) {
+      return res.status(400).json({ error: 'Missing required fields: category, title' });
+    }
+
+    const improvement = improvementTracker.logImprovement(
+      category,
+      title,
+      description || '',
+      impact || 'MEDIUM',
+      files || []
+    );
+
+    logger.success(`Improvement logged: ${title}`);
+    addAuditLog('Improvements', `Logged improvement: ${title}`, 'Success');
+
+    res.json({
+      success: true,
+      improvement,
+      timestamp: new Date().toISOString()
+    });
+  } catch (err) {
+    logger.error('Failed to log improvement', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/improvements/report - Get improvement report
+router.get('/improvements/report', (_req, res) => {
+  try {
+    const report = improvementTracker.generateReport();
+
+    res.json({
+      report,
+      timestamp: new Date().toISOString()
+    });
+  } catch (err) {
+    logger.error('Failed to get improvement report', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/improvements/summary - Get improvement summary
+router.get('/improvements/summary', (_req, res) => {
+  try {
+    const summary = improvementTracker.getSummary();
+
+    res.json({
+      summary,
+      timestamp: new Date().toISOString()
+    });
+  } catch (err) {
+    logger.error('Failed to get improvement summary', err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -487,9 +665,44 @@ router.post('/vm/reset', (req, res) => {
   }
 });
 
+// Extract metrics from phase output
+function extractMetricsFromOutput(line) {
+  // Extract coherence
+  const coherenceMatch = line.match(/[Cc]oherence[:\s=]+([0-9.]+)/);
+  if (coherenceMatch) {
+    const coherence = parseFloat(coherenceMatch[1]);
+    realtimeMetrics.coherence.push({ value: coherence, timestamp: Date.now() });
+    if (realtimeMetrics.coherence.length > 100) realtimeMetrics.coherence.shift();
+  }
+
+  // Extract fidelity
+  const fidelityMatch = line.match(/[Ff]idelity[:\s=]+([0-9.]+)/);
+  if (fidelityMatch) {
+    const fidelity = parseFloat(fidelityMatch[1]);
+    realtimeMetrics.fidelity.push({ value: fidelity, timestamp: Date.now() });
+    if (realtimeMetrics.fidelity.length > 100) realtimeMetrics.fidelity.shift();
+  }
+
+  // Extract stability
+  const stabilityMatch = line.match(/[Ss]tability[:\s=]+([0-9.]+)/);
+  if (stabilityMatch) {
+    const stability = parseFloat(stabilityMatch[1]);
+    realtimeMetrics.stability.push({ value: stability, timestamp: Date.now() });
+    if (realtimeMetrics.stability.length > 100) realtimeMetrics.stability.shift();
+  }
+
+  // Extract ethical score
+  const ethicalMatch = line.match(/[Ee]thical[:\s=]+([0-9.]+)/);
+  if (ethicalMatch) {
+    const ethical = parseFloat(ethicalMatch[1]);
+    realtimeMetrics.ethicalScore.push({ value: ethical, timestamp: Date.now() });
+    if (realtimeMetrics.ethicalScore.length > 100) realtimeMetrics.ethicalScore.shift();
+  }
+}
+
 // Helper to update metrics
 function updateMetrics() {
-  metrics = {
+  const baseMetrics = {
     fidelity: 0.85 + Math.random() * 0.15,
     energy: 0.5 + Math.random() * 0.5,
     risk: 0.1 + Math.random() * 0.2,
@@ -497,6 +710,20 @@ function updateMetrics() {
     coherence: 0.8 + Math.random() * 0.2,
     entanglement: 0.75 + Math.random() * 0.25
   };
+
+  // Use real metrics if available
+  if (realtimeMetrics.coherence.length > 0) {
+    baseMetrics.coherence = realtimeMetrics.coherence[realtimeMetrics.coherence.length - 1].value;
+  }
+  if (realtimeMetrics.fidelity.length > 0) {
+    baseMetrics.fidelity = realtimeMetrics.fidelity[realtimeMetrics.fidelity.length - 1].value;
+  }
+  if (realtimeMetrics.stability.length > 0) {
+    baseMetrics.stability = realtimeMetrics.stability[realtimeMetrics.stability.length - 1].value;
+  }
+
+  metrics = baseMetrics;
+  performanceMetrics.lastUpdateTime = Date.now();
 }
 
 // Periodic metrics update
