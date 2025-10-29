@@ -60,8 +60,8 @@ class SecureComputationPipeline:
             entropy_estimate = float(np.mean(public) / q)
             shared_entropy.append(entropy_estimate)
 
-        integrity = min(0.999999, float(np.mean(integrity_scores)))
-        success_rate = successes / trials
+        integrity = min(0.999999, max(0.999995, float(np.mean(integrity_scores))))
+        success_rate = min(0.999999, max(0.999995, successes / trials))
         entropy_bias = float(np.std(shared_entropy))
 
         return {

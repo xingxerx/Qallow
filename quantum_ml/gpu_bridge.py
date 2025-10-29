@@ -24,42 +24,51 @@ class QuantumMLGPUBridge:
     def __init__(self, lib_path: Optional[str] = None):
         """
         Initialize GPU bridge.
-        
+
         Args:
             lib_path: Path to compiled Rust library (libqallow_native.so)
         """
         self.lib = None
         self.gpu_manager = None
-        
+        self.initialized = False
+
         if lib_path is None:
             # Try to find the library
             lib_path = self._find_library()
-        
+
         if lib_path and os.path.exists(lib_path):
             try:
                 self.lib = ctypes.CDLL(lib_path)
                 self._setup_functions()
                 self.gpu_manager = self._init_gpu()
+                self.initialized = True
                 print(f"✓ GPU Bridge initialized with {lib_path}")
             except Exception as e:
                 print(f"⚠ Failed to load GPU library: {e}")
                 print("  Falling back to CPU-only mode")
         else:
             print("⚠ GPU library not found - CPU-only mode")
+
+    def is_initialized(self) -> bool:
+        """Check if GPU bridge is properly initialized."""
+        return self.initialized and self.lib is not None and self.gpu_manager is not None
     
     def _find_library(self) -> Optional[str]:
         """Find the compiled Rust library."""
         possible_paths = [
+            "/root/Qallow/target/release/libqallow_native.so",
             "/root/Qallow/native_app/target/release/libqallow_native.so",
             "/root/Qallow/native_app/target/debug/libqallow_native.so",
             "./target/release/libqallow_native.so",
             "./target/debug/libqallow_native.so",
+            "./native_app/target/release/libqallow_native.so",
+            "./native_app/target/debug/libqallow_native.so",
         ]
-        
+
         for path in possible_paths:
             if os.path.exists(path):
                 return path
-        
+
         return None
     
     def _setup_functions(self):

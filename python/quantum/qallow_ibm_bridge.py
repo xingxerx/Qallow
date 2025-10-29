@@ -7,10 +7,13 @@ from collections import Counter, defaultdict
 from dataclasses import dataclass
 from typing import Dict, Mapping, Optional, Sequence, Tuple
 
-import cirq
+try:  # Cirq is optional to keep the bridge runnable in minimal environments.
+    import cirq  # type: ignore
+except ImportError:  # pragma: no cover
+    cirq = None  # type: ignore
 
 try:
-    import cirq_google
+    import cirq_google  # type: ignore
 except ImportError:  # pragma: no cover - optional dependency
     cirq_google = None
 
@@ -102,8 +105,14 @@ def _compute_logical_counts(
 
 def build_ternary_circuit(
     ternary_states: Sequence[int], *, surface_code_distance: int = 1
-) -> cirq.Circuit:
+):
     """Build a Cirq circuit mapping ternary (-1, 0, 1) states onto qubits."""
+
+    if cirq is None:  # pragma: no cover - executed when Cirq is absent
+        raise RuntimeError(
+            "Cirq is not installed. Install `cirq` to build execution circuits or "
+            "use `run_ternary_sim(..., prefer_hardware=False)` for software fallback."
+        )
 
     logical_states = list(ternary_states) if ternary_states else [0]
     block_size = surface_code_distance * surface_code_distance if surface_code_distance > 1 else 1
@@ -173,6 +182,9 @@ def _execute_on_engine(
 
 
 def _execute_on_simulator(circuit: cirq.Circuit, shots: int) -> TernaryResult:
+    if cirq is None:  # pragma: no cover - defensive guard
+        raise RuntimeError("Cirq simulator requested but Cirq is not available.")
+
     simulator = cirq.Simulator()
     result = simulator.run(circuit, repetitions=shots)
     measurements = result.measurements["m"]
@@ -183,6 +195,43 @@ def _execute_on_simulator(circuit: cirq.Circuit, shots: int) -> TernaryResult:
         backend_name="cirq_simulator",
         shots=shots,
         source="simulator",
+    )
+
+
+def _fallback_simulation(
+    logical_states: Sequence[int],
+    *,
+    shots: int,
+    block_size: int,
+) -> TernaryResult:
+    """
+    Deterministic fallback used when Cirq isn't available.
+
+    We approximate the ternary mapping by projecting positive states to 1 and
+    non-positive states to 0, returning a single outcome with unit probability.
+    """
+
+    bitstring = []
+    for state in logical_states:
+        if state > 0:
+            bit = "1"
+        elif state < 0:
+            bit = "0"
+        else:
+            bit = "0"
+        bitstring.extend(bit for _ in range(max(1, block_size)))
+
+    if not bitstring:
+        bitstring = ["0"]
+
+    canonical = "".join(bitstring)
+    counts = {canonical: 1.0}
+
+    return TernaryResult(
+        counts=counts,
+        backend_name="qallow_fallback",
+        shots=shots,
+        source="software",
     )
 
 
@@ -217,21 +266,24 @@ def run_ternary_sim(
     block_size = (
         surface_code_distance * surface_code_distance if surface_code_distance > 1 else 1
     )
-    circuit = build_ternary_circuit(
-        logical_states,
-        surface_code_distance=surface_code_distance,
-    )
 
-    # Get qubit count - handle both Qiskit and Cirq circuits
-    try:
-        qubit_count = float(circuit.num_qubits())
-    except AttributeError:
-        # Cirq circuit - use all_qubits()
+    circuit = None
+    if cirq is not None:
+        circuit = build_ternary_circuit(
+            logical_states,
+            surface_code_distance=surface_code_distance,
+        )
+
+    if circuit is not None:
         try:
-            qubit_count = float(len(circuit.all_qubits()))
-        except (AttributeError, TypeError):
-            # Fallback: try to count qubits from circuit structure
-            qubit_count = 8.0  # Default fallback
+            qubit_count = float(circuit.num_qubits())
+        except AttributeError:
+            try:
+                qubit_count = float(len(circuit.all_qubits()))
+            except (AttributeError, TypeError):
+                qubit_count = float(len(logical_states) * block_size)
+    else:
+        qubit_count = float(len(logical_states) * block_size or 1)
 
     metadata: Dict[str, float] = {
         "surface_code_distance": float(surface_code_distance),
@@ -242,11 +294,15 @@ def run_ternary_sim(
         "qubit_count": qubit_count,
         "shot_count": float(shots),
     }
+    if circuit is None:
+        metadata["fallback_simulator"] = 1.0
 
     if prefer_hardware:
         project_id, processor_id, endpoint = _resolve_engine_config()
         if project_id and processor_id:
             try:
+                if circuit is None:
+                    raise RuntimeError("Cirq is required for hardware execution.")
                 result = _execute_on_engine(
                     circuit,
                     shots,
@@ -276,7 +332,15 @@ def run_ternary_sim(
     if require_hardware:
         raise RuntimeError("Hardware execution was requested but could not be fulfilled.")
 
-    result = _execute_on_simulator(circuit, shots)
+    if circuit is not None:
+        result = _execute_on_simulator(circuit, shots)
+    else:
+        result = _fallback_simulation(
+            logical_states,
+            shots=shots,
+            block_size=block_size,
+        )
+
     logical_counts = _compute_logical_counts(
         result.counts,
         logical_qubits=len(logical_states),

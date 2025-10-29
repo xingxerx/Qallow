@@ -35,6 +35,10 @@ num-complex = "0.4"
 [dev-dependencies]
 tempfile = "3"
 
+[lib]
+name = "qallow_native"
+crate-type = ["cdylib", "rlib"]
+
 [[bin]]
 name = "qallow-native"
 path = "src/main.rs"

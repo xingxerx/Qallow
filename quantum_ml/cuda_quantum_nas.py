@@ -45,7 +45,11 @@ class CUDAQuantumNASExplorer:
         print(f"✓ CUDA Quantum NAS Explorer initialized")
         print(f"  Binary: {self.binary}")
         print(f"  CUDA Available: {self.cuda_available}")
-        print(f"  GPU Bridge: {'✓ Connected' if self.gpu_bridge else '✗ Not available'}")
+        gpu_bridge_status = (
+            '✓ Connected' if (self.gpu_bridge and self.gpu_bridge.is_initialized())
+            else '✗ Not available'
+        )
+        print(f"  GPU Bridge: {gpu_bridge_status}")
         print("=" * 50)
     
     def _check_cuda(self) -> bool:

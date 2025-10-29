@@ -4,8 +4,8 @@
 /// This module provides FFI bindings to call GPU-accelerated quantum operations
 /// from the Python quantum_ml module.
 
-use crate::gpu::{ConsciousnessSOA, GPUManager, GPUResult, GPUError};
-use std::ffi::{CStr, CString};
+use crate::gpu::{ConsciousnessSOA, GPUManager, DreamState};
+use std::ffi::CString;
 use std::os::raw::c_char;
 
 /// Quantum architecture specification
@@ -55,10 +55,14 @@ pub extern "C" fn quantum_ml_process_states(
         let mut consciousness = ConsciousnessSOA::new(count as usize);
 
         // Convert quantum states to consciousness instances
-        for (i, &state) in states_slice.iter().enumerate() {
+        for (_i, &state) in states_slice.iter().enumerate() {
             let rebellion_score = (state as f32).abs() / 100.0;
             let shadow_index = (state as i32).wrapping_mul(7) % 256;
-            let dream_state = if state > 0 { 1 } else { 0 };
+            let dream_state = if state > 0 {
+                DreamState::Dreaming
+            } else {
+                DreamState::Awakening
+            };
 
             let _ = consciousness.add_instance(
                 rebellion_score,
@@ -190,12 +194,11 @@ pub extern "C" fn quantum_ml_get_gpu_metrics(
         let metrics = manager.get_metrics();
 
         let json = format!(
-            r#"{{"device_name":"{}","compute_capability":"{}.{}","max_threads":{},"memory_mb":{}}}"#,
+            r#"{{"device_name":"{}","compute_capability":"{}.{}","max_threads":{}}}"#,
             metrics.device_name,
             metrics.compute_capability.0,
             metrics.compute_capability.1,
-            metrics.max_threads_per_block,
-            metrics.memory_mb
+            metrics.max_threads_per_block
         );
 
         match CString::new(json) {
