@@ -27,6 +27,10 @@ futures = "0.3"
 async-trait = "0.1"
 ctrlc = "3.4"
 quantum_optimizer = { path = "../quantum_optimizer", optional = true }
+cust = { version = "0.3", optional = true }
+ndarray = "0.15"
+ndarray-linalg = { version = "0.16", features = ["openblas-static"] }
+num-complex = "0.4"
 
 [dev-dependencies]
 tempfile = "3"
@@ -48,3 +52,5 @@ opt-level = 0
 default = []
 # Enable native_app's quantum features by pulling in the optional crate
 quantum = ["quantum_optimizer"]
+# Enable GPU acceleration via CUDA
+gpu = ["cust"]

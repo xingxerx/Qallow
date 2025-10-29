@@ -69,13 +69,24 @@ const useMatrixRain = (canvasRef) => {
     setup();
     start();
 
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        start();
+      } else if (animationFrameId.current) {
+        cancelAnimationFrame(animationFrameId.current);
+        animationFrameId.current = null;
+      }
+    };
+
     window.addEventListener('resize', handleResize);
+    document.addEventListener('visibilitychange', handleVisibility);
 
     return () => {
       if (animationFrameId.current) {
         cancelAnimationFrame(animationFrameId.current);
       }
       window.removeEventListener('resize', handleResize);
+      document.removeEventListener('visibilitychange', handleVisibility);
     };
   }, [canvasRef]);
 };

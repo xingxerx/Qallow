@@ -1,207 +1,213 @@
-/// Matrix background effect for the native app
-/// Provides a visual effect similar to the web app's matrix rain animation
-/// This module creates a decorative background that enhances the modern UI
+use fltk::{
+    app,
+    draw::{self, Font},
+    enums::{Align, Color, FrameType},
+    frame,
+    prelude::*,
+    window,
+};
+use std::{
+    cell::RefCell,
+    rc::Rc,
+    time::{SystemTime, UNIX_EPOCH},
+};
 
-use fltk::{prelude::*, *};
-use std::sync::{Arc, Mutex};
-use std::time::Instant;
+const CHARACTERS: [char; 2] = ['0', '1'];
+const FONT_SIZE: i32 = 16;
+const TRAIL_DECAY: f32 = 0.05;
+const DROP_RESET_PROBABILITY: f32 = 0.975;
 
-pub struct MatrixBackground {
-    pub enabled: bool,
-    pub opacity: f32,
-    pub speed: f32,
-    pub last_update: Instant,
+struct Cell {
+    ch: char,
+    intensity: f32,
 }
 
-impl MatrixBackground {
-    pub fn new() -> Self {
-        MatrixBackground {
-            enabled: true,
-            opacity: 0.15,
-            speed: 1.0,
-            last_update: Instant::now(),
+struct MatrixState {
+    columns: usize,
+    rows: usize,
+    drops: Vec<i32>,
+    cells: Vec<Cell>,
+    rng_state: u64,
+}
+
+impl MatrixState {
+    fn new(width: i32, height: i32) -> Self {
+        let mut state = MatrixState {
+            columns: 0,
+            rows: 0,
+            drops: Vec::new(),
+            cells: Vec::new(),
+            rng_state: Self::seed(),
+        };
+        state.resize(width, height);
+        state
+    }
+
+    fn seed() -> u64 {
+        SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .map(|d| d.as_nanos() as u64)
+            .unwrap_or(0x1234_5678_9abc_def0)
+    }
+
+    fn resize(&mut self, width: i32, height: i32) {
+        let col_count = ((width.max(1) as usize) + FONT_SIZE as usize - 1) / FONT_SIZE as usize;
+        let row_count = ((height.max(1) as usize) + FONT_SIZE as usize - 1) / FONT_SIZE as usize;
+
+        self.columns = col_count.max(1);
+        self.rows = row_count.max(1);
+
+        self.cells = vec![
+            Cell {
+                ch: '0',
+                intensity: 0.0,
+            };
+            self.columns * self.rows
+        ];
+
+        self.drops = (0..self.columns)
+            .map(|_| {
+                let offset = (self.random_f32() * self.rows as f32) as i32;
+                -offset
+            })
+            .collect();
+    }
+
+    fn tick(&mut self) {
+        for cell in &mut self.cells {
+            cell.intensity *= 1.0 - TRAIL_DECAY;
+            if cell.intensity < 0.01 {
+                cell.intensity = 0.0;
+            }
+        }
+
+        for (col, drop) in self.drops.iter_mut().enumerate() {
+            if *drop < 0 {
+                *drop += 1;
+                continue;
+            }
+
+            let row = *drop as usize;
+            if row < self.rows {
+                let idx = self.index(col, row);
+                self.cells[idx].ch = self.random_char();
+                self.cells[idx].intensity = 1.0;
+            }
+
+            *drop += 1;
+
+            if *drop as usize >= self.rows && self.random_f32() > DROP_RESET_PROBABILITY {
+                let offset = (self.random_f32() * self.rows as f32) as i32;
+                *drop = -offset;
+            }
         }
     }
 
-    pub fn toggle(&mut self) {
-        self.enabled = !self.enabled;
+    fn index(&self, col: usize, row: usize) -> usize {
+        row * self.columns + col
     }
 
-    pub fn set_opacity(&mut self, opacity: f32) {
-        self.opacity = opacity.clamp(0.0, 1.0);
+    fn random_char(&mut self) -> char {
+        let idx = (self.next_rand() % CHARACTERS.len() as u64) as usize;
+        CHARACTERS[idx]
     }
 
-    pub fn set_speed(&mut self, speed: f32) {
-        self.speed = speed.clamp(0.1, 5.0);
+    fn random_f32(&mut self) -> f32 {
+        const SCALE: f64 = 1.0 / (u64::MAX as f64);
+        (self.next_rand() as f64 * SCALE) as f32
     }
 
-    pub fn should_update(&mut self) -> bool {
-        let elapsed = self.last_update.elapsed().as_millis() as f32;
-        let update_interval = (1000.0 / (60.0 * self.speed)) as u128;
-        
-        if elapsed as u128 >= update_interval {
-            self.last_update = Instant::now();
-            true
-        } else {
-            false
+    fn next_rand(&mut self) -> u64 {
+        if self.rng_state == 0 {
+            self.rng_state = 0x1234_5678_9abc_def0;
         }
+        self.rng_state = self
+            .rng_state
+            .wrapping_mul(6364136223846793005)
+            .wrapping_add(1);
+        self.rng_state
     }
 }
 
-/// Create a visual background effect using FLTK widgets
-/// This simulates the matrix rain effect from the web app
-pub fn create_matrix_background_widget(parent: &mut group::Group) -> Arc<Mutex<MatrixBackground>> {
-    let matrix = Arc::new(Mutex::new(MatrixBackground::new()));
+pub fn install_matrix_background(wind: &mut window::Window) {
+    let mut frame = frame::Frame::new(0, 0, wind.width(), wind.height(), "");
+    frame.set_frame(FrameType::NoBox);
+    frame.clear_visible_focus();
 
-    // Create a decorative box with gradient-like appearance
-    let mut bg_box = fltk::widget::Widget::default()
-        .with_size(parent.width(), parent.height());
+    let state = Rc::new(RefCell::new(MatrixState::new(wind.width(), wind.height())));
 
-    // Set dark background color matching the theme
-    bg_box.set_color(fltk::enums::Color::from_hex(0x0a0e27));
+    frame.draw({
+        let state = state.clone();
+        move |f| {
+            let matrix = state.borrow();
 
-    parent.add(&bg_box);
+            draw::push_clip(f.x(), f.y(), f.width(), f.height());
+            draw::set_draw_color(Color::Black);
+            draw::draw_rectf(f.x(), f.y(), f.width(), f.height());
+            draw::set_font(Font::Courier, FONT_SIZE);
 
-    matrix
-}
+            let mut buf = [0u8; 4];
 
-/// Create a modern panel with neon border effect
-pub fn create_neon_panel(
-    x: i32,
-    y: i32,
-    w: i32,
-    h: i32,
-    title: &str,
-) -> group::Group {
-    let mut panel = group::Group::default()
-        .with_pos(x, y)
-        .with_size(w, h);
-    
-    panel.set_color(fltk::enums::Color::from_hex(0x1a1f3a));
-    
-    // Add title
-    let mut title_box = text::TextDisplay::default()
-        .with_pos(x + 10, y + 5)
-        .with_size(w - 20, 25);
-    
-    title_box.set_buffer(text::TextBuffer::default());
-    title_box.buffer().unwrap().set_text(title);
-    title_box.set_text_color(fltk::enums::Color::from_hex(0x00d4ff));
-    title_box.set_text_size(14);
-    
-    panel.add(&title_box);
-    panel.end();
-    
-    panel
-}
+            for row in 0..matrix.rows {
+                for col in 0..matrix.columns {
+                    let cell = &matrix.cells[matrix.index(col, row)];
+                    if cell.intensity <= 0.0 {
+                        continue;
+                    }
 
-/// Create a modern button with neon styling
-pub fn create_neon_button(
-    x: i32,
-    y: i32,
-    w: i32,
-    h: i32,
-    label: &str,
-    is_active: bool,
-) -> button::Button {
-    let mut btn = button::Button::default()
-        .with_pos(x, y)
-        .with_size(w, h)
-        .with_label(label);
-    
-    if is_active {
-        btn.set_color(fltk::enums::Color::from_hex(0x00d4ff));
-        btn.set_label_color(fltk::enums::Color::from_hex(0x0a0e27));
-    } else {
-        btn.set_color(fltk::enums::Color::from_hex(0x1a1f3a));
-        btn.set_label_color(fltk::enums::Color::from_hex(0x00d4ff));
+                    let brightness = (cell.intensity.clamp(0.0, 1.0) * 255.0) as u8;
+                    let color = if cell.intensity > 0.9 {
+                        draw::rgba_color(180, 255, 200, 255)
+                    } else {
+                        draw::rgba_color(0, brightness.max(20), 0, 255)
+                    };
+
+                    draw::set_draw_color(color);
+                    let text = cell.ch.encode_utf8(&mut buf);
+                    let x = f.x() + (col as i32) * FONT_SIZE;
+                    let y = f.y() + ((row + 1) as i32) * FONT_SIZE;
+                    draw::draw_text2(
+                        text,
+                        x,
+                        y - FONT_SIZE,
+                        FONT_SIZE,
+                        FONT_SIZE,
+                        Align::Inside | Align::Left,
+                    );
+                }
+            }
+
+            draw::pop_clip();
+        }
+    });
+
+    frame.handle(|_, _| false);
+    wind.add(&frame);
+    frame.lower();
+
+    {
+        let state = state.clone();
+        let mut frame_clone = frame.clone();
+        wind.resize_callback(move |_, _, _, w, h| {
+            frame_clone.resize(0, 0, w, h);
+            {
+                let mut matrix = state.borrow_mut();
+                matrix.resize(w, h);
+            }
+            frame_clone.redraw();
+        });
     }
-    
-    btn
+
+    {
+        let state = state.clone();
+        let frame_clone = frame.clone();
+        app::add_timeout3(0.033, move |handle| {
+            {
+                let mut matrix = state.borrow_mut();
+                matrix.tick();
+            }
+            frame_clone.redraw();
+            app::repeat_timeout3(0.033, handle);
+        });
+    }
 }
-
-/// Create a status indicator with color coding
-pub fn create_status_indicator(
-    x: i32,
-    y: i32,
-    w: i32,
-    h: i32,
-    status: &str,
-) -> button::Button {
-    let mut indicator = button::Button::default()
-        .with_pos(x, y)
-        .with_size(w, h)
-        .with_label(status);
-    
-    let color = match status {
-        "Running" => 0x00ff64,    // Green
-        "Stopped" => 0xff6464,    // Red
-        "Paused" => 0xffd166,     // Yellow
-        _ => 0x8aa1c1,            // Muted
-    };
-    
-    indicator.set_color(fltk::enums::Color::from_hex(color));
-    indicator.set_label_color(fltk::enums::Color::White);
-    
-    indicator
-}
-
-/// Create a modern input field with neon border styling
-pub fn create_neon_input(
-    x: i32,
-    y: i32,
-    w: i32,
-    h: i32,
-    _label: &str,
-) -> text::TextEditor {
-    let mut input = text::TextEditor::default()
-        .with_pos(x, y)
-        .with_size(w, h);
-
-    input.set_color(fltk::enums::Color::from_hex(0x0a0e27));
-    input.set_text_color(fltk::enums::Color::from_hex(0x00d4ff));
-    input.set_text_size(12);
-
-    input
-}
-
-/// Create a metrics display card with modern styling
-pub fn create_metrics_card(
-    x: i32,
-    y: i32,
-    w: i32,
-    h: i32,
-    title: &str,
-    value: &str,
-) -> group::Group {
-    let mut card = group::Group::default()
-        .with_pos(x, y)
-        .with_size(w, h);
-    
-    card.set_color(fltk::enums::Color::from_hex(0x1a1f3a));
-    
-    // Title
-    let mut title_box = text::TextDisplay::default()
-        .with_pos(x + 10, y + 5)
-        .with_size(w - 20, 20);
-    title_box.set_buffer(text::TextBuffer::default());
-    title_box.buffer().unwrap().set_text(title);
-    title_box.set_text_color(fltk::enums::Color::from_hex(0x8aa1c1));
-    title_box.set_text_size(11);
-    
-    // Value
-    let mut value_box = text::TextDisplay::default()
-        .with_pos(x + 10, y + 30)
-        .with_size(w - 20, 30);
-    value_box.set_buffer(text::TextBuffer::default());
-    value_box.buffer().unwrap().set_text(value);
-    value_box.set_text_color(fltk::enums::Color::from_hex(0x00ff64));
-    value_box.set_text_size(18);
-    
-    card.add(&title_box);
-    card.add(&value_box);
-    card.end();
-    
-    card
-}
-

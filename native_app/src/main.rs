@@ -147,6 +147,8 @@ fn main() {
 
     wind.set_color(Color::from_hex(0x0a0e27));
 
+    ui::matrix_bg::install_matrix_background(&mut wind);
+
     // Create UI and get button references
     let ui_handles = ui::create_main_ui(&mut wind, state.clone());
 

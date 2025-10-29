@@ -32,16 +32,18 @@ pub struct MainUiHandles {
 
 pub fn create_main_ui(_wind: &mut window::Window, state: Arc<Mutex<AppState>>) -> MainUiHandles {
     let mut flex = group::Flex::default().with_size(1600, 1000).column();
+    flex.set_color(Color::None); // Transparent background
 
     // Header with modern design
     let status_indicator = create_modern_header(&mut flex);
 
     // Main content area with sidebar
     let main_flex = group::Flex::default().with_size(1600, 950).row();
+    main_flex.set_color(Color::None);
 
     // Sidebar navigation with modern styling
     let mut sidebar = group::Flex::default().with_size(150, 950).column();
-    sidebar.set_color(Color::from_hex(COLOR_BG_ACCENT));
+    sidebar.set_color(Color::from_rgba(10, 14, 39, 200)); // Semi-transparent accent
 
     create_modern_sidebar(&mut sidebar, state.clone());
 
@@ -49,11 +51,11 @@ pub fn create_main_ui(_wind: &mut window::Window, state: Arc<Mutex<AppState>>) -
 
     // Content area with modern dark theme
     let mut content = group::Flex::default().with_size(1450, 950).column();
-    content.set_color(Color::from_hex(COLOR_BG_DARK));
+    content.set_color(Color::None);
 
     // Create tabs for different views
     let mut tabs = group::Tabs::default().with_size(1450, 950);
-    tabs.set_color(Color::from_hex(COLOR_BG_DARK));
+    tabs.set_color(Color::None);
 
     // Dashboard tab
     dashboard::create_dashboard(&mut tabs, state.clone());
