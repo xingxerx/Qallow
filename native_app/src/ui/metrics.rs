@@ -10,12 +10,15 @@ pub fn create_metrics(tabs: &mut group::Tabs, _state: Arc<Mutex<AppState>>) {
 
     let mut flex = group::Flex::default().with_size(1450, 950).column();
     flex.set_color(Color::from_hex(0x0a0e27));
+    flex.begin();
 
     // Title
     let mut title = text::TextDisplay::default().with_size(1450, 40);
     title.set_buffer(text::TextBuffer::default());
     title.buffer().unwrap().set_text("Performance Metrics");
     title.set_text_color(Color::from_hex(0x00d4ff));
+    flex.add(&title);
+    flex.fixed(&title, 40);
 
     // Metrics grid
     let mut metrics_grid = group::Flex::default().with_size(1450, 400).row();
@@ -43,10 +46,13 @@ pub fn create_metrics(tabs: &mut group::Tabs, _state: Arc<Mutex<AppState>>) {
     );
 
     metrics_grid.end();
+    flex.add(&metrics_grid);
+    flex.fixed(&metrics_grid, 400);
 
     // Detailed metrics table
     let mut table_flex = group::Flex::default().with_size(1450, 450).column();
     table_flex.set_color(Color::from_hex(0x0a0e27));
+    table_flex.begin();
 
     let mut table_title = text::TextDisplay::default().with_size(1450, 40);
     table_title.set_buffer(text::TextBuffer::default());
@@ -75,27 +81,33 @@ Decoherence Rate                0.0007          ✓ Low"#;
     table.set_text_color(Color::from_hex(0x00ff64));
 
     table_flex.end();
+    flex.add(&table_flex);
+    flex.fixed(&table_flex, 450);
 
     // Control buttons
     let mut button_flex = group::Flex::default().with_size(1450, 50).row();
     button_flex.set_color(Color::from_hex(0x0a0e27));
+    button_flex.begin();
 
     let mut refresh_btn = button::Button::default()
         .with_size(100, 50)
         .with_label("🔄 Refresh");
     refresh_btn.set_color(Color::from_hex(0x1a1f3a));
     refresh_btn.set_label_color(Color::from_hex(0x00d4ff));
+    button_flex.add(&refresh_btn);
 
     let mut export_btn = button::Button::default()
         .with_size(100, 50)
         .with_label("📥 Export");
     export_btn.set_color(Color::from_hex(0x1a1f3a));
     export_btn.set_label_color(Color::from_hex(0x00d4ff));
+    button_flex.add(&export_btn);
 
     button_flex.end();
+    flex.add(&button_flex);
+    flex.fixed(&button_flex, 50);
 
     flex.end();
-    group.end();
     group.end();
     tabs.add(&group);
 }

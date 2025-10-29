@@ -15,9 +15,10 @@ pub struct DungeonsView {
 }
 
 pub fn create_dungeons_tab(tabs: &mut group::Tabs, state: Arc<Mutex<AppState>>) -> DungeonsView {
-    let mut group = group::Group::default().with_label("🗺️ Dungeons");
+    let mut group = group::Group::default().with_size(1450, 950).with_label("🗺️ Dungeons");
     group.begin();
-    let root = group::Flex::default().with_size(1450, 950).column();
+    let mut root = group::Flex::default().with_size(1450, 950).column();
+    root.begin();
 
     let mut control_row = group::Flex::default().with_size(1450, 80).row();
     let mut start_btn = button::Button::default()
@@ -35,6 +36,7 @@ pub fn create_dungeons_tab(tabs: &mut group::Tabs, state: Arc<Mutex<AppState>>) 
     control_row.add(&start_btn);
     control_row.add(&stop_btn);
     control_row.end();
+    root.add(&control_row);
 
     let status_buffer = text::TextBuffer::default();
     let mut status_display = text::TextDisplay::default().with_size(1450, 100);
@@ -44,11 +46,13 @@ pub fn create_dungeons_tab(tabs: &mut group::Tabs, state: Arc<Mutex<AppState>>) 
         .unwrap()
         .set_text("Select a dungeon and press start to begin the ritual.");
     status_display.set_text_color(Color::from_hex(0x00d4ff));
+    root.add(&status_display);
 
     let log_buffer = text::TextBuffer::default();
     let mut log_display = text::TextDisplay::default().with_size(1450, 720);
     log_display.set_buffer(log_buffer.clone());
     log_display.set_text_color(Color::White);
+    root.add(&log_display);
 
     let mut copy_row = group::Flex::default().with_size(1450, 50).row();
     let mut copy_status_btn = button::Button::default()
@@ -65,6 +69,7 @@ pub fn create_dungeons_tab(tabs: &mut group::Tabs, state: Arc<Mutex<AppState>>) 
     copy_log_btn.set_label_color(Color::from_hex(0x00d4ff));
     copy_row.add(&copy_log_btn);
     copy_row.end();
+    root.add(&copy_row);
 
     root.end();
     group.end();

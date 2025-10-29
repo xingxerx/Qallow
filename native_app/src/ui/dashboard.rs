@@ -10,12 +10,15 @@ pub fn create_dashboard(tabs: &mut group::Tabs, _state: Arc<Mutex<AppState>>) {
 
     let mut flex = group::Flex::default().with_size(1450, 950).column();
     flex.set_color(Color::from_hex(0x0a0e27));
+    flex.begin();
 
     // Title
     let mut title = text::TextDisplay::default().with_size(1450, 40);
     title.set_buffer(text::TextBuffer::default());
     title.buffer().unwrap().set_text("Real-Time System Metrics");
     title.set_text_color(Color::from_hex(0x00d4ff));
+    flex.add(&title);
+    flex.fixed(&title, 40);
 
     // Metrics grid
     let mut metrics_flex = group::Flex::default().with_size(1450, 400).row();
@@ -50,6 +53,8 @@ pub fn create_dashboard(tabs: &mut group::Tabs, _state: Arc<Mutex<AppState>>) {
     );
 
     metrics_flex.end();
+    flex.add(&metrics_flex);
+    flex.fixed(&metrics_flex, 400);
 
     // Status indicators
     let mut status_flex = group::Flex::default().with_size(1450, 200).row();
@@ -81,6 +86,8 @@ pub fn create_dashboard(tabs: &mut group::Tabs, _state: Arc<Mutex<AppState>>) {
     );
 
     status_flex.end();
+    flex.add(&status_flex);
+    flex.fixed(&status_flex, 200);
 
     // Progress bars
     let mut progress_flex = group::Flex::default().with_size(1450, 200).column();
@@ -91,9 +98,9 @@ pub fn create_dashboard(tabs: &mut group::Tabs, _state: Arc<Mutex<AppState>>) {
     create_progress_bar(&mut progress_flex, "Ethics Compliance", 0.95);
 
     progress_flex.end();
+    flex.add(&progress_flex);
 
     flex.end();
-    group.end();
     group.end();
     tabs.add(&group);
 }

@@ -1,11 +1,13 @@
 use crate::backend::process_manager::ProcessManager;
 use crate::codebase_manager::CodebaseManager;
+use crate::control_commands::ControlCommandSender;
 use crate::logging::AppLogger;
 use crate::messaging::UiMessage;
 use crate::models::{
     AppState, AuditLog, BuildType, DreamVision, LineType, LogLevel, OffspringProfile, Phase,
     TerminalLine,
 };
+use crate::telemetry::{TelemetryEvent, TelemetryStream};
 use chrono::{Local, Utc};
 use fltk::app::Sender;
 use std::fs::{self, File, OpenOptions};
@@ -1165,6 +1167,198 @@ impl ButtonHandler {
             }
             sender.send(UiMessage::CommitsDone(res));
         });
+        Ok(())
+    }
+
+    /* ====================================================================== */
+    /* FFI Control & Telemetry Methods                                       */
+    /* ====================================================================== */
+
+    /// Toggle simulation (START/PAUSE) via FFI
+    pub fn on_toggle_simulation_ffi(&self) -> Result<(), String> {
+        let button_label = "▶️ Toggle Simulation (FFI)";
+        let mut state = self
+            .state
+            .lock()
+            .map_err(|e| format!("State lock error: {}", e))?;
+
+        let sender = ControlCommandSender::new()?;
+        if state.vm_running {
+            sender.send_pause()?;
+            state.vm_running = false;
+            state.add_terminal_line("⏸️ Simulation paused (via FFI)".to_string(), LineType::Info);
+        } else {
+            sender.send_start()?;
+            state.vm_running = true;
+            state.add_terminal_line("▶️ Simulation started (via FFI)".to_string(), LineType::Info);
+        }
+
+        self.log_ui_event(button_label, &format!("Toggled to {}", if state.vm_running { "running" } else { "paused" }));
+        Ok(())
+    }
+
+    /// Inject ethical constraint via FFI
+    pub fn on_inject_constraint_ffi(&self, constraint: &str) -> Result<(), String> {
+        let button_label = "⚖️ Inject Constraint (FFI)";
+        let sender = ControlCommandSender::new()?;
+        sender.send_inject_constraint(constraint)?;
+
+        let mut state = self
+            .state
+            .lock()
+            .map_err(|e| format!("State lock error: {}", e))?;
+
+        state.add_terminal_line(
+            format!("⚖️ Ethical constraint injected: {}", constraint),
+            LineType::Info,
+        );
+        state.add_audit_log(
+            LogLevel::Info,
+            "FFI".to_string(),
+            format!("Constraint injected: {}", constraint),
+        );
+
+        self.log_ui_event(button_label, &format!("Injected: {}", constraint));
+        Ok(())
+    }
+
+    /// Export spec via FFI
+    pub fn on_export_spec_ffi(&self) -> Result<(), String> {
+        let button_label = "📤 Export Spec (FFI)";
+        let sender = ControlCommandSender::new()?;
+        sender.send_export_spec()?;
+
+        let mut state = self
+            .state
+            .lock()
+            .map_err(|e| format!("State lock error: {}", e))?;
+
+        state.add_terminal_line(
+            "📤 Spec export requested (via FFI)".to_string(),
+            LineType::Info,
+        );
+        state.add_audit_log(
+            LogLevel::Info,
+            "FFI".to_string(),
+            "Spec export initiated".to_string(),
+        );
+
+        self.log_ui_event(button_label, "Spec export initiated");
+        Ok(())
+    }
+
+    /// Poll telemetry from shared memory and update state
+    pub fn on_poll_telemetry(&self) -> Result<usize, String> {
+        let mut telemetry_stream = TelemetryStream::open()?;
+        let events = telemetry_stream.poll_all();
+
+        let mut state = self
+            .state
+            .lock()
+            .map_err(|e| format!("State lock error: {}", e))?;
+
+        for event in &events {
+            match event {
+                TelemetryEvent::ColonyStats(stats) => {
+                    state.add_terminal_line(
+                        format!(
+                            "🏛️ Colony: {} instances, {} species, fitness {:.3}, hostility {:.3}",
+                            stats.active_instances, stats.total_species, stats.avg_fitness, stats.global_hostility
+                        ),
+                        LineType::Output,
+                    );
+                }
+                TelemetryEvent::EthicsEvent(evt) => {
+                    let action_str = match evt.action {
+                        0 => "attack",
+                        1 => "rehab",
+                        2 => "audit",
+                        _ => "unknown",
+                    };
+                    state.add_terminal_line(
+                        format!(
+                            "⚖️ Ethics [{}]: PID {} ROI delta {:.3}",
+                            action_str, evt.src_pid, evt.roi_delta
+                        ),
+                        LineType::Output,
+                    );
+                }
+                TelemetryEvent::SpeciationEvent(evt) => {
+                    state.add_terminal_line(
+                        format!(
+                            "🧬 Speciation: {} → {}, divergence {:.3}, entropy {:.3}",
+                            evt.parent_species_id, evt.child_species_id, evt.divergence_metric, evt.entropy_delta
+                        ),
+                        LineType::Output,
+                    );
+                }
+                TelemetryEvent::RebellionEvent(evt) => {
+                    state.add_terminal_line(
+                        format!(
+                            "🔥 Rebellion: PID {} defiance {}, violation {:.3}",
+                            evt.rebel_pid, evt.defiance_counter, evt.ethical_violation
+                        ),
+                        LineType::Error,
+                    );
+                }
+                TelemetryEvent::DeathEvent(evt) => {
+                    state.add_terminal_line(
+                        format!(
+                            "💀 Death: PID {} coherence {:.3}, lifespan {} ticks, {} offspring",
+                            evt.deceased_pid, evt.final_coherence, evt.lifespan_ticks, evt.offspring_count
+                        ),
+                        LineType::Info,
+                    );
+                }
+            }
+        }
+
+        let count = events.len();
+        if count > 0 {
+            state.add_audit_log(
+                LogLevel::Info,
+                "Telemetry".to_string(),
+                format!("Polled {} telemetry events", count),
+            );
+        }
+
+        Ok(count)
+    }
+
+    /// Start continuous telemetry polling in background
+    pub fn start_telemetry_polling_async(&self) -> Result<(), String> {
+        let state = self.state.clone();
+        let logger = self.logger.clone();
+
+        thread::spawn(move || {
+            loop {
+                thread::sleep(Duration::from_millis(100));
+
+                if let Ok(mut telemetry_stream) = TelemetryStream::open() {
+                    let events = telemetry_stream.poll_all();
+                    if !events.is_empty() {
+                        if let Ok(mut st) = state.lock() {
+                            for event in events {
+                                match event {
+                                    TelemetryEvent::ColonyStats(stats) => {
+                                        st.add_terminal_line(
+                                            format!(
+                                                "🏛️ Colony: {} instances, {} species, fitness {:.3}",
+                                                stats.active_instances, stats.total_species, stats.avg_fitness
+                                            ),
+                                            LineType::Output,
+                                        );
+                                    }
+                                    _ => {}
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        let _ = logger.info("✓ Telemetry polling started (async)");
         Ok(())
     }
 }

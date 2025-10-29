@@ -8,6 +8,7 @@ pub mod button_handlers;
 pub mod clipboard;
 pub mod codebase_manager;
 pub mod config;
+pub mod control_commands;
 pub mod dungeons;
 pub mod error_recovery;
 pub mod gpu;
@@ -16,6 +17,7 @@ pub mod messaging;
 pub mod models;
 pub mod shortcuts;
 pub mod shutdown;
+pub mod telemetry;
 pub mod ui;
 pub mod utils;
 

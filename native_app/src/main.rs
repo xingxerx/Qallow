@@ -5,6 +5,7 @@ mod button_handlers;
 mod clipboard;
 mod codebase_manager;
 mod config;
+mod control_commands;
 mod dungeons;
 mod error_recovery;
 mod gpu;
@@ -13,6 +14,7 @@ mod messaging;
 mod models;
 mod shortcuts;
 mod shutdown;
+mod telemetry;
 mod ui;
 mod utils;
 

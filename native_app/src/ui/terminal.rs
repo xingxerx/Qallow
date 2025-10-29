@@ -18,12 +18,15 @@ pub fn create_terminal(tabs: &mut group::Tabs, state: Arc<Mutex<AppState>>) -> T
 
     let mut flex = group::Flex::default().with_size(1450, 950).column();
     flex.set_color(Color::from_hex(0x0a0e27));
+    flex.begin();
 
     let mut title = text::TextDisplay::default().with_size(1450, 40);
     let mut title_buffer = text::TextBuffer::default();
     title.set_buffer(title_buffer.clone());
     title_buffer.set_text("Live Terminal Output");
     title.set_text_color(Color::from_hex(0x00d4ff));
+    flex.add(&title);
+    flex.fixed(&title, 40);
 
     let mut terminal_buffer = text::TextBuffer::default();
 
@@ -46,32 +49,39 @@ pub fn create_terminal(tabs: &mut group::Tabs, state: Arc<Mutex<AppState>>) -> T
             terminal_buffer.set_text(&initial_text);
         }
     }
+    flex.add(&terminal_output);
+    flex.fixed(&terminal_output, 850);
 
     let mut button_flex = group::Flex::default().with_size(1450, 50).row();
     button_flex.set_color(Color::from_hex(0x0a0e27));
+    button_flex.begin();
 
     let mut clear_btn = button::Button::default()
         .with_size(100, 50)
         .with_label("Clear");
     clear_btn.set_color(Color::from_hex(0x1a1f3a));
     clear_btn.set_label_color(Color::from_hex(0x00d4ff));
+    button_flex.add(&clear_btn);
 
     let mut copy_btn = button::Button::default()
         .with_size(100, 50)
         .with_label("Copy");
     copy_btn.set_color(Color::from_hex(0x1a1f3a));
     copy_btn.set_label_color(Color::from_hex(0x00d4ff));
+    button_flex.add(&copy_btn);
 
     let mut export_btn = button::Button::default()
         .with_size(100, 50)
         .with_label("Export");
     export_btn.set_color(Color::from_hex(0x1a1f3a));
     export_btn.set_label_color(Color::from_hex(0x00d4ff));
+    button_flex.add(&export_btn);
 
     button_flex.end();
+    flex.add(&button_flex);
+    flex.fixed(&button_flex, 50);
 
     flex.end();
-    group.end();
     group.end();
     tabs.add(&group);
 

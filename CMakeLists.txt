@@ -102,6 +102,7 @@ set(QALLOW_BACKEND_CPU_SOURCES
     backend/cpu/self_reflection.c
     backend/cpu/semantic_memory.c
     backend/cpu/telemetry.c
+    backend/cpu/telemetry_ffi.c
     backend/cpu/transfer_engine.c
     backend/cpu/verify.c
     src/quantum/entanglement_bridge.c

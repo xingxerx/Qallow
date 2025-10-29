@@ -45,6 +45,7 @@ pub fn create_control_panel(
     title.set_buffer(text::TextBuffer::default());
     title.buffer().unwrap().set_text("System Control Panel");
     title.set_text_color(Color::from_hex(COLOR_PRIMARY));
+    flex.add(&title);
     flex.fixed(&title, 40);
 
     let mut control_row = group::Flex::default_fill().row();
@@ -76,6 +77,7 @@ pub fn create_control_panel(
     control_row.fixed(&reset_btn, 160);
 
     control_row.end();
+    flex.add(&control_row);
     flex.fixed(&control_row, 70);
 
     let mut build_row = group::Flex::default_fill().row();
@@ -98,6 +100,7 @@ pub fn create_control_panel(
     build_row.fixed(&build_choice, 180);
 
     build_row.end();
+    flex.add(&build_row);
     flex.fixed(&build_row, 40);
 
     let mut phase_row = group::Flex::default_fill().row();
@@ -122,6 +125,7 @@ pub fn create_control_panel(
     phase_row.fixed(&phase_choice, 220);
 
     phase_row.end();
+    flex.add(&phase_row);
     flex.fixed(&phase_row, 40);
 
     let mut ritual_row = group::Flex::default_fill().row();
@@ -159,6 +163,7 @@ pub fn create_control_panel(
     ritual_row.fixed(&dream_btn, 160);
 
     ritual_row.end();
+    flex.add(&ritual_row);
     flex.fixed(&ritual_row, 60);
 
     let mut actions_row = group::Flex::default_fill().row();
@@ -184,6 +189,7 @@ pub fn create_control_panel(
     actions_row.fixed(&logs_btn, 200);
 
     actions_row.end();
+    flex.add(&actions_row);
     flex.fixed(&actions_row, 60);
 
     let mut code_row = group::Flex::default_fill().row();
@@ -215,6 +221,7 @@ pub fn create_control_panel(
     code_row.fixed(&recent_commits_btn, 220);
 
     code_row.end();
+    flex.add(&code_row);
     flex.fixed(&code_row, 60);
 
     flex.end();

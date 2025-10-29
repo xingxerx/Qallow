@@ -19,15 +19,20 @@ pub fn create_audit_log(tabs: &mut group::Tabs, state: Arc<Mutex<AppState>>) -> 
 
     let mut flex = group::Flex::default().with_size(1450, 950).column();
     flex.set_color(Color::from_hex(0x0a0e27));
+    flex.begin();
 
     let mut title = text::TextDisplay::default().with_size(1450, 40);
     let mut title_buffer = text::TextBuffer::default();
     title.set_buffer(title_buffer.clone());
     title_buffer.set_text("Event Audit Log");
     title.set_text_color(Color::from_hex(0x00d4ff));
+    flex.add(&title);
+    flex.fixed(&title, 40);
+    flex.add(&title);
 
     let mut filter_flex = group::Flex::default().with_size(1450, 50).row();
     filter_flex.set_color(Color::from_hex(0x0a0e27));
+    filter_flex.begin();
 
     let mut filter_label = text::TextDisplay::default().with_size(100, 50);
     let mut filter_label_buffer = text::TextBuffer::default();
@@ -40,14 +45,20 @@ pub fn create_audit_log(tabs: &mut group::Tabs, state: Arc<Mutex<AppState>>) -> 
     filter_choice.set_color(Color::from_hex(0x1a1f3a));
     filter_choice.set_text_color(Color::from_hex(0x00d4ff));
     filter_choice.set_value(0);
+    filter_flex.add(&filter_label);
+    filter_flex.add(&filter_choice);
 
     filter_flex.end();
+    flex.add(&filter_flex);
+    flex.fixed(&filter_flex, 50);
 
     let mut log_buffer = text::TextBuffer::default();
     let mut log_display = text::TextDisplay::default().with_size(1450, 800);
     log_display.set_buffer(log_buffer.clone());
     log_display.set_color(Color::from_hex(0x0a0e27));
     log_display.set_text_color(Color::from_hex(0x00ff64));
+    flex.add(&log_display);
+    flex.fixed(&log_display, 800);
 
     if let Ok(state) = state.lock() {
         if state.audit_logs.is_empty() {
@@ -80,6 +91,7 @@ pub fn create_audit_log(tabs: &mut group::Tabs, state: Arc<Mutex<AppState>>) -> 
 
     let mut button_flex = group::Flex::default().with_size(1450, 50).row();
     button_flex.set_color(Color::from_hex(0x0a0e27));
+    button_flex.begin();
 
     let mut clear_btn = button::Button::default()
         .with_size(100, 50)
@@ -118,9 +130,10 @@ pub fn create_audit_log(tabs: &mut group::Tabs, state: Arc<Mutex<AppState>>) -> 
     button_flex.add(&search_input);
 
     button_flex.end();
+    flex.add(&button_flex);
+    flex.fixed(&button_flex, 50);
 
     flex.end();
-    group.end();
     group.end();
     tabs.add(&group);
 
