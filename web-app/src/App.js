@@ -7,6 +7,7 @@ import Metrics from './components/Metrics';
 import AuditLog from './components/AuditLog';
 import ControlPanel from './components/ControlPanel';
 import CodeImprovements from './components/CodeImprovements';
+import MatrixRain from './components/MatrixRain';
 
 function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -75,6 +76,7 @@ function App() {
 
   return (
     <div className="app">
+      <MatrixRain />
       <header className="app-header">
         <h1>🚀 Qallow Unified System</h1>
         <div className="status-indicator">
@@ -143,4 +145,3 @@ function App() {
 }
 
 export default App;
-

@@ -160,7 +160,6 @@ fn main() {
     let mut audit_export_btn = ui_handles.audit.export_btn.clone();
     let mut audit_copy_btn = ui_handles.audit.copy_btn.clone();
     let status_indicator = ui_handles.status_indicator.clone();
-    let mut header_start_btn = ui_handles.header_start_btn.clone();
     let mut control_buttons = ui_handles.control;
     let mut dungeon_copy_status_btn = ui_handles.dungeons.copy_status_btn.clone();
     let mut dungeon_copy_log_btn = ui_handles.dungeons.copy_log_btn.clone();
@@ -181,29 +180,6 @@ fn main() {
     // Setup button callbacks BEFORE showing window
     let handler_clone = button_handler.clone();
     control_buttons.start_btn.set_callback({
-        let handler = handler_clone.clone();
-        let state = state.clone();
-        let terminal_buffer = terminal_buffer.clone();
-        let audit_buffer = audit_buffer.clone();
-        let audit_filter_choice = audit_filter_choice.clone();
-        let status_indicator = status_indicator.clone();
-        move |_| match handler.on_start_vm() {
-            Ok(()) => {
-                refresh_terminal(&state, &terminal_buffer);
-                refresh_audit(
-                    &state,
-                    &audit_buffer,
-                    current_audit_filter(&audit_filter_choice),
-                );
-                let mut btn = status_indicator.clone();
-                set_status_indicator(&mut btn, VmStatus::Running);
-            }
-            Err(e) => dialog::alert_default(&format!("Error starting VM: {}", e)),
-        }
-    });
-
-    let handler_clone = button_handler.clone();
-    header_start_btn.set_callback({
         let handler = handler_clone.clone();
         let state = state.clone();
         let terminal_buffer = terminal_buffer.clone();

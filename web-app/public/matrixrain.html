@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Matrix Rain Background</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+      body {
+        background-color: black;
+        margin: 0;
+        overflow: hidden; /* Hide scrollbars */
+      }
+      #root {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+      }
+      canvas {
+        display: block; /* Remove default bottom margin */
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/"
+  }
+}
+</script>
+</head>
+  <body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+      const { useEffect, useRef, StrictMode } = React;
+
+      // --- Custom Hook for Matrix Rain effect ---
+      const CHARACTERS = '01';
+      const FONT_SIZE = 16;
+      const TRAIL_ALPHA = 0.05;
+      const DROP_RESET_PROBABILITY = 0.975;
+
+      const useMatrixRain = (canvasRef) => {
+        const animationFrameId = useRef(null);
+
+        useEffect(() => {
+          const canvas = canvasRef.current;
+          if (!canvas) return;
+
+          const ctx = canvas.getContext('2d');
+          if (!ctx) return;
+
+          let columns;
+          let drops;
+
+          const setup = () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            columns = Math.floor(canvas.width / FONT_SIZE);
+            drops = [];
+            for (let i = 0; i < columns; i++) {
+              drops[i] = 1;
+            }
+          };
+          
+          setup();
+
+          const draw = () => {
+            ctx.fillStyle = `rgba(0, 0, 0, ${TRAIL_ALPHA})`;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = '#0F0'; // Green
+            ctx.font = `${FONT_SIZE}px monospace`;
+
+            for (let i = 0; i < drops.length; i++) {
+              const text = CHARACTERS.charAt(Math.floor(Math.random() * CHARACTERS.length));
+              ctx.fillText(text, i * FONT_SIZE, drops[i] * FONT_SIZE);
+
+              if (drops[i] * FONT_SIZE > canvas.height && Math.random() > DROP_RESET_PROBABILITY) {
+                drops[i] = 0;
+              }
+              drops[i]++;
+            }
+          };
+
+          const animate = () => {
+            draw();
+            animationFrameId.current = requestAnimationFrame(animate);
+          };
+
+          animate();
+
+          const handleResize = () => {
+              if (animationFrameId.current) {
+                  cancelAnimationFrame(animationFrameId.current);
+              }
+              setup();
+              animate();
+          };
+
+          window.addEventListener('resize', handleResize);
+
+          return () => {
+            if (animationFrameId.current) {
+              cancelAnimationFrame(animationFrameId.current);
+            }
+            window.removeEventListener('resize', handleResize);
+          };
+        }, [canvasRef]);
+      };
+
+      // --- MatrixRain Component ---
+      const MatrixRain = () => {
+        const canvasRef = useRef(null);
+        useMatrixRain(canvasRef);
+
+        return (
+          <canvas ref={canvasRef}></canvas>
+        );
+      };
+
+      // --- App Component ---
+      const App = () => {
+        return (
+          <main>
+            <MatrixRain />
+          </main>
+        );
+      };
+
+      // --- Render the App ---
+      const rootElement = document.getElementById('root');
+      const root = ReactDOM.createRoot(rootElement);
+      root.render(
+        <StrictMode>
+          <App />
+        </StrictMode>
+      );
+
+    </script>
+  </body>
+</html>

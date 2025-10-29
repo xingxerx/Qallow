@@ -4,21 +4,23 @@
   box-sizing: border-box;
 }
 
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
-  color: #00d4ff;
-}
-
 .app {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background: #0a0e27;
+  background: transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+.matrix-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
 }
 
 .app-header {
@@ -29,6 +31,8 @@ body {
   justify-content: space-between;
   align-items: center;
   box-shadow: 0 4px 20px rgba(0, 212, 255, 0.1);
+  position: relative;
+  z-index: 10;
 }
 
 .app-header h1 {
@@ -71,6 +75,9 @@ body {
   background: rgba(26, 31, 58, 0.8);
   border-bottom: 1px solid rgba(0, 212, 255, 0.2);
   overflow-x: auto;
+  position: relative;
+  z-index: 10;
+  backdrop-filter: blur(6px);
 }
 
 .nav-btn {
@@ -101,6 +108,8 @@ body {
   flex: 1;
   overflow: auto;
   padding: 30px;
+  position: relative;
+  z-index: 5;
 }
 
 /* Scrollbar styling */
@@ -147,4 +156,3 @@ button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
-

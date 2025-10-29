@@ -22,9 +22,13 @@ pub struct ProcessManager {
     metadata: Option<ProcessMetadata>,
     retry_count: u32,
     max_retries: u32,
+    persistent_mode: bool,
 }
 
 impl ProcessManager {
+    pub fn set_persistent_mode(&mut self, enabled: bool) {
+        self.persistent_mode = enabled;
+    }
     pub fn new() -> Self {
         let (tx, rx) = unbounded();
         Self {
@@ -34,6 +38,7 @@ impl ProcessManager {
             metadata: None,
             retry_count: 0,
             max_retries: 3,
+            persistent_mode: false,
         }
     }
 
@@ -359,11 +364,21 @@ impl ProcessManager {
             match child.try_wait() {
                 Ok(Some(_status)) => {
                     self.process = None;
+                    if self.persistent_mode {
+                        if let Some(meta) = &self.metadata {
+                            let _ = self.start_vm(meta.build, meta.phase, meta.ticks);
+                        }
+                    }
                     return true;
                 }
                 Ok(None) => {}
                 Err(_) => {
                     self.process = None;
+                    if self.persistent_mode {
+                        if let Some(meta) = &self.metadata {
+                            let _ = self.start_vm(meta.build, meta.phase, meta.ticks);
+                        }
+                    }
                     return true;
                 }
             }

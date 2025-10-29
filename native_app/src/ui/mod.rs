@@ -27,7 +27,6 @@ pub struct MainUiHandles {
     pub terminal: terminal::TerminalView,
     pub audit: audit_log::AuditLogView,
     pub status_indicator: button::Button,
-    pub header_start_btn: button::Button,
     pub dungeons: dungeons::DungeonsView,
 }
 
@@ -35,7 +34,7 @@ pub fn create_main_ui(_wind: &mut window::Window, state: Arc<Mutex<AppState>>) -
     let mut flex = group::Flex::default().with_size(1600, 1000).column();
 
     // Header with modern design
-    let (status_indicator, header_start_btn) = create_modern_header(&mut flex);
+    let status_indicator = create_modern_header(&mut flex);
 
     // Main content area with sidebar
     let main_flex = group::Flex::default().with_size(1600, 950).row();
@@ -91,12 +90,11 @@ pub fn create_main_ui(_wind: &mut window::Window, state: Arc<Mutex<AppState>>) -
         terminal: terminal_view,
         audit: audit_view,
         status_indicator,
-        header_start_btn,
         dungeons: dungeons_view,
     }
 }
 
-fn create_modern_header(flex: &mut group::Flex) -> (button::Button, button::Button) {
+fn create_modern_header(flex: &mut group::Flex) -> button::Button {
     let mut header = group::Flex::default().with_size(1600, 60).row();
     header.set_color(Color::from_hex(COLOR_BG_ACCENT));
 
@@ -117,17 +115,10 @@ fn create_modern_header(flex: &mut group::Flex) -> (button::Button, button::Butt
     status.set_color(Color::from_hex(COLOR_DANGER));
     status.set_label_color(Color::White);
 
-    // Start button with modern gradient-like appearance
-    let mut start_btn = button::Button::default()
-        .with_size(140, 60)
-        .with_label("▶ Start");
-    start_btn.set_color(Color::from_hex(COLOR_SUCCESS));
-    start_btn.set_label_color(Color::Black);
-
     header.end();
     flex.add(&header);
 
-    (status, start_btn)
+    status
 }
 
 fn create_modern_sidebar(flex: &mut group::Flex, _state: Arc<Mutex<AppState>>) {
