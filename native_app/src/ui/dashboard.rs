@@ -6,6 +6,7 @@ use std::sync::{Arc, Mutex};
 pub fn create_dashboard(tabs: &mut group::Tabs, _state: Arc<Mutex<AppState>>) {
     let mut group = group::Group::default().with_label("📊 Dashboard");
     group.set_color(Color::from_hex(0x0a0e27));
+    group.begin();
 
     let mut flex = group::Flex::default().with_size(1450, 950).column();
     flex.set_color(Color::from_hex(0x0a0e27));
@@ -92,6 +93,7 @@ pub fn create_dashboard(tabs: &mut group::Tabs, _state: Arc<Mutex<AppState>>) {
     progress_flex.end();
 
     flex.end();
+    group.end();
     group.end();
     tabs.add(&group);
 }

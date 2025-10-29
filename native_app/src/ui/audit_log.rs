@@ -15,6 +15,7 @@ pub struct AuditLogView {
 pub fn create_audit_log(tabs: &mut group::Tabs, state: Arc<Mutex<AppState>>) -> AuditLogView {
     let mut group = group::Group::default().with_label("🔍 Audit Log");
     group.set_color(Color::from_hex(0x0a0e27));
+    group.begin();
 
     let mut flex = group::Flex::default().with_size(1450, 950).column();
     flex.set_color(Color::from_hex(0x0a0e27));
@@ -119,6 +120,7 @@ pub fn create_audit_log(tabs: &mut group::Tabs, state: Arc<Mutex<AppState>>) -> 
     button_flex.end();
 
     flex.end();
+    group.end();
     group.end();
     tabs.add(&group);
 

@@ -15,7 +15,8 @@ pub struct DungeonsView {
 }
 
 pub fn create_dungeons_tab(tabs: &mut group::Tabs, state: Arc<Mutex<AppState>>) -> DungeonsView {
-    let group = group::Group::default().with_label("🗺️ Dungeons");
+    let mut group = group::Group::default().with_label("🗺️ Dungeons");
+    group.begin();
     let root = group::Flex::default().with_size(1450, 950).column();
 
     let mut control_row = group::Flex::default().with_size(1450, 80).row();

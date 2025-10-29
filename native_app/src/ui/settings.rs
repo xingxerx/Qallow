@@ -4,7 +4,8 @@ use fltk::{prelude::*, *};
 use std::sync::{Arc, Mutex};
 
 pub fn create_settings_panel(parent: &mut group::Tabs, _state: Arc<Mutex<AppState>>) {
-    let settings_group = group::Group::default().with_label("⚙️ Settings");
+    let mut settings_group = group::Group::default().with_label("⚙️ Settings");
+    settings_group.begin();
 
     let mut flex = group::Flex::default().with_size(1450, 950).column();
     flex.set_color(Color::from_hex(0x0a0e27));
@@ -25,25 +26,28 @@ pub fn create_settings_panel(parent: &mut group::Tabs, _state: Arc<Mutex<AppStat
     create_vm_settings(&mut flex);
 
     // Buttons
-    let button_flex = group::Flex::default().with_size(1450, 50).row();
+    let mut button_flex = group::Flex::default().with_size(1450, 50).row();
 
     let mut save_btn = button::Button::default()
         .with_size(200, 50)
         .with_label("💾 Save Settings");
     save_btn.set_color(Color::from_hex(0x00d4ff));
     save_btn.set_label_color(Color::Black);
+    button_flex.add(&save_btn);
 
     let mut reset_btn = button::Button::default()
         .with_size(200, 50)
         .with_label("🔄 Reset to Defaults");
     reset_btn.set_color(Color::from_hex(0xff6464));
     reset_btn.set_label_color(Color::White);
+    button_flex.add(&reset_btn);
 
     let mut close_btn = button::Button::default()
         .with_size(200, 50)
         .with_label("✕ Close");
     close_btn.set_color(Color::from_hex(0x1a1f3a));
     close_btn.set_label_color(Color::from_hex(0x00d4ff));
+    button_flex.add(&close_btn);
 
     button_flex.end();
     flex.add(&button_flex);
