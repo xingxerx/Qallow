@@ -20,19 +20,11 @@ from typing import Iterable, List, Sequence, Tuple
 import numpy as np
 
 try:
-    from qiskit import QuantumCircuit, transpile
+    import cirq
 except ImportError as exc:  # pragma: no cover - optional dependency
     raise RuntimeError(
-        "qiskit is required for python.quantum.hybrid_meta_learner. "
-        "Install it via 'pip install qiskit qiskit-aer'."
-    ) from exc
-
-try:
-    from qiskit_aer import AerSimulator
-except ImportError as exc:  # pragma: no cover - optional dependency
-    raise RuntimeError(
-        "qiskit-aer is required for python.quantum.hybrid_meta_learner. "
-        "Install it via 'pip install qiskit-aer'."
+        "cirq is required for python.quantum.hybrid_meta_learner. "
+        "Install it via 'pip install cirq'."
     ) from exc
 
 
@@ -75,11 +67,9 @@ class HybridQuantumLearner:
         total_params = layers * num_qubits
         self._params = rng.uniform(-math.pi, math.pi, size=total_params)
 
-        backend_options = {}
-        if seed is not None:
-            backend_options["seed_simulator"] = seed
-            backend_options["seed_transpiler"] = seed
-        self._backend = AerSimulator(**backend_options)
+        # Use Cirq simulator instead of Qiskit
+        self._simulator = cirq.Simulator(seed=seed)
+        self._rng = rng
 
         self._history: List[TrainingEpoch] = []
 
@@ -98,38 +88,46 @@ class HybridQuantumLearner:
         clipped = [max(0.0, min(1.0, val)) for val in values]
         return clipped
 
-    def _build_circuit(self, norm_features: Sequence[float], params: np.ndarray) -> QuantumCircuit:
-        qc = QuantumCircuit(self.num_qubits, self.num_qubits)
+    def _build_circuit(self, norm_features: Sequence[float], params: np.ndarray) -> cirq.Circuit:
+        qubits = cirq.LineQubit.range(self.num_qubits)
+        circuit = cirq.Circuit()
 
+        # Encode features
         for idx, feature in enumerate(norm_features):
-            qc.ry(feature * math.pi, idx)
+            circuit.append(cirq.ry(feature * math.pi)(qubits[idx]))
 
+        # Variational layers
         param_idx = 0
         for _layer in range(self.layers):
-            for qubit in range(self.num_qubits):
-                qc.ry(params[param_idx], qubit)
+            for qubit_idx in range(self.num_qubits):
+                circuit.append(cirq.ry(params[param_idx])(qubits[qubit_idx]))
                 param_idx += 1
 
-            for qubit in range(self.num_qubits - 1):
-                qc.cz(qubit, qubit + 1)
+            # Entangling layer
+            for qubit_idx in range(self.num_qubits - 1):
+                circuit.append(cirq.CZPowGate(exponent=1.0)(qubits[qubit_idx], qubits[qubit_idx + 1]))
 
-        qc.barrier()
-        qc.measure_all()
-        return qc
+        return circuit
 
     def _expectation(self, features: Sequence[float], params: np.ndarray) -> float:
         norm_features = self._normalise_features(features)
         circuit = self._build_circuit(norm_features, params)
-        compiled = transpile(circuit, self._backend, seed_transpiler=self.seed)
-        job = self._backend.run(compiled, shots=self.shots, seed_simulator=self.seed)
-        counts = job.result().get_counts()
 
+        # Add measurement of first qubit
+        qubits = cirq.LineQubit.range(self.num_qubits)
+        circuit.append(cirq.measure(qubits[0], key='m'))
+
+        # Run simulation with repetitions
+        simulator = cirq.Simulator()
+        result = simulator.run(circuit, repetitions=self.shots)
+        measurements = result.measurements['m'].flatten()
+
+        # Calculate expectation value
         expectation = 0.0
-        for bitstring, count in counts.items():
-            qubit0 = bitstring[-1]  # little-endian ordering
-            contribution = 1.0 if qubit0 == "0" else -1.0
-            expectation += contribution * (count / self.shots)
-        return expectation
+        for measurement in measurements:
+            contribution = 1.0 if measurement == 0 else -1.0
+            expectation += contribution
+        return expectation / self.shots
 
     def _probability(self, expectation: float) -> float:
         prob = 0.5 * (1.0 + expectation)

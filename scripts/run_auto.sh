@@ -6,9 +6,6 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BIN=""
 cmd_prefix=()
 preferred_backend="auto"
-enable_qiskit=0
-qiskit_backend=""
-qiskit_bridge=""
 
 threads="auto"
 watch_dir=""
@@ -21,11 +18,6 @@ Usage: ${0##*/} [options]
 Backend selection:
   --cuda               Force the CUDA binary (requires successful CUDA build)
   --cpu                Force the CPU binary
-
-Qiskit integration:
-  --with-qiskit        Export QALLOW_QISKIT=1 for the run
-  --qiskit-backend=ID  Set QALLOW_QISKIT_BACKEND to a specific IBM backend
-  --qiskit-bridge=PATH Override bridge script (QALLOW_QISKIT_BRIDGE)
 
 Execution:
   --threads=N          Thread count (default: auto)
@@ -47,23 +39,6 @@ while [[ $# -gt 0 ]]; do
       ;;
     --cpu)
       preferred_backend="cpu"
-      ;;
-    --with-qiskit)
-      enable_qiskit=1
-      ;;
-    --qiskit-backend=*)
-      qiskit_backend="${1#*=}"
-      ;;
-    --qiskit-backend)
-      shift || { echo "[ERROR] Missing value for --qiskit-backend" >&2; usage; exit 1; }
-      qiskit_backend="$1"
-      ;;
-    --qiskit-bridge=*)
-      qiskit_bridge="${1#*=}"
-      ;;
-    --qiskit-bridge)
-      shift || { echo "[ERROR] Missing value for --qiskit-bridge" >&2; usage; exit 1; }
-      qiskit_bridge="$1"
       ;;
     --threads=*)
       threads="${1#*=}"
@@ -175,16 +150,6 @@ case "$preferred_backend" in
     exit 1
     ;;
 esac
-
-if (( enable_qiskit )); then
-  export QALLOW_QISKIT=1
-fi
-if [[ -n "$qiskit_backend" ]]; then
-  export QALLOW_QISKIT_BACKEND="$qiskit_backend"
-fi
-if [[ -n "$qiskit_bridge" ]]; then
-  export QALLOW_QISKIT_BRIDGE="$qiskit_bridge"
-fi
 
 full_cmd=("${cmd_prefix[@]}" "${args[@]}")
 echo "[RUN] ${BIN} ${full_cmd[*]}"

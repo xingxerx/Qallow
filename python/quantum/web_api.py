@@ -13,7 +13,7 @@ from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlparse
 
-from .ghz_w_sim import build_state, validate_with_qiskit, validate_with_cirq
+from .ghz_w_sim import build_state, validate_with_cirq
 
 
 def serialize_state(name: str, qubits: int, validate: bool) -> dict:
@@ -24,9 +24,7 @@ def serialize_state(name: str, qubits: int, validate: bool) -> dict:
     backend = "generated"
     fidelity = 1.0
     if validate:
-        validation = validate_with_qiskit(vector, qubits, name)
-        if validation is None:
-            validation = validate_with_cirq(vector, qubits)
+        validation = validate_with_cirq(vector, qubits)
         if validation is not None:
             backend, fidelity = validation
 

@@ -23,12 +23,11 @@ NC='\033[0m'
 mkdir -p "$LOGS_DIR"
 mkdir -p "$DATA_DIR/quantum_results"
 
-# Activate virtual environment
-if [ -f "$PROJECT_ROOT/qiskit-env/bin/activate" ]; then
-    source "$PROJECT_ROOT/qiskit-env/bin/activate"
-else
-    echo -e "${RED}Virtual environment not found. Run setup_quantum_workload.sh first.${NC}"
-    exit 1
+# Activate virtual environment if available
+if [ -f "$PROJECT_ROOT/venv/bin/activate" ]; then
+    source "$PROJECT_ROOT/venv/bin/activate"
+elif [ -f "$PROJECT_ROOT/.venv/bin/activate" ]; then
+    source "$PROJECT_ROOT/.venv/bin/activate"
 fi
 
 echo -e "${BLUE}========================================${NC}"
@@ -49,8 +48,8 @@ fi
 
 # Check Python dependencies
 echo -e "${YELLOW}[2/5] Checking Python dependencies...${NC}"
-python3 -c "import qiskit; print(f'Qiskit {qiskit.__version__}')" || {
-    echo -e "${RED}Qiskit not installed. Run setup_quantum_workload.sh first.${NC}"
+python3 -c "import cirq; print(f'Cirq {cirq.__version__}')" || {
+    echo -e "${RED}Cirq not installed. Install it via: pip install cirq${NC}"
     exit 1
 }
 

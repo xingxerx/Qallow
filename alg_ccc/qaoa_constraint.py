@@ -4,9 +4,9 @@ import argparse, json, math, os, sys
 from typing import Dict, Any
 
 try:
-    from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister
+    import cirq
 except Exception:
-    QuantumCircuit = None
+    cirq = None
 
 DEFAULT = dict(M=8, b=6, H=4,
                alpha=1.0, beta=1.0, rho=0.1, gamma=5.0, eta=1.0, kappa=0.1, xi=0.1,
@@ -20,46 +20,50 @@ def gray2int(g: int) -> int:
     return x
 
 def make_circuit(M:int, b:int, H:int, layers:int) -> Any:
-    if QuantumCircuit is None:
+    if cirq is None:
         return None
-    q_mode = QuantumRegister(M, "mode")
-    q_ctrl = QuantumRegister(b, "ctrl")
-    q_eth  = QuantumRegister(2, "eth")
-    q_mem  = QuantumRegister(b, "mem")  # single step mirror for demo
-    c_out  = ClassicalRegister(M + b + 2, "c")
-    qc = QuantumCircuit(q_mode, q_ctrl, q_eth, q_mem, c_out, name="CCC")
+
+    # Create qubits for different registers
+    q_mode = cirq.LineQubit.range(M)
+    q_ctrl = cirq.LineQubit.range(M, M + b)
+    q_eth = cirq.LineQubit.range(M + b, M + b + 2)
+    q_mem = cirq.LineQubit.range(M + b + 2, M + b + 2 + b)
+
+    circuit = cirq.Circuit()
 
     # init (toy)
     for i in range(M):
-        qc.h(q_mode[i])
+        circuit.append(cirq.H(q_mode[i]))
     for j in range(b):
-        qc.h(q_ctrl[j])
+        circuit.append(cirq.H(q_ctrl[j]))
 
     for l in range(layers):
         # ethics projector stub: flip eth[0] if any ctrl bit = 1 then uncompute
         for j in range(b):
-            qc.cx(q_ctrl[j], q_eth[0])
+            circuit.append(cirq.CNOT(q_ctrl[j], q_eth[0]))
         # cost e^{-iγH}: proxy with RZ on modes + ctrl
         for i in range(M):
-            qc.rz(0.1, q_mode[i])
+            circuit.append(cirq.rz(0.1)(q_mode[i]))
         for j in range(b):
-            qc.rz(0.05, q_ctrl[j])
+            circuit.append(cirq.rz(0.05)(q_ctrl[j]))
         # ethics-safe mixer proxy: RX conditioned on eth=0
-        qc.x(q_eth[0])       # eth==0 → 1
+        circuit.append(cirq.X(q_eth[0]))       # eth==0 → 1
         for i in range(M):
-            qc.crx(0.2, q_eth[0], q_mode[i])
+            circuit.append(cirq.CXPowGate(exponent=1.0)(q_eth[0], q_mode[i]))
+            circuit.append(cirq.rx(0.2)(q_mode[i]))
         for j in range(b):
-            qc.crx(0.2, q_eth[0], q_ctrl[j])
-        qc.x(q_eth[0])
+            circuit.append(cirq.CXPowGate(exponent=1.0)(q_eth[0], q_ctrl[j]))
+            circuit.append(cirq.rx(0.2)(q_ctrl[j]))
+        circuit.append(cirq.X(q_eth[0]))
         # uncompute flag
         for j in reversed(range(b)):
-            qc.cx(q_ctrl[j], q_eth[0])
+            circuit.append(cirq.CNOT(q_ctrl[j], q_eth[0]))
 
-    qc.barrier()
-    qc.measure(q_mode, c_out[:M])
-    qc.measure(q_ctrl, c_out[M:M+b])
-    qc.measure(q_eth,  c_out[M+b:M+b+2])
-    return qc
+    # Add measurements
+    circuit.append(cirq.measure(*q_mode, key='mode'))
+    circuit.append(cirq.measure(*q_ctrl, key='ctrl'))
+    circuit.append(cirq.measure(*q_eth, key='eth'))
+    return circuit
 
 def main(argv=None):
     p = argparse.ArgumentParser()
@@ -76,7 +80,7 @@ def main(argv=None):
 
     qc = make_circuit(cfg["M"], cfg["b"], cfg["H"], cfg.get("layers", 2))
     os.makedirs(os.path.dirname(args.export), exist_ok=True)
-    plan = dict(alg="ccc", params=cfg, has_qiskit=(qc is not None))
+    plan = dict(alg="ccc", params=cfg, has_cirq=(qc is not None))
     with open(args.export, "w") as f:
         json.dump(plan, f, indent=2)
 

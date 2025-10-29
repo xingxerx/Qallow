@@ -27,7 +27,6 @@ except ImportError as exc:
 
 __all__ = [
     "build_state",
-    "validate_with_qiskit",
     "validate_with_cirq",
     "main",
 ]
@@ -42,11 +41,6 @@ def build_state(name: str, qubits: int):
     if name_lower in {"w", "w_state"}:
         return w_state(qubits)
     raise ValueError(f"Unsupported entanglement state '{name}'")
-
-
-def validate_with_qiskit(state_vector: np.ndarray, qubits: int, name: str) -> Optional[Tuple[str, float]]:
-    """Deprecated: Use validate_with_cirq instead."""
-    return None
 
 
 def validate_with_cirq(state_vector: np.ndarray, qubits: int) -> Optional[Tuple[str, float]]:
@@ -66,7 +60,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Generate GHZ/W entanglement state statistics.")
     parser.add_argument("--state", default="ghz", help="State type: ghz or w")
     parser.add_argument("--qubits", type=int, default=4, help="Number of qubits (default: 4)")
-    parser.add_argument("--validate", action="store_true", help="Run backend validation (Qiskit or Cirq)")
+    parser.add_argument("--validate", action="store_true", help="Run backend validation (Cirq)")
     args = parser.parse_args()
 
     try:

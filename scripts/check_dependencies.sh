@@ -262,7 +262,7 @@ if command -v nvcc >/dev/null 2>&1; then
             python_check
             cuda_check
             ncu_check
-            python_import_check "Qiskit" "qiskit" "Run: python3 -m pip install -r requirements.txt"
+            python_import_check "Cirq" "cirq" "Run: pip install cirq"
             sentence_transformers_check
             sdl_check
 

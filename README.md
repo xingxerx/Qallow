@@ -1,10 +1,10 @@
-# Qallow - Quantum-Photonic Computing Platform
+# Qallow - Experimental Quantum-Photonic Computing Platform
 
 <div align="center">
 
-**Production-Ready Quantum Computing & Optimization System**
+**Experimental Quantum-Photonic Computing Platform**
 
-[![Status](https://img.shields.io/badge/Status-Production%20Ready-brightgreen)]()
+[![Status](https://img.shields.io/badge/Status-No%20(v0.1)-lightgrey)]()
 [![Phases](https://img.shields.io/badge/Phases-20%20Execution%20Phases-blue)]()
 [![Hardware](https://img.shields.io/badge/Hardware-CPU%20%26%20CUDA-green)]()
 [![License](https://img.shields.io/badge/License-MIT-blue)]()
@@ -15,7 +15,7 @@
 
 ## What is Qallow?
 
-**Qallow** is a production-ready quantum-photonic computing platform that provides:
+**Qallow** is an experimental (v0.1) quantum-photonic computing platform that provides:
 
 - **Quantum Simulation** – photonic propagation and coherence control
 - **Quantum Optimization** – QAOA algorithms and quantum decision-making
@@ -49,7 +49,7 @@ The platform provides **20 execution phases** that can be orchestrated from a si
 - Real-time performance metrics
 - Comprehensive benchmarking and KPI tracking
 
-**Production-Ready Architecture**
+**Modular Architecture**
 - Clean module boundaries (core, algorithms, backend, interface, tests)
 - Documented APIs and integration paths
 - Quantum optimization and machine learning capabilities
@@ -496,12 +496,12 @@ This repository is available under the **MIT license** (`LICENSE`).
 
 | Aspect | Status |
 |--------|--------|
-| **Version** | 1.0.0 |
+| **Version** | v0.1 |
 | **Phases** | 13 Research Phases |
 | **Hardware** | CPU & CUDA |
 | **Ethics** | Integrated |
 | **Telemetry** | Full Coverage |
-| **Production Ready** | ✓ Yes |
+| **Production Ready** | No (v0.1) |
 
 ---
 

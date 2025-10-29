@@ -15,7 +15,6 @@ Qallow has been designed with minimal dependencies while supporting optional adv
 
 ### Python Dependencies (Optional)
 - Python ≥ 3.10
-- Qiskit (quantum algorithms)
 - Cirq (quantum simulation)
 - NumPy, SciPy (numerical computing)
 - Pandas (data analysis)
