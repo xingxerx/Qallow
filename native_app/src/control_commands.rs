@@ -3,7 +3,7 @@
 //! Sends control commands to C-side simulation via POSIX message queues.
 //! Supports: START, PAUSE, INJECT_CONSTRAINT, EXPORT_SPEC
 
-use libc::{mq_open, mq_send, O_CREAT, O_WRONLY, O_NONBLOCK};
+use libc::{mq_open, mq_send, O_CREAT, O_NONBLOCK, O_WRONLY};
 use std::ffi::CString;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -27,14 +27,19 @@ impl ControlCommandSender {
 
     /// Send a control command to the C core
     pub fn send_command(&self, cmd: ControlCommand, payload: Option<&str>) -> Result<(), String> {
-        let mq_name = CString::new(self.mq_name.as_str())
-            .map_err(|e| format!("Invalid mq name: {}", e))?;
+        let mq_name =
+            CString::new(self.mq_name.as_str()).map_err(|e| format!("Invalid mq name: {}", e))?;
 
         let flags = O_CREAT | O_WRONLY | O_NONBLOCK;
         let mode = 0o666;
 
         let mq = unsafe {
-            mq_open(mq_name.as_ptr(), flags, mode, std::ptr::null::<libc::mq_attr>())
+            mq_open(
+                mq_name.as_ptr(),
+                flags,
+                mode,
+                std::ptr::null::<libc::mq_attr>(),
+            )
         };
 
         if mq < 0 {
@@ -51,9 +56,7 @@ impl ControlCommandSender {
             msg[1..1 + copy_len].copy_from_slice(&payload_bytes[..copy_len]);
         }
 
-        let result = unsafe {
-            mq_send(mq, msg.as_ptr() as *const i8, msg.len(), cmd as u32)
-        };
+        let result = unsafe { mq_send(mq, msg.as_ptr() as *const i8, msg.len(), cmd as u32) };
 
         if result < 0 {
             return Err("Failed to send control command".to_string());
@@ -109,4 +112,3 @@ mod tests {
         assert!(sender.is_ok());
     }
 }
-

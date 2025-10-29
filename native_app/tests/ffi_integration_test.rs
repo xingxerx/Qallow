@@ -13,23 +13,26 @@ mod tests {
     fn test_telemetry_shm_creation() {
         // Test that telemetry shared memory can be created
         let shm_path = "/dev/shm/qallow_telemetry_stream";
-        
+
         // Clean up if exists
         let _ = fs::remove_file(shm_path);
-        
+
         // In a real test, we'd call the C initialization function
         // For now, just verify the path is accessible
-        assert!(Path::new("/dev/shm").exists(), "Shared memory filesystem not available");
+        assert!(
+            Path::new("/dev/shm").exists(),
+            "Shared memory filesystem not available"
+        );
     }
 
     #[test]
     fn test_control_mq_path() {
         // Test that control message queue path is valid
         let mq_path = "/qallow_control";
-        
+
         // Message queue names must start with /
         assert!(mq_path.starts_with('/'), "MQ path must start with /");
-        
+
         // Message queue names must not contain /
         let parts: Vec<&str> = mq_path.split('/').collect();
         assert_eq!(parts.len(), 2, "MQ path should have exactly one /");
@@ -46,7 +49,11 @@ mod tests {
             timestamp: u64,
         }
 
-        assert_eq!(std::mem::size_of::<TelemetryHeader>(), 16, "Header should be 16 bytes");
+        assert_eq!(
+            std::mem::size_of::<TelemetryHeader>(),
+            16,
+            "Header should be 16 bytes"
+        );
     }
 
     #[test]
@@ -64,7 +71,11 @@ mod tests {
             total_deaths: u32,
         }
 
-        assert_eq!(std::mem::size_of::<ColonyStats>(), 40, "ColonyStats should be 40 bytes");
+        assert_eq!(
+            std::mem::size_of::<ColonyStats>(),
+            40,
+            "ColonyStats should be 40 bytes"
+        );
     }
 
     #[test]
@@ -80,7 +91,11 @@ mod tests {
             crc64: u64,
         }
 
-        assert_eq!(std::mem::size_of::<EthicsEvent>(), 32, "EthicsEvent should be 32 bytes");
+        assert_eq!(
+            std::mem::size_of::<EthicsEvent>(),
+            32,
+            "EthicsEvent should be 32 bytes"
+        );
     }
 
     #[test]
@@ -96,7 +111,11 @@ mod tests {
             isolation_ticks: u32,
         }
 
-        assert_eq!(std::mem::size_of::<SpeciationEvent>(), 32, "SpeciationEvent should be 32 bytes");
+        assert_eq!(
+            std::mem::size_of::<SpeciationEvent>(),
+            32,
+            "SpeciationEvent should be 32 bytes"
+        );
     }
 
     #[test]
@@ -112,7 +131,11 @@ mod tests {
             tick: u32,
         }
 
-        assert_eq!(std::mem::size_of::<RebellionEvent>(), 28, "RebellionEvent should be 28 bytes");
+        assert_eq!(
+            std::mem::size_of::<RebellionEvent>(),
+            28,
+            "RebellionEvent should be 28 bytes"
+        );
     }
 
     #[test]
@@ -128,7 +151,11 @@ mod tests {
             tick: u32,
         }
 
-        assert_eq!(std::mem::size_of::<DeathEvent>(), 32, "DeathEvent should be 32 bytes");
+        assert_eq!(
+            std::mem::size_of::<DeathEvent>(),
+            32,
+            "DeathEvent should be 32 bytes"
+        );
     }
 
     #[test]
@@ -172,7 +199,7 @@ mod tests {
     #[test]
     fn test_ring_buffer_size() {
         // Verify ring buffer size is reasonable
-        const RING_SIZE: usize = 1 << 20;  // 1 MB
+        const RING_SIZE: usize = 1 << 20; // 1 MB
         assert_eq!(RING_SIZE, 1048576, "Ring buffer should be 1 MB");
     }
 
@@ -181,10 +208,13 @@ mod tests {
         // Verify message queue parameters
         const MQ_MAXMSG: i64 = 10;
         const MQ_MSGSIZE: i64 = 256;
-        
+
         assert!(MQ_MAXMSG > 0, "Max messages should be positive");
         assert!(MQ_MSGSIZE > 0, "Message size should be positive");
-        assert!(MQ_MSGSIZE >= 256, "Message size should be at least 256 bytes");
+        assert!(
+            MQ_MSGSIZE >= 256,
+            "Message size should be at least 256 bytes"
+        );
     }
 
     #[test]
@@ -193,7 +223,7 @@ mod tests {
         const PAYLOAD_MAX: usize = 240;
         const HEADER_SIZE: usize = 16;
         const TOTAL_MAX: usize = PAYLOAD_MAX + HEADER_SIZE;
-        
+
         assert_eq!(TOTAL_MAX, 256, "Total message should fit in 256 bytes");
     }
 
@@ -220,20 +250,23 @@ mod tests {
             handle.join().unwrap();
         }
 
-        assert_eq!(counter.load(Ordering::SeqCst), 1000, "All increments should be counted");
+        assert_eq!(
+            counter.load(Ordering::SeqCst),
+            1000,
+            "All increments should be counted"
+        );
     }
 
     #[test]
     fn test_ffi_module_exports() {
         // Verify that FFI modules are properly exported
         // This is a compile-time check, but we can verify at runtime too
-        
+
         // If this compiles, the modules are properly exported
         let _telemetry_module_exists = true;
         let _control_commands_module_exists = true;
-        
+
         assert!(_telemetry_module_exists);
         assert!(_control_commands_module_exists);
     }
 }
-

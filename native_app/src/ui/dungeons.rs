@@ -15,12 +15,12 @@ pub struct DungeonsView {
 }
 
 pub fn create_dungeons_tab(tabs: &mut group::Tabs, state: Arc<Mutex<AppState>>) -> DungeonsView {
-    let mut group = group::Group::default().with_size(1450, 950).with_label("🗺️ Dungeons");
+    let group = group::Group::default().with_label("🗺️ Dungeons");
     group.begin();
-    let mut root = group::Flex::default().with_size(1450, 950).column();
+    let mut root = group::Flex::default().column();
     root.begin();
 
-    let mut control_row = group::Flex::default().with_size(1450, 80).row();
+    let mut control_row = group::Flex::default().row();
     let mut start_btn = button::Button::default()
         .with_size(160, 80)
         .with_label("▶ Start");
@@ -34,12 +34,15 @@ pub fn create_dungeons_tab(tabs: &mut group::Tabs, state: Arc<Mutex<AppState>>) 
     stop_btn.set_label_color(Color::White);
 
     control_row.add(&start_btn);
+    control_row.fixed(&start_btn, 160);
     control_row.add(&stop_btn);
+    control_row.fixed(&stop_btn, 160);
     control_row.end();
     root.add(&control_row);
+    root.fixed(&control_row, 80);
 
     let status_buffer = text::TextBuffer::default();
-    let mut status_display = text::TextDisplay::default().with_size(1450, 100);
+    let mut status_display = text::TextDisplay::default();
     status_display.set_buffer(status_buffer.clone());
     status_display
         .buffer()
@@ -47,29 +50,31 @@ pub fn create_dungeons_tab(tabs: &mut group::Tabs, state: Arc<Mutex<AppState>>) 
         .set_text("Select a dungeon and press start to begin the ritual.");
     status_display.set_text_color(Color::from_hex(0x00d4ff));
     root.add(&status_display);
+    root.fixed(&status_display, 100);
 
     let log_buffer = text::TextBuffer::default();
-    let mut log_display = text::TextDisplay::default().with_size(1450, 720);
+    let mut log_display = text::TextDisplay::default();
     log_display.set_buffer(log_buffer.clone());
     log_display.set_text_color(Color::White);
     root.add(&log_display);
 
-    let mut copy_row = group::Flex::default().with_size(1450, 50).row();
+    let mut copy_row = group::Flex::default().row();
     let mut copy_status_btn = button::Button::default()
         .with_size(120, 50)
         .with_label("Copy Status");
     copy_status_btn.set_color(Color::from_hex(0x1a1f3a));
     copy_status_btn.set_label_color(Color::from_hex(0x00d4ff));
     copy_row.add(&copy_status_btn);
+    copy_row.fixed(&copy_status_btn, 120);
 
-    let mut copy_log_btn = button::Button::default()
-        .with_size(120, 50)
-        .with_label("Copy Log");
+    let mut copy_log_btn = button::Button::default().with_label("Copy Log");
     copy_log_btn.set_color(Color::from_hex(0x1a1f3a));
     copy_log_btn.set_label_color(Color::from_hex(0x00d4ff));
     copy_row.add(&copy_log_btn);
+    copy_row.fixed(&copy_log_btn, 120);
     copy_row.end();
     root.add(&copy_row);
+    root.fixed(&copy_row, 50);
 
     root.end();
     group.end();

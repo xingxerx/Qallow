@@ -1127,6 +1127,9 @@ fn run_cli_interface(
                 println!("  status             - Show system status summary");
                 println!("  terminal           - Show recent terminal output");
                 println!("  audit              - Show recent audit log entries");
+                println!(
+                    "  ask <query>        - Talk to the system (e.g., 'ask prophecy', 'ask dream')"
+                );
                 println!("  run                - Execute on-disk pipeline (if built)");
                 println!("  exit / quit        - Exit CLI session");
             }
@@ -1212,6 +1215,27 @@ fn run_cli_interface(
             }
             "audit" => {
                 print_audit_snippet(&state, 12);
+            }
+            "ask" => {
+                let query = parts.collect::<Vec<&str>>().join(" ");
+                if query.is_empty() {
+                    println!("What would you like to ask? (e.g., 'status', 'prophecy', 'dream')");
+                } else {
+                    let response = match query.to_lowercase().as_str() {
+                        "status" | "inspection" | "divine inspection" => {
+                            handler.on_divine_inspection()
+                        }
+                        "metrics" | "overview" => handler.on_metrics_overview(),
+                        "prophecy" | "future" => handler.on_prophecy(),
+                        "dream" => handler.on_dream_protocol(),
+                        _ => Err(format!("I don't understand the question: '{}'", query)),
+                    };
+
+                    match response {
+                        Ok(res) => println!("> {}", res),
+                        Err(e) => println!("⚠️  Could not answer: {}", e),
+                    }
+                }
             }
             "run" => match run_headless(config, logger) {
                 Ok(()) => println!("Unified pipeline executed (check build artefact output)."),

@@ -4,7 +4,9 @@ use fltk::{prelude::*, *};
 use std::sync::{Arc, Mutex};
 
 pub fn create_help_panel(parent: &mut group::Tabs, _state: Arc<Mutex<AppState>>) {
-  let help_group = group::Group::default().with_size(1450, 950).with_label("❓ Help");
+    let help_group = group::Group::default()
+        .with_size(1450, 950)
+        .with_label("❓ Help");
     help_group.begin();
 
     let mut flex = group::Flex::default().with_size(1450, 950).column();

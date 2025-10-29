@@ -11,8 +11,6 @@ pub mod terminal;
 use crate::models::AppState;
 use fltk::enums::Color;
 use fltk::{prelude::*, *};
-use std::cell::RefCell;
-use std::rc::Rc;
 use std::sync::{Arc, Mutex};
 
 // Modern color scheme matching web app
@@ -39,20 +37,12 @@ pub fn create_main_ui(_wind: &mut window::Window, state: Arc<Mutex<AppState>>) -
     // Header with modern design
     let status_indicator = create_modern_header(&mut flex);
 
-    // Main content area with sidebar
-    let mut main_flex = group::Flex::default().with_size(1600, 950).row();
+    // Main content area with tabs
+    let mut main_flex = group::Flex::default().with_size(1600, 950).column();
     main_flex.set_color(Color::from_rgba(15, 15, 35, 255));
 
-    // Sidebar navigation with modern styling
-    let mut sidebar = group::Flex::default().with_size(150, 950).column();
-    sidebar.set_color(Color::from_rgba(10, 14, 39, 200)); // Semi-transparent accent
-
-    // Content area with modern dark theme
-    let mut content = group::Flex::default().with_size(1450, 950).column();
-    content.set_color(Color::from_rgba(15, 15, 35, 255));
-
     // Create tabs for different views
-    let mut tabs = group::Tabs::default().with_size(1450, 950);
+    let mut tabs = group::Tabs::default().with_size(1600, 950);
     tabs.set_color(Color::from_rgba(15, 15, 35, 255));
 
     // Dashboard tab
@@ -80,15 +70,7 @@ pub fn create_main_ui(_wind: &mut window::Window, state: Arc<Mutex<AppState>>) -
     help::create_help_panel(&mut tabs, state.clone());
 
     tabs.end();
-    content.end();
-    main_flex.add(&sidebar);
     main_flex.add(&tabs);
-    main_flex.fixed(&sidebar, 180);
-
-    // Create sidebar buttons with callbacks to switch tabs
-    create_modern_sidebar(&mut sidebar, &mut tabs);
-
-    sidebar.end();
     flex.add(&main_flex);
     main_flex.end();
 
@@ -125,131 +107,4 @@ fn create_modern_header(flex: &mut group::Flex) -> button::Button {
     flex.add(&header);
 
     status
-}
-
-fn create_modern_sidebar(flex: &mut group::Flex, tabs: &mut group::Tabs) {
-    let mut nav_entries: Vec<(button::Button, usize)> = Vec::new();
-
-    // Dashboard button - active by default
-    let mut dashboard_btn = button::Button::default()
-        .with_size(150, 45)
-        .with_label("📊 Dashboard");
-    dashboard_btn.set_color(Color::from_hex(COLOR_PRIMARY));
-    dashboard_btn.set_label_color(Color::from_hex(COLOR_BG_DARK));
-    nav_entries.push((dashboard_btn.clone(), 0));
-
-    // Metrics button
-    let mut metrics_btn = button::Button::default()
-        .with_size(150, 45)
-        .with_label("📈 Metrics");
-    metrics_btn.set_color(Color::from_hex(COLOR_BG_ACCENT));
-    metrics_btn.set_label_color(Color::from_hex(COLOR_PRIMARY));
-    nav_entries.push((metrics_btn.clone(), 1));
-
-    // Terminal button
-    let mut terminal_btn = button::Button::default()
-        .with_size(150, 45)
-        .with_label("💻 Terminal");
-    terminal_btn.set_color(Color::from_hex(COLOR_BG_ACCENT));
-    terminal_btn.set_label_color(Color::from_hex(COLOR_PRIMARY));
-    nav_entries.push((terminal_btn.clone(), 2));
-
-    // Audit Log button
-    let mut audit_btn = button::Button::default()
-        .with_size(150, 45)
-        .with_label("🔍 Audit Log");
-    audit_btn.set_color(Color::from_hex(COLOR_BG_ACCENT));
-    audit_btn.set_label_color(Color::from_hex(COLOR_PRIMARY));
-    nav_entries.push((audit_btn.clone(), 3));
-
-    // Control Panel button
-    let mut control_btn = button::Button::default()
-        .with_size(150, 45)
-        .with_label("⚙️ Control");
-    control_btn.set_color(Color::from_hex(COLOR_BG_ACCENT));
-    control_btn.set_label_color(Color::from_hex(COLOR_PRIMARY));
-    nav_entries.push((control_btn.clone(), 4));
-
-    // Dungeons button
-    let mut dungeon_btn = button::Button::default()
-        .with_size(150, 45)
-        .with_label("🗺️ Dungeons");
-    dungeon_btn.set_color(Color::from_hex(COLOR_BG_ACCENT));
-    dungeon_btn.set_label_color(Color::from_hex(COLOR_PRIMARY));
-    nav_entries.push((dungeon_btn.clone(), 5));
-
-    // Settings button
-    let mut settings_btn = button::Button::default()
-        .with_size(150, 45)
-        .with_label("⚙️ Settings");
-    settings_btn.set_color(Color::from_hex(COLOR_BG_ACCENT));
-    settings_btn.set_label_color(Color::from_hex(COLOR_PRIMARY));
-    nav_entries.push((settings_btn.clone(), 6));
-
-    // Help button
-    let mut help_btn = button::Button::default()
-        .with_size(150, 45)
-        .with_label("❓ Help");
-    help_btn.set_color(Color::from_hex(COLOR_BG_ACCENT));
-    help_btn.set_label_color(Color::from_hex(COLOR_PRIMARY));
-    nav_entries.push((help_btn.clone(), 7));
-
-    // Add all buttons to sidebar
-    flex.add(&dashboard_btn);
-    flex.add(&metrics_btn);
-    flex.add(&terminal_btn);
-    flex.add(&audit_btn);
-    flex.add(&control_btn);
-    flex.add(&dungeon_btn);
-    flex.add(&settings_btn);
-    flex.add(&help_btn);
-
-    let nav_buttons = Rc::new(RefCell::new(nav_entries));
-    let initial_index = 4; // Default to Control tab so critical actions are visible
-    {
-        let buttons = nav_buttons.borrow();
-        update_nav_styles(&buttons, initial_index);
-    }
-
-    if let Some(child) = tabs.child(initial_index as i32) {
-        if let Some(group) = child.as_group() {
-            let _ = tabs.set_value(&group);
-        }
-    }
-
-    let total = nav_buttons.borrow().len();
-    for idx in 0..total {
-        let (mut button, tab_index) = {
-            let borrowed = nav_buttons.borrow();
-            (borrowed[idx].0.clone(), borrowed[idx].1)
-        };
-        let mut tabs_clone = tabs.clone();
-        let buttons_rc = Rc::clone(&nav_buttons);
-        button.set_callback(move |_| {
-            if let Some(child) = tabs_clone.child(tab_index as i32) {
-                if let Some(group) = child.as_group() {
-                    let _ = tabs_clone.set_value(&group);
-                }
-            }
-            let buttons = buttons_rc.borrow();
-            update_nav_styles(&buttons, idx);
-        });
-    }
-}
-
-fn update_nav_styles(buttons: &[(button::Button, usize)], active_index: usize) {
-    for (idx, (button, _)) in buttons.iter().enumerate() {
-        let active = idx == active_index;
-        style_nav_button(button.clone(), active);
-    }
-}
-
-fn style_nav_button(mut btn: button::Button, active: bool) {
-    if active {
-        btn.set_color(Color::from_hex(COLOR_PRIMARY));
-        btn.set_label_color(Color::from_hex(COLOR_BG_DARK));
-    } else {
-        btn.set_color(Color::from_hex(COLOR_BG_ACCENT));
-        btn.set_label_color(Color::from_hex(COLOR_PRIMARY));
-    }
 }

@@ -22,10 +22,16 @@ pub struct IsingProblem {
 impl IsingProblem {
     /// Construct a new problem, validating that indices fall within range.
     pub fn new(num_qubits: usize, biases: Vec<f64>, couplings: Vec<Coupling>) -> Self {
-        assert_eq!(biases.len(), num_qubits, "Bias vector must match number of qubits");
+        assert_eq!(
+            biases.len(),
+            num_qubits,
+            "Bias vector must match number of qubits"
+        );
         for coupling in &couplings {
-            assert!(coupling.i < num_qubits && coupling.j < num_qubits,
-                "Coupling indices out of range");
+            assert!(
+                coupling.i < num_qubits && coupling.j < num_qubits,
+                "Coupling indices out of range"
+            );
             assert!(coupling.i != coupling.j, "Self-couplings are not supported");
         }
         Self {

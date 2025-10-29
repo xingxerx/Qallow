@@ -90,15 +90,14 @@ impl TelemetryStream {
             .open(path)
             .map_err(|e| format!("Failed to open telemetry shm: {}", e))?;
 
-        let mmap = unsafe {
-            Mmap::map(&file).map_err(|e| format!("Failed to mmap telemetry: {}", e))?
-        };
+        let mmap =
+            unsafe { Mmap::map(&file).map_err(|e| format!("Failed to mmap telemetry: {}", e))? };
 
-        let ring_size = mmap.len() - 8;  /* Exclude header */
+        let ring_size = mmap.len() - 8; /* Exclude header */
 
         Ok(Self {
             mmap,
-            read_pos: 4,  /* Skip write_pos (4 bytes) */
+            read_pos: 4, /* Skip write_pos (4 bytes) */
             ring_size,
         })
     }
@@ -113,7 +112,7 @@ impl TelemetryStream {
         let write_pos = u32::from_ne_bytes(write_pos_bytes.try_into().ok()?) as usize;
 
         if self.read_pos == write_pos {
-            return None;  /* No new data */
+            return None; /* No new data */
         }
 
         /* Read header */
@@ -142,9 +141,7 @@ impl TelemetryStream {
             0 => {
                 /* COLONY_STATS */
                 if data.len() >= std::mem::size_of::<ColonyStats>() {
-                    let stats = unsafe {
-                        *(data.as_ptr() as *const ColonyStats)
-                    };
+                    let stats = unsafe { *(data.as_ptr() as *const ColonyStats) };
                     Some(TelemetryEvent::ColonyStats(stats))
                 } else {
                     None
@@ -153,9 +150,7 @@ impl TelemetryStream {
             1 => {
                 /* ETHICS_EVENT */
                 if data.len() >= std::mem::size_of::<EthicsEvent>() {
-                    let evt = unsafe {
-                        *(data.as_ptr() as *const EthicsEvent)
-                    };
+                    let evt = unsafe { *(data.as_ptr() as *const EthicsEvent) };
                     Some(TelemetryEvent::EthicsEvent(evt))
                 } else {
                     None
@@ -164,9 +159,7 @@ impl TelemetryStream {
             2 => {
                 /* SPECIATION_UPDATE */
                 if data.len() >= std::mem::size_of::<SpeciationEvent>() {
-                    let evt = unsafe {
-                        *(data.as_ptr() as *const SpeciationEvent)
-                    };
+                    let evt = unsafe { *(data.as_ptr() as *const SpeciationEvent) };
                     Some(TelemetryEvent::SpeciationEvent(evt))
                 } else {
                     None
@@ -175,9 +168,7 @@ impl TelemetryStream {
             3 => {
                 /* REBELLION_EVENT */
                 if data.len() >= std::mem::size_of::<RebellionEvent>() {
-                    let evt = unsafe {
-                        *(data.as_ptr() as *const RebellionEvent)
-                    };
+                    let evt = unsafe { *(data.as_ptr() as *const RebellionEvent) };
                     Some(TelemetryEvent::RebellionEvent(evt))
                 } else {
                     None
@@ -186,9 +177,7 @@ impl TelemetryStream {
             4 => {
                 /* DEATH_EVENT */
                 if data.len() >= std::mem::size_of::<DeathEvent>() {
-                    let evt = unsafe {
-                        *(data.as_ptr() as *const DeathEvent)
-                    };
+                    let evt = unsafe { *(data.as_ptr() as *const DeathEvent) };
                     Some(TelemetryEvent::DeathEvent(evt))
                 } else {
                     None
@@ -231,4 +220,3 @@ mod tests {
         assert_eq!(std::mem::size_of::<EthicsEvent>(), 32);
     }
 }
-

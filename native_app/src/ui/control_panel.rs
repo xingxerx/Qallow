@@ -36,7 +36,7 @@ pub fn create_control_panel(
     group.set_color(Color::from_hex(COLOR_BG_DARK));
     group.begin();
 
-    let mut flex = group::Flex::default_fill().column();
+    let mut flex = group::Flex::default().column();
     flex.set_color(Color::from_hex(COLOR_BG_DARK));
     flex.set_pad(10);
     flex.begin();
@@ -48,7 +48,7 @@ pub fn create_control_panel(
     flex.add(&title);
     flex.fixed(&title, 40);
 
-    let mut control_row = group::Flex::default_fill().row();
+    let mut control_row = group::Flex::default().row();
     control_row.set_pad(10);
     control_row.set_color(Color::from_hex(COLOR_BG_DARK));
 
@@ -80,7 +80,7 @@ pub fn create_control_panel(
     flex.add(&control_row);
     flex.fixed(&control_row, 70);
 
-    let mut build_row = group::Flex::default_fill().row();
+    let mut build_row = group::Flex::default().row();
     build_row.set_pad(10);
     build_row.set_color(Color::from_hex(COLOR_BG_DARK));
 
@@ -103,7 +103,7 @@ pub fn create_control_panel(
     flex.add(&build_row);
     flex.fixed(&build_row, 40);
 
-    let mut phase_row = group::Flex::default_fill().row();
+    let mut phase_row = group::Flex::default().row();
     phase_row.set_pad(10);
     phase_row.set_color(Color::from_hex(COLOR_BG_DARK));
 
@@ -128,7 +128,7 @@ pub fn create_control_panel(
     flex.add(&phase_row);
     flex.fixed(&phase_row, 40);
 
-    let mut ritual_row = group::Flex::default_fill().row();
+    let mut ritual_row = group::Flex::default().row();
     ritual_row.set_pad(10);
     ritual_row.set_color(Color::from_hex(COLOR_BG_DARK));
 
@@ -166,7 +166,7 @@ pub fn create_control_panel(
     flex.add(&ritual_row);
     flex.fixed(&ritual_row, 60);
 
-    let mut actions_row = group::Flex::default_fill().row();
+    let mut actions_row = group::Flex::default().row();
     actions_row.set_pad(10);
     actions_row.set_color(Color::from_hex(COLOR_BG_DARK));
 
@@ -192,7 +192,7 @@ pub fn create_control_panel(
     flex.add(&actions_row);
     flex.fixed(&actions_row, 60);
 
-    let mut code_row = group::Flex::default_fill().row();
+    let mut code_row = group::Flex::default().row();
     code_row.set_pad(10);
     code_row.set_color(Color::from_hex(COLOR_BG_DARK));
 

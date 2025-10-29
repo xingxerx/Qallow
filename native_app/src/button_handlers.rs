@@ -491,6 +491,7 @@ impl ButtonHandler {
     }
 
     pub fn on_divine_inspection(&self) -> Result<String, String> {
+        // Make public
         let state = self
             .state
             .lock()
@@ -508,6 +509,7 @@ impl ButtonHandler {
     }
 
     pub fn on_metrics_overview(&self) -> Result<String, String> {
+        // Make public
         let state = self
             .state
             .lock()
@@ -527,6 +529,7 @@ impl ButtonHandler {
     }
 
     pub fn on_prophecy(&self) -> Result<String, String> {
+        // Make public
         let state = self
             .state
             .lock()
@@ -1190,10 +1193,23 @@ impl ButtonHandler {
         } else {
             sender.send_start()?;
             state.vm_running = true;
-            state.add_terminal_line("▶️ Simulation started (via FFI)".to_string(), LineType::Info);
+            state.add_terminal_line(
+                "▶️ Simulation started (via FFI)".to_string(),
+                LineType::Info,
+            );
         }
 
-        self.log_ui_event(button_label, &format!("Toggled to {}", if state.vm_running { "running" } else { "paused" }));
+        self.log_ui_event(
+            button_label,
+            &format!(
+                "Toggled to {}",
+                if state.vm_running {
+                    "running"
+                } else {
+                    "paused"
+                }
+            ),
+        );
         Ok(())
     }
 
@@ -1263,7 +1279,10 @@ impl ButtonHandler {
                     state.add_terminal_line(
                         format!(
                             "🏛️ Colony: {} instances, {} species, fitness {:.3}, hostility {:.3}",
-                            stats.active_instances, stats.total_species, stats.avg_fitness, stats.global_hostility
+                            stats.active_instances,
+                            stats.total_species,
+                            stats.avg_fitness,
+                            stats.global_hostility
                         ),
                         LineType::Output,
                     );
@@ -1287,7 +1306,10 @@ impl ButtonHandler {
                     state.add_terminal_line(
                         format!(
                             "🧬 Speciation: {} → {}, divergence {:.3}, entropy {:.3}",
-                            evt.parent_species_id, evt.child_species_id, evt.divergence_metric, evt.entropy_delta
+                            evt.parent_species_id,
+                            evt.child_species_id,
+                            evt.divergence_metric,
+                            evt.entropy_delta
                         ),
                         LineType::Output,
                     );
@@ -1305,7 +1327,10 @@ impl ButtonHandler {
                     state.add_terminal_line(
                         format!(
                             "💀 Death: PID {} coherence {:.3}, lifespan {} ticks, {} offspring",
-                            evt.deceased_pid, evt.final_coherence, evt.lifespan_ticks, evt.offspring_count
+                            evt.deceased_pid,
+                            evt.final_coherence,
+                            evt.lifespan_ticks,
+                            evt.offspring_count
                         ),
                         LineType::Info,
                     );
@@ -1330,27 +1355,27 @@ impl ButtonHandler {
         let state = self.state.clone();
         let logger = self.logger.clone();
 
-        thread::spawn(move || {
-            loop {
-                thread::sleep(Duration::from_millis(100));
+        thread::spawn(move || loop {
+            thread::sleep(Duration::from_millis(100));
 
-                if let Ok(mut telemetry_stream) = TelemetryStream::open() {
-                    let events = telemetry_stream.poll_all();
-                    if !events.is_empty() {
-                        if let Ok(mut st) = state.lock() {
-                            for event in events {
-                                match event {
-                                    TelemetryEvent::ColonyStats(stats) => {
-                                        st.add_terminal_line(
-                                            format!(
-                                                "🏛️ Colony: {} instances, {} species, fitness {:.3}",
-                                                stats.active_instances, stats.total_species, stats.avg_fitness
-                                            ),
-                                            LineType::Output,
-                                        );
-                                    }
-                                    _ => {}
+            if let Ok(mut telemetry_stream) = TelemetryStream::open() {
+                let events = telemetry_stream.poll_all();
+                if !events.is_empty() {
+                    if let Ok(mut st) = state.lock() {
+                        for event in events {
+                            match event {
+                                TelemetryEvent::ColonyStats(stats) => {
+                                    st.add_terminal_line(
+                                        format!(
+                                            "🏛️ Colony: {} instances, {} species, fitness {:.3}",
+                                            stats.active_instances,
+                                            stats.total_species,
+                                            stats.avg_fitness
+                                        ),
+                                        LineType::Output,
+                                    );
                                 }
+                                _ => {}
                             }
                         }
                     }
