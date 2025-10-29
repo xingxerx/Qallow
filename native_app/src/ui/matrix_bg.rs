@@ -1,7 +1,7 @@
 use fltk::{
     app,
-    draw::{self, Font},
-    enums::{Align, Color, FrameType},
+    draw::{self},
+    enums::{Align, Color, FrameType, Font},
     frame,
     prelude::*,
     window,
@@ -17,6 +17,7 @@ const FONT_SIZE: i32 = 16;
 const TRAIL_DECAY: f32 = 0.05;
 const DROP_RESET_PROBABILITY: f32 = 0.975;
 
+#[derive(Clone)]
 struct Cell {
     ch: char,
     intensity: f32,
@@ -81,6 +82,21 @@ impl MatrixState {
             }
         }
 
+        let rows = self.rows;
+        let columns = self.columns;
+
+        // Collect random values first to avoid borrow conflicts
+        let mut random_chars = Vec::new();
+        let mut random_resets = Vec::new();
+        let mut random_offsets = Vec::new();
+
+        for _ in 0..self.drops.len() {
+            random_chars.push(self.random_char());
+            random_resets.push(self.random_f32());
+            random_offsets.push((self.random_f32() * rows as f32) as i32);
+        }
+
+        // Now update drops
         for (col, drop) in self.drops.iter_mut().enumerate() {
             if *drop < 0 {
                 *drop += 1;
@@ -88,16 +104,18 @@ impl MatrixState {
             }
 
             let row = *drop as usize;
-            if row < self.rows {
-                let idx = self.index(col, row);
-                self.cells[idx].ch = self.random_char();
-                self.cells[idx].intensity = 1.0;
+            if row < rows {
+                let idx = row * columns + col;
+                if idx < self.cells.len() {
+                    self.cells[idx].ch = random_chars[col];
+                    self.cells[idx].intensity = 1.0;
+                }
             }
 
             *drop += 1;
 
-            if *drop as usize >= self.rows && self.random_f32() > DROP_RESET_PROBABILITY {
-                let offset = (self.random_f32() * self.rows as f32) as i32;
+            if *drop as usize >= rows && random_resets.get(col).copied().unwrap_or(0.0) > DROP_RESET_PROBABILITY {
+                let offset = random_offsets.get(col).copied().unwrap_or(0);
                 *drop = -offset;
             }
         }
@@ -157,9 +175,9 @@ pub fn install_matrix_background(wind: &mut window::Window) {
 
                     let brightness = (cell.intensity.clamp(0.0, 1.0) * 255.0) as u8;
                     let color = if cell.intensity > 0.9 {
-                        draw::rgba_color(180, 255, 200, 255)
+                        Color::from_rgb(180, 255, 200)
                     } else {
-                        draw::rgba_color(0, brightness.max(20), 0, 255)
+                        Color::from_rgb(0, brightness.max(20), 0)
                     };
 
                     draw::set_draw_color(color);
@@ -183,7 +201,6 @@ pub fn install_matrix_background(wind: &mut window::Window) {
 
     frame.handle(|_, _| false);
     wind.add(&frame);
-    frame.lower();
 
     {
         let state = state.clone();
@@ -200,7 +217,7 @@ pub fn install_matrix_background(wind: &mut window::Window) {
 
     {
         let state = state.clone();
-        let frame_clone = frame.clone();
+        let mut frame_clone = frame.clone();
         app::add_timeout3(0.033, move |handle| {
             {
                 let mut matrix = state.borrow_mut();

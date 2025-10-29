@@ -232,7 +232,6 @@ pub fn create_control_panel(
         build_choice,
         build_app_btn,
         run_tests_btn,
-.
         git_status_btn,
         recent_commits_btn,
     }

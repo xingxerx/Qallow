@@ -8,7 +8,7 @@ pub mod cuda_kernels;
 pub mod consciousness_state;
 pub mod gpu_manager;
 
-pub use consciousness_state::{ConsciousnessSOA, DreamState};
+pub use consciousness_state::ConsciousnessSOA;
 pub use gpu_manager::GPUManager;
 
 use std::fmt;

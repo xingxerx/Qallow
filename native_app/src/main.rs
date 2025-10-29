@@ -7,6 +7,7 @@ mod codebase_manager;
 mod config;
 mod dungeons;
 mod error_recovery;
+mod gpu;
 mod logging;
 mod messaging;
 mod models;
@@ -23,6 +24,7 @@ use config::{AppConfig, ConfigManager};
 use fltk::enums::Color;
 use fltk::{dialog, prelude::*, *};
 // use fltk_theme::ThemeType;  // Not needed - theme is disabled
+use gpu::{GPUManager, check_gpu_availability};
 use logging::AppLogger;
 use messaging::UiMessage;
 use models::{AppState, AuditLog, BuildType, LineType, LogLevel, Phase, TerminalLine};
@@ -59,6 +61,25 @@ fn main() {
     );
     let _ = logger.init();
     let _ = logger.info("🚀 Qallow Application Starting");
+
+    // Initialize GPU acceleration
+    let gpu_capability = check_gpu_availability();
+    let _ = logger.info(&format!("GPU Capability: {}", gpu_capability));
+
+    let _gpu_manager = match GPUManager::new() {
+        Ok(mgr) => {
+            let metrics = mgr.get_metrics();
+            let _ = logger.info(&format!(
+                "✓ GPU Initialized: {} (Compute {}.{})",
+                metrics.device_name, metrics.compute_capability.0, metrics.compute_capability.1
+            ));
+            Some(Arc::new(mgr))
+        }
+        Err(e) => {
+            let _ = logger.warn(&format!("GPU initialization failed: {}", e));
+            None
+        }
+    };
 
     // Initialize codebase manager
     let codebase_mgr = match CodebaseManager::new("/root/Qallow", logger.clone()) {
