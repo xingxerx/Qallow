@@ -22,7 +22,7 @@ use codebase_manager::CodebaseManager;
 use config::{AppConfig, ConfigManager};
 use fltk::enums::Color;
 use fltk::{dialog, prelude::*, *};
-use fltk_theme::ThemeType;
+// use fltk_theme::ThemeType;  // Not needed - theme is disabled
 use logging::AppLogger;
 use messaging::UiMessage;
 use models::{AppState, AuditLog, BuildType, LineType, LogLevel, Phase, TerminalLine};
@@ -116,8 +116,11 @@ fn main() {
     };
     // UI message channel for background tasks
     let (sender, receiver) = app::channel::<UiMessage>();
-    let theme = fltk_theme::WidgetTheme::new(ThemeType::Dark);
-    theme.apply();
+
+    // Don't apply theme - let individual widget colors show through
+    // The theme was overriding our modern neon colors
+    // let theme = fltk_theme::WidgetTheme::new(ThemeType::Dark);
+    // theme.apply();
 
     // Create application state
     let state = Arc::new(Mutex::new(initial_state));

@@ -48,23 +48,32 @@
 
     <!-- Matrix background animation script -->
     <script>
-      (function() {
+      function initMatrixBackground() {
         const canvas = document.getElementById('matrix-bg');
-        if (!canvas) return;
+        if (!canvas) {
+          console.warn('Matrix canvas not found');
+          return;
+        }
 
         const ctx = canvas.getContext('2d');
-        let w, h, columns, drops, running = true;
+        if (!ctx) {
+          console.warn('Could not get canvas context');
+          return;
+        }
 
+        let w, h, columns, drops, running = true;
         const glyphs = '01あいうえおカキクケコｱｲｳｴｵ01ΛλξπΣσµΩ<>[]{}/*+-=|';
         const fontSize = 14;
         const opacityTrail = 0.08;
 
         function resize() {
           const dpr = window.devicePixelRatio || 1;
-          w = canvas.clientWidth = window.innerWidth;
-          h = canvas.clientHeight = window.innerHeight;
-          canvas.width = Math.floor(w * dpr);
-          canvas.height = Math.floor(h * dpr);
+          w = window.innerWidth;
+          h = window.innerHeight;
+          canvas.width = w * dpr;
+          canvas.height = h * dpr;
+          canvas.style.width = w + 'px';
+          canvas.style.height = h + 'px';
           ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
           columns = Math.ceil(w / fontSize);
           drops = Array.from({ length: columns }, () => Math.random() * -20);
@@ -98,7 +107,14 @@
         });
 
         requestAnimationFrame(draw);
-      })();
+      }
+
+      // Initialize when DOM is ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initMatrixBackground);
+      } else {
+        initMatrixBackground();
+      }
     </script>
   </body>
 </html>
