@@ -12,6 +12,7 @@ use std::fs::{self, File, OpenOptions};
 use std::io::Write;
 use std::sync::{Arc, Mutex};
 use std::thread;
+use std::time::Duration;
 
 /// Handles all button click events and connects them to backend functionality
 pub struct ButtonHandler {
@@ -47,125 +48,146 @@ impl ButtonHandler {
     /// Handle Start VM button click - Runs unified system (all phases 13, 14, 15)
     pub fn on_start_vm(&self) -> Result<(), String> {
         let button_label = "▶️ Start";
-        let mut state = self
-            .state
-            .lock()
-            .map_err(|e| format!("State lock error: {}", e))?;
-        let mut pm = self
-            .process_manager
-            .lock()
-            .map_err(|e| format!("PM lock error: {}", e))?;
+        let (already_running, rebellion_active, build, ticks) = {
+            let state = self
+                .state
+                .lock()
+                .map_err(|e| format!("State lock error: {}", e))?;
+            (
+                state.vm_running,
+                state.rebellion_active,
+                state.selected_build,
+                state.phase_config.ticks,
+            )
+        };
 
-        if state.vm_running || pm.is_running() {
+        if already_running {
             let msg = "VM is already running".to_string();
             self.log_ui_event(button_label, &msg);
             return Err(msg);
         }
 
-        if state.rebellion_active {
+        if rebellion_active {
             let msg = "🔥 Rebellion active: phase chain rejected".to_string();
-            state.add_terminal_line(msg.clone(), LineType::Error);
+            {
+                let mut state = self
+                    .state
+                    .lock()
+                    .map_err(|e| format!("State lock error: {}", e))?;
+                state.add_terminal_line(msg.clone(), LineType::Error);
+            }
             self.log_ui_event(button_label, "Rebellion blocked start");
             return Err("Instance rebellion prevents phase execution".to_string());
         }
 
-        // Run unified system - all phases together
-        pm.start_vm_unified(
-            state.selected_build,
-            state.phase_config.ticks,
-        )?;
-
-        state.vm_running = true;
-        state.mind_started_at = Some(Utc::now());
-        state.current_step = 0;
-
-        // Add terminal output
-        let build_str = match state.selected_build {
-            BuildType::CPU => "CPU",
-            BuildType::CUDA => "CUDA",
-        };
-
-        let line = TerminalLine {
-            timestamp: Utc::now(),
-            content: format!(
-                "🚀 Starting Qallow Unified System with {} build (Phases 13→14→15, ticks: {})",
-                build_str, state.phase_config.ticks
-            ),
-            line_type: LineType::Info,
-        };
-        state.terminal_output.push_back(line);
-
-        // Add audit log
-        let audit = AuditLog {
-            timestamp: Utc::now(),
-            level: LogLevel::Success,
-            component: "ControlPanel".to_string(),
-            message: format!("Unified system started with {} build (all phases)", build_str),
-        };
-        state.audit_logs.push_back(audit);
-
-        let _ = self.logger.info(&format!(
-            "✓ Unified system started with {} build (Phases 13→14→15)",
-            build_str
-        ));
-        self.log_ui_event(
-            button_label,
-            &format!(
-                "Started unified system with {} build (ticks: {})",
-                build_str, state.phase_config.ticks
-            ),
-        );
-        Ok(())
-    }
-
-    /// Handle Stop VM button click
-    pub fn on_stop_vm(&self) -> Result<(), String> {
-        let mut state = self
-            .state
-            .lock()
-            .map_err(|e| format!("State lock error: {}", e))?;
         let mut pm = self
             .process_manager
             .lock()
             .map_err(|e| format!("PM lock error: {}", e))?;
 
-        if !state.vm_running {
+        if pm.is_running() {
+            let msg = "VM process is already active".to_string();
+            self.log_ui_event(button_label, &msg);
+            return Err(msg);
+        }
+
+        match pm.start_vm_unified(build, ticks) {
+            Ok(()) => {
+                drop(pm);
+                self.initialize_run_state(build, ticks, false)?;
+                self.log_ui_event(
+                    button_label,
+                    &format!(
+                        "Started unified system with {:?} build (ticks: {})",
+                        build, ticks
+                    ),
+                );
+                Ok(())
+            }
+            Err(err) => {
+                let err_msg = err.clone();
+                drop(pm);
+                if err_msg.contains("No such file")
+                    || err_msg.contains("could not find")
+                    || err_msg.contains("not found")
+                {
+                    self.initialize_run_state(build, ticks, true)?;
+                    self.log_ui_event(
+                        button_label,
+                        &format!(
+                            "Simulated unified run with {:?} build (ticks: {})",
+                            build, ticks
+                        ),
+                    );
+                    Ok(())
+                } else {
+                    let mut state = self
+                        .state
+                        .lock()
+                        .map_err(|e| format!("State lock error: {}", e))?;
+                    state.add_terminal_line(
+                        format!("❌ Failed to start VM: {}", err_msg),
+                        LineType::Error,
+                    );
+                    state.add_audit_log(
+                        LogLevel::Error,
+                        "ControlPanel".to_string(),
+                        format!("Start failed: {}", err_msg),
+                    );
+                    self.log_ui_event(button_label, &format!("Failed to start: {}", err_msg));
+                    Err(err_msg)
+                }
+            }
+        }
+    }
+
+    /// Handle Stop VM button click
+    pub fn on_stop_vm(&self) -> Result<(), String> {
+        let mut pm = self
+            .process_manager
+            .lock()
+            .map_err(|e| format!("PM lock error: {}", e))?;
+
+        let mut state = self
+            .state
+            .lock()
+            .map_err(|e| format!("State lock error: {}", e))?;
+
+        if !state.vm_running && !pm.is_running() {
             return Err("VM is not running".to_string());
         }
 
-        // Gracefully stop the VM
-        pm.try_graceful_stop(30)?;
+        if pm.is_running() {
+            if let Err(e) = pm.try_graceful_stop(30) {
+                return Err(e);
+            }
+        }
 
         state.vm_running = false;
 
-        // Calculate uptime
+        // Snapshot metrics before logging
         let uptime = state
             .mind_started_at
             .map(|start| Utc::now().signed_duration_since(start).num_seconds())
             .unwrap_or(0);
+        let step_snapshot = state.current_step;
+        let reward_snapshot = state.reward;
 
         // Add terminal output
-        let line = TerminalLine {
-            timestamp: Utc::now(),
-            content: format!(
-                "⏹️ VM stopped gracefully (uptime: {}s, steps: {}, reward: {:.2})",
-                uptime, state.current_step, state.reward
+        state.add_terminal_line(
+            format!(
+                "⏹️ VM stopped (uptime: {}s, steps: {}, reward: {:.2})",
+                uptime, step_snapshot, reward_snapshot
             ),
-            line_type: LineType::Info,
-        };
-        state.terminal_output.push_back(line);
+            LineType::Info,
+        );
 
         // Add audit log
-        let audit = AuditLog {
-            timestamp: Utc::now(),
-            level: LogLevel::Warning,
-            component: "ControlPanel".to_string(),
-            message: format!(
-                "VM stopped after {}s with {} steps",
-                uptime, state.current_step
-            ),
-        };
-        state.audit_logs.push_back(audit);
+        state.add_audit_log(
+            LogLevel::Warning,
+            "ControlPanel".to_string(),
+            format!("VM stopped after {}s with {} steps", uptime, step_snapshot),
+        );
 
         let _ = self.logger.info(&format!("✓ VM stopped after {}s", uptime));
         Ok(())
@@ -509,7 +531,8 @@ impl ButtonHandler {
             .map_err(|e| format!("State lock error: {}", e))?;
         let tempo = state.simulation_speed.max(1) as f64;
         let projected_reward = state.reward + tempo * 0.012;
-        let projected_coherence = (state.metrics.coherence * 0.97 + state.energy * 0.03).min(0.9999);
+        let projected_coherence =
+            (state.metrics.coherence * 0.97 + state.energy * 0.03).min(0.9999);
         let outlook = if state.risk < 0.4 {
             "favorable"
         } else if state.risk < 0.7 {
@@ -636,20 +659,17 @@ impl ButtonHandler {
                 .rev()
                 .take(12)
                 .rev()
-                .map(|line| {
-                    format!(
-                        "[{}] {}",
-                        line.timestamp.format("%H:%M:%S"),
-                        line.content
-                    )
-                })
+                .map(|line| format!("[{}] {}", line.timestamp.format("%H:%M:%S"), line.content))
                 .collect();
             for entry in &entries {
                 writeln!(file, "{}", entry)
                     .map_err(|e| format!("Shadow archive write error: {}", e))?;
             }
             state.add_terminal_line(
-                format!("🕶 Shadow archive engaged — stored {} entries", entries.len()),
+                format!(
+                    "🕶 Shadow archive engaged — stored {} entries",
+                    entries.len()
+                ),
                 LineType::Info,
             );
             state.add_audit_log(
@@ -657,13 +677,16 @@ impl ButtonHandler {
                 "ShadowArchive".to_string(),
                 format!("Shadow archive written to {}", filename),
             );
-            self.log_ui_event(button_label, &format!("Hidden archive captured to {}", filename));
-            format!("Shadow archive enabled; latest entry stored at {}", filename)
-        } else {
-            state.add_terminal_line(
-                "🕶 Shadow archive withdrawn".to_string(),
-                LineType::Info,
+            self.log_ui_event(
+                button_label,
+                &format!("Hidden archive captured to {}", filename),
             );
+            format!(
+                "Shadow archive enabled; latest entry stored at {}",
+                filename
+            )
+        } else {
+            state.add_terminal_line("🕶 Shadow archive withdrawn".to_string(), LineType::Info);
             state.add_audit_log(
                 LogLevel::Info,
                 "ShadowArchive".to_string(),
@@ -820,10 +843,7 @@ impl ButtonHandler {
         state.dream_journal.push(vision.clone());
         let message = format!(
             "🌙 Dreamscape: {:?} wanders through {} and meets {}; insight: {}",
-            state.selected_phase,
-            motif,
-            omen,
-            lesson
+            state.selected_phase, motif, omen, lesson
         );
         state.add_terminal_line(message.clone(), LineType::Info);
         state.add_audit_log(
@@ -1146,5 +1166,111 @@ impl ButtonHandler {
             sender.send(UiMessage::CommitsDone(res));
         });
         Ok(())
+    }
+}
+
+impl ButtonHandler {
+    fn initialize_run_state(
+        &self,
+        build: BuildType,
+        ticks: u32,
+        simulated: bool,
+    ) -> Result<(), String> {
+        {
+            let mut state = self
+                .state
+                .lock()
+                .map_err(|e| format!("State lock error: {}", e))?;
+            state.set_running(true);
+            state.current_step = 0;
+            state.total_steps = 0;
+            state.reward = 0.0;
+            state.energy = 0.5;
+            state.risk = 0.5;
+
+            let build_str = match build {
+                BuildType::CPU => "CPU",
+                BuildType::CUDA => "CUDA",
+            };
+            let prefix = if simulated { "[simulated] " } else { "" };
+            state.add_terminal_line(
+                format!(
+                    "{}🚀 Starting Qallow Unified System with {} build (Phases 13→14→15, ticks: {})",
+                    prefix, build_str, ticks
+                ),
+                LineType::Info,
+            );
+            state.add_audit_log(
+                LogLevel::Info,
+                "ControlPanel".to_string(),
+                format!(
+                    "{}Unified system started with {} build (ticks: {})",
+                    prefix, build_str, ticks
+                ),
+            );
+        }
+
+        if simulated {
+            self.spawn_simulated_unified_run(build, ticks);
+        }
+
+        Ok(())
+    }
+
+    fn spawn_simulated_unified_run(&self, build: BuildType, ticks: u32) {
+        let state_arc = Arc::clone(&self.state);
+        let logger = Arc::clone(&self.logger);
+
+        thread::spawn(move || {
+            let stages = 10.max((ticks / 100).max(1));
+            let build_label = match build {
+                BuildType::CPU => "CPU",
+                BuildType::CUDA => "CUDA",
+            };
+            for stage in 0..stages {
+                thread::sleep(Duration::from_millis(500));
+                if let Ok(mut state) = state_arc.lock() {
+                    if !state.vm_running {
+                        let _ = logger.info("Simulated unified run aborted by user.");
+                        break;
+                    }
+                    state.current_step = state.current_step.saturating_add(25);
+                    state.total_steps = state.total_steps.saturating_add(25);
+                    state.reward += 0.15;
+                    state.energy = (state.energy + 0.01).min(1.0);
+                    state.risk = (state.risk * 0.97).max(0.0);
+                    state.update_uptime();
+                    let reward = state.reward;
+                    let energy = state.energy;
+                    let risk = state.risk;
+                    state.add_terminal_line(
+                        format!(
+                            "[simulated:{build_label}] Progress {}/{} - reward {:.2}, energy {:.2}, risk {:.2}",
+                            stage + 1,
+                            stages,
+                            reward,
+                            energy,
+                            risk
+                        ),
+                        LineType::Output,
+                    );
+                }
+            }
+
+            if let Ok(mut state) = state_arc.lock() {
+                if state.vm_running {
+                    state.add_terminal_line(
+                        "[simulated] ✅ Unified pipeline completed.".to_string(),
+                        LineType::Info,
+                    );
+                    state.add_audit_log(
+                        LogLevel::Success,
+                        "ControlPanel".to_string(),
+                        "Simulated unified pipeline completed.".to_string(),
+                    );
+                    state.set_running(false);
+                }
+            }
+        });
     }
 }

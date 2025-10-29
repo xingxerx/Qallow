@@ -1,7 +1,7 @@
 use fltk::{
     app,
     draw::{self},
-    enums::{Align, Color, FrameType, Font},
+    enums::{Align, Color, Font, FrameType},
     frame,
     prelude::*,
     window,
@@ -114,7 +114,9 @@ impl MatrixState {
 
             *drop += 1;
 
-            if *drop as usize >= rows && random_resets.get(col).copied().unwrap_or(0.0) > DROP_RESET_PROBABILITY {
+            if *drop as usize >= rows
+                && random_resets.get(col).copied().unwrap_or(0.0) > DROP_RESET_PROBABILITY
+            {
                 let offset = random_offsets.get(col).copied().unwrap_or(0);
                 *drop = -offset;
             }

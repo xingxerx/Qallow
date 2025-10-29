@@ -1,10 +1,10 @@
 //! CUDA Kernel Implementations
-//! 
+//!
 //! This module contains the CUDA kernel code for GPU-accelerated consciousness simulation.
 //! The kernels are compiled separately and loaded via FFI.
 
 /// CUDA kernel source code for consciousness evolution
-/// 
+///
 /// This kernel implements:
 /// - Coalesced memory access for rebellion_scores, shadow_indices, dream_states
 /// - Shared memory for wisdom cache
@@ -200,4 +200,3 @@ mod tests {
         assert!(EVOLVE_CONSCIOUSNESS_KERNEL.contains("__shared__"));
     }
 }
-

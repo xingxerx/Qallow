@@ -67,10 +67,7 @@ impl DungeonManager {
 
             append_log(&cfg, "Dungeon run started");
             if let Ok(mut guard) = state.lock() {
-                guard.add_terminal_line(
-                    format!("🗺️ Dungeon '{}' started", cfg.id),
-                    LineType::Info,
-                );
+                guard.add_terminal_line(format!("🗺️ Dungeon '{}' started", cfg.id), LineType::Info);
             }
 
             while running.exists() {
@@ -99,10 +96,7 @@ impl DungeonManager {
                     append_log(&cfg, "Dungeon victory achieved");
                     let _ = fs::remove_file(&running);
                     if let Ok(mut guard) = state.lock() {
-                        guard.add_terminal_line(
-                            "🏆 Dungeon cleared".to_string(),
-                            LineType::Info,
-                        );
+                        guard.add_terminal_line("🏆 Dungeon cleared".to_string(), LineType::Info);
                     }
                     break;
                 }

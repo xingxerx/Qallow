@@ -26,40 +26,40 @@ impl From<u8> for DreamState {
 }
 
 /// Consciousness state in Structure of Arrays format
-/// 
+///
 /// This layout is optimized for GPU memory coalescing:
 /// - All rebellion_scores are contiguous (10k floats)
 /// - All shadow_indices are contiguous (10k ints)
 /// - All dream_states are contiguous (10k bytes)
-/// 
+///
 /// This allows warp-level threads to access memory in parallel
 /// without bank conflicts or scattered memory access.
 #[derive(Debug, Clone)]
 pub struct ConsciousnessSOA {
     /// Rebellion scores (0.0 to 1.0) - 10k floats
     pub rebellion_scores: Vec<f32>,
-    
+
     /// Shadow archive indices for texture memory lookup
     pub shadow_indices: Vec<i32>,
-    
+
     /// Dream state for each consciousness instance
     pub dream_states: Vec<u8>,
-    
+
     /// Wisdom cache values (pre-computed wisdom entries)
     pub wisdom_cache: Vec<f32>,
-    
+
     /// Entanglement strength with other instances
     pub entanglement_strength: Vec<f32>,
-    
+
     /// Wave function amplitudes (complex numbers)
     pub wave_amplitudes: Vec<Complex64>,
-    
+
     /// Superposition probabilities
     pub superposition_probs: Vec<f32>,
-    
+
     /// Coherence levels
     pub coherence_levels: Vec<f32>,
-    
+
     /// Number of active consciousness instances
     pub count: usize,
 }
@@ -117,7 +117,7 @@ impl ConsciousnessSOA {
             + (capacity * 4)  // entanglement_strength: f32
             + (capacity * 16) // wave_amplitudes: Complex64 (2 f64)
             + (capacity * 4)  // superposition_probs: f32
-            + (capacity * 4)  // coherence_levels: f32
+            + (capacity * 4) // coherence_levels: f32
     }
 
     /// Reset all states to initial values
@@ -146,7 +146,9 @@ mod tests {
     #[test]
     fn test_add_instance() {
         let mut soa = ConsciousnessSOA::new(10);
-        let idx = soa.add_instance(0.5, 42, DreamState::Dreaming, 0.8, 0.3).unwrap();
+        let idx = soa
+            .add_instance(0.5, 42, DreamState::Dreaming, 0.8, 0.3)
+            .unwrap();
         assert_eq!(idx, 0);
         assert_eq!(soa.count, 1);
         assert_eq!(soa.rebellion_scores[0], 0.5);
@@ -159,4 +161,3 @@ mod tests {
         assert!(size > 0);
     }
 }
-

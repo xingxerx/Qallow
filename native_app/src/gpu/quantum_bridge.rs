@@ -3,8 +3,7 @@
 ///
 /// This module provides FFI bindings to call GPU-accelerated quantum operations
 /// from the Python quantum_ml module.
-
-use crate::gpu::{ConsciousnessSOA, GPUManager, DreamState};
+use crate::gpu::{ConsciousnessSOA, DreamState, GPUManager};
 use std::ffi::CString;
 use std::os::raw::c_char;
 
@@ -12,7 +11,7 @@ use std::os::raw::c_char;
 #[repr(C)]
 pub struct QuantumArchitecture {
     pub id: u32,
-    pub layer_type: u32,  // 0 = dense, 1 = conv
+    pub layer_type: u32, // 0 = dense, 1 = conv
     pub neurons: u32,
     pub params: u64,
     pub memory_mb: f32,
@@ -64,13 +63,8 @@ pub extern "C" fn quantum_ml_process_states(
                 DreamState::Awakening
             };
 
-            let _ = consciousness.add_instance(
-                rebellion_score,
-                shadow_index,
-                dream_state,
-                0.8,
-                0.5,
-            );
+            let _ =
+                consciousness.add_instance(rebellion_score, shadow_index, dream_state, 0.8, 0.5);
         }
 
         Box::into_raw(Box::new(consciousness))
@@ -182,9 +176,7 @@ pub extern "C" fn quantum_ml_consciousness_free(consciousness: *mut Consciousnes
 
 /// Get GPU metrics as JSON string
 #[no_mangle]
-pub extern "C" fn quantum_ml_get_gpu_metrics(
-    gpu_manager: *mut GPUManager,
-) -> *mut c_char {
+pub extern "C" fn quantum_ml_get_gpu_metrics(gpu_manager: *mut GPUManager) -> *mut c_char {
     if gpu_manager.is_null() {
         return std::ptr::null_mut();
     }
@@ -236,15 +228,11 @@ mod tests {
         assert!(!gpu_manager.is_null());
 
         let states = vec![1, 0, -1];
-        let consciousness = quantum_ml_process_states(
-            gpu_manager,
-            states.as_ptr(),
-            states.len() as u32,
-        );
+        let consciousness =
+            quantum_ml_process_states(gpu_manager, states.as_ptr(), states.len() as u32);
         assert!(!consciousness.is_null());
 
         quantum_ml_consciousness_free(consciousness);
         quantum_ml_gpu_free(gpu_manager);
     }
 }
-

@@ -1,8 +1,8 @@
 #![allow(dead_code)]
 
 mod backend;
-mod clipboard;
 mod button_handlers;
+mod clipboard;
 mod codebase_manager;
 mod config;
 mod dungeons;
@@ -17,20 +17,21 @@ mod ui;
 mod utils;
 
 use backend::process_manager::ProcessManager;
-use clipboard::ClipboardService;
 use button_handlers::ButtonHandler;
+use clipboard::ClipboardService;
 use codebase_manager::CodebaseManager;
 use config::{AppConfig, ConfigManager};
 use fltk::enums::Color;
 use fltk::{dialog, prelude::*, *};
 // use fltk_theme::ThemeType;  // Not needed - theme is disabled
-use gpu::{GPUManager, check_gpu_availability};
+use gpu::{check_gpu_availability, GPUManager};
 use logging::AppLogger;
 use messaging::UiMessage;
 use models::{AppState, AuditLog, BuildType, LineType, LogLevel, Phase, TerminalLine};
 use shutdown::ShutdownManager;
 use std::env;
 use std::fs;
+use std::io::{self, Write};
 use std::panic;
 use std::path::Path;
 use std::process::{Command, Stdio};
@@ -110,13 +111,21 @@ fn main() {
     };
 
     if !display_available() {
-        let _ = logger.warn("No graphical display detected (missing DISPLAY/WAYLAND_DISPLAY). Running CLI fallback pipeline instead.");
-        if let Err(e) = run_headless(&config, &logger) {
-            let _ = logger.error(&format!("Headless run failed: {}", e));
+        let _ = logger.warn(
+            "No graphical display detected (missing DISPLAY/WAYLAND_DISPLAY). Launching CLI control shell.",
+        );
+        if let Err(e) = run_cli_interface(
+            initial_state.clone(),
+            &config,
+            &logger,
+            codebase_mgr.clone(),
+            &shutdown_mgr,
+        ) {
+            let _ = logger.error(&format!("CLI control shell failed: {}", e));
             eprintln!("Headless execution failed: {}", e);
             std::process::exit(1);
         }
-        let _ = logger.info("Headless execution completed successfully.");
+        let _ = logger.info("CLI control session ended.");
         return;
     }
 
@@ -125,13 +134,19 @@ fn main() {
         Ok(app) => app,
         Err(_) => {
             let _ = logger
-                .warn("FLTK failed to open the display. Running CLI fallback pipeline instead.");
-            if let Err(e) = run_headless(&config, &logger) {
-                let _ = logger.error(&format!("Headless run failed: {}", e));
+                .warn("FLTK failed to open the display. Launching CLI control shell instead.");
+            if let Err(e) = run_cli_interface(
+                initial_state.clone(),
+                &config,
+                &logger,
+                codebase_mgr.clone(),
+                &shutdown_mgr,
+            ) {
+                let _ = logger.error(&format!("CLI control shell failed: {}", e));
                 eprintln!("Headless execution failed: {}", e);
                 std::process::exit(1);
             }
-            let _ = logger.info("Headless execution completed successfully.");
+            let _ = logger.info("CLI control session ended.");
             return;
         }
     };
@@ -1056,4 +1071,241 @@ fn run_headless(config: &AppConfig, logger: &AppLogger) -> Result<(), String> {
     }
 
     Ok(())
+}
+
+fn run_cli_interface(
+    initial_state: AppState,
+    config: &AppConfig,
+    logger: &AppLogger,
+    codebase_mgr: Option<Arc<CodebaseManager>>,
+    shutdown_mgr: &ShutdownManager,
+) -> Result<(), String> {
+    println!("=========================================================");
+    println!("   Qallow CLI Control (experimental v0.1)");
+    println!("   Type 'help' to see available commands.");
+    println!("=========================================================\n");
+
+    let state = Arc::new(Mutex::new(initial_state));
+    let process_manager = Arc::new(Mutex::new(ProcessManager::new()));
+    let handler = ButtonHandler::new(
+        state.clone(),
+        process_manager.clone(),
+        Arc::new(logger.clone()),
+        codebase_mgr.clone(),
+        None,
+    );
+
+    let stdin = io::stdin();
+    loop {
+        print!("qallow> ");
+        io::stdout().flush().map_err(|e| e.to_string())?;
+
+        let mut input = String::new();
+        if stdin.read_line(&mut input).map_err(|e| e.to_string())? == 0 {
+            break;
+        }
+
+        let trimmed = input.trim();
+        if trimmed.is_empty() {
+            continue;
+        }
+
+        let mut parts = trimmed.split_whitespace();
+        let cmd = parts.next().unwrap().to_lowercase();
+
+        match cmd.as_str() {
+            "help" => {
+                println!("Available commands:");
+                println!("  start              - Launch unified VM pipeline");
+                println!("  stop               - Stop running VM");
+                println!("  pause              - Pause the VM");
+                println!("  reset              - Reset counters and telemetry");
+                println!("  phase <13-20>      - Select default execution phase");
+                println!("  build <cpu|cuda>   - Select build target");
+                println!("  status             - Show system status summary");
+                println!("  terminal           - Show recent terminal output");
+                println!("  audit              - Show recent audit log entries");
+                println!("  run                - Execute on-disk pipeline (if built)");
+                println!("  exit / quit        - Exit CLI session");
+            }
+            "start" => match handler.on_start_vm() {
+                Ok(()) => {
+                    println!("✅ VM start requested.");
+                    print_terminal_snippet(&state, 4);
+                }
+                Err(e) => println!("⚠️  Start failed: {}", e),
+            },
+            "stop" => match handler.on_stop_vm() {
+                Ok(()) => {
+                    println!("⏹️ VM stop requested.");
+                    print_terminal_snippet(&state, 4);
+                }
+                Err(e) => println!("⚠️  Stop failed: {}", e),
+            },
+            "pause" => match handler.on_pause() {
+                Ok(()) => {
+                    println!("⏸️ VM paused.");
+                    print_terminal_snippet(&state, 4);
+                }
+                Err(e) => println!("⚠️  Pause failed: {}", e),
+            },
+            "reset" => match handler.on_reset() {
+                Ok(()) => {
+                    println!("🔄 System reset.");
+                    print_terminal_snippet(&state, 4);
+                }
+                Err(e) => println!("⚠️  Reset failed: {}", e),
+            },
+            "phase" => {
+                if let Some(value) = parts.next() {
+                    let phase_opt = match value {
+                        "13" | "phase13" => Some(Phase::Phase13),
+                        "14" | "phase14" => Some(Phase::Phase14),
+                        "15" | "phase15" => Some(Phase::Phase15),
+                        "16" | "phase16" => Some(Phase::Phase16),
+                        "17" | "phase17" => Some(Phase::Phase17),
+                        "18" | "phase18" => Some(Phase::Phase18),
+                        "19" | "phase19" => Some(Phase::Phase19),
+                        "20" | "phase20" => Some(Phase::Phase20),
+                        _ => None,
+                    };
+                    if let Some(phase) = phase_opt {
+                        if let Err(e) = handler.on_phase_selected(phase) {
+                            println!("⚠️  Failed to update phase: {}", e);
+                        } else {
+                            println!("Phase set to {:?}", phase);
+                        }
+                    } else {
+                        println!("Usage: phase <13-20>");
+                    }
+                } else {
+                    println!("Usage: phase <13-20>");
+                }
+            }
+            "build" => {
+                if let Some(value) = parts.next() {
+                    let build_opt = match value.to_lowercase().as_str() {
+                        "cpu" => Some(BuildType::CPU),
+                        "cuda" => Some(BuildType::CUDA),
+                        _ => None,
+                    };
+                    if let Some(build) = build_opt {
+                        if let Err(e) = handler.on_build_selected(build) {
+                            println!("⚠️  Failed to update build: {}", e);
+                        } else {
+                            println!("Build target set to {:?}", build);
+                        }
+                    } else {
+                        println!("Usage: build <cpu|cuda>");
+                    }
+                } else {
+                    println!("Usage: build <cpu|cuda>");
+                }
+            }
+            "status" => {
+                print_status_summary(&state);
+            }
+            "terminal" => {
+                print_terminal_snippet(&state, 12);
+            }
+            "audit" => {
+                print_audit_snippet(&state, 12);
+            }
+            "run" => match run_headless(config, logger) {
+                Ok(()) => println!("Unified pipeline executed (check build artefact output)."),
+                Err(e) => println!("⚠️  Pipeline execution failed: {}", e),
+            },
+            "exit" | "quit" => {
+                println!("Exiting CLI control shell.");
+                break;
+            }
+            other => {
+                println!(
+                    "Unknown command '{}'. Type 'help' for a list of commands.",
+                    other
+                );
+            }
+        }
+    }
+
+    if let Ok(state_guard) = state.lock() {
+        let _ = shutdown_mgr.save_state(&state_guard);
+    }
+    let _ = shutdown_mgr.cleanup();
+
+    Ok(())
+}
+
+fn print_terminal_snippet(state: &Arc<Mutex<AppState>>, limit: usize) {
+    if let Ok(guard) = state.lock() {
+        if guard.terminal_output.is_empty() {
+            println!("(terminal buffer is empty)");
+            return;
+        }
+        println!("--- Terminal (latest) ---");
+        let lines: Vec<_> = guard
+            .terminal_output
+            .iter()
+            .rev()
+            .take(limit)
+            .cloned()
+            .collect();
+        for line in lines.into_iter().rev() {
+            println!("[{}] {}", line.timestamp.format("%H:%M:%S"), line.content);
+        }
+    }
+}
+
+fn print_audit_snippet(state: &Arc<Mutex<AppState>>, limit: usize) {
+    if let Ok(guard) = state.lock() {
+        if guard.audit_logs.is_empty() {
+            println!("(audit log is empty)");
+            return;
+        }
+        println!("--- Audit Log (latest) ---");
+        let entries: Vec<_> = guard.audit_logs.iter().rev().take(limit).cloned().collect();
+        for entry in entries.into_iter().rev() {
+            let icon = match entry.level {
+                LogLevel::Info => "ℹ️",
+                LogLevel::Success => "✅",
+                LogLevel::Warning => "⚠️",
+                LogLevel::Error => "❌",
+            };
+            println!(
+                "[{}] {} {} - {}",
+                entry.timestamp.format("%H:%M:%S"),
+                icon,
+                entry.component,
+                entry.message
+            );
+        }
+    }
+}
+
+fn print_status_summary(state: &Arc<Mutex<AppState>>) {
+    if let Ok(guard) = state.lock() {
+        println!("--- System Status ---");
+        println!("VM running     : {}", guard.vm_running);
+        println!("Phase          : {:?}", guard.selected_phase);
+        println!("Build          : {:?}", guard.selected_build);
+        println!("Current step   : {}", guard.current_step);
+        println!("Total steps    : {}", guard.total_steps);
+        println!("Reward         : {:.2}", guard.reward);
+        println!("Energy         : {:.2}", guard.energy);
+        println!("Risk           : {:.2}", guard.risk);
+        println!(
+            "Overlay (Orbital/River/Mycelial/Global): {:.3} / {:.3} / {:.3} / {:.3}",
+            guard.metrics.overlay_stability.orbital,
+            guard.metrics.overlay_stability.river,
+            guard.metrics.overlay_stability.mycelial,
+            guard.metrics.overlay_stability.global
+        );
+        println!(
+            "Ethics (Safety/Clarity/Human): {:.2} / {:.2} / {:.2}",
+            guard.metrics.ethics_score.safety,
+            guard.metrics.ethics_score.clarity,
+            guard.metrics.ethics_score.human
+        );
+        println!("Uptime         : {} seconds", guard.metrics.uptime_seconds);
+    }
 }

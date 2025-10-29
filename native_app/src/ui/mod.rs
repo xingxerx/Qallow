@@ -3,10 +3,10 @@ pub mod control_panel;
 pub mod dashboard;
 pub mod dungeons;
 pub mod help;
+pub mod matrix_bg;
 pub mod metrics;
 pub mod settings;
 pub mod terminal;
-pub mod matrix_bg;
 
 use crate::models::AppState;
 use fltk::enums::Color;
@@ -16,13 +16,13 @@ use std::rc::Rc;
 use std::sync::{Arc, Mutex};
 
 // Modern color scheme matching web app
-pub const COLOR_BG_DARK: u32 = 0x0a0e27;      // Dark background
-pub const COLOR_BG_ACCENT: u32 = 0x1a1f3a;    // Accent background
-pub const COLOR_PRIMARY: u32 = 0x00d4ff;      // Cyan primary
-pub const COLOR_SUCCESS: u32 = 0x00ff64;      // Green success
-pub const COLOR_DANGER: u32 = 0xff6464;       // Red danger
-pub const COLOR_TEXT: u32 = 0xe8eefc;         // Light text
-pub const COLOR_MUTED: u32 = 0x8aa1c1;        // Muted text
+pub const COLOR_BG_DARK: u32 = 0x0a0e27; // Dark background
+pub const COLOR_BG_ACCENT: u32 = 0x1a1f3a; // Accent background
+pub const COLOR_PRIMARY: u32 = 0x00d4ff; // Cyan primary
+pub const COLOR_SUCCESS: u32 = 0x00ff64; // Green success
+pub const COLOR_DANGER: u32 = 0xff6464; // Red danger
+pub const COLOR_TEXT: u32 = 0xe8eefc; // Light text
+pub const COLOR_MUTED: u32 = 0x8aa1c1; // Muted text
 
 pub struct MainUiHandles {
     pub control: control_panel::ControlPanelButtons,
@@ -110,10 +110,7 @@ fn create_modern_header(flex: &mut group::Flex) -> button::Button {
     // Title with modern styling
     let mut title = text::TextDisplay::default().with_size(1400, 60);
     title.set_buffer(text::TextBuffer::default());
-    title
-        .buffer()
-        .unwrap()
-        .set_text("🚀 Qallow Unified System");
+    title.buffer().unwrap().set_text("🚀 Qallow Unified System");
     title.set_text_color(Color::from_hex(COLOR_PRIMARY));
     title.set_text_size(18);
 

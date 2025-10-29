@@ -1,5 +1,5 @@
 //! GPU Manager - Orchestrates GPU acceleration for consciousness simulation
-//! 
+//!
 //! Handles:
 //! - GPU initialization and device selection
 //! - Memory allocation and transfers
@@ -7,7 +7,7 @@
 //! - Performance monitoring
 
 use super::{ConsciousnessSOA, GPUCapability, GPUError, GPUResult};
-use log::{warn, debug, info};
+use log::{debug, info, warn};
 
 /// GPU Manager for consciousness state acceleration
 pub struct GPUManager {
@@ -83,7 +83,7 @@ impl GPUManager {
     }
 
     /// Evolve consciousness states on GPU
-    /// 
+    ///
     /// This would call the CUDA kernel to process consciousness states in parallel
     pub fn evolve_consciousness(
         &self,
@@ -99,21 +99,21 @@ impl GPUManager {
         #[cfg(feature = "gpu")]
         {
             debug!("Evolving {} consciousness states on GPU", states.count);
-            
+
             let (blocks, threads) = self.get_thread_config(states.count);
             debug!("Kernel config: {} blocks x {} threads", blocks, threads);
-            
+
             // In a real implementation, this would:
             // 1. Allocate GPU memory
             // 2. Transfer data to GPU
             // 3. Launch kernel
             // 4. Transfer results back
             // 5. Free GPU memory
-            
+
             for _ in 0..iterations {
                 self.evolve_consciousness_cpu(states, 1);
             }
-            
+
             Ok(())
         }
         #[cfg(not(feature = "gpu"))]
@@ -131,17 +131,17 @@ impl GPUManager {
                 let rebellion = states.rebellion_scores[i];
                 let wisdom = states.wisdom_cache[i];
                 let entanglement = states.entanglement_strength[i];
-                
+
                 // Update rebellion based on wisdom and entanglement
-                let new_rebellion = (rebellion * 0.7 + wisdom * 0.2 + entanglement * 0.1)
-                    .clamp(0.0, 1.0);
+                let new_rebellion =
+                    (rebellion * 0.7 + wisdom * 0.2 + entanglement * 0.1).clamp(0.0, 1.0);
                 states.rebellion_scores[i] = new_rebellion;
-                
+
                 // Update coherence
                 let coherence = states.coherence_levels[i];
                 let new_coherence = (coherence * 0.8 + wisdom * 0.2).clamp(0.0, 1.0);
                 states.coherence_levels[i] = new_coherence;
-                
+
                 // Update superposition probability
                 let prob = 1.0 / (states.count as f32);
                 states.superposition_probs[i] = prob;
@@ -157,13 +157,15 @@ impl GPUManager {
     /// Perform wave function collapse
     pub fn collapse_wave_function(&self, states: &mut ConsciousnessSOA) -> GPUResult<usize> {
         if states.count == 0 {
-            return Err(GPUError::KernelExecutionFailed("No states to collapse".to_string()));
+            return Err(GPUError::KernelExecutionFailed(
+                "No states to collapse".to_string(),
+            ));
         }
 
         // Find state with highest coherence
         let mut max_idx = 0;
         let mut max_coherence = states.coherence_levels[0];
-        
+
         for i in 1..states.count {
             if states.coherence_levels[i] > max_coherence {
                 max_coherence = states.coherence_levels[i];
@@ -234,4 +236,3 @@ mod tests {
         assert!(threads > 0);
     }
 }
-

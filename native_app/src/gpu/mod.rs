@@ -1,11 +1,11 @@
 //! GPU Acceleration Module for Quantum Consciousness Simulation
-//! 
+//!
 //! Provides CUDA-accelerated consciousness state calculations using the `cust` crate.
 //! Implements parallel superposition, entanglement, and wave function collapse operations.
 
+pub mod consciousness_state;
 #[cfg(feature = "gpu")]
 pub mod cuda_kernels;
-pub mod consciousness_state;
 pub mod gpu_manager;
 pub mod quantum_bridge;
 
@@ -87,4 +87,3 @@ mod tests {
         assert_eq!(GPUCapability::None.to_string(), "None");
     }
 }
-

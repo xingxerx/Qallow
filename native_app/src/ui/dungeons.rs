@@ -14,19 +14,20 @@ pub struct DungeonsView {
     pub copy_log_btn: button::Button,
 }
 
-pub fn create_dungeons_tab(
-    tabs: &mut group::Tabs,
-    state: Arc<Mutex<AppState>>,
-) -> DungeonsView {
+pub fn create_dungeons_tab(tabs: &mut group::Tabs, state: Arc<Mutex<AppState>>) -> DungeonsView {
     let group = group::Group::default().with_label("🗺️ Dungeons");
     let root = group::Flex::default().with_size(1450, 950).column();
 
     let mut control_row = group::Flex::default().with_size(1450, 80).row();
-    let mut start_btn = button::Button::default().with_size(160, 80).with_label("▶ Start");
+    let mut start_btn = button::Button::default()
+        .with_size(160, 80)
+        .with_label("▶ Start");
     start_btn.set_color(Color::from_hex(0x00ff64));
     start_btn.set_label_color(Color::Black);
 
-    let mut stop_btn = button::Button::default().with_size(160, 80).with_label("⏹ Stop");
+    let mut stop_btn = button::Button::default()
+        .with_size(160, 80)
+        .with_label("⏹ Stop");
     stop_btn.set_color(Color::from_hex(0xff6464));
     stop_btn.set_label_color(Color::White);
 
@@ -102,10 +103,7 @@ pub fn create_dungeons_tab(
         move |_| {
             let mgr = DungeonManager::new(state.clone(), &cfg.id);
             mgr.stop();
-            status
-                .buffer()
-                .unwrap()
-                .set_text("Dungeon run stopped.");
+            status.buffer().unwrap().set_text("Dungeon run stopped.");
         }
     });
 
