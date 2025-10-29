@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import Dict, Optional
 
 import numpy as np
+import random
 
 from .ethics import CoherenceAuditor, CoherenceReport
 
@@ -28,6 +29,7 @@ class SecureComputationPipeline:
         self.config = config or SecureComputationConfig()
         self.auditor = auditor or CoherenceAuditor()
         self.rng = np.random.default_rng(self.config.seed)
+        self.random = random.Random(self.config.seed)
 
     def _simulate_lwe_key_exchange(self) -> Dict[str, float]:
         cfg = self.config
@@ -79,10 +81,10 @@ class SecureComputationPipeline:
         cheating_verifier_success = 0
 
         for _ in range(rounds):
-            random_nonce = self.rng.integers(1, prime - 1, dtype=np.int64)
+            random_nonce = self.random.randrange(1, prime - 1)
             commitment = pow(generator, random_nonce, prime)
 
-            challenge = self.rng.integers(0, 2)
+            challenge = self.random.randint(0, 1)
             response = (random_nonce + challenge * secret) % (prime - 1)
             check = pow(generator, response, prime)
             verifier_value = (commitment * pow(generator, challenge * secret, prime)) % prime
@@ -90,7 +92,7 @@ class SecureComputationPipeline:
             if check == verifier_value:
                 honest_verifier_success += 1
 
-            cheating_guess = self.rng.integers(0, 2)
+            cheating_guess = self.random.randint(0, 1)
             if cheating_guess == challenge:
                 cheating_verifier_success += 1
 

@@ -414,6 +414,26 @@ python scripts/train_small_model.py
 - `--qiskit-backend` – specify Qiskit backend
 - `--qiskit-bridge` – custom bridge configuration
 
+## Quantum ML Integration
+
+Qallow's quantum_ml module provides tools for hybrid quantum-classical machine learning:
+
+- **QuantumNASExplorer** (in `quantum_ml/sampling_nas.py`):
+  - Uses Phase 11 quantum states to generate diverse training data for neural architecture search.
+  - Example usage:
+    ```python
+    from quantum_ml import QuantumNASExplorer
+    explorer = QuantumNASExplorer()
+    architectures = explorer.generate_architectures(10)
+    print(architectures)
+    ```
+- **Hybrid classical-quantum layers:**
+  - Implement variational quantum circuits as neural network layers, using Qallow's quantum backend for feature extraction.
+- **Quantum attention mechanisms:**
+  - Replace transformer attention with quantum amplitude encoding, leveraging Phase 14 coherence control for long-range dependencies.
+
+See `quantum_ml/sampling_nas.py` for code and integration details.
+
 ## 📊 Telemetry & Logging
 
 **Structured Output:**
