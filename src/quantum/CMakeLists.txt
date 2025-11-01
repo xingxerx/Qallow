@@ -18,10 +18,13 @@ else()
     if(NOT JSON_C_FOUND AND NOT json-c_FOUND)
         # Try to find json-c in common local build paths
         if(EXISTS "$ENV{HOME}/json-c/build")
-            set(JSON_C_INCLUDE_DIRS "$ENV{HOME}/json-c/build")
+            # json-c uses include/<package> structure; we need both source and build dirs
+            set(JSON_C_INCLUDE_DIRS "$ENV{HOME}/json-c" "$ENV{HOME}/json-c/build")
             set(JSON_C_LIBRARIES "$ENV{HOME}/json-c/build/libjson-c.a")
             set(JSON_C_FOUND TRUE)
             message(STATUS "Using local json-c build from $ENV{HOME}/json-c/build")
+            message(STATUS "JSON_C Include dirs: ${JSON_C_INCLUDE_DIRS}")
+            message(STATUS "JSON_C Libraries: ${JSON_C_LIBRARIES}")
         else()
             message(FATAL_ERROR "json-c not found. Please install it or build from source in $HOME/json-c")
         endif()
@@ -65,20 +68,20 @@ set(CUDAQ_QUICKSTART_SOURCES
 # Build quantum core library
 add_library(qallow_quantum_core STATIC ${QUANTUM_CORE_SOURCES})
 target_include_directories(qallow_quantum_core
-    PUBLIC ${QALLOW_QUANTUM_INCLUDE_DIRS}
+    PUBLIC ${QALLOW_QUANTUM_INCLUDE_DIRS} $ENV{HOME}/json-c $ENV{HOME}/json-c/build
 )
 target_link_libraries(qallow_quantum_core
-    PUBLIC json-c::json-c
+    PUBLIC ${JSON_C_LIBRARIES}
     PRIVATE m
 )
 
 # Build quantum algorithm suite library
 add_library(qallow_quantum_algorithms STATIC ${QUANTUM_ALGORITHM_SUITE_SOURCES})
 target_include_directories(qallow_quantum_algorithms
-    PUBLIC ${QALLOW_QUANTUM_INCLUDE_DIRS}
+    PUBLIC ${QALLOW_QUANTUM_INCLUDE_DIRS} $ENV{HOME}/json-c $ENV{HOME}/json-c/build
 )
 target_link_libraries(qallow_quantum_algorithms
-    PUBLIC json-c::json-c
+    PUBLIC ${JSON_C_LIBRARIES}
     PRIVATE m
 )
 
@@ -89,7 +92,7 @@ target_include_directories(cudaq_quickstart
 )
 target_link_libraries(cudaq_quickstart
     PRIVATE
-        PkgConfig::JSON_C
+        json-c::json-c
         m
 )
 

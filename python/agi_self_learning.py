@@ -37,8 +37,12 @@ except ImportError:
     AGENT_LIGHTNING_AVAILABLE = False
     logging.warning("Agent Lightning not available. Install with: pip install agentlightning")
 
-# Qallow imports
-from quantum_learning_system import QuantumLearningSystem
+# Qallow imports (optional)
+try:
+    from quantum_learning_system import QuantumLearningSystem
+    QUANTUM_LEARNING_AVAILABLE = True
+except ImportError:
+    QUANTUM_LEARNING_AVAILABLE = False
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -62,10 +66,15 @@ class QallowAGISelfLearning:
         
         self.state_file = Path(state_file)
         self.enable_rl = enable_rl and AGENT_LIGHTNING_AVAILABLE
-        
+
         # Initialize state
         self.state = self._load_state()
-        self.quantum_learner = QuantumLearningSystem()
+
+        # Initialize quantum learner if available
+        if QUANTUM_LEARNING_AVAILABLE:
+            self.quantum_learner = QuantumLearningSystem()
+        else:
+            self.quantum_learner = None
         
         # Learning metrics
         self.episode_count = 0

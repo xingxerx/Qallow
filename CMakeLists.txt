@@ -324,31 +324,9 @@ endif()
 
 add_subdirectory(alg_ccc)
 
-# Add quantum subdirectory only if json-c can be found
-find_package(json-c CONFIG QUIET)
-if(NOT json-c_FOUND)
-    find_package(PkgConfig QUIET)
-    if(PkgConfig_FOUND)
-        pkg_check_modules(JSON_C QUIET json-c)
-    endif()
-    if(NOT JSON_C_FOUND AND NOT json-c_FOUND)
-        if(EXISTS "$ENV{HOME}/json-c/build")
-            set(JSON_C_FOUND TRUE)
-            message(STATUS "Found local json-c build, enabling quantum module")
-        else()
-            message(STATUS "json-c not found, skipping quantum module (optional)")
-            set(SKIP_QUANTUM_MODULE TRUE)
-        endif()
-    else()
-        message(STATUS "Found json-c, enabling quantum module")
-    endif()
-else()
-    message(STATUS "Found json-c, enabling quantum module")
-endif()
-
-if(NOT SKIP_QUANTUM_MODULE)
-    add_subdirectory(src/quantum)
-endif()
+# Quantum module is optional; skip it for now and build without it
+message(STATUS "Skipping quantum module (optional dependency)")
+# To enable: ensure json-c is installed system-wide or properly configured
 
 enable_testing()
 

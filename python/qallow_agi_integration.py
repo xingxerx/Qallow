@@ -12,16 +12,24 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 # Add python directory to path
 sys.path.insert(0, str(Path(__file__).parent))
 
 # Import Qallow AGI modules
 from agi_self_learning import QallowAGISelfLearning, create_agi_learner
 from agi_telemetry_bridge import AGITelemetryBridge
-from quantum_learning_system import QuantumLearningSystem
+from agi_cuda_accelerator import CUDAAccelerator
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+# Try to import quantum learning system (optional)
+try:
+    from quantum_learning_system import QuantumLearningSystem
+    QUANTUM_LEARNING_AVAILABLE = True
+except ImportError:
+    QUANTUM_LEARNING_AVAILABLE = False
+    logger.warning("Quantum Learning System not available (numpy dependency)")
 
 
 class QallowAGIIntegration:
@@ -36,22 +44,38 @@ class QallowAGIIntegration:
     - Telemetry and monitoring
     """
     
-    def __init__(self, 
+    def __init__(self,
                  workspace_dir: str = '/home/xing/Qallow',
-                 enable_rl: bool = True):
+                 enable_rl: bool = True,
+                 enable_cuda: bool = True):
         """Initialize complete AGI integration"""
-        
+
         self.workspace_dir = Path(workspace_dir)
         self.enable_rl = enable_rl
-        
+        self.enable_cuda = enable_cuda
+
         # Initialize components
         logger.info("Initializing Qallow AGI Integration...")
-        
+
         self.agi_learner = create_agi_learner(enable_rl=enable_rl)
         self.telemetry_bridge = AGITelemetryBridge(
             telemetry_dir=str(self.workspace_dir / 'telemetry')
         )
-        self.quantum_learner = QuantumLearningSystem()
+
+        # Initialize quantum learner if available
+        if QUANTUM_LEARNING_AVAILABLE:
+            self.quantum_learner = QuantumLearningSystem()
+        else:
+            self.quantum_learner = None
+            logger.warning("Quantum Learning System disabled")
+
+        # Initialize CUDA accelerator
+        if enable_cuda:
+            self.cuda_accelerator = CUDAAccelerator()
+            logger.info(f"CUDA Accelerator: {'✅ Enabled' if self.cuda_accelerator.cuda_available else '⚠️  CPU Fallback'}")
+        else:
+            self.cuda_accelerator = None
+            logger.info("CUDA Accelerator: Disabled")
         
         # Integration state
         self.integration_state = {
@@ -198,23 +222,27 @@ class QallowAGIIntegration:
     # ========================================================================
     # Quantum Learning Integration
     # ========================================================================
-    
+
     def process_quantum_results(self, results: Dict) -> Dict:
         """
         Process quantum execution results with learning
-        
+
         Args:
             results: Quantum execution results
-        
+
         Returns:
             Analysis with learning signals
         """
-        
+
         logger.info("Processing quantum results")
-        
+
+        if self.quantum_learner is None:
+            logger.warning("Quantum learner not available")
+            return {'status': 'quantum_learner_unavailable'}
+
         # Use quantum learner
         analysis = self.quantum_learner.process_quantum_results(results)
-        
+
         # Extract learning signals for RL
         if 'learning_signals' in analysis:
             for signal_name, value in analysis['learning_signals'].items():
@@ -223,8 +251,51 @@ class QallowAGIIntegration:
                     value,
                     tags={'source': 'quantum_learner'}
                 )
-        
+
         return analysis
+
+    # ========================================================================
+    # CUDA GPU Acceleration
+    # ========================================================================
+
+    def optimize_quantum_state_gpu(self, state_vector, target_center: float = 0.5):
+        """
+        GPU-accelerated quantum state optimization
+
+        Args:
+            state_vector: Quantum state to optimize
+            target_center: Target center value
+
+        Returns:
+            Optimized state vector
+        """
+
+        if self.cuda_accelerator is None:
+            logger.warning("CUDA accelerator not available")
+            return state_vector
+
+        logger.info("Optimizing quantum state on GPU")
+
+        optimized = self.cuda_accelerator.optimize_quantum_state_gpu(
+            state_vector, target_center
+        )
+
+        # Record telemetry
+        self.telemetry_bridge.record_metric(
+            'gpu.quantum.optimization',
+            1.0,
+            tags={'cuda': str(self.cuda_accelerator.cuda_available)}
+        )
+
+        return optimized
+
+    def get_gpu_performance_stats(self) -> Dict:
+        """Get GPU performance statistics"""
+
+        if self.cuda_accelerator is None:
+            return {'cuda_available': False}
+
+        return self.cuda_accelerator.get_performance_stats()
     
     # ========================================================================
     # Monitoring and Telemetry
@@ -666,12 +737,25 @@ def demo_full_integration(enable_rl: bool = False):
     print("\n4. Integration Report")
     print("-" * 70)
     print(integration.generate_report())
-    
-    print("\n5. Export Telemetry")
+
+    print("\n5. GPU Acceleration Test")
+    print("-" * 70)
+    if integration.cuda_accelerator:
+        state = [0.3, 0.7, 0.2, 0.8, 0.5]
+        optimized = integration.optimize_quantum_state_gpu(state)
+        print(f"   Original:  {state}")
+        print(f"   Optimized: {[f'{x:.3f}' for x in optimized]}")
+
+        gpu_stats = integration.get_gpu_performance_stats()
+        print(f"   CUDA Available: {gpu_stats['cuda_available']}")
+    else:
+        print("   CUDA Accelerator: Disabled")
+
+    print("\n6. Export Telemetry")
     print("-" * 70)
     integration.export_telemetry()
     print("   ✅ Telemetry exported")
-    
+
     print("\n" + "=" * 70)
     print("✨ Complete AGI Integration Demo Finished!")
     print("=" * 70)
