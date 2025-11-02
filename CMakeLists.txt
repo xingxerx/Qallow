@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(Qallow LANGUAGES C CXX CUDA)
+project(Qallow LANGUAGES C CXX)
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
@@ -9,14 +9,17 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 option(QALLOW_ENABLE_CUDA "Enable CUDA backend" ON)
 
-if(QALLOW_ENABLE_CUDA AND NOT CMAKE_CUDA_COMPILER)
-    message(STATUS "CUDA compiler not found. Disabling CUDA targets.")
-    set(QALLOW_ENABLE_CUDA OFF CACHE BOOL "" FORCE)
-endif()
-
 if(QALLOW_ENABLE_CUDA)
-    set(CMAKE_CUDA_STANDARD 17)
-    set(CMAKE_CUDA_STANDARD_REQUIRED ON)
+    include(CheckLanguage)
+    check_language(CUDA)
+    if(CMAKE_CUDA_COMPILER)
+        enable_language(CUDA)
+        set(CMAKE_CUDA_STANDARD 17)
+        set(CMAKE_CUDA_STANDARD_REQUIRED ON)
+    else()
+        message(STATUS "CUDA compiler not found. Disabling CUDA targets.")
+        set(QALLOW_ENABLE_CUDA OFF CACHE BOOL "" FORCE)
+    endif()
 endif()
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -75,7 +78,10 @@ target_link_libraries(qallow_runtime
         qallow_core
         spdlog::spdlog
 )
-target_compile_features(qallow_runtime PUBLIC cxx_std_17)
+set_target_properties(qallow_runtime PROPERTIES
+    CXX_STANDARD 17
+    CXX_STANDARD_REQUIRED ON
+)
 target_include_directories(qallow_runtime PUBLIC ${QALLOW_INCLUDE_DIRS})
 
 set(QALLOW_BACKEND_CPU_SOURCES
@@ -313,9 +319,9 @@ if(QALLOW_ENABLE_CUDA)
     foreach(phase IN LISTS PHASE_DEMOS)
         add_dependencies(qallow_examples phase${phase}_demo)
     endforeach()
+    add_subdirectory(alg_ccc)
 endif()
 
-add_subdirectory(alg_ccc)
 add_subdirectory(src/quantum)
 
 enable_testing()
