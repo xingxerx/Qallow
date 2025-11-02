@@ -28,14 +28,19 @@ def std(x):
     mean_val = mean(x)
     return (sum((i - mean_val) ** 2 for i in x) / len(x)) ** 0.5
 
-# Agent Lightning imports
+# Agent Lightning imports (0.2.x compatibility)
 try:
-    import agentlightning as agl
-    from agentlightning import emit_task_start, emit_task_complete, emit_reward
+    from agentlightning import emit_reward, emit_message, emit_object
+    from agentlightning.tracer import OtelTracer
+    _LIGHTNING_TRACER = OtelTracer()
+    _LIGHTNING_TRACER.init_worker(0)
     AGENT_LIGHTNING_AVAILABLE = True
 except ImportError:
     AGENT_LIGHTNING_AVAILABLE = False
     logging.warning("Agent Lightning not available. Install with: pip install agentlightning")
+except Exception as exc:  # pragma: no cover - defensive init guard
+    AGENT_LIGHTNING_AVAILABLE = False
+    logging.warning(f"Agent Lightning initialization failed: {exc}")
 
 # Qallow imports (optional)
 try:
@@ -46,6 +51,32 @@ except ImportError:
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+
+def _emit_task_event(event_type: str, task_id: str, payload: Optional[Dict[str, Any]] = None):
+    """Bridge legacy Agent Lightning events onto the 0.2.x emitter API."""
+    if not AGENT_LIGHTNING_AVAILABLE:
+        return
+    message = f"{event_type}:{task_id}"
+    event_payload: Dict[str, Any] = {'event': event_type, 'task_id': task_id}
+    if payload:
+        event_payload.update(payload)
+    try:
+        emit_message(message)
+        emit_object(event_payload)
+    except Exception as exc:
+        logger.debug(f"Agent Lightning emit failed for {event_type} ({task_id}): {exc}")
+
+
+def _emit_reward_span(task_id: str, reward_value: float):
+    """Emit reward and associated payload with defensive guards."""
+    if not AGENT_LIGHTNING_AVAILABLE:
+        return
+    try:
+        emit_reward(float(reward_value))
+        emit_object({'event': 'reward', 'task_id': task_id, 'reward': float(reward_value)})
+    except Exception as exc:
+        logger.debug(f"Agent Lightning reward emit failed ({task_id}): {exc}")
 
 
 class QallowAGISelfLearning:
@@ -144,10 +175,11 @@ class QallowAGISelfLearning:
         
         # Emit task start for Agent Lightning
         if self.enable_rl:
-            emit_task_start(
+            _emit_task_event(
+                event_type="task_start",
                 task_id=task_id,
-                task_type="quantum_algorithm_selection",
-                metadata={
+                payload={
+                    'task_type': "quantum_algorithm_selection",
                     'problem_type': problem_type,
                     'constraints': constraints
                 }
@@ -161,11 +193,15 @@ class QallowAGISelfLearning:
         
         # Emit completion and reward
         if self.enable_rl:
-            emit_task_complete(
+            _emit_task_event(
+                event_type="task_complete",
                 task_id=task_id,
-                result={'algorithm': algorithm, 'confidence': confidence}
+                payload={
+                    'task_type': "quantum_algorithm_selection",
+                    'result': {'algorithm': algorithm, 'confidence': confidence}
+                }
             )
-            emit_reward(task_id=task_id, reward=reward)
+            _emit_reward_span(task_id, reward)
         
         # Update learning state
         self._update_algorithm_preferences(problem_type, algorithm, reward)
@@ -285,10 +321,13 @@ class QallowAGISelfLearning:
         task_id = f"ethics-{scenario.get('id', datetime.now().timestamp())}"
         
         if self.enable_rl:
-            emit_task_start(
+            _emit_task_event(
+                event_type="task_start",
                 task_id=task_id,
-                task_type="ethics_decision",
-                metadata=scenario
+                payload={
+                    'task_type': "ethics_decision",
+                    'scenario': scenario
+                }
             )
         
         # Calculate ethics scores using learned weights
@@ -316,8 +355,15 @@ class QallowAGISelfLearning:
         reward = self._calculate_ethics_reward(decision, scenario)
         
         if self.enable_rl:
-            emit_task_complete(task_id=task_id, result=decision)
-            emit_reward(task_id=task_id, reward=reward)
+            _emit_task_event(
+                event_type="task_complete",
+                task_id=task_id,
+                payload={
+                    'task_type': "ethics_decision",
+                    'result': decision
+                }
+            )
+            _emit_reward_span(task_id, reward)
         
         # Update ethics weights
         self._update_ethics_weights(decision, reward)
@@ -397,10 +443,14 @@ class QallowAGISelfLearning:
         task_id = f"phase-{phase_num}-{datetime.now().timestamp()}"
 
         if self.enable_rl:
-            emit_task_start(
+            _emit_task_event(
+                event_type="task_start",
                 task_id=task_id,
-                task_type="phase_optimization",
-                metadata={'phase': phase_num, 'config': config}
+                payload={
+                    'task_type': "phase_optimization",
+                    'phase': phase_num,
+                    'config': config
+                }
             )
 
         # Get learned performance data
@@ -445,8 +495,16 @@ class QallowAGISelfLearning:
         reward = self._calculate_phase_reward(metrics)
 
         if self.enable_rl:
-            emit_task_complete(task_id=task_id, result=metrics)
-            emit_reward(task_id=task_id, reward=reward)
+            _emit_task_event(
+                event_type="task_complete",
+                task_id=task_id,
+                payload={
+                    'task_type': "phase_optimization",
+                    'phase': phase_num,
+                    'metrics': metrics
+                }
+            )
+            _emit_reward_span(task_id, reward)
 
         # Update phase performance history
         phase_key = f"phase_{phase_num}"
@@ -666,4 +724,3 @@ def demo_agi_learning():
 
 if __name__ == "__main__":
     demo_agi_learning()
-

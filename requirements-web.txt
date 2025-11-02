@@ -1,0 +1,32 @@
+# Qallow UI & Web Framework Dependencies
+# Install with: pip install -r requirements-web.txt
+
+# Web Framework
+django>=4.2.0
+flask>=3.0.0
+flask-cors>=4.0.0
+flask-restful>=0.3.10
+
+# Async Web Framework
+fastapi>=0.104.0
+uvicorn>=0.24.0
+websockets>=12.0
+
+# API Documentation
+pydantic>=2.4.0
+python-multipart>=0.0.6
+
+# Web UI Components
+streamlit>=1.28.0
+dash>=2.14.0
+plotly-dash>=2.14.0
+
+# Server & Middleware
+gunicorn>=21.2.0
+python-socketio>=5.9.0
+python-engineio>=4.7.0
+
+# Authentication & Security
+python-jose>=3.3.0
+passlib>=1.7.4
+cryptography>=41.0.0

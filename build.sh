@@ -70,7 +70,7 @@ if [ $CUDA_AVAILABLE -eq 1 ] && [ ! -z "$CU_FILES" ]; then
     echo "================================"
 else
     echo "[BUILD] Using GCC (CPU-only)"
-    gcc -O2 -Wall -Icore/include -Iinclude -DQALLOW_PHASE13_EMBEDDED $C_FILES -lm -o qallow_unified
+    gcc -O2 -Wall -Icore/include -Iinclude -DQALLOW_PHASE13_EMBEDDED $C_FILES -lm -lSDL2 -lSDL2_ttf -o qallow_unified
     echo ""
     echo "================================"
     echo "BUILD SUCCESSFUL (CPU)"

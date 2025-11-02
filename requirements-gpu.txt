@@ -1,0 +1,22 @@
+# Qallow GPU Acceleration Dependencies
+# Install with: pip install -r requirements-gpu.txt
+# Requires CUDA 12.0 or higher
+
+# GPU Computing
+cupy>=12.3.0
+numba>=0.57.0
+pycuda>=2022.2.2
+
+# GPU-Accelerated Deep Learning
+tensorflow-gpu>=2.13.0
+torch-cuda>=2.0.0
+jax[cuda12]>=0.4.0
+
+# GPU Monitoring
+nvidia-ml-py3>=7.2.3
+py3nvml>=0.2.7
+
+# Optional: Tensor Parallelism & Distributed Computing
+ray>=2.7.0
+dask>=2023.12.0
+distributed>=2023.12.0
