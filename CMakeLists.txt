@@ -1,6 +1,17 @@
+
 cmake_minimum_required(VERSION 3.20)
 
+<<<<<<< HEAD
 project(Qallow LANGUAGES C CXX)
+=======
+option(QALLOW_ENABLE_CUDA "Enable CUDA backend" ON)
+
+if(QALLOW_ENABLE_CUDA)
+    project(Qallow LANGUAGES C CXX CUDA)
+else()
+    project(Qallow LANGUAGES C CXX)
+endif()
+>>>>>>> e1e56245d290ef05400ecbe709dae4b5ea90714b
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
@@ -322,7 +333,15 @@ if(QALLOW_ENABLE_CUDA)
     add_subdirectory(alg_ccc)
 endif()
 
+<<<<<<< HEAD
 add_subdirectory(src/quantum)
+=======
+add_subdirectory(alg_ccc)
+
+# Quantum module is optional; skip it for now and build without it
+message(STATUS "Skipping quantum module (optional dependency)")
+# To enable: ensure json-c is installed system-wide or properly configured
+>>>>>>> e1e56245d290ef05400ecbe709dae4b5ea90714b
 
 enable_testing()
 
