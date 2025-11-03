@@ -7,7 +7,8 @@
 #                                                                              #
 ################################################################################
 
-set -e
+# Don't exit on error - we want to continue through iterations
+set +e
 
 # Colors
 RED='\033[0;31m'
@@ -368,12 +369,20 @@ EOFTEST
         # git add .
         # git commit -m "Agent Lightning: Iteration $ITER - $FIXES_THIS_ITER fixes applied" || true
         
+        # Continue to next iteration
+        echo ""
+        log_info "Continuing to next iteration..."
+        sleep 1
+        
     else
         log_info "No fixes found in iteration $ITER"
         echo ""
         log_success "Code has converged - no more improvements detected!"
         break
     fi
+    
+    # Small delay between iterations
+    sleep 0.5
     
 done
 
