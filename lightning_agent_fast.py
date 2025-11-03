@@ -1105,9 +1105,7 @@ class CodeAnalyzer:
         
         except Exception as e:
             logger.debug(f"Error analyzing performance: {e}")
-        
-        return fixes
-        
+
         return fixes
     
     def run_all_analyses(self) -> int:
