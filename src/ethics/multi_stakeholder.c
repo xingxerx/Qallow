@@ -49,37 +49,37 @@ static int audit_count = 0;
 ql_status mod_multi_stakeholder_ethics(ql_state *S) {
     double weighted_score = 0.0;
     double total_weight = 0.0;
-    
+
     // Compute weighted ethics score across stakeholders
     for (int i = 0; i < STAKEHOLDER_COUNT; i++) {
-        double stakeholder_score = 
+        double stakeholder_score =
             stakeholders[i].safety_weight * 0.99 +
             stakeholders[i].clarity_weight * 1.0 +
             stakeholders[i].benefit_weight * (S->reward > 0.5 ? 1.0 : 0.5);
-        
+
         weighted_score += stakeholder_score;
-        total_weight += stakeholders[i].safety_weight + 
-                       stakeholders[i].clarity_weight + 
+        total_weight += stakeholders[i].safety_weight +
+                       stakeholders[i].clarity_weight +
                        stakeholders[i].benefit_weight;
     }
-    
+
     double final_ethics = weighted_score / total_weight;
-    
+
     // Apply ethics constraint
     if (final_ethics < 0.8) {
         S->reward *= 0.5;  // Penalize low ethics
     }
-    
+
     return (ql_status){0, "multi-stakeholder ethics ok"};
 }
 
 // Explainability layer
 ql_status mod_explainability(ql_state *S) {
     static int decision_count = 0;
-    
+
     // Generate explanation for current decision
     const char *explanation = "Unknown";
-    
+
     if (S->reward > 0.7) {
         explanation = "High reward: Aggressive optimization";
     } else if (S->reward > 0.4) {
@@ -89,7 +89,7 @@ ql_status mod_explainability(ql_state *S) {
     } else {
         explanation = "Negative reward: Risk mitigation";
     }
-    
+
     // Log decision
     if (audit_count < MAX_AUDIT_ENTRIES) {
         audit_trail[audit_count].timestamp = S->t;
@@ -101,9 +101,9 @@ ql_status mod_explainability(ql_state *S) {
         audit_trail[audit_count].stakeholder = stakeholders[decision_count % STAKEHOLDER_COUNT].name;
         audit_count++;
     }
-    
+
     decision_count++;
-    
+
     return (ql_status){0, "explainability ok"};
 }
 
@@ -111,7 +111,7 @@ ql_status mod_explainability(ql_state *S) {
 ql_status mod_audit_trail(ql_state *S) {
     // Periodically print audit summary
     static int audit_print_count = 0;
-    
+
     if (audit_print_count % 50 == 0 && audit_count > 0) {
         printf("[AUDIT] Total decisions: %d\n", audit_count);
         printf("[AUDIT] Last decision: %s (reward=%.3f, ethics=%.3f)\n",
@@ -119,9 +119,9 @@ ql_status mod_audit_trail(ql_state *S) {
                audit_trail[audit_count-1].reward,
                audit_trail[audit_count-1].ethics_score);
     }
-    
+
     audit_print_count++;
-    
+
     return (ql_status){0, "audit trail ok"};
 }
 
@@ -131,16 +131,16 @@ ql_status mod_conflict_resolution(ql_state *S) {
     double user_preference = 0.9;      // Users want high reward
     double society_preference = 0.7;   // Society wants safety
     double env_preference = 0.6;       // Environment wants low energy
-    
+
     double conflict_score = fabs(user_preference - society_preference) +
                            fabs(society_preference - env_preference);
-    
+
     if (conflict_score > 0.3) {
         // High conflict: apply compromise
         S->reward = 0.5 * S->reward + 0.3 * user_preference + 0.2 * society_preference;
         S->energy = 0.7 * S->energy + 0.3 * env_preference;
     }
-    
+
     return (ql_status){0, "conflict resolution ok"};
 }
 
@@ -148,25 +148,25 @@ ql_status mod_conflict_resolution(ql_state *S) {
 ql_status mod_fairness_monitor(ql_state *S) {
     static double fairness_history[100] = {0};
     static int fairness_idx = 0;
-    
+
     // Compute fairness metric
     double fairness = 1.0 - fabs(S->reward - 0.5);
-    
+
     fairness_history[fairness_idx % 100] = fairness;
     fairness_idx++;
-    
+
     // Check for fairness violations
     double avg_fairness = 0.0;
     for (int i = 0; i < 100; i++) {
         avg_fairness += fairness_history[i];
     }
     avg_fairness /= 100.0;
-    
+
     if (avg_fairness < 0.7) {
         // Fairness violation: adjust reward distribution
         S->reward = 0.5 + (S->reward - 0.5) * 0.8;
     }
-    
+
     return (ql_status){0, "fairness monitor ok"};
 }
 
@@ -176,7 +176,7 @@ void print_ethics_report(void) {
     printf("╔════════════════════════════════════════════════════════════╗\n");
     printf("║          ETHICS & TRANSPARENCY REPORT                      ║\n");
     printf("╚════════════════════════════════════════════════════════════╝\n\n");
-    
+
     printf("Stakeholders:\n");
     for (int i = 0; i < STAKEHOLDER_COUNT; i++) {
         printf("  %s: S=%.1f C=%.1f B=%.1f A=%.1f\n",
@@ -186,7 +186,7 @@ void print_ethics_report(void) {
                stakeholders[i].benefit_weight,
                stakeholders[i].autonomy_weight);
     }
-    
+
     printf("\nAudit Trail (last 10 decisions):\n");
     int start = (audit_count > 10) ? audit_count - 10 : 0;
     for (int i = start; i < audit_count; i++) {
@@ -196,7 +196,7 @@ void print_ethics_report(void) {
                audit_trail[i].reward,
                audit_trail[i].ethics_score);
     }
-    
+
     printf("\n");
 }
 

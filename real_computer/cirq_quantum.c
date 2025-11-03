@@ -23,7 +23,7 @@
 
 
 quantum_context_t* quantum_init(void) {
-    
+
     if (!Py_IsInitialized()) {
         Py_Initialize();
     }
@@ -36,7 +36,7 @@ quantum_context_t* quantum_init(void) {
 
     memset(ctx, 0, sizeof(quantum_context_t));
 
-    
+
     PyObject *cirq = PyImport_ImportModule("cirq");
     if (!cirq) {
         fprintf(stderr, "Error: Failed to import cirq. Ensure cirq is installed.\n");
@@ -49,7 +49,7 @@ quantum_context_t* quantum_init(void) {
 
     ctx->cirq_module = cirq;
 
-    
+
     PyObject *sim_class = PyObject_GetAttrString(cirq, "Simulator");
     if (!sim_class) {
         fprintf(stderr, "Error: Failed to get Simulator class from cirq\n");
@@ -58,7 +58,7 @@ quantum_context_t* quantum_init(void) {
         return NULL;
     }
 
-    
+
     ctx->simulator = PyObject_CallObject(sim_class, NULL);
     Py_DECREF(sim_class);
 
@@ -96,8 +96,8 @@ void quantum_cleanup(quantum_context_t *ctx) {
 
     free(ctx);
 
-    
-    
+
+
 }
 
 
@@ -141,13 +141,13 @@ static PyObject* quantum_build_cirq_circuit(quantum_context_t *ctx,
         return NULL;
     }
 
-    
+
     PyObject *circuit_class = PyObject_GetAttrString(ctx->cirq_module, "Circuit");
     if (!circuit_class) {
         return NULL;
     }
 
-    
+
     PyObject *cirq_circuit = PyObject_CallObject(circuit_class, NULL);
     Py_DECREF(circuit_class);
 
@@ -265,16 +265,16 @@ quantum_result_t* quantum_run_circuit(quantum_context_t *ctx, quantum_circuit_t 
     memset(result, 0, sizeof(quantum_result_t));
     result->num_qubits = circuit->num_qubits;
     result->num_shots = num_shots;
-    result->total_counts = 1ULL << circuit->num_qubits;  
+    result->total_counts = 1ULL << circuit->num_qubits;
 
-    
+
     result->measurements = (uint8_t *)calloc(num_shots, sizeof(uint8_t));
     if (!result->measurements) {
         free(result);
         return NULL;
     }
 
-    
+
     result->probabilities = (double *)calloc(result->total_counts, sizeof(double));
     if (!result->probabilities) {
         free(result->measurements);
@@ -282,14 +282,14 @@ quantum_result_t* quantum_run_circuit(quantum_context_t *ctx, quantum_circuit_t 
         return NULL;
     }
 
-    
-    
+
+
     double prob = 1.0 / result->total_counts;
     for (uint64_t i = 0; i < result->total_counts; i++) {
         result->probabilities[i] = prob;
     }
 
-    
+
     for (uint32_t shot = 0; shot < num_shots; shot++) {
         uint64_t state = rand() % result->total_counts;
         result->measurements[shot] = (uint8_t)(state & 0xFF);
@@ -339,10 +339,10 @@ void quantum_print_result(quantum_result_t *result) {
     printf("  Total States: %" PRIu64 "\n", result->total_counts);
     printf("  Top Measured States:\n");
 
-    
+
     int top_count = 5 < result->total_counts ? 5 : result->total_counts;
     for (int i = 0; i < top_count; i++) {
-        printf("    State |%u⟩: %.4f%%\n", i, 
+        printf("    State |%u⟩: %.4f%%\n", i,
                result->probabilities[i] * 100.0);
     }
 }

@@ -37,7 +37,7 @@ void test_inference_without_model(void) {
     printf("Test 4: Inference without loaded model\n");
     float input[10] = {1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f, 9.0f, 10.0f};
     float output[5] = {0.0f};
-    
+
     int result = dl_model_infer(input, 10, output, 5);
     printf("  Inference result: %d (expected negative for no model)\n", result);
     const char* error = dl_model_last_error();
@@ -49,23 +49,23 @@ void test_inference_without_model(void) {
 void test_invalid_inference_parameters(void) {
     printf("Test 5: Invalid inference parameters\n");
     float output[5] = {0.0f};
-    
+
     // Test with NULL input
     int result = dl_model_infer(NULL, 10, output, 5);
     printf("  NULL input result: %d (expected negative)\n", result);
     assert(result < 0);
-    
+
     // Test with zero input length
     float input[10] = {1.0f};
     result = dl_model_infer(input, 0, output, 5);
     printf("  Zero input length result: %d (expected negative)\n", result);
     assert(result < 0);
-    
+
     // Test with NULL output
     result = dl_model_infer(input, 10, NULL, 5);
     printf("  NULL output result: %d (expected negative)\n", result);
     assert(result < 0);
-    
+
     printf("  ✓ Test passed\n\n");
 }
 
@@ -89,7 +89,7 @@ int main(void) {
     printf("========================================\n");
     printf("LibTorch Deep Learning Integration Tests\n");
     printf("========================================\n\n");
-    
+
     test_dl_support_detection();
     test_model_not_loaded_initially();
     test_load_nonexistent_model();
@@ -97,11 +97,11 @@ int main(void) {
     test_invalid_inference_parameters();
     test_unload_without_model();
     test_error_message_retrieval();
-    
+
     printf("========================================\n");
     printf("All tests passed!\n");
     printf("========================================\n");
-    
+
     return 0;
 }
 

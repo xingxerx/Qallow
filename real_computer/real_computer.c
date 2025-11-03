@@ -18,7 +18,7 @@ real_computer_t* real_computer_init(void) {
 
     memset(computer, 0, sizeof(real_computer_t));
 
-    
+
     printf("=== Initializing Real Hardware ===\n");
     printf("\n[GPU] Attempting CUDA initialization...\n");
     computer->gpu = cuda_init(0);
@@ -31,7 +31,7 @@ real_computer_t* real_computer_init(void) {
         printf("[GPU] ✗ CUDA GPU not available\n");
     }
 
-    
+
     printf("\n[QPU] Attempting Cirq quantum processor initialization...\n");
     if (quantum_is_available()) {
         computer->qpu = quantum_init();
@@ -102,7 +102,7 @@ task_definition_t real_computer_create_task(uint32_t task_id, workload_type_t ty
         strncpy(task.description, description, sizeof(task.description) - 1);
     }
 
-    
+
     switch (type) {
         case WORKLOAD_GPU_COMPUTE:
             task.gpu_threads = 1024;
@@ -172,7 +172,7 @@ task_result_t* real_computer_gpu_workload(real_computer_t *computer,
     result->task_id = task->task_id;
     strcpy(result->hardware_used, "NVIDIA CUDA GPU");
 
-    
+
     gpu_buffer_t *buffer = cuda_malloc(computer->gpu, task->gpu_memory_mb * 1024 * 1024);
     if (!buffer) {
         result->success = false;
@@ -181,25 +181,25 @@ task_result_t* real_computer_gpu_workload(real_computer_t *computer,
         return result;
     }
 
-    
+
     float *host_data = (float *)malloc(task->gpu_memory_mb * 1024 * 1024);
     if (host_data) {
-        
+
         for (size_t i = 0; i < (task->gpu_memory_mb * 1024 * 1024 / sizeof(float)); i++) {
             host_data[i] = (float)i * 0.001f;
         }
 
-        
+
         cudaError_t err = cuda_h2d(buffer, host_data, task->gpu_memory_mb * 1024 * 1024);
         if (err != cudaSuccess) {
             result->success = false;
             snprintf(result->result_summary, sizeof(result->result_summary),
                     "GPU memory transfer failed: %s", cudaGetErrorString(err));
         } else {
-            
-            usleep(10000);  
 
-            
+            usleep(10000);
+
+
             err = cuda_d2h(host_data, buffer, task->gpu_memory_mb * 1024 * 1024);
             result->success = (err == cudaSuccess);
 
@@ -219,7 +219,7 @@ task_result_t* real_computer_gpu_workload(real_computer_t *computer,
     clock_gettime(CLOCK_MONOTONIC, &end);
     result->execution_time_ms = (end.tv_sec - start.tv_sec) * 1000.0 +
                                (end.tv_nsec - start.tv_nsec) / 1000000.0;
-    result->energy_consumed_mj = 250.0;  
+    result->energy_consumed_mj = 250.0;
 
     return result;
 }
@@ -241,7 +241,7 @@ task_result_t* real_computer_quantum_workload(real_computer_t *computer,
     result->task_id = task->task_id;
     strcpy(result->hardware_used, "Cirq Quantum Simulator");
 
-    
+
     quantum_circuit_t *circuit = quantum_create_circuit(computer->qpu,
                                                         task->quantum_qubits,
                                                         "optimization_circuit");
@@ -252,17 +252,17 @@ task_result_t* real_computer_quantum_workload(real_computer_t *computer,
         return result;
     }
 
-    
+
     for (uint32_t q = 0; q < task->quantum_qubits; q++) {
         quantum_add_h_gate(computer->qpu, circuit, q);
     }
 
-    
+
     for (uint32_t q = 0; q < task->quantum_qubits - 1; q++) {
         quantum_add_cnot_gate(computer->qpu, circuit, q, q + 1);
     }
 
-    
+
     quantum_result_t *qresult = quantum_run_circuit(computer->qpu, circuit,
                                                    task->quantum_shots);
 
@@ -284,7 +284,7 @@ task_result_t* real_computer_quantum_workload(real_computer_t *computer,
     clock_gettime(CLOCK_MONOTONIC, &end);
     result->execution_time_ms = (end.tv_sec - start.tv_sec) * 1000.0 +
                                (end.tv_nsec - start.tv_nsec) / 1000000.0;
-    result->energy_consumed_mj = 75.0;  
+    result->energy_consumed_mj = 75.0;
 
     return result;
 }
@@ -308,7 +308,7 @@ task_result_t* real_computer_hybrid_workload(real_computer_t *computer,
 
     bool gpu_success = false, qpu_success = false;
 
-    
+
     if (computer->gpu_available) {
         task_result_t *gpu_result = real_computer_gpu_workload(computer, task);
         if (gpu_result) {
@@ -317,7 +317,7 @@ task_result_t* real_computer_hybrid_workload(real_computer_t *computer,
         }
     }
 
-    
+
     if (computer->qpu_available) {
         task_result_t *qpu_result = real_computer_quantum_workload(computer, task);
         if (qpu_result) {
@@ -337,7 +337,7 @@ task_result_t* real_computer_hybrid_workload(real_computer_t *computer,
     clock_gettime(CLOCK_MONOTONIC, &end);
     result->execution_time_ms = (end.tv_sec - start.tv_sec) * 1000.0 +
                                (end.tv_nsec - start.tv_nsec) / 1000000.0;
-    result->energy_consumed_mj = 325.0;  
+    result->energy_consumed_mj = 325.0;
 
     return result;
 }

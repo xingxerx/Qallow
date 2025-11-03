@@ -10,7 +10,7 @@ static int parse_int(const char *k, int def){
 
 int qallow_cmd_mind(int argc, char **argv){
   (void)argc; (void)argv;
-  size_t n=0; 
+  size_t n=0;
   const ql_module *mods = ql_get_mind_modules(&n);
   // init state
   float latent_buf[8] = {0};

@@ -55,78 +55,78 @@ static double sim_generate_feedback(void) {
 }
 
 
-int sim_adapter_generate_packet(ingest_packet_type_t type, 
+int sim_adapter_generate_packet(ingest_packet_type_t type,
                                 ingest_packet_t* packet) {
     if (!packet) return -1;
-    
+
     memset(packet, 0, sizeof(ingest_packet_t));
-    
+
     packet->timestamp = time(NULL);
     packet->type = type;
     packet->confidence = 0.99;
     strncpy(packet->source, "sim_adapter", sizeof(packet->source) - 1);
-    
+
     switch (type) {
         case INGEST_TYPE_TELEMETRY:
             packet->value = sim_generate_coherence();
             strncpy(packet->metadata, "coherence_measurement", sizeof(packet->metadata) - 1);
             break;
-            
+
         case INGEST_TYPE_SENSOR:
             packet->value = sim_generate_decoherence();
             strncpy(packet->metadata, "decoherence_measurement", sizeof(packet->metadata) - 1);
             break;
-            
+
         case INGEST_TYPE_FEEDBACK:
             packet->value = sim_generate_feedback();
             strncpy(packet->metadata, "hitl_feedback", sizeof(packet->metadata) - 1);
             break;
-            
+
         case INGEST_TYPE_CONTROL:
             packet->value = 1.0; // Control enabled
             strncpy(packet->metadata, "control_active", sizeof(packet->metadata) - 1);
             break;
-            
+
         default:
             packet->value = sim_generate_stability();
             strncpy(packet->metadata, "generic_measurement", sizeof(packet->metadata) - 1);
             break;
     }
-    
+
     return 0;
 }
 
 
 int sim_adapter_poll(ingest_manager_t* mgr, ingest_packet_type_t type) {
     if (!mgr) return -1;
-    
+
     ingest_packet_t packet;
-    
+
     // Generate synthetic packet
     if (sim_adapter_generate_packet(type, &packet) != 0) {
         return -1;
     }
-    
+
     // Push to ingestion manager
     if (ingest_push_packet(mgr, &packet) != 0) {
         return -1;
     }
-    
-    printf("[SIM_ADAPTER] Packet generated: type=%d, value=%.6f\n", 
+
+    printf("[SIM_ADAPTER] Packet generated: type=%d, value=%.6f\n",
            type, packet.value);
-    
+
     return 0;
 }
 
 
 int sim_adapter_run_cycle(ingest_manager_t* mgr) {
     if (!mgr) return -1;
-    
+
     // Generate packets for each type
     sim_adapter_poll(mgr, INGEST_TYPE_TELEMETRY);
     sim_adapter_poll(mgr, INGEST_TYPE_SENSOR);
     sim_adapter_poll(mgr, INGEST_TYPE_FEEDBACK);
-    
+
     sim_state.tick++;
     return 0;
 }

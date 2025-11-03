@@ -79,7 +79,7 @@ int main(int argc, char *argv[]) {
     for (int i = 0; i < VECTOR_DIM; i++) {
         constraint_baseline[i] = 0.5;
     }
-    
+
     // Generate constraint violation vectors
     printf("[INFO] Generating constraint violation vectors...\n");
     int num_violations = 50 + (rand() % 100);

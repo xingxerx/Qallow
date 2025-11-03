@@ -15,19 +15,19 @@ int qallow_ethics_init(ethics_model_t *model, const char *config_dir) {
     char weights_path[256], thresholds_path[256];
     snprintf(weights_path, sizeof(weights_path), "%s/weights.json", config_dir);
     snprintf(thresholds_path, sizeof(thresholds_path), "%s/thresholds.json", config_dir);
-    
+
     int rc = ethics_model_load(model, weights_path, thresholds_path);
     if (rc != 0) {
         fprintf(stderr, "[ethics] WARNING: Using default model\n");
         ethics_model_default(model);
     }
-    
+
     printf("[ethics] Initialized with weights: S=%.2f C=%.2f H=%.2f Δ=%.2f\n",
            model->weights.safety_weight,
            model->weights.clarity_weight,
         model->weights.human_weight,
         model->weights.reality_weight);
-    
+
     return 0;
 }
 
@@ -38,7 +38,7 @@ int qallow_ethics_refresh_signals(void) {
 }
 
 
-int qallow_ethics_check(ethics_model_t *model, const char *signal_path, 
+int qallow_ethics_check(ethics_model_t *model, const char *signal_path,
                         ethics_score_details_t *details_out) {
     // Ingest current signals
     ethics_metrics_t metrics;
@@ -50,34 +50,34 @@ int qallow_ethics_check(ethics_model_t *model, const char *signal_path,
     if (metrics.reality_drift < 0.0) {
         metrics.reality_drift = fabs(metrics.safety - metrics.clarity);
     }
-    
+
     // Compute score
     ethics_score_details_t details;
     double score = ethics_score_core(model, &metrics, &details);
     int pass = ethics_score_pass(model, &metrics, &details);
-    
+
     // Log decision
     char timestamp[64];
     time_t now = time(NULL);
     strftime(timestamp, sizeof(timestamp), "%Y-%m-%d %H:%M:%S", localtime(&now));
-    
+
     FILE *audit = fopen("/root/Qallow/data/ethics_audit.log", "a");
     if (audit) {
     fprintf(audit, "%s,%.4f,%.3f,%.3f,%.3f,%.3f,%s\n",
-                timestamp, score, 
+                timestamp, score,
         metrics.safety, metrics.clarity, metrics.human, metrics.reality_drift,
                 pass ? "PASS" : "FAIL");
         fclose(audit);
     }
-    
+
     // Optional: copy details for caller
     if (details_out) {
         *details_out = details;
     }
-    
+
     // Apply adaptive learning
     ethics_learn_apply_feedback(model, pass ? 0.05 : -0.1, 0.2);
-    
+
     return pass;
 }
 
@@ -86,63 +86,63 @@ int main(void) {
     printf("========================================\n");
     printf("Qallow Ethics Integration Example\n");
     printf("========================================\n\n");
-    
+
     // Initialize ethics system
     ethics_model_t model;
     qallow_ethics_init(&model, "/root/Qallow/config");
-    
+
     // Simulation loop (replace with actual Qallow main loop)
     const int NUM_ITERATIONS = 5;
     const char *signal_path = "/root/Qallow/data/telemetry/current_signals.txt";
-    
+
     for (int i = 0; i < NUM_ITERATIONS; i++) {
         printf("\n[Loop %d/%d]\n", i+1, NUM_ITERATIONS);
-        
+
         // Refresh hardware signals
         printf("  [1] Refreshing hardware signals...\n");
         if (qallow_ethics_refresh_signals() != 0) {
             fprintf(stderr, "  [!] Warning: Signal refresh failed\n");
         }
-        
+
         // Check ethics constraints
         printf("  [2] Checking ethics constraints...\n");
         ethics_score_details_t details;
         int ethics_ok = qallow_ethics_check(&model, signal_path, &details);
-        
+
         if (ethics_ok == 1) {
             printf("  [✓] Ethics check PASSED (score: %.3f)\n", details.total);
          printf("      Safety=%.3f Clarity=%.3f Human=%.3f Δ=%.3f\n",
              details.weighted_safety, details.weighted_clarity,
              details.weighted_human, details.weighted_reality_penalty);
-            
+
             // ... proceed with normal Qallow operations ...
             printf("  [3] Proceeding with operations...\n");
-            
+
         } else if (ethics_ok == 0) {
             printf("  [✗] Ethics check FAILED (score: %.3f)\n", details.total);
          printf("      Safety=%.3f Clarity=%.3f Human=%.3f Δ=%.3f\n",
              details.weighted_safety, details.weighted_clarity,
              details.weighted_human, details.weighted_reality_penalty);
-            
+
             // Handle ethics violation
             printf("  [!] HALTING: Ethics threshold not met\n");
             printf("  [!] Recommend: Review system state and operator feedback\n");
-            
+
             // In production: trigger alert, enter safe mode, etc.
             // break;  // Uncomment to stop on violation
-            
+
         } else {
             fprintf(stderr, "  [!] ERROR: Ethics check failed\n");
         }
-        
+
         // Simulate work delay
         sleep(2);
     }
-    
+
     printf("\n========================================\n");
     printf("Integration Test Complete\n");
     printf("========================================\n");
     printf("\nAudit log: /root/Qallow/data/ethics_audit.log\n\n");
-    
+
     return 0;
 }

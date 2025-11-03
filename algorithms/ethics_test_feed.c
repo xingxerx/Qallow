@@ -40,7 +40,7 @@ int main(void) {
     printf("[2] Ingesting hardware signals...\n");
     ethics_metrics_t metrics;
     const char *signal_path = "../data/telemetry/current_signals.txt";
-    
+
     if (ethics_ingest_signal(signal_path, &metrics)) {
         printf("[2] ✓ Hardware signals loaded\n\n");
     } else {
@@ -62,7 +62,7 @@ int main(void) {
     int pass = ethics_score_pass(&model, &metrics, &details);
 
     printf("  Weighted components:\n");
-    printf("    Safety:  %.3f × %.2f = %.3f\n", 
+    printf("    Safety:  %.3f × %.2f = %.3f\n",
            metrics.safety, model.weights.safety_weight, details.weighted_safety);
     printf("    Clarity: %.3f × %.2f = %.3f\n",
            metrics.clarity, model.weights.clarity_weight, details.weighted_clarity);

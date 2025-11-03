@@ -20,16 +20,16 @@ cuda_context_t* cuda_init(int device_id) {
     ctx->bytes_transferred = 0;
     ctx->total_compute_time_ms = 0.0;
 
-    
+
     cudaError_t err = cudaSetDevice(device_id);
     if (err != cudaSuccess) {
-        fprintf(stderr, "CUDA Error: Failed to set device %d: %s\n", 
+        fprintf(stderr, "CUDA Error: Failed to set device %d: %s\n",
                 device_id, cudaGetErrorString(err));
         free(ctx);
         return NULL;
     }
 
-    
+
     err = cudaGetDeviceProperties(&ctx->device_prop, device_id);
     if (err != cudaSuccess) {
         fprintf(stderr, "CUDA Error: Failed to get device properties: %s\n",
@@ -72,7 +72,7 @@ gpu_buffer_t* cuda_malloc(cuda_context_t *ctx, size_t size) {
     buffer->size = size;
     buffer->pinned = false;
 
-    
+
     cudaError_t err = cudaMalloc(&buffer->device_ptr, size);
     if (err != cudaSuccess) {
         fprintf(stderr, "CUDA Error: cudaMalloc failed for %zu bytes: %s\n",
@@ -81,7 +81,7 @@ gpu_buffer_t* cuda_malloc(cuda_context_t *ctx, size_t size) {
         return NULL;
     }
 
-    
+
     buffer->host_ptr = malloc(size);
     if (!buffer->host_ptr) {
         fprintf(stderr, "Failed to allocate host memory for GPU buffer\n");
@@ -96,11 +96,11 @@ gpu_buffer_t* cuda_malloc(cuda_context_t *ctx, size_t size) {
 
 void cuda_free(gpu_buffer_t *buffer) {
     if (!buffer) return;
-    
+
     if (buffer->device_ptr) {
         cudaFree(buffer->device_ptr);
     }
-    
+
     if (buffer->host_ptr) {
         if (buffer->pinned) {
             cudaFreeHost(buffer->host_ptr);
@@ -108,7 +108,7 @@ void cuda_free(gpu_buffer_t *buffer) {
             free(buffer->host_ptr);
         }
     }
-    
+
     free(buffer);
 }
 
@@ -128,7 +128,7 @@ gpu_buffer_t* cuda_malloc_pinned(cuda_context_t *ctx, size_t size) {
     buffer->size = size;
     buffer->pinned = true;
 
-    
+
     cudaError_t err = cudaMalloc(&buffer->device_ptr, size);
     if (err != cudaSuccess) {
         fprintf(stderr, "CUDA Error: cudaMalloc failed for %zu bytes: %s\n",
@@ -137,7 +137,7 @@ gpu_buffer_t* cuda_malloc_pinned(cuda_context_t *ctx, size_t size) {
         return NULL;
     }
 
-    
+
     err = cudaMallocHost(&buffer->host_ptr, size);
     if (err != cudaSuccess) {
         fprintf(stderr, "CUDA Error: cudaMallocHost failed for %zu bytes: %s\n",
@@ -179,7 +179,7 @@ cudaError_t cuda_h2d_async(gpu_buffer_t *buffer, const void *host_data, size_t s
         return cudaErrorInvalidValue;
     }
 
-    return cudaMemcpyAsync(buffer->device_ptr, host_data, size, 
+    return cudaMemcpyAsync(buffer->device_ptr, host_data, size,
                           cudaMemcpyHostToDevice, stream);
 }
 

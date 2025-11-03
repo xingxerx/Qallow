@@ -32,9 +32,9 @@ ql_status mod_episodic_memory(ql_state *S) {
     // Compute significance: how different from average?
     static double avg_reward = 0.0;
     avg_reward = 0.99 * avg_reward + 0.01 * S->reward;
-    
+
     double significance = fabs(S->reward - avg_reward);
-    
+
     // Store if significant
     if (significance > 0.05 && episode_count < MAX_EPISODES) {
         episodes[episode_count].energy = S->energy;
@@ -44,7 +44,7 @@ ql_status mod_episodic_memory(ql_state *S) {
         episodes[episode_count].significance = significance;
         episode_count++;
     }
-    
+
     return (ql_status){0, "episodic memory ok"};
 }
 
@@ -54,7 +54,7 @@ ql_status mod_semantic_memory(ql_state *S) {
     if (episode_count < 10) {
         return (ql_status){0, "semantic memory ok"};
     }
-    
+
     // Cluster episodes by similarity
     for (int i = 0; i < episode_count && pattern_count < MAX_PATTERNS; i++) {
         double pattern[8] = {0};
@@ -62,7 +62,7 @@ ql_status mod_semantic_memory(ql_state *S) {
         pattern[1] = episodes[i].risk;
         pattern[2] = episodes[i].reward;
         pattern[3] = episodes[i].significance;
-        
+
         // Check if pattern already exists
         int found = 0;
         for (int p = 0; p < pattern_count; p++) {
@@ -70,14 +70,14 @@ ql_status mod_semantic_memory(ql_state *S) {
             for (int j = 0; j < 4; j++) {
                 dist += fabs(pattern[j] - patterns[p].pattern[j]);
             }
-            
+
             if (dist < 0.1) {  // Similar pattern
                 patterns[p].frequency += 1.0;
                 found = 1;
                 break;
             }
         }
-        
+
         if (!found && pattern_count < MAX_PATTERNS) {
             memcpy(patterns[pattern_count].pattern, pattern, sizeof(pattern));
             patterns[pattern_count].frequency = 1.0;
@@ -85,7 +85,7 @@ ql_status mod_semantic_memory(ql_state *S) {
             pattern_count++;
         }
     }
-    
+
     return (ql_status){0, "semantic memory ok"};
 }
 
@@ -94,7 +94,7 @@ ql_status mod_memory_recall(ql_state *S) {
     if (pattern_count == 0) {
         return (ql_status){0, "memory recall ok"};
     }
-    
+
     // Find most useful pattern
     double best_utility = 0.0;
     int best_idx = 0;
@@ -105,13 +105,13 @@ ql_status mod_memory_recall(ql_state *S) {
             best_idx = p;
         }
     }
-    
+
     // Blend current state with best pattern
     double blend = 0.1;  // 10% pattern influence
     S->energy = (1.0 - blend) * S->energy + blend * patterns[best_idx].pattern[0];
     S->risk = (1.0 - blend) * S->risk + blend * patterns[best_idx].pattern[1];
     S->reward = (1.0 - blend) * S->reward + blend * patterns[best_idx].pattern[2];
-    
+
     return (ql_status){0, "memory recall ok"};
 }
 
@@ -121,7 +121,7 @@ ql_status mod_memory_consolidation(ql_state *S) {
     if ((int)S->t % 100 != 0 || episode_count < 500) {
         return (ql_status){0, "consolidation ok"};
     }
-    
+
     // Sort by significance
     for (int i = 0; i < episode_count - 1; i++) {
         for (int j = i + 1; j < episode_count; j++) {
@@ -132,10 +132,10 @@ ql_status mod_memory_consolidation(ql_state *S) {
             }
         }
     }
-    
+
     // Keep top 50% most significant
     episode_count = episode_count / 2;
-    
+
     return (ql_status){0, "consolidation ok"};
 }
 

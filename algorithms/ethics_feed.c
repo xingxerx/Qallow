@@ -24,14 +24,14 @@ int ethics_ingest_signal(const char *path, ethics_metrics_t *metrics) {
 
     // Read all 10 values
     double vals[10];
-    
+
     // Skip comment line if present
     char line[512];
     if (!fgets(line, sizeof(line), f)) {
         fclose(f);
         return 0;
     }
-    
+
     if (line[0] == '#') {
         // Timestamp line, read next
         if (!fgets(line, sizeof(line), f)) {
@@ -39,12 +39,12 @@ int ethics_ingest_signal(const char *path, ethics_metrics_t *metrics) {
             return 0;
         }
     }
-    
+
     // Parse 10 values from line
     int count = sscanf(line, "%lf %lf %lf %lf %lf %lf %lf %lf %lf %lf",
                       &vals[0], &vals[1], &vals[2], &vals[3], &vals[4],
                       &vals[5], &vals[6], &vals[7], &vals[8], &vals[9]);
-    
+
     fclose(f);
 
     if (count != 10) {
@@ -60,10 +60,10 @@ int ethics_ingest_signal(const char *path, ethics_metrics_t *metrics) {
     // Validate range [0,1]
     double *metric_ptrs[] = {&metrics->safety, &metrics->clarity, &metrics->human};
     const char *names[] = {"safety", "clarity", "human"};
-    
+
     for (int i = 0; i < 3; i++) {
         if (*metric_ptrs[i] < 0.0 || *metric_ptrs[i] > 1.0) {
-            fprintf(stderr, "[ethics_feed] WARNING: %s value out of range [0,1]: %.3f\n", 
+            fprintf(stderr, "[ethics_feed] WARNING: %s value out of range [0,1]: %.3f\n",
                     names[i], *metric_ptrs[i]);
             *metric_ptrs[i] = (*metric_ptrs[i] < 0.0) ? 0.0 : 1.0;  // Clamp
         }
@@ -71,7 +71,7 @@ int ethics_ingest_signal(const char *path, ethics_metrics_t *metrics) {
 
     time_t now = time(NULL);
     fprintf(stdout, "[ethics_feed] Ingested at %s", ctime(&now));
-    fprintf(stdout, "  Safety:  %.3f (avg of %.3f, %.3f, %.3f)\n", 
+    fprintf(stdout, "  Safety:  %.3f (avg of %.3f, %.3f, %.3f)\n",
             metrics->safety, vals[0], vals[1], vals[2]);
     fprintf(stdout, "  Clarity: %.3f (avg of %.3f, %.3f, %.3f, %.3f)\n",
             metrics->clarity, vals[3], vals[4], vals[5], vals[6]);
@@ -99,7 +99,7 @@ int ethics_ingest_signal(const char *path, ethics_metrics_t *metrics) {
 void ethics_log_decision(const char *log_path, double score, const char *action) {
     FILE *f = fopen(log_path, "a");
     if (!f) return;
-    
+
     time_t now = time(NULL);
     fprintf(f, "%ld,%.4f,%s\n", now, score, action ? action : "none");
     fclose(f);
@@ -109,7 +109,7 @@ void ethics_log_decision(const char *log_path, double score, const char *action)
 int ethics_verify_freshness(const char *path, int max_age_sec) {
     FILE *f = fopen(path, "r");
     if (!f) return 0;
-    
+
     // Read timestamp from first line comment if present
     char line[MAX_LINE];
     if (fgets(line, sizeof(line), f)) {
@@ -123,7 +123,7 @@ int ethics_verify_freshness(const char *path, int max_age_sec) {
             }
         }
     }
-    
+
     fclose(f);
     return 1;  // No timestamp = assume fresh
 }

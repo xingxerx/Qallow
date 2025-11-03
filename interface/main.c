@@ -51,22 +51,22 @@ static void print_banner(void) {
 static void print_system_info(const qallow_state_t* state) {
     printf("[SYSTEM] Qallow VM initialized\n");
     printf("[SYSTEM] Execution mode: %s\n", state->cuda_enabled ? "CUDA GPU" : "CPU");
-    
+
 #if CUDA_ENABLED
     if (state->cuda_enabled) {
         int device_count;
         cudaGetDeviceCount(&device_count);
-        
+
         struct cudaDeviceProp prop;
         cudaGetDeviceProperties(&prop, state->gpu_device_id);
-        
+
         printf("[CUDA] GPU: %s\n", prop.name);
         printf("[CUDA] Compute Capability: %d.%d\n", prop.major, prop.minor);
         printf("[CUDA] Memory: %.1f GB\n", prop.totalGlobalMem / (1024.0 * 1024.0 * 1024.0));
         printf("[CUDA] Multiprocessors: %d\n", prop.multiProcessorCount);
     }
 #endif
-    
+
     printf("[KERNEL] Node count: %d per overlay\n", MAX_NODES);
     printf("[KERNEL] Max ticks: %d\n", MAX_TICKS);
     printf("\n");
@@ -681,11 +681,11 @@ int qallow_vm_main(void) {
     }
 
     printf("\n[MAIN] VM execution completed\n");
-    printf("[TELEMETRY] Benchmark logged: compile=0.0ms, run=%.2fms, mode=CPU\n\n", 
+    printf("[TELEMETRY] Benchmark logged: compile=0.0ms, run=%.2fms, mode=CPU\n\n",
         max_ticks * 0.001);
     qallow_log_info("vm.complete", "ticks=%d", max_ticks);
     meta_introspect_flush();
     qallow_metrics_finalize(state.global_coherence, state.decoherence_level);
-    
+
     return 0;
 }
