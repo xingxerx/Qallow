@@ -23,6 +23,9 @@ import re
 import subprocess
 import sys
 import time
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Iterable, List, Optional, Tuple
 
 # Configure logging with MORE verbose output
 logging.basicConfig(
@@ -1033,7 +1036,7 @@ class CodeAnalyzer:
 class LightningAgentFast:
     """Main fast improvement agent."""
     
-    def __init__(self, max_iterations: int = 10, use_cuda: bool = False, fast_mode: bool = False):
+    def __init__(self, max_iterations: int = 10, use_cuda: bool = True, fast_mode: bool = False):
         self.max_iterations = max_iterations
         self.project_root = Path(".")
         self.use_cuda = use_cuda
@@ -1238,7 +1241,15 @@ def main():
     parser.add_argument(
         '--use-cuda',
         action='store_true',
-        help='Enable CUDA support when building (requires CUDA toolchain)'
+        dest='use_cuda',
+        default=True,
+        help='Enable CUDA support when building (default: enabled; requires CUDA toolchain)'
+    )
+    parser.add_argument(
+        '--no-cuda',
+        action='store_false',
+        dest='use_cuda',
+        help='Disable CUDA support when building'
     )
     
     args = parser.parse_args()
