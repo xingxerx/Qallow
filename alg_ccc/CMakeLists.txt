@@ -12,10 +12,9 @@ if(QALLOW_ENABLE_CUDA)
   target_compile_features(alg_ccc PUBLIC cxx_std_20)
 else()
   project(alg_ccc LANGUAGES CXX)
-  # For CPU-only builds, create a dummy stub library
-  file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/alg_ccc_stub.cpp" 
-    "// Stub for CPU-only build\n")
-  add_library(alg_ccc STATIC "${CMAKE_CURRENT_BINARY_DIR}/alg_ccc_stub.cpp")
+  add_library(alg_ccc STATIC
+    gray.cpp
+  )
   set_target_properties(alg_ccc PROPERTIES LINKER_LANGUAGE CXX)
   target_compile_features(alg_ccc PUBLIC cxx_std_20)
 endif()

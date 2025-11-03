@@ -341,6 +341,7 @@ static int qallow_build_and_maybe_restart(int argc, char** argv) {
 #include "meta_introspect.h"
 #include "dl_integration.h"
 #include "qallow/module.h"
+#include "qallow/neuro.h"
 // TODO: Add these when modules are implemented
 // #include "adaptive.h"
 // #include "verify.h"
@@ -1377,6 +1378,36 @@ static int qallow_handle_system_group(int argc, char** argv, int arg_offset) {
     return 1;
 }
 
+static int qallow_phase_neuro_demo_runner(int argc, char** argv, int arg_offset) {
+    int nodes = 256;
+    float target = 0.981f;
+
+    for (int i = arg_offset + 1; i < argc; ++i) {
+        const char* arg = argv[i];
+        if (!arg) {
+            continue;
+        }
+        if (strncmp(arg, "--nodes=", 8) == 0) {
+            nodes = atoi(arg + 8);
+            if (nodes <= 0) {
+                nodes = 1;
+            }
+        } else if (strncmp(arg, "--target=", 9) == 0) {
+            target = strtof(arg + 9, NULL);
+        } else if (strncmp(arg, "--target_fidelity=", 18) == 0) {
+            target = strtof(arg + 18, NULL);
+        } else if (strcmp(arg, "--help") == 0 || strcmp(arg, "-h") == 0) {
+            printf("Usage: qallow phase neuro-demo [--nodes=N] [--target=F]\n");
+            printf("       Runs the neuromorphic spike fidelity demo.\n");
+            return 0;
+        }
+    }
+
+    printf("[PHASE-NEURO] nodes=%d target=%.6f\n", nodes, target);
+    neuromorphic_spike_demo(nodes, target);
+    return 0;
+}
+
 static int qallow_handle_phase_group(int argc, char** argv, int arg_offset) {
     if (arg_offset >= argc || argv[arg_offset] == NULL) {
         qallow_print_phase_help();
@@ -1422,6 +1453,10 @@ static int qallow_handle_phase_group(int argc, char** argv, int arg_offset) {
 
     if (strcmp(sub, "20") == 0 || strcmp(sub, "phase20") == 0) {
         return qallow_dispatch_phase(argc, argv, arg_offset, "phase20", qallow_phase20_runner);
+    }
+
+    if (strcmp(sub, "neuro") == 0 || strcmp(sub, "neuro-demo") == 0) {
+        return qallow_phase_neuro_demo_runner(argc, argv, arg_offset);
     }
 
     if (strcmp(sub, "help") == 0) {

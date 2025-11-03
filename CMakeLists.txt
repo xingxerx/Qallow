@@ -123,6 +123,16 @@ target_link_libraries(qallow_backend_cpu
 target_compile_definitions(qallow_backend_cpu PUBLIC QALLOW_PHASE13_EMBEDDED)
 target_include_directories(qallow_backend_cpu PUBLIC ${QALLOW_INCLUDE_DIRS})
 
+add_library(qallow_backend_neuro STATIC
+    backend/neuro/spike_coherence.c
+)
+target_link_libraries(qallow_backend_neuro
+    PUBLIC
+        qallow_core
+        qallow_runtime
+)
+target_include_directories(qallow_backend_neuro PUBLIC ${QALLOW_INCLUDE_DIRS})
+
 if(QALLOW_ENABLE_CUDA)
     target_compile_definitions(qallow_backend_cpu PUBLIC QALLOW_ENABLE_CUDA)
     target_include_directories(qallow_backend_cpu PUBLIC
@@ -193,6 +203,7 @@ add_executable(qallow ${QALLOW_INTERFACE_SOURCES})
 target_link_libraries(qallow
     PRIVATE
         qallow_backend_cpu
+        qallow_backend_neuro
         qallow_algorithms
         qallow_runtime
         Threads::Threads
@@ -208,6 +219,7 @@ add_executable(qallow_unified ${QALLOW_INTERFACE_SOURCES})
 target_link_libraries(qallow_unified
     PRIVATE
         qallow_backend_cpu
+        qallow_backend_neuro
         qallow_algorithms
         qallow_runtime
         Threads::Threads
