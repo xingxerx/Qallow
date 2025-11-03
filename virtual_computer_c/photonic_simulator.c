@@ -168,7 +168,7 @@ bool pp_propagate_through_waveguide(photonic_processor_t *pp, uint32_t photon_id
     optical_waveguide_t *wg = &pp->waveguides[waveguide_id];
     
     /* Calculate loss */
-    double loss_db = (wg->length_mm / 1_000_000) * wg->propagation_loss_db_per_km;
+    double loss_db = (wg->length_mm / 1000000.0) * wg->propagation_loss_db_per_km;
     photon->power_dbm -= loss_db;
     
     /* Calculate propagation time */
@@ -341,7 +341,7 @@ void pp_get_waveguide_stats(photonic_processor_t *pp, char *buffer, size_t buffe
     
     for (uint32_t i = 0; i < pp->num_waveguides; i++) {
         total_length += pp->waveguides[i].length_mm;
-        avg_loss += (pp->waveguides[i].length_mm / 1_000_000) *
+        avg_loss += (pp->waveguides[i].length_mm / 1000000.0) *
                    pp->waveguides[i].propagation_loss_db_per_km;
     }
     
