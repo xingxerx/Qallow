@@ -1,4 +1,5 @@
 /* Multi-block comment removed */
+/* Multi-block comment removed */
 #define _POSIX_C_SOURCE 200809L
 
 #include <SDL2/SDL.h>

@@ -1,4 +1,5 @@
 /* Multi-block comment removed */
+/* Multi-block comment removed */
 #include "meta_introspect.h"
 
 #include <ctype.h>
@@ -562,7 +563,7 @@ int qallow_meta_introspect_gpu(const float* durations,
     if (!durations || !coherence || !ethics || !improvement_scores || count <= 0) {
         return -1;
     }
-    /* Simple CPU-based scoring: average of coherence and ethics */
+
     for (int i = 0; i < count; ++i) {
         improvement_scores[i] = (coherence[i] + ethics[i]) * 0.5f;
     }
