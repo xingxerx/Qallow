@@ -6,12 +6,10 @@ returns JSON describing the generated state. It leverages the same QuTiP bridge
 used by the native runtime, ensuring feature parity for the web tier.
 """
 
-from __future__ import annotations
 
 import json
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from urllib.parse import parse_qs, urlparse
 
 from .ghz_w_sim import build_state, validate_with_cirq
 

@@ -1,6 +1,6 @@
 /*
  * Qallow Telemetry FFI Implementation
- * 
+ *
  * Provides shared memory ring buffer for telemetry export and
  * POSIX message queue for control commands.
  */
@@ -269,4 +269,3 @@ void control_mq_cleanup(void) {
         g_control_mq = (mqd_t)-1;
     }
 }
-

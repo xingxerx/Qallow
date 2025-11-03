@@ -1,5 +1,3 @@
-from dataclasses import dataclass
-from typing import Dict, Optional, Tuple, Callable
 
 from .ethics import CoherenceAuditor, CoherenceReport
 

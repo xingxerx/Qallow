@@ -1,10 +1,7 @@
 """Evaluation metrics and profiling for quantum clustering."""
 
-import numpy as np
 import logging
 import time
-from typing import Dict, Any, Tuple
-from sklearn.metrics import adjusted_rand_score, normalized_mutual_info_score
 from .dataset import SparseDataset
 
 logger = logging.getLogger(__name__)

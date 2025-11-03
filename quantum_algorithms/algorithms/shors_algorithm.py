@@ -5,9 +5,6 @@ Factors large numbers exponentially faster than classical algorithms
 """
 
 import cirq
-import numpy as np
-from math import gcd
-from typing import Tuple
 
 
 def quantum_phase_estimation(n_qubits: int, phase: float) -> cirq.Circuit:

@@ -4,14 +4,14 @@
 
 void adaptive_load(adaptive_state_t* state) {
     if (!state) return;
-    
+
     // Default values
     state->target_ms = 50.0;
     state->last_run_ms = 0.0;
     state->threads = 4;
     state->learning_rate = 0.0034;
     state->human_score = 0.8;
-    
+
     // Try to load from adapt_state.json
     FILE* f = fopen("adapt_state.json", "r");
     if (f) {
@@ -27,7 +27,7 @@ void adaptive_load(adaptive_state_t* state) {
 
 void adaptive_save(const adaptive_state_t* state) {
     if (!state) return;
-    
+
     FILE* f = fopen("adapt_state.json", "w");
     if (f) {
         fprintf(f, "{\n");
@@ -44,10 +44,10 @@ void adaptive_save(const adaptive_state_t* state) {
 
 void adaptive_update(adaptive_state_t* state, double run_ms, double human_score) {
     if (!state) return;
-    
+
     state->last_run_ms = run_ms;
     state->human_score = human_score;
-    
+
     // Adjust learning rate based on human feedback
     if (human_score < 0.7) {
         state->learning_rate *= 0.9;
@@ -56,7 +56,7 @@ void adaptive_update(adaptive_state_t* state, double run_ms, double human_score)
         state->learning_rate *= 1.05;
         printf("[ADAPTIVE] Learning rate increased (high score): %.4f\n", state->learning_rate);
     }
-    
+
     // Adjust thread count based on performance
     if (run_ms > state->target_ms) {
         state->threads++;
@@ -67,15 +67,15 @@ void adaptive_update(adaptive_state_t* state, double run_ms, double human_score)
             printf("[ADAPTIVE] Threads decreased to %d (fast run: %.2fms)\n", state->threads, run_ms);
         }
     }
-    
+
     // Clamp learning rate
     if (state->learning_rate < 0.001) state->learning_rate = 0.001;
     if (state->learning_rate > 0.1) state->learning_rate = 0.1;
-    
+
     // Clamp threads
     if (state->threads < 1) state->threads = 1;
     if (state->threads > 16) state->threads = 16;
-    
+
     adaptive_save(state);
 }
 
@@ -86,4 +86,3 @@ int adaptive_get_threads(const adaptive_state_t* state) {
 double adaptive_get_learning_rate(const adaptive_state_t* state) {
     return state ? state->learning_rate : 0.0034;
 }
-

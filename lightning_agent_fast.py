@@ -17,12 +17,15 @@ This is a SLOW, READABLE improvement loop that:
 Perfect for learning how fixes work - SLOW by design!
 """
 
+import logging
 import os
-import sys
 import re
 import subprocess
-import logging
+import sys
 import time
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Iterable, List, Optional, Tuple
 
 # Configure logging with MORE verbose output
 logging.basicConfig(

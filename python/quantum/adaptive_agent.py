@@ -9,11 +9,8 @@ telemetry deltas are used to adjust the circuit parameters, producing a very
 small reinforcement-style learning loop.
 """
 
-from __future__ import annotations
 
 import math
-from dataclasses import dataclass, field
-from typing import Dict, Sequence, Tuple
 
 try:
     import cirq

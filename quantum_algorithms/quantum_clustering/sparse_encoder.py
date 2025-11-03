@@ -1,8 +1,6 @@
 """Sparse amplitude encoding for quantum state preparation."""
 
-import numpy as np
 import logging
-from typing import Optional, Tuple, Dict, Any
 from .config import ClusteringConfig
 from .dataset import SparseVector
 

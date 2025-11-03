@@ -5,8 +5,6 @@ Finds ground state energy of quantum systems
 """
 
 import cirq
-import numpy as np
-from typing import Callable, List, Tuple
 
 
 def ansatz_circuit(qubits: List[cirq.Qid], params: np.ndarray) -> cirq.Circuit:

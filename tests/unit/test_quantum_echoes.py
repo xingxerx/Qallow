@@ -4,13 +4,10 @@ Unit tests for Quantum Echoes Algorithm (Phase 11)
 Tests OTOC calculation, fidelity measurement, and Phase 14 integration
 """
 
-import json
 import tempfile
 import unittest
-from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-import numpy as np
 
 # Add examples to path
 import sys

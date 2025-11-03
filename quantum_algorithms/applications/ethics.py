@@ -5,8 +5,6 @@ The auditor checks per-domain coherence thresholds and consolidates metrics that
 downstream services can persist or forward to trust dashboards.
 """
 
-from dataclasses import dataclass, field
-from typing import Dict, Optional
 
 
 @dataclass

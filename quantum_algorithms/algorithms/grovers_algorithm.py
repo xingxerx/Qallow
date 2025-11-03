@@ -5,8 +5,6 @@ Searches an unsorted database in O(√N) time
 """
 
 import cirq
-import numpy as np
-from typing import List, Callable
 
 
 def grover_oracle(qubits: List[cirq.Qid], marked_state: int) -> cirq.Circuit:

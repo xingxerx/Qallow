@@ -1,8 +1,5 @@
 """Sparse vector dataset generation and management."""
 
-from dataclasses import dataclass, field
-from typing import List, Tuple, Optional
-import numpy as np
 import logging
 from scipy.sparse import csr_matrix, coo_matrix
 from .config import ClusteringConfig

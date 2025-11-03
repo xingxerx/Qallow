@@ -69,13 +69,13 @@ void error_log(error_code_t code, error_level_t level,
     last_error.line = line;
     last_error.function = function;
     last_error.timestamp = time(NULL);
-    
+
     // Print to stderr
     fprintf(stderr, "[%s] %s:%d in %s() - %s\n",
             error_get_level_name(level),
             file, line, function,
             message ? message : error_get_message(code));
-    
+
     // Log to file if available
     if (error_log_file) {
         fprintf(error_log_file, "[%s] %s:%d in %s() - %s\n",
@@ -91,11 +91,11 @@ void error_logf(error_code_t code, error_level_t level,
                 const char* format, ...) {
     char buffer[512];
     va_list args;
-    
+
     va_start(args, format);
     vsnprintf(buffer, sizeof(buffer), format, args);
     va_end(args);
-    
+
     error_log(code, level, buffer, file, line, function);
 }
 
@@ -127,22 +127,22 @@ int error_recover(error_code_t code, void* context __attribute__((unused))) {
             // Try to free some memory and retry
             fprintf(stderr, "[RECOVERY] Attempting memory recovery\n");
             return 1;
-            
+
         case ERROR_TIMEOUT:
             // Retry operation
             fprintf(stderr, "[RECOVERY] Retrying operation\n");
             return 1;
-            
+
         case ERROR_INVALID_STATE:
             // Reset to known good state
             fprintf(stderr, "[RECOVERY] Resetting to known good state\n");
             return 1;
-            
+
         case ERROR_CUDA_INIT:
             // Fall back to CPU
             fprintf(stderr, "[RECOVERY] Falling back to CPU execution\n");
             return 1;
-            
+
         default:
             return 0;
     }
@@ -169,4 +169,3 @@ void error_handler_cleanup(void) {
         error_log_file = NULL;
     }
 }
-

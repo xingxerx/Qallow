@@ -8,16 +8,11 @@ supports mini-batch gradient descent with parameter-shift differentiation and
 persistent checkpoints compatible with Qallow's adaptive learning loop.
 """
 
-from __future__ import annotations
 
 import json
 import math
 import random
-from dataclasses import dataclass, asdict
-from pathlib import Path
-from typing import Iterable, List, Sequence, Tuple
 
-import numpy as np
 
 try:
     import cirq

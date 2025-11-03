@@ -12,9 +12,6 @@ This template provides:
 """
 
 import cirq
-import numpy as np
-from typing import List, Dict, Any
-from dataclasses import dataclass
 from datetime import datetime
 import json
 

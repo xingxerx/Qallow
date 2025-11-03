@@ -5,7 +5,6 @@ Demonstrates fundamental quantum operations with Cirq
 """
 
 import cirq
-import numpy as np
 
 
 def hello_quantum():

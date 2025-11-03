@@ -1,8 +1,6 @@
 """Unit tests for dataset generation and sparse vectors."""
 
 import pytest
-import numpy as np
-from quantum_algorithms.quantum_clustering import (
     ClusteringConfig,
     SparseDataset,
     SparseVector,

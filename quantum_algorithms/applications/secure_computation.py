@@ -1,7 +1,4 @@
-from dataclasses import dataclass
-from typing import Dict, Optional
 
-import numpy as np
 import random
 
 from .ethics import CoherenceAuditor, CoherenceReport

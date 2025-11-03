@@ -1,7 +1,5 @@
 """Configuration management for quantum clustering."""
 
-from dataclasses import dataclass, field
-from typing import Optional, Literal
 import logging
 
 logger = logging.getLogger(__name__)

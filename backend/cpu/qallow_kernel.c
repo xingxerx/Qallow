@@ -270,7 +270,7 @@ void qallow_kernel_init(qallow_state_t* state) {
             state->overlays[i].history[j] = state->overlays[i].values[j];
         }
     }
-    
+
 #if CUDA_ENABLED
     // Try to initialize CUDA
     int device_count = 0;
@@ -334,25 +334,25 @@ void qallow_kernel_tick(qallow_state_t* state) {
 
 CUDA_CALLABLE void qallow_update_decoherence(qallow_state_t* state) {
     if (!state) return;
-    
+
     // Decoherence increases slightly each tick
     state->decoherence_level += 0.00001f;
-    
+
     // Cap at maximum
     if (state->decoherence_level > 0.1f) {
         state->decoherence_level = 0.1f;
     }
-    
+
     // Decoherence reduces coherence
     state->global_coherence *= (1.0f - state->decoherence_level * 0.001f);
 }
 
 void qallow_print_status(const qallow_state_t* state, int tick) {
     if (!state) return;
-    
+
     printf("[TICK %04d] Coherence: %.4f | Decoherence: %.6f | Stability: ",
            tick, state->global_coherence, state->decoherence_level);
-    
+
     for (int i = 0; i < NUM_OVERLAYS; i++) {
         printf("%.4f ", state->overlays[i].stability);
     }
@@ -361,19 +361,19 @@ void qallow_print_status(const qallow_state_t* state, int tick) {
 
 bool qallow_ethics_check(const qallow_state_t* state, ethics_state_t* ethics) {
     if (!state || !ethics) return false;
-    
+
     // Use the full ethics module for proper evaluation
     static ethics_monitor_t ethics_monitor;
     static bool ethics_initialized = false;
-    
+
     if (!ethics_initialized) {
         ethics_init(&ethics_monitor);
         ethics_initialized = true;
     }
-    
+
     // Evaluate using the full ethics module
     bool passed = ethics_evaluate_state(state, &ethics_monitor);
-    
+
     // Copy results to the simple ethics_state_t structure
     ethics->safety_score = ethics_calculate_safety_score(state, &ethics_monitor);
     ethics->clarity_score = ethics_calculate_clarity_score(state, &ethics_monitor);
@@ -382,28 +382,28 @@ bool qallow_ethics_check(const qallow_state_t* state, ethics_state_t* ethics) {
     ethics->total_ethics_score = ethics_monitor.total_ethics_score;
     ethics->safety_check_passed = passed;
     ethics->reality_drift_guard_passed = (ethics_monitor.reality_drift_score <= ETHICS_MAX_REALITY_DRIFT);
-    
+
     return passed;
 }
 
 void qallow_cpu_process_overlays(qallow_state_t* state) {
     if (!state) return;
-    
+
     // CPU-based overlay processing
     for (int overlay_idx = 0; overlay_idx < NUM_OVERLAYS; overlay_idx++) {
         overlay_t* overlay = &state->overlays[overlay_idx];
-        
+
         // Simple diffusion-like update
         for (int i = 0; i < overlay->node_count; i++) {
             float new_val = overlay->values[i];
-            
+
             // Add small random perturbation
             new_val += (float)rand() / RAND_MAX * 0.01f - 0.005f;
-            
+
             // Clamp to [0, 1]
             if (new_val < 0.0f) new_val = 0.0f;
             if (new_val > 1.0f) new_val = 1.0f;
-            
+
             overlay->history[i] = overlay->values[i];
             overlay->values[i] = new_val;
         }
@@ -425,7 +425,7 @@ void qallow_cuda_cleanup(qallow_state_t* state) {
 
 void qallow_cuda_process_overlays(qallow_state_t* state) {
     if (!state) return;
-    
+
     double buffer[MAX_NODES];
 
     overlay_t* orbital = &state->overlays[OVERLAY_ORBITAL];
@@ -475,7 +475,7 @@ void qallow_cuda_process_overlays(qallow_state_t* state) {
 void qallow_print_bar(const char* label, double value, int width) {
     if (value < 0.0) value = 0.0;
     if (value > 1.0) value = 1.0;
-    
+
     int filled = (int)lrint(value * width);
     printf("%-12s | ", label);
     for (int i = 0; i < width; i++) {
@@ -486,11 +486,11 @@ void qallow_print_bar(const char* label, double value, int width) {
 
 void qallow_print_dashboard(const qallow_state_t* state, const ethics_state_t* ethics) {
     if (!state) return;
-    
+
     printf("\n╔════════════════════════════════════════════════════════════╗\n");
     printf("║           Qallow VM Dashboard - Tick %-6d             ║\n", state->tick_count);
     printf("╚════════════════════════════════════════════════════════════╝\n\n");
-    
+
     // Overlay stability bars
     printf("OVERLAY STABILITY:\n");
     qallow_print_bar("Orbital", state->overlays[OVERLAY_ORBITAL].stability, 40);
@@ -498,7 +498,7 @@ void qallow_print_dashboard(const qallow_state_t* state, const ethics_state_t* e
     qallow_print_bar("Mycelial", state->overlays[OVERLAY_MYCELIAL].stability, 40);
     qallow_print_bar("Global", state->global_coherence, 40);
     printf("\n");
-    
+
     // Ethics components
     if (ethics) {
         printf("ETHICS MONITORING:\n");
@@ -519,7 +519,7 @@ void qallow_print_dashboard(const qallow_state_t* state, const ethics_state_t* e
                ethics->safety_check_passed ? "PASS ✓" : "FAIL ✗",
                ethics->reality_drift_guard_passed ? "OK" : "ALERT");
     }
-    
+
     // Decoherence (inverted bar for coherence visualization)
     printf("COHERENCE:\n");
     double coherence_bar = 1.0 - fmin(fmax(state->decoherence_level / 0.1, 0.0), 1.0);
@@ -557,23 +557,23 @@ static FILE* csv_log_file = NULL;
 
 void qallow_csv_log_init(const char* filepath) {
     if (!filepath) return;
-    
+
     csv_log_file = fopen(filepath, "w");
     if (!csv_log_file) {
         fprintf(stderr, "[CSV] Warning: Could not open %s for logging\n", filepath);
         return;
     }
-    
+
     // Write CSV header
     fprintf(csv_log_file, "tick,orbital,river,mycelial,global,decoherence,ethics_S,ethics_C,ethics_H,ethics_total,ethics_reality_drift,ethics_pass,reality_guard_pass\n");
     fflush(csv_log_file);
-    
+
     printf("[CSV] Logging enabled: %s\n", filepath);
 }
 
 void qallow_csv_log_tick(const qallow_state_t* state, const ethics_state_t* ethics) {
     if (!csv_log_file || !state) return;
-    
+
     fprintf(csv_log_file, "%d,%.6f,%.6f,%.6f,%.6f,%.6f",
             state->tick_count,
             state->overlays[OVERLAY_ORBITAL].stability,
@@ -581,7 +581,7 @@ void qallow_csv_log_tick(const qallow_state_t* state, const ethics_state_t* ethi
             state->overlays[OVERLAY_MYCELIAL].stability,
             state->global_coherence,
             state->decoherence_level);
-    
+
     if (ethics) {
     fprintf(csv_log_file, ",%.6f,%.6f,%.6f,%.6f,%.6f,%d,%d",
                 ethics->safety_score,
@@ -594,7 +594,7 @@ void qallow_csv_log_tick(const qallow_state_t* state, const ethics_state_t* ethi
     } else {
         fprintf(csv_log_file, ",0,0,0,0,0");
     }
-    
+
     fprintf(csv_log_file, "\n");
     fflush(csv_log_file);
 }

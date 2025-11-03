@@ -5,9 +5,6 @@ QAOA (Quantum Approximate Optimization Algorithm) for solving optimization probl
 """
 
 import cirq
-import numpy as np
-from typing import List, Dict, Any, Tuple
-from dataclasses import dataclass
 from datetime import datetime
 
 

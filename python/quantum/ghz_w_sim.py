@@ -6,12 +6,9 @@ It attempts to validate the generated state with Cirq. The caller can disable
 validation by omitting --validate.
 """
 
-from __future__ import annotations
 
 import argparse
-import math
 import sys
-from typing import Optional, Tuple
 
 try:
     import numpy as np
