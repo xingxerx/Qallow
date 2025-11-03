@@ -71,6 +71,7 @@ secrets.json
 __pycache__/
 *.pyc
 *.pyo
+venv/
 
 # Node.js / Electron
 node_modules/
