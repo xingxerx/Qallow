@@ -9,21 +9,21 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -Wall -Wextra -fPIC")
 # Math library for sin, cos, exp, etc.
 find_library(MATH_LIBRARY m)
 
-# Source files
+# Source files (with full paths)
 set(SOURCES
-    cuda_simulator.c
-    neuromorphic_simulator.c
-    photonic_simulator.c
-    virtual_computer.c
-    main.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/cuda_simulator.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/neuromorphic_simulator.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/photonic_simulator.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/virtual_computer.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/main.c
 )
 
 # Headers
 set(HEADERS
-    cuda_simulator.h
-    neuromorphic_simulator.h
-    photonic_simulator.h
-    virtual_computer.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/cuda_simulator.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/neuromorphic_simulator.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/photonic_simulator.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/virtual_computer.h
 )
 
 # Create executable
@@ -36,10 +36,10 @@ endif()
 
 # Create library
 add_library(virtual_computer_lib STATIC
-    cuda_simulator.c
-    neuromorphic_simulator.c
-    photonic_simulator.c
-    virtual_computer.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/cuda_simulator.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/neuromorphic_simulator.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/photonic_simulator.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/virtual_computer.c
 )
 
 if(MATH_LIBRARY)
@@ -62,3 +62,4 @@ message(STATUS "VirtualComputer Configuration:")
 message(STATUS "  C Compiler: ${CMAKE_C_COMPILER}")
 message(STATUS "  C Flags: ${CMAKE_C_FLAGS}")
 message(STATUS "  Math Library: ${MATH_LIBRARY}")
+
