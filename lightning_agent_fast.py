@@ -1177,9 +1177,11 @@ class CodeAnalyzer:
         try:
             for c_file in self._iter_c_files("**/*.c"):
                 content = c_file.read_text()
+                original = content
 
                 # Find functions with many nested braces (complexity indicator)
                 functions = re.findall(r'\w+\s+\w+\s*\([^)]*\)\s*\{[^}]*\}', content, re.DOTALL)
+                complex_count = 0
                 for func in functions:
                     brace_depth = 0
                     max_depth = 0
@@ -1193,6 +1195,13 @@ class CodeAnalyzer:
                     # Flag functions with nesting depth > 4
                     if max_depth > 4:
                         print(f"      ⚠️  {c_file.name}: Found complex function (nesting depth: {max_depth})")
+                        complex_count += 1
+
+                # Add TODO comment at the top of file if complex functions found
+                if complex_count > 0:
+                    if not content.startswith('/* TODO: Refactor complex functions */'):
+                        content = '/* TODO: Refactor complex functions - consider breaking into smaller functions */\n' + content
+                        c_file.write_text(content)
                         fixes += 1
 
         except Exception as e:
