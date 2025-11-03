@@ -297,6 +297,7 @@ target_link_libraries(qallow_throughput_bench
         qallow_runtime
         qallow_algorithms
         qallow_backend_cpu
+        qallow_backend_neuro
         Threads::Threads
         m
 )
@@ -314,8 +315,10 @@ if(QALLOW_ENABLE_CUDA)
         add_executable(${target_name} examples/phase_demos/phase${phase}_demo.cu)
         target_link_libraries(${target_name}
             PRIVATE
+                qallow_algorithms
                 qallow_runtime
                 CUDA::cudart
+                m
         )
         target_compile_definitions(${target_name} PRIVATE QALLOW_ENABLE_CUDA)
     endforeach()
@@ -356,6 +359,7 @@ target_link_libraries(qallow_integration_smoke
     PRIVATE
         qallow_interface_base
         qallow_backend_cpu
+        qallow_backend_neuro
         qallow_algorithms
         qallow_runtime
         Threads::Threads
