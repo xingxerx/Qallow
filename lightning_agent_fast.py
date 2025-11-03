@@ -23,9 +23,6 @@ import re
 import subprocess
 import sys
 import time
-from dataclasses import dataclass
-from pathlib import Path
-from typing import Iterable, List, Optional, Tuple
 
 # Configure logging with MORE verbose output
 logging.basicConfig(
@@ -39,6 +36,17 @@ PAUSE_BEFORE_FIX = 2        # seconds - read the error
 PAUSE_SHOW_CODE = 3         # seconds - read the code
 PAUSE_BETWEEN_FIXES = 4     # seconds - digest the change
 PAUSE_BETWEEN_ITERATIONS = 5  # seconds - next iteration
+
+# Speed configuration
+FAST_MODE = False
+PAUSE_SCALE = 1.0
+
+
+def set_fast_mode(enabled: bool):
+    """Enable or disable fast mode behaviour for the agent."""
+    global FAST_MODE, PAUSE_SCALE
+    FAST_MODE = enabled
+    PAUSE_SCALE = 0.0 if enabled else 1.0
 
 
 @dataclass
@@ -89,18 +97,23 @@ def show_code_context(file_path: Path, line_number: int, context_lines: int = 3)
 
 def pause_for_reading(reason: str, duration: int = 2):
     """Pause and let user read the output."""
-    print(f"⏸️  Pausing {duration}s... {reason}")
-    print(f"   (Press Enter to continue immediately, or wait...)")
+    effective = duration * PAUSE_SCALE
+    if FAST_MODE or effective <= 0:
+        logger.debug("Fast mode skip pause: %s", reason)
+        return
+
+    print(f"⏸️  Pausing {effective:.1f}s... {reason}")
+    print("   (Press Enter to continue immediately, or wait...)")
     
     # Wait with a readline that allows interruption
     try:
         import select
-        if select.select([sys.stdin], [], [], duration)[0]:
+        if select.select([sys.stdin], [], [], effective)[0]:
             sys.stdin.readline()
         else:
             print()  # Print newline after pause
-    except:
-        time.sleep(duration)
+    except Exception:
+        time.sleep(effective)
 
 def show_fix_comparison(file_path: Path, original_lines: List[str], 
                         fixed_lines: List[str], changed_line_num: int):
@@ -1020,9 +1033,11 @@ class CodeAnalyzer:
 class LightningAgentFast:
     """Main fast improvement agent."""
     
-    def __init__(self, max_iterations: int = 10):
+    def __init__(self, max_iterations: int = 10, use_cuda: bool = False, fast_mode: bool = False):
         self.max_iterations = max_iterations
         self.project_root = Path(".")
+        self.use_cuda = use_cuda
+        set_fast_mode(fast_mode)
         self.builder = FastBuilder(str(self.project_root))
         self.fixer = CodeFixer(str(self.project_root))
         self.test_runner = TestRunner(str(self.project_root))
@@ -1051,7 +1066,7 @@ class LightningAgentFast:
             print("─"*70)
             pause_for_reading("About to build...", 1)
             
-            success, output = self.builder.build(use_cuda=False)  # Use CPU for faster builds
+            success, output = self.builder.build(use_cuda=self.use_cuda)  # Allow CUDA builds when requested
             
             if success:
                 print("\n✅ BUILD SUCCESSFUL!")
@@ -1215,6 +1230,16 @@ def main():
         action='store_true',
         help='Run continuously with pauses between runs'
     )
+    parser.add_argument(
+        '--fast',
+        action='store_true',
+        help='Skip interactive pauses and reduce narration for quicker feedback'
+    )
+    parser.add_argument(
+        '--use-cuda',
+        action='store_true',
+        help='Enable CUDA support when building (requires CUDA toolchain)'
+    )
     
     args = parser.parse_args()
     
@@ -1223,10 +1248,18 @@ def main():
     print("="*70)
     print(f"   Mode: {'DAEMON (continuous)' if args.daemon else 'SINGLE RUN'}")
     print(f"   Max iterations: {args.max_iterations}")
+    print(f"   Fast mode: {'ON' if args.fast else 'OFF'}")
+    print(f"   CUDA build: {'ON' if args.use_cuda else 'OFF'}")
     print("="*70 + "\n")
+
+    set_fast_mode(args.fast)
     pause_for_reading("Starting agent...", 2)
     
-    agent = LightningAgentFast(max_iterations=args.max_iterations)
+    agent = LightningAgentFast(
+        max_iterations=args.max_iterations,
+        use_cuda=args.use_cuda,
+        fast_mode=args.fast
+    )
     
     if args.daemon:
         iteration = 0

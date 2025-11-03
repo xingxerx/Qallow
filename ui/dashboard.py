@@ -5,7 +5,6 @@ Live telemetry, ethics visualization, and phase progression tracking
 Enhanced with phase metrics, CSV telemetry integration, and audit logs
 """
 
-from flask import Flask, render_template, jsonify
 import json
 import os
 import threading
@@ -15,6 +14,7 @@ import subprocess
 import csv
 import glob
 import shlex
+from flask import Flask, render_template, jsonify, request
 
 app = Flask(__name__)
 CORS(app)
