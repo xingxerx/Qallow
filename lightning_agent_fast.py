@@ -1045,7 +1045,6 @@ class CodeAnalyzer:
             for c_file in self._iter_c_files("**/*.c"):
                 content = c_file.read_text()
                 original = content
-                file_fixed = False
 
                 # Remove excessive comment blocks (keep max 2)
                 if '/*' in content and '*/' in content:
@@ -1058,14 +1057,12 @@ class CodeAnalyzer:
                         if new_count > 0:
                             print(f"      ✏️  Cleaned {c_file.name}: removed excessive comment blocks")
                             fixes += 1
-                            file_fixed = True
 
                 # Remove empty functions
                 if re.search(r'^\s*\w+\s+\w+\([^)]*\)\s*\{\s*\}', content, re.MULTILINE):
                     content = re.sub(r'^\s*\w+\s+\w+\([^)]*\)\s*\{\s*\}\n', '', content, flags=re.MULTILINE)
                     print(f"      ✏️  Cleaned {c_file.name}: removed empty functions")
                     fixes += 1
-                    file_fixed = True
 
                 # Write back if changed
                 if content != original:
