@@ -1,3 +1,4 @@
+/* TODO: Refactor complex functions - consider breaking into smaller functions */
 /* Multi-block comment removed */
 /* Multi-block comment removed */
 #include "meta_introspect.h"
@@ -553,7 +554,7 @@ int meta_introspect_export_pocket_map(const char* output_path) {
     return 0;
 }
 
-/* CPU fallback for qallow_meta_introspect_gpu when CUDA is not available */
+
 __attribute__((weak))
 int qallow_meta_introspect_gpu(const float* durations,
                                const float* coherence,

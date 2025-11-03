@@ -1,3 +1,4 @@
+/* TODO: Refactor complex functions - consider breaking into smaller functions */
 /* Multi-block comment removed */
 /* Multi-block comment removed */
 #define _POSIX_C_SOURCE 200809L
@@ -463,7 +464,7 @@ static int command_thread(void *userdata) {
 
     while ((bytes = read(pipefd[0], buffer, sizeof(buffer))) > 0) {
         for (ssize_t i = 0; i < bytes; ++i) {
-            char c /* Multi-block comment removed */= buffer[i];
+            char c /* TODO: Use more descriptive name */= buffer[i];
             if (c == '\r') {
                 continue;
             }
@@ -595,8 +596,8 @@ static void draw_text(SDL_Renderer *renderer, TTF_Font *font, SDL_Color color, i
         return;
     }
     SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
-    int w /* Multi-block comment removed */= surface->w;
-    int h /* Multi-block comment removed */= surface->h;
+    int w /* TODO: Use more descriptive name */= surface->w;
+    int h /* TODO: Use more descriptive name */= surface->h;
     SDL_FreeSurface(surface);
     if (!texture) {
         return;
@@ -615,8 +616,8 @@ static void draw_text_centered(SDL_Renderer *renderer, TTF_Font *font, SDL_Color
         return;
     }
     SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
-    int w /* Multi-block comment removed */= surface->w;
-    int h /* Multi-block comment removed */= surface->h;
+    int w /* TODO: Use more descriptive name */= surface->w;
+    int h /* TODO: Use more descriptive name */= surface->h;
     SDL_FreeSurface(surface);
     if (!texture) {
         return;
@@ -632,7 +633,7 @@ static void draw_text_centered(SDL_Renderer *renderer, TTF_Font *font, SDL_Color
 }
 
 static int font_line_height(TTF_Font *font) {
-    int h /* Multi-block comment removed */= font ? TTF_FontLineSkip(font) : 18;
+    int h /* TODO: Use more descriptive name */= font ? TTF_FontLineSkip(font) : 18;
     if (h <= 0) {
         h = 18;
     }
