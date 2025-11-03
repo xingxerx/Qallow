@@ -5,16 +5,25 @@ Live telemetry, ethics visualization, and phase progression tracking
 Enhanced with phase metrics, CSV telemetry integration, and audit logs
 """
 
-import json
-import os
-import threading
-import time
-from datetime import datetime
-import subprocess
 import csv
 import glob
+import json
+import os
 import shlex
+import subprocess
+import threading
+import time
+from collections import deque
+from datetime import datetime
+
 from flask import Flask, render_template, jsonify, request
+try:
+    from flask_cors import CORS
+except ImportError:  # pragma: no cover - fallback for missing dependency
+    def CORS(app, *_, **__):
+        """Graceful fallback when flask_cors is unavailable."""
+        print("Warning: flask_cors is not installed; continuing without CORS support.")
+        return app
 
 app = Flask(__name__)
 CORS(app)
@@ -320,5 +329,10 @@ def clear_data():
     return jsonify({'status': 'cleared'})
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
-
+    debug_enabled = os.environ.get('QALLOW_DASHBOARD_DEBUG', '').lower() in {'1', 'true', 'yes'}
+    app.run(
+        debug=debug_enabled,
+        use_reloader=False,
+        host='0.0.0.0',
+        port=5000
+    )
