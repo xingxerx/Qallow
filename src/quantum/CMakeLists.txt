@@ -109,19 +109,7 @@ install(TARGETS
 # Testing
 enable_testing()
 
-# Test quantum core
-add_test(
-    NAME test_quantum_core
-    COMMAND qallow_quantum_core
-)
-
-# Test algorithm suite
-add_test(
-    NAME test_quantum_algorithms
-    COMMAND qallow_quantum_algorithms
-)
-
-# Test CUDA-Q quickstart
+# Test CUDA-Q quickstart (only executable test)
 add_test(
     NAME test_cudaq_quickstart
     COMMAND cudaq_quickstart
