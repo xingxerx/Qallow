@@ -23,6 +23,9 @@ import re
 import subprocess
 import sys
 import time
+from dataclasses import dataclass  # REQUIRED for @dataclass decorator below
+from pathlib import Path  # REQUIRED for type hints
+from typing import Iterable, List, Optional, Tuple  # REQUIRED for type hints
 
 # Configure logging with MORE verbose output
 logging.basicConfig(
@@ -878,6 +881,9 @@ class CodeAnalyzer:
 
         try:
             for py_file in self._iter_python_files():
+                # Skip cleaning up the lightning agent itself
+                if "lightning_agent_fast.py" in str(py_file):
+                    continue
                 if self.code_fixer.fix_unused_imports(py_file):
                     rel = py_file.relative_to(self.project_root)
                     print(f"      ✏️  Removed unused imports in {rel}")
