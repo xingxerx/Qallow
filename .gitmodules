@@ -4,3 +4,6 @@
 [submodule "yay"]
 	path = yay
 	url = https://aur.archlinux.org/yay.git
+[submodule "third_party/cuda-quantum"]
+    path = third_party/cuda-quantum
+    url = https://github.com/NVIDIA/cuda-quantum.git

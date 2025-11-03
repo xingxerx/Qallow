@@ -1,9 +1,6 @@
 
 cmake_minimum_required(VERSION 3.20)
 
-<<<<<<< HEAD
-project(Qallow LANGUAGES C CXX)
-=======
 option(QALLOW_ENABLE_CUDA "Enable CUDA backend" ON)
 
 if(QALLOW_ENABLE_CUDA)
@@ -11,14 +8,11 @@ if(QALLOW_ENABLE_CUDA)
 else()
     project(Qallow LANGUAGES C CXX)
 endif()
->>>>>>> e1e56245d290ef05400ecbe709dae4b5ea90714b
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-option(QALLOW_ENABLE_CUDA "Enable CUDA backend" ON)
 
 if(QALLOW_ENABLE_CUDA)
     include(CheckLanguage)
@@ -35,18 +29,9 @@ endif()
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-include(FetchContent)
 include(GNUInstallDirs)
 
 find_package(Threads REQUIRED)
-
-FetchContent_Declare(
-    spdlog
-    GIT_REPOSITORY https://github.com/gabime/spdlog.git
-    GIT_TAG v1.12.0
-)
-
-FetchContent_MakeAvailable(spdlog)
 
 set(QALLOW_INCLUDE_DIRS
     ${CMAKE_CURRENT_SOURCE_DIR}/runtime
@@ -87,7 +72,6 @@ add_library(qallow_runtime STATIC ${QALLOW_RUNTIME_SOURCES})
 target_link_libraries(qallow_runtime
     PUBLIC
         qallow_core
-        spdlog::spdlog
 )
 set_target_properties(qallow_runtime PROPERTIES
     CXX_STANDARD 17
@@ -326,22 +310,15 @@ if(QALLOW_ENABLE_CUDA)
 endif()
 
 add_custom_target(qallow_examples DEPENDS qallow_throughput_bench)
-if(QALLOW_ENABLE_CUDA)
-    foreach(phase IN LISTS PHASE_DEMOS)
-        add_dependencies(qallow_examples phase${phase}_demo)
-    endforeach()
-    add_subdirectory(alg_ccc)
-endif()
-
-<<<<<<< HEAD
-add_subdirectory(src/quantum)
-=======
+# Always build alg_ccc (it provides CPU stub if CUDA is disabled)
 add_subdirectory(alg_ccc)
 
-# Quantum module is optional; skip it for now and build without it
-message(STATUS "Skipping quantum module (optional dependency)")
-# To enable: ensure json-c is installed system-wide or properly configured
->>>>>>> e1e56245d290ef05400ecbe709dae4b5ea90714b
+# Add optional quantum module if the directory has a CMakeLists.txt
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/src/quantum/CMakeLists.txt)
+    add_subdirectory(src/quantum)
+else()
+    message(STATUS "Skipping quantum module (optional dependency)")
+endif()
 
 enable_testing()
 
