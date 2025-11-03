@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Qallow AGI Self-Learning Module with Agent Lightning Integration
-Connects Agent Lightning RL framework to Qallow's AGI for continuous self-improvement
+Qallow AGI Self-Learning Module
+Provides a reinforcement-style feedback loop for Qallow's AGI system without external dependencies.
 """
 
 import os
@@ -11,6 +11,9 @@ import random
 from pathlib import Path
 from datetime import datetime
 from typing import Dict, List, Optional, Any, Tuple
+
+# Agent Lightning integration removed; keep flag for compatibility.
+AGENT_LIGHTNING_AVAILABLE = False
 
 # Helper functions
 def clip(val, min_val, max_val):
@@ -28,20 +31,6 @@ def std(x):
     mean_val = mean(x)
     return (sum((i - mean_val) ** 2 for i in x) / len(x)) ** 0.5
 
-# Agent Lightning imports (0.2.x compatibility)
-try:
-    from agentlightning import emit_reward, emit_message, emit_object
-    from agentlightning.tracer import OtelTracer
-    _LIGHTNING_TRACER = OtelTracer()
-    _LIGHTNING_TRACER.init_worker(0)
-    AGENT_LIGHTNING_AVAILABLE = True
-except ImportError:
-    AGENT_LIGHTNING_AVAILABLE = False
-    logging.warning("Agent Lightning not available. Install with: pip install agentlightning")
-except Exception as exc:  # pragma: no cover - defensive init guard
-    AGENT_LIGHTNING_AVAILABLE = False
-    logging.warning(f"Agent Lightning initialization failed: {exc}")
-
 # Qallow imports (optional)
 try:
     from quantum_learning_system import QuantumLearningSystem
@@ -54,40 +43,25 @@ logger = logging.getLogger(__name__)
 
 
 def _emit_task_event(event_type: str, task_id: str, payload: Optional[Dict[str, Any]] = None):
-    """Bridge legacy Agent Lightning events onto the 0.2.x emitter API."""
-    if not AGENT_LIGHTNING_AVAILABLE:
-        return
-    message = f"{event_type}:{task_id}"
-    event_payload: Dict[str, Any] = {'event': event_type, 'task_id': task_id}
-    if payload:
-        event_payload.update(payload)
-    try:
-        emit_message(message)
-        emit_object(event_payload)
-    except Exception as exc:
-        logger.debug(f"Agent Lightning emit failed for {event_type} ({task_id}): {exc}")
+    """Previously emitted Agent Lightning events; now logs for traceability."""
+    details = payload or {}
+    logger.debug("Task event %s for %s: %s", event_type, task_id, details)
 
 
 def _emit_reward_span(task_id: str, reward_value: float):
-    """Emit reward and associated payload with defensive guards."""
-    if not AGENT_LIGHTNING_AVAILABLE:
-        return
-    try:
-        emit_reward(float(reward_value))
-        emit_object({'event': 'reward', 'task_id': task_id, 'reward': float(reward_value)})
-    except Exception as exc:
-        logger.debug(f"Agent Lightning reward emit failed ({task_id}): {exc}")
+    """Placeholder hook for reward reporting."""
+    logger.debug("Reward %.4f recorded for task %s", reward_value, task_id)
 
 
 class QallowAGISelfLearning:
     """
-    AGI Self-Learning Module using Agent Lightning for Reinforcement Learning
+    AGI self-learning loop using internal reinforcement-style scoring.
     
     This module enables Qallow's AGI to:
     1. Learn from quantum algorithm performance
     2. Improve ethics decision-making
     3. Optimize phase execution strategies
-    4. Self-improve through RL feedback
+    4. Self-improve through feedback without external services
     """
     
     def __init__(self,
@@ -96,7 +70,7 @@ class QallowAGISelfLearning:
         """Initialize AGI self-learning system"""
         
         self.state_file = Path(state_file)
-        self.enable_rl = enable_rl and AGENT_LIGHTNING_AVAILABLE
+        self.enable_rl = enable_rl
 
         # Initialize state
         self.state = self._load_state()
@@ -173,7 +147,7 @@ class QallowAGISelfLearning:
         """
         task_id = f"quantum-algo-{problem_type}-{datetime.now().timestamp()}"
         
-        # Emit task start for Agent Lightning
+        # Emit task start event for internal telemetry logging
         if self.enable_rl:
             _emit_task_event(
                 event_type="task_start",
@@ -191,7 +165,7 @@ class QallowAGISelfLearning:
         # Calculate reward based on expected performance
         reward = self._calculate_algorithm_reward(algorithm, problem_type, constraints)
         
-        # Emit completion and reward
+        # Emit completion and reward events
         if self.enable_rl:
             _emit_task_event(
                 event_type="task_complete",
@@ -654,11 +628,11 @@ def demo_agi_learning():
     """Demonstrate AGI self-learning capabilities"""
 
     print("=" * 70)
-    print("Qallow AGI Self-Learning Demo with Agent Lightning")
+    print("Qallow AGI Self-Learning Demo")
     print("=" * 70)
 
     # Create learner
-    learner = create_agi_learner(enable_rl=AGENT_LIGHTNING_AVAILABLE)
+    learner = create_agi_learner(enable_rl=False)
 
     # Demo 1: Quantum Algorithm Selection
     print("\n1. Quantum Algorithm Selection Agent")

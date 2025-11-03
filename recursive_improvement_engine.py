@@ -22,7 +22,7 @@ import time
 import re
 import logging
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Dict, List, Optional, Tuple
 from dataclasses import dataclass, asdict
 from datetime import datetime
 import shutil
@@ -290,59 +290,6 @@ class CUDAExecutor:
             return False, time.time() - start_time, str(e)
 
 
-class AgentLightningOptimizer:
-    """Integrates Agent Lightning for RL-based optimization."""
-    
-    def __init__(self, agent_id: str = "qallow-recursive-improver"):
-        self.agent_id = agent_id
-        self.try_import_agl()
-    
-    def try_import_agl(self):
-        """Try to import Agent Lightning."""
-        try:
-            import agentlightning as agl
-            self.agl = agl
-            logger.info("Agent Lightning imported successfully")
-        except ImportError:
-            logger.warning("Agent Lightning not installed. RL features disabled.")
-            self.agl = None
-    
-    def calculate_reward(self, metrics: Dict[str, float], prev_metrics: Optional[Dict[str, float]] = None) -> float:
-        """Calculate reward for RL training."""
-        # Reward formula: 0.5*coherence + 0.3*ethics + 0.2*stability
-        coherence_reward = min(metrics.get('avg_coherence', 0) / 0.95, 1.0) * 0.5
-        ethics_reward = min(metrics.get('ethics_total', 0) / 3.0, 1.0) * 0.3
-        stability_reward = metrics.get('stability', 0.5) * 0.2
-        
-        base_reward = coherence_reward + ethics_reward + stability_reward
-        
-        # Improvement bonus
-        if prev_metrics:
-            improvement = (
-                (metrics.get('avg_coherence', 0) - prev_metrics.get('avg_coherence', 0)) * 0.5 +
-                (metrics.get('ethics_total', 0) - prev_metrics.get('ethics_total', 0)) * 0.3
-            )
-            base_reward += max(improvement, 0) * 0.2
-        
-        return base_reward
-    
-    def emit_event(self, event_type: str, data: Dict[str, Any]):
-        """Emit Agent Lightning event."""
-        if not self.agl:
-            return
-        
-        try:
-            if event_type == 'task_start':
-                self.agl.emit_task_start(task_name=data.get('name', 'qallow_phase'))
-            elif event_type == 'task_complete':
-                self.agl.emit_task_complete(
-                    reward=data.get('reward', 0.0),
-                    metadata=data.get('metadata', {})
-                )
-        except Exception as e:
-            logger.warning(f"Failed to emit event: {e}")
-
-
 class RecursiveImprovementEngine:
     """Main orchestrator for recursive improvements."""
     
@@ -354,7 +301,6 @@ class RecursiveImprovementEngine:
         self.metrics_collector = MetricsCollector()
         self.auto_fixer = AutoFixer()
         self.cuda_executor = CUDAExecutor()
-        self.optimizer = AgentLightningOptimizer()
         
         self.results: List[ExecutionResult] = []
         self.iteration = 0
@@ -432,7 +378,7 @@ class RecursiveImprovementEngine:
             result.metrics = metrics
             
             # Phase 4: Calculate Reward
-            reward = self.optimizer.calculate_reward(metrics, self.prev_metrics)
+            reward = self._calculate_reward(metrics, self.prev_metrics)
             result.agent_reward = reward
             result.success = success and not errors
             
@@ -442,15 +388,7 @@ class RecursiveImprovementEngine:
             logger.info(f"  RL Reward: {reward:.4f}")
             
             # Phase 5: Emit Agent Lightning Events
-            self.optimizer.emit_event('task_start', {'name': f'qallow_phase_{self.iteration}'})
-            self.optimizer.emit_event('task_complete', {
-                'reward': reward,
-                'metadata': {
-                    'iteration': self.iteration,
-                    'metrics': metrics,
-                    'errors_count': len(errors)
-                }
-            })
+            # Agent Lightning event emission removed.
             
             # Phase 6: Auto-fix errors
             if errors:
@@ -470,6 +408,24 @@ class RecursiveImprovementEngine:
             result.errors.append(str(e))
             result.notes = f"Exception: {str(e)[:100]}"
             return result
+
+    @staticmethod
+    def _calculate_reward(metrics: Dict[str, float], prev_metrics: Optional[Dict[str, float]] = None) -> float:
+        """Compute a heuristic reward for progress tracking without external tooling."""
+        coherence_reward = min(metrics.get('avg_coherence', 0) / 0.95, 1.0) * 0.5
+        ethics_reward = min(metrics.get('ethics_total', 0) / 3.0, 1.0) * 0.3
+        stability_reward = metrics.get('stability', 0.5) * 0.2
+
+        base_reward = coherence_reward + ethics_reward + stability_reward
+
+        if prev_metrics:
+            improvement = (
+                (metrics.get('avg_coherence', 0) - prev_metrics.get('avg_coherence', 0)) * 0.5 +
+                (metrics.get('ethics_total', 0) - prev_metrics.get('ethics_total', 0)) * 0.3
+            )
+            base_reward += max(improvement, 0) * 0.2
+
+        return base_reward
     
     def _print_summary(self):
         """Print summary of all iterations."""
