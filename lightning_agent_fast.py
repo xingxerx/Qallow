@@ -23,6 +23,8 @@ import re
 import subprocess
 import sys
 import time
+from contextlib import ExitStack  # REQUIRED for output tee handling
+from datetime import datetime  # REQUIRED for timestamped log files
 from dataclasses import dataclass  # REQUIRED for @dataclass decorator below
 from pathlib import Path  # REQUIRED for type hints
 from typing import Iterable, List, Optional, Tuple  # REQUIRED for type hints
@@ -50,6 +52,47 @@ def set_fast_mode(enabled: bool):
     global FAST_MODE, PAUSE_SCALE
     FAST_MODE = enabled
     PAUSE_SCALE = 0.0 if enabled else 1.0
+
+
+class Tee:
+    """Duplicate writes to multiple streams (simple tee)."""
+
+    def __init__(self, *streams):
+        self.streams = streams
+
+    def write(self, data: str) -> int:
+        for stream in self.streams:
+            stream.write(data)
+            stream.flush()
+        return len(data)
+
+    def flush(self) -> None:
+        for stream in self.streams:
+            stream.flush()
+
+
+def configure_output_logging(log_dir: Optional[str], stack: ExitStack) -> Optional[Path]:
+    """Redirect stdout/stderr to also log into `log_dir` if provided."""
+    if not log_dir:
+        return None
+
+    target_dir = Path(log_dir)
+    target_dir.mkdir(parents=True, exist_ok=True)
+
+    timestamp = datetime.utcnow().strftime("%Y%m%d-%H%M%S")
+    log_path = target_dir / f"lightning_agent_{timestamp}.log"
+
+    original_stdout = sys.stdout
+    original_stderr = sys.stderr
+    log_file = stack.enter_context(log_path.open("w", encoding="utf-8"))
+
+    sys.stdout = Tee(original_stdout, log_file)
+    sys.stderr = Tee(original_stderr, log_file)
+
+    stack.callback(lambda: setattr(sys, "stdout", original_stdout))
+    stack.callback(lambda: setattr(sys, "stderr", original_stderr))
+
+    return log_path
 
 
 @dataclass
@@ -1039,10 +1082,17 @@ class CodeAnalyzer:
 class LightningAgentFast:
     """Main fast improvement agent."""
     
-    def __init__(self, max_iterations: int = 10, use_cuda: bool = True, fast_mode: bool = False):
+    def __init__(
+        self,
+        max_iterations: int = 10,
+        use_cuda: bool = True,
+        fast_mode: bool = False,
+        daemon_sleep: int = 60,
+    ):
         self.max_iterations = max_iterations
         self.project_root = Path(".")
         self.use_cuda = use_cuda
+        self.daemon_sleep = max(0, int(daemon_sleep))
         set_fast_mode(fast_mode)
         self.builder = FastBuilder(str(self.project_root))
         self.fixer = CodeFixer(str(self.project_root))
@@ -1238,6 +1288,12 @@ def main():
         help='Run continuously with pauses between runs'
     )
     parser.add_argument(
+        '--daemon-sleep',
+        type=int,
+        default=60,
+        help='Seconds to sleep between daemon runs (default: 60; use 0 to disable)'
+    )
+    parser.add_argument(
         '--fast',
         action='store_true',
         help='Skip interactive pauses and reduce narration for quicker feedback'
@@ -1255,60 +1311,83 @@ def main():
         dest='use_cuda',
         help='Disable CUDA support when building'
     )
-    
-    args = parser.parse_args()
-    
-    print("\n" + "="*70)
-    print_header("🐢 SLOW Lightning Agent - Readable Code Fixer")
-    print("="*70)
-    print(f"   Mode: {'DAEMON (continuous)' if args.daemon else 'SINGLE RUN'}")
-    print(f"   Max iterations: {args.max_iterations}")
-    print(f"   Fast mode: {'ON' if args.fast else 'OFF'}")
-    print(f"   CUDA build: {'ON' if args.use_cuda else 'OFF'}")
-    print("="*70 + "\n")
-
-    set_fast_mode(args.fast)
-    pause_for_reading("Starting agent...", 2)
-    
-    agent = LightningAgentFast(
-        max_iterations=args.max_iterations,
-        use_cuda=args.use_cuda,
-        fast_mode=args.fast
+    parser.add_argument(
+        '--log-dir',
+        type=str,
+        help='Optional directory to capture console output logs for each run'
     )
     
-    if args.daemon:
-        iteration = 0
-        try:
-            while True:
-                iteration += 1
-                print(f"\n{'='*70}")
-                print_header(f"Daemon Run {iteration}")
-                print("="*70 + "\n")
-                pause_for_reading("Starting daemon iteration...", 2)
-                
-                agent.run_loop()
-                
-                print("\n" + "─"*70)
-                print("⏱️  Daemon sleeping for 20 seconds before next run...")
-                print("   (Press Ctrl+C to stop)")
-                print("─"*70)
-                
-                import time
-                for i in range(20, 0, -5):
-                    if i <= 5:
-                        print(f"   {i} seconds remaining...", end='\r')
-                    time.sleep(5)
-                
-                pause_for_reading("Ready for next run...", 1)
-        
-        except KeyboardInterrupt:
-            print("\n\n✋ Daemon stopped by user")
-            print(f"   Total daemon runs: {iteration}")
-            print("="*70 + "\n")
-    else:
-        print("Single-run mode. Press Ctrl+C to stop.")
+    args = parser.parse_args()
+
+    with ExitStack() as stack:
+        log_path = configure_output_logging(args.log_dir, stack)
+
+        print("\n" + "="*70)
+        print_header("🐢 SLOW Lightning Agent - Readable Code Fixer")
+        print("="*70)
+        print(f"   Mode: {'DAEMON (continuous)' if args.daemon else 'SINGLE RUN'}")
+        print(f"   Max iterations: {args.max_iterations}")
+        print(f"   Fast mode: {'ON' if args.fast else 'OFF'}")
+        print(f"   CUDA build: {'ON' if args.use_cuda else 'OFF'}")
+        if log_path:
+            print(f"   Logging to: {log_path}")
         print("="*70 + "\n")
-        agent.run_loop()
+
+        set_fast_mode(args.fast)
+        pause_for_reading("Starting agent...", 2)
+
+        agent = LightningAgentFast(
+            max_iterations=args.max_iterations,
+            use_cuda=args.use_cuda,
+            fast_mode=args.fast,
+            daemon_sleep=args.daemon_sleep,
+        )
+
+        if args.daemon:
+            iteration = 0
+            try:
+                while True:
+                    iteration += 1
+                    print(f"\n{'='*70}")
+                    print_header(f"Daemon Run {iteration}")
+                    print("="*70 + "\n")
+                    pause_for_reading("Starting daemon iteration...", 2)
+
+                    agent.run_loop()
+
+                    sleep_total = agent.daemon_sleep
+                    if sleep_total <= 0:
+                        print("\n" + "─"*70)
+                        print("⏱️  Daemon sleep disabled (0 seconds). Starting next run immediately.")
+                        print("─"*70)
+                        pause_for_reading("Ready for next run...", 0)
+                        continue
+
+                    print("\n" + "─"*70)
+                    print(f"⏱️  Daemon sleeping for {sleep_total} seconds before next run...")
+                    print("   (Press Ctrl+C to stop)")
+                    print("─"*70)
+
+                    remaining = sleep_total
+                    while remaining > 0:
+                        tick = 10 if remaining > 10 else remaining
+                        if remaining <= 10:
+                            print(f"   {remaining} seconds remaining...", end='\r', flush=True)
+                        time.sleep(tick)
+                        remaining -= tick
+                    if sleep_total <= 10:
+                        print()
+
+                    pause_for_reading("Ready for next run...", 1)
+
+            except KeyboardInterrupt:
+                print("\n\n✋ Daemon stopped by user")
+                print(f"   Total daemon runs: {iteration}")
+                print("="*70 + "\n")
+        else:
+            print("Single-run mode. Press Ctrl+C to stop.")
+            print("="*70 + "\n")
+            agent.run_loop()
 
 
 if __name__ == '__main__':
