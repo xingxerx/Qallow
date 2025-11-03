@@ -5,11 +5,8 @@ Integrates with Qallow's adaptive learning framework
 """
 
 import json
-import numpy as np
-from pathlib import Path
 from datetime import datetime
 import logging
-from typing import Dict, List, Tuple
 
 logger = logging.getLogger(__name__)
 

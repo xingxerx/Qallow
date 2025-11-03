@@ -9,8 +9,6 @@ import logging
 import shlex
 import sys
 from datetime import datetime
-from pathlib import Path
-from typing import Dict, List, Optional
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -19,9 +17,6 @@ logger = logging.getLogger(__name__)
 sys.path.insert(0, str(Path(__file__).parent))
 
 # Import Qallow AGI modules
-from agi_self_learning import QallowAGISelfLearning, create_agi_learner
-from agi_telemetry_bridge import AGITelemetryBridge
-from agi_cuda_accelerator import CUDAAccelerator
 
 # Try to import quantum learning system (optional)
 try:

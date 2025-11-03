@@ -6,10 +6,6 @@ Supports local simulation and Google Quantum hardware
 """
 
 import os
-import json
-from datetime import datetime
-from typing import Dict, Any, List, Tuple
-import numpy as np
 
 # Google Cirq - Primary framework
 import cirq

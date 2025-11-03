@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # Minimal QAOA-like scaffold; integrates with Qallow via --file
 import argparse, json, math, os, sys
-from typing import Dict, Any
 
 try:
     import cirq

@@ -10,7 +10,6 @@ import os
 import sys
 import time
 import subprocess
-from pathlib import Path
 
 # Configuration
 OUTPUT_DIR = Path("/root/Qallow/data/telemetry")

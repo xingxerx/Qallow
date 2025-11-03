@@ -21,14 +21,7 @@ import os
 import sys
 import re
 import subprocess
-import json
 import logging
-import pathlib
-from pathlib import Path
-from typing import Dict, List, Tuple, Optional, Set
-from dataclasses import dataclass
-from datetime import datetime
-import difflib
 import time
 
 # Configure logging with MORE verbose output
@@ -808,37 +801,71 @@ class WarningFixer:
 
 class CodeAnalyzer:
     """Proactively analyze code for improvement opportunities."""
-    
-    def __init__(self, project_root: str = "."):
+
+    PYTHON_SKIP_PARTS = {
+        '.venv',
+        'venv',
+        '__pycache__',
+        'site-packages',
+        'dist-packages',
+        'third_party',
+        'external',
+        '.git',
+        'build',
+    }
+
+    C_SKIP_PARTS = {
+        '.venv',
+        'venv',
+        'build',
+        'CMakeFiles',
+        '.git',
+    }
+
+    def __init__(self, project_root: str = ".", fixer: Optional[CodeFixer] = None):
         self.project_root = Path(project_root)
         self.improvements = []
-    
+        self.code_fixer = fixer or CodeFixer(project_root)
+
+    def _iter_python_files(self):
+        """Yield project python files, skipping vendor/virtualenv directories."""
+        for path in self.project_root.glob("**/*.py"):
+            try:
+                rel_parts = path.relative_to(self.project_root).parts
+            except ValueError:
+                continue
+
+            # Skip if file is inside any excluded directory
+            if any(part in self.PYTHON_SKIP_PARTS or part.startswith('.') for part in rel_parts[:-1]):
+                continue
+
+            yield path
+
+    def _iter_c_files(self, pattern: str) -> Iterable[Path]:
+        """Yield C sources respecting the skip list."""
+        for path in self.project_root.glob(pattern):
+            try:
+                rel_parts = path.relative_to(self.project_root).parts
+            except ValueError:
+                continue
+
+            if any(part in self.C_SKIP_PARTS or part.startswith('.') for part in rel_parts[:-1]):
+                continue
+
+            yield path
+
     def analyze_unused_imports(self) -> int:
         """Find and remove unused imports."""
         fixes = 0
         print("\n   🔍 Scanning for unused imports...")
         pause_for_reading("Analyzing imports...", 1)
-        
+
         try:
-            for py_file in self.project_root.glob("**/*.py"):
-                if ".venv" in str(py_file) or "__pycache__" in str(py_file):
-                    continue
-                
-                content = py_file.read_text()
-                lines = content.split('\n')
-                
-                # Simple unused import detection
-                for line in lines:
-                    if line.strip().startswith(('import ', 'from ')) and 'import' in line:
-                        match = re.search(r'(?:from|import)\s+(\w+)', line)
-                        if match:
-                            symbol = match.group(1)
-                            # Check if used (simple heuristic)
-                            usage_count = sum(1 for l in lines if l != line and symbol in l)
-                            if usage_count == 0:
-                                print(f"      📍 {py_file.name}: unused '{symbol}'")
-                                fixes += 1
-        
+            for py_file in self._iter_python_files():
+                if self.code_fixer.fix_unused_imports(py_file):
+                    rel = py_file.relative_to(self.project_root)
+                    print(f"      ✏️  Removed unused imports in {rel}")
+                    fixes += 1
         except Exception as e:
             logger.debug(f"Error analyzing imports: {e}")
         
@@ -849,22 +876,17 @@ class CodeAnalyzer:
         fixes = 0
         print("\n   🔍 Scanning for code style issues...")
         pause_for_reading("Analyzing style...", 1)
-        
+
         try:
-            for c_file in self.project_root.glob("backend/**/*.c"):
-                content = c_file.read_text()
-                lines = content.split('\n')
-                
-                for i, line in enumerate(lines, 1):
-                    # Check for trailing whitespace
-                    if line.endswith(' ') or line.endswith('\t'):
-                        print(f"      📍 {c_file.name}:{i}: trailing whitespace")
-                        fixes += 1
-                    # Check for multiple blank lines
-                    if line == '' and i < len(lines) and lines[i] == '':
-                        print(f"      📍 {c_file.name}:{i}: multiple blank lines")
-                        fixes += 1
-        
+            for c_file in self._iter_c_files("backend/**/*.c"):
+                cleaned, trimmed_count, blank_removed = self._clean_c_style(c_file)
+                if cleaned:
+                    rel = c_file.relative_to(self.project_root)
+                    if trimmed_count:
+                        print(f"      ✏️  Trimmed {trimmed_count} trailing whitespace line(s) in {rel}")
+                    if blank_removed:
+                        print(f"      ✏️  Removed {blank_removed} extra blank line(s) in {rel}")
+                    fixes += trimmed_count + blank_removed
         except Exception as e:
             logger.debug(f"Error analyzing style: {e}")
         
@@ -875,14 +897,11 @@ class CodeAnalyzer:
         fixes = 0
         print("\n   🔍 Scanning for dead code patterns...")
         pause_for_reading("Analyzing dead code...", 1)
-        
+
         try:
-            for c_file in self.project_root.glob("**/*.c"):
-                if ".venv" in str(c_file):
-                    continue
-                
+            for c_file in self._iter_c_files("**/*.c"):
                 content = c_file.read_text()
-                
+
                 # Check for commented-out code blocks
                 if '/*' in content and '*/' in content:
                     count = content.count('/*')
@@ -905,10 +924,10 @@ class CodeAnalyzer:
         fixes = 0
         print("\n   🔍 Scanning for performance patterns...")
         pause_for_reading("Analyzing performance...", 1)
-        
+
         try:
             # Check for common performance anti-patterns
-            for c_file in self.project_root.glob("backend/**/*.c"):
+            for c_file in self._iter_c_files("backend/**/*.c"):
                 content = c_file.read_text()
                 
                 # Check for unbounded loops
@@ -949,11 +968,56 @@ class CodeAnalyzer:
         
         return total
 
+    def _clean_c_style(self, path: Path) -> Tuple[bool, int, int]:
+        """Strip trailing whitespace and collapse duplicate blank lines."""
+        try:
+            lines = path.read_text().splitlines()
+        except Exception as exc:
+            logger.debug(f"Unable to read {path}: {exc}")
+            return False, 0, 0
+
+        new_lines: List[str] = []
+        trailing_count = 0
+        blank_removed = 0
+        consecutive_blank = 0
+
+        for raw in lines:
+            trimmed = raw.rstrip(' \t')
+            if trimmed != raw:
+                trailing_count += 1
+
+            if trimmed == '':
+                consecutive_blank += 1
+            else:
+                consecutive_blank = 0
+
+            if consecutive_blank > 1:
+                blank_removed += 1
+                continue
+
+            new_lines.append(trimmed)
+
+        if trailing_count == 0 and blank_removed == 0:
+            return False, 0, 0
+
+        # Ensure file ends with newline
+        content = "\n".join(new_lines)
+        if not content.endswith("\n"):
+            content += "\n"
+
+        try:
+            path.write_text(content)
+        except Exception as exc:
+            logger.error(f"Failed to write cleaned style to {path}: {exc}")
+            return False, 0, 0
+
+        return True, trailing_count, blank_removed
+
 
 class LightningAgentFast:
     """Main fast improvement agent."""
     
-    def __init__(self, max_iterations: int = 10, demo_mode: bool = False):
+    def __init__(self, max_iterations: int = 10):
         self.max_iterations = max_iterations
         self.project_root = Path(".")
         self.builder = FastBuilder(str(self.project_root))
@@ -964,67 +1028,12 @@ class LightningAgentFast:
         self.error_parser = ErrorParser()
         self.iteration = 0
         self.total_fixes = 0
-        self.demo_mode = demo_mode
-        self.demo_bugs_injected = False
-    
-    def inject_demo_bugs(self):
-        """Inject intentional bugs for demonstration purposes."""
-        if self.demo_bugs_injected:
-            return
-        
-        print("\n" + "!"*70)
-        print("🎭 DEMO MODE: Injecting intentional bugs for demonstration")
-        print("!"*70)
-        
-        demo_files = list(self.project_root.glob("**/*.c"))[:2]
-        if not demo_files:
-            print("   ⚠️  No C files found to inject demo bugs")
-            return
-        
-        bugs_injected = 0
-        for file_path in demo_files:
-            try:
-                content = file_path.read_text()
-                
-                # Bug 1: Add unused variable (will be caught by analysis)
-                if "int unused_var_demo = 0;" not in content:
-                    lines = content.split('\n')
-                    # Find a function body to inject
-                    for i, line in enumerate(lines):
-                        if '{' in line:
-                            lines.insert(i + 1, "    int unused_var_demo = 0;  // DEMO BUG")
-                            content = '\n'.join(lines)
-                            file_path.write_text(content)
-                            print(f"   ✓ Injected unused variable into {file_path.name}")
-                            bugs_injected += 1
-                            break
-                
-                # Bug 2: Add trailing whitespace (will be caught by style analysis)
-                if len([l for l in content.split('\n') if l.rstrip() != l]) < 3:
-                    lines = content.split('\n')
-                    lines[5] = lines[5] + "   "  # Add trailing spaces
-                    content = '\n'.join(lines)
-                    file_path.write_text(content)
-                    print(f"   ✓ Injected trailing whitespace into {file_path.name}")
-                    bugs_injected += 1
-                
-            except Exception as e:
-                logger.debug(f"Could not inject bug into {file_path}: {e}")
-        
-        self.demo_bugs_injected = True
-        print(f"\n   🎭 Demo mode: {bugs_injected} intentional bug(s) injected!")
-        pause_for_reading("Agent will now try to find and fix them...", 3)
     
     def run_loop(self):
         """Main improvement loop - SLOW AND READABLE."""
         print("\n" + "="*70)
         print_header("🐢 SLOW Lightning Agent - Code Fixer Loop Started")
         print("="*70)
-        
-        # Inject demo bugs if in demo mode
-        if self.demo_mode:
-            self.inject_demo_bugs()
-        
         pause_for_reading("Starting improvement iterations...", 2)
         
         for self.iteration in range(1, self.max_iterations + 1):
@@ -1203,26 +1212,18 @@ def main():
         action='store_true',
         help='Run continuously with pauses between runs'
     )
-    parser.add_argument(
-        '--demo',
-        action='store_true',
-        help='Demo mode: intentionally inject bugs to demonstrate fixing'
-    )
     
     args = parser.parse_args()
     
     print("\n" + "="*70)
     print_header("🐢 SLOW Lightning Agent - Readable Code Fixer")
     print("="*70)
-    mode_str = 'DAEMON (continuous)' if args.daemon else 'SINGLE RUN'
-    if args.demo:
-        mode_str += ' + DEMO MODE'
-    print(f"   Mode: {mode_str}")
+    print(f"   Mode: {'DAEMON (continuous)' if args.daemon else 'SINGLE RUN'}")
     print(f"   Max iterations: {args.max_iterations}")
     print("="*70 + "\n")
     pause_for_reading("Starting agent...", 2)
     
-    agent = LightningAgentFast(max_iterations=args.max_iterations, demo_mode=args.demo)
+    agent = LightningAgentFast(max_iterations=args.max_iterations)
     
     if args.daemon:
         iteration = 0

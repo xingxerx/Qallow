@@ -4,7 +4,6 @@ Minimizes Ising Hamiltonian to find optimal control gain for Qallow
 """
 
 import json
-import numpy as np
 from datetime import datetime
 
 

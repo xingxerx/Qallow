@@ -6,12 +6,10 @@ Uses a synthetic reward signal to tweak weights and thresholds,
 then writes the results back to config/*.json for the C runtime.
 """
 
-from __future__ import annotations
 
 import json
 import math
 import random
-from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG_DIR = ROOT / "config"

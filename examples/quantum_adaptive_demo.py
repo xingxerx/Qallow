@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """End-to-end adaptive learning demo for Qallow using Qiskit."""
 
-from __future__ import annotations
 
 import argparse
 import csv
@@ -9,8 +8,6 @@ import os
 import subprocess
 import sys
 import time
-from pathlib import Path
-from typing import Dict, Iterable, Tuple
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:

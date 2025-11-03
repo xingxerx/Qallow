@@ -6,9 +6,7 @@ Collects reinforcement-style telemetry from Qallow components and exports it for
 
 import json
 import logging
-from pathlib import Path
 from datetime import datetime
-from typing import Dict, List, Optional
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

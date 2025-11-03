@@ -4,7 +4,6 @@ Comprehensive test of the quantum workload implementation
 """
 import json
 import sys
-from pathlib import Path
 
 def test_quantum_implementation():
     """Test all quantum components"""

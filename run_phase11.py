@@ -1,8 +1,6 @@
 # run_phase11_bridge_agent.py
 
-from __future__ import annotations
 
-from typing import Any, Optional
 
 
 class QuantumBridgeAgent:

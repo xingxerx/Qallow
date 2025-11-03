@@ -6,7 +6,6 @@ Each pipeline returns metrics plus an ethical compliance report. This script can
 invoked standalone or imported into orchestration notebooks.
 """
 
-from typing import Dict
 import pathlib
 import sys
 

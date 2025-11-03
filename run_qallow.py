@@ -6,7 +6,6 @@ Shows the project structure and available components
 
 import os
 import sys
-from pathlib import Path
 
 def print_header(text):
     """Print formatted header"""

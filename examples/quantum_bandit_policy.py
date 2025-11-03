@@ -6,11 +6,8 @@ Implements a shallow VQC with qutip-derived entangling gates and optimizes the
 parameters via a REINFORCE-style update using torch.autograd.
 """
 
-from __future__ import annotations
 
 import argparse
-from dataclasses import dataclass
-from typing import List, Sequence
 
 import matplotlib.pyplot as plt
 import numpy as np

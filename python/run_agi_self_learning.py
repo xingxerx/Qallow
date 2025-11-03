@@ -7,13 +7,11 @@ Main entry point for running AGI with Agent Lightning self-improvement
 import sys
 import argparse
 import logging
-from pathlib import Path
 
 # Add python directory to path
 sys.path.insert(0, str(Path(__file__).parent))
 
 from agi_self_learning import QallowAGISelfLearning, create_agi_learner, demo_agi_learning
-from agi_telemetry_bridge import AGITelemetryBridge, demo_telemetry_bridge
 
 logging.basicConfig(
     level=logging.INFO,

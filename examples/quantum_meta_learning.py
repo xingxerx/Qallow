@@ -1,14 +1,10 @@
 #!/usr/bin/env python3
 """Demonstration of the HybridQuantumLearner on synthetic data."""
 
-from __future__ import annotations
 
 import argparse
 import math
-from pathlib import Path
-from typing import List, Sequence
 
-import numpy as np
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 import sys

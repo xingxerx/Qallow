@@ -7,13 +7,8 @@ Detects specific error patterns and applies targeted fixes.
 """
 
 import os
-import sys
 import re
-import json
 import logging
-from pathlib import Path
-from typing import Dict, List, Tuple, Optional
-from enum import Enum
 import subprocess
 
 logger = logging.getLogger(__name__)
@@ -327,4 +322,3 @@ class ProactiveOptimizer:
 
 
 # For use in dataclass
-from dataclasses import dataclass
