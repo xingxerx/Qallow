@@ -1,8 +1,4 @@
-/*
- * Real Hardware Demo - Qallow Real Computer System
- * Demonstrates actual CUDA GPU and Cirq quantum circuit execution
- * on real hardware instead of simulation
- */
+/* Multi-block comment removed */
 
 #include "real_computer.h"
 #include <stdio.h>
@@ -26,14 +22,14 @@ int main(int argc, char *argv[]) {
 
     printf("\n=== Initializing Real Hardware Environment ===\n");
 
-    /* Initialize real computer system */
+    /* Multi-block comment removed */
     real_computer_t *computer = real_computer_init();
     if (!computer) {
         fprintf(stderr, "Error: Failed to initialize real computer system\n");
         return 1;
     }
 
-    /* Check hardware availability */
+    /* Multi-block comment removed */
     real_computer_check_hardware(computer);
 
     if (!computer->gpu_available && !computer->qpu_available) {
@@ -47,9 +43,9 @@ int main(int argc, char *argv[]) {
 
     printf("\n=== Setting Up Workloads ===\n");
 
-    /* Create diverse workload tasks */
+    /* Multi-block comment removed */
     task_definition_t tasks[] = {
-        /* GPU Workloads */
+        /* Multi-block comment removed */
         real_computer_create_task(1, WORKLOAD_GPU_COMPUTE,
                                  "Matrix multiplication on GPU (512MB)"),
         real_computer_create_task(2, WORKLOAD_GPU_ACCELERATED_NN,
@@ -57,13 +53,13 @@ int main(int argc, char *argv[]) {
         real_computer_create_task(3, WORKLOAD_MIXED_PRECISION,
                                  "Mixed precision GPU computation"),
 
-        /* Quantum Workloads */
+        /* Multi-block comment removed */
         real_computer_create_task(4, WORKLOAD_QUANTUM_CIRCUIT,
                                  "Bell state preparation (8 qubits)"),
         real_computer_create_task(5, WORKLOAD_QUANTUM_OPTIMIZATION,
                                  "QAOA optimization circuit (10 qubits)"),
 
-        /* Hybrid Workloads */
+        /* Multi-block comment removed */
         real_computer_create_task(6, WORKLOAD_HYBRID_OPTIMIZATION,
                                  "Hybrid GPU-Quantum optimization loop"),
     };
@@ -103,13 +99,13 @@ int main(int argc, char *argv[]) {
     printf("\n=== Executing Workloads on Real Hardware ===\n");
     printf("This will use actual CUDA GPU and Cirq quantum simulation...\n");
 
-    /* Execute each task */
+    /* Multi-block comment removed */
     task_result_t *results[num_tasks];
     for (uint32_t i = 0; i < num_tasks; i++) {
         results[i] = real_computer_execute_task(computer, &tasks[i]);
     }
 
-    /* Print comprehensive results */
+    /* Multi-block comment removed */
     printf("\n=== Execution Results ===\n");
     double total_score = 0.0;
     double total_energy = 0.0;
@@ -133,7 +129,7 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    /* Print aggregate statistics */
+    /* Multi-block comment removed */
     printf("\n=== Aggregate System Statistics ===\n");
     real_computer_print_stats(computer);
 

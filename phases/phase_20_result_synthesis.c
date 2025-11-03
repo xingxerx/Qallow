@@ -1,17 +1,4 @@
-/**
- * Phase 20: Result Synthesis & Aggregation
- *
- * Purpose: Synthesize results from all prior phases into a unified output.
- * Aggregate and validate final results.
- *
- * Algorithm:
- * 1. Load result vectors from all prior phases
- * 2. Create superposition of all result states
- * 3. Apply validation oracle (marks valid results)
- * 4. Apply optimization amplification for best result
- * 5. Measure final aggregated state
- * 6. Bind to output with quality threshold
- */
+/* Multi-block comment removed */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -39,9 +26,7 @@ typedef struct {
     float aggregation_score;
 } SynthesisState;
 
-/**
- * Validation oracle: evaluate which result states are valid
- */
+/* Multi-block comment removed */
 float validation_oracle(float *synthesis, ResultState *state) {
     float validation = 0.0;
 
@@ -53,9 +38,7 @@ float validation_oracle(float *synthesis, ResultState *state) {
     return validation / RESULT_DIM;
 }
 
-/**
- * Optimization amplification: amplify high-scoring states
- */
+/* Multi-block comment removed */
 void optimization_amplification(SynthesisState *state) {
     // Find maximum validation score
     float max_validation = 0.0;
@@ -76,9 +59,7 @@ void optimization_amplification(SynthesisState *state) {
     state->result_quality = max_validation;
 }
 
-/**
- * Calculate aggregation score
- */
+/* Multi-block comment removed */
 float calculate_aggregation_score(SynthesisState *state) {
     float total_score = 0.0;
 

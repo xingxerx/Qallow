@@ -1,9 +1,4 @@
-/**
- * qallow_ethics_integration.c
- * 
- * Example integration of closed-loop ethics system into Qallow unified binary
- * This demonstrates how to add hardware-verified ethics monitoring to your main loop
- */
+/* Multi-block comment removed */
 
 #include <math.h>
 #include <stdio.h>
@@ -15,10 +10,7 @@
 // Forward declaration for feed function
 int ethics_ingest_signal(const char *path, ethics_metrics_t *metrics);
 
-/**
- * Initialize ethics monitoring system
- * Call once at startup
- */
+/* Multi-block comment removed */
 int qallow_ethics_init(ethics_model_t *model, const char *config_dir) {
     char weights_path[256], thresholds_path[256];
     snprintf(weights_path, sizeof(weights_path), "%s/weights.json", config_dir);
@@ -39,10 +31,7 @@ int qallow_ethics_init(ethics_model_t *model, const char *config_dir) {
     return 0;
 }
 
-/**
- * Refresh hardware signals
- * Call this periodically or before critical operations
- */
+/* Multi-block comment removed */
 int qallow_ethics_refresh_signals(void) {
     int rc = system("python3 /root/Qallow/python/collect_signals.py 2>/dev/null");
     return (rc == 0) ? 0 : -1;

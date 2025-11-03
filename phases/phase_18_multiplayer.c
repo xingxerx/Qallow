@@ -1,18 +1,4 @@
-/**
- * Phase 18: Multiplayer Synchronization
- * 
- * Purpose: Enable LAN or cloud-based ritual sync.
- * Merge multiple Qallow instances into a shared mythic ledger.
- * Treat consensus as a living artifact.
- * 
- * Algorithm:
- * 1. Initialize node identity and state vector
- * 2. Broadcast state to peer nodes
- * 3. Receive and validate peer states
- * 4. Compute consensus through voting
- * 5. Merge states into shared ledger
- * 6. Report synchronization metrics
- */
+/* Multi-block comment removed */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -41,9 +27,7 @@ typedef struct {
     int ledger_entries;
 } MultiplayerState;
 
-/**
- * Compute consensus from multiple node states
- */
+/* Multi-block comment removed */
 void compute_consensus(MultiplayerState *state) {
     // Initialize consensus vector
     for (int i = 0; i < STATE_VECTOR_DIM; i++) {
@@ -62,9 +46,7 @@ void compute_consensus(MultiplayerState *state) {
     }
 }
 
-/**
- * Calculate consensus strength (agreement level)
- */
+/* Multi-block comment removed */
 float calculate_consensus_strength(MultiplayerState *state) {
     float total_deviation = 0.0;
     
@@ -83,9 +65,7 @@ float calculate_consensus_strength(MultiplayerState *state) {
     return strength;
 }
 
-/**
- * Validate peer state
- */
+/* Multi-block comment removed */
 int validate_peer_state(NodeState *peer, MultiplayerState *state) {
     // Check if peer state is within acceptable range
     for (int i = 0; i < STATE_VECTOR_DIM; i++) {

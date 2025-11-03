@@ -1,7 +1,4 @@
-/*
- * Real Computer Orchestrator - Implementation
- * Coordinates actual CUDA GPU and Cirq quantum hardware execution
- */
+/* Multi-block comment removed */
 
 #include "real_computer.h"
 #include <stdio.h>
@@ -11,9 +8,7 @@
 #include <math.h>
 #include <inttypes.h>
 
-/**
- * Initialize real computer system
- */
+/* Multi-block comment removed */
 real_computer_t* real_computer_init(void) {
     real_computer_t *computer = (real_computer_t *)malloc(sizeof(real_computer_t));
     if (!computer) {
@@ -23,7 +18,7 @@ real_computer_t* real_computer_init(void) {
 
     memset(computer, 0, sizeof(real_computer_t));
 
-    /* Initialize GPU */
+    /* Multi-block comment removed */
     printf("=== Initializing Real Hardware ===\n");
     printf("\n[GPU] Attempting CUDA initialization...\n");
     computer->gpu = cuda_init(0);
@@ -36,7 +31,7 @@ real_computer_t* real_computer_init(void) {
         printf("[GPU] ✗ CUDA GPU not available\n");
     }
 
-    /* Initialize Quantum Processor */
+    /* Multi-block comment removed */
     printf("\n[QPU] Attempting Cirq quantum processor initialization...\n");
     if (quantum_is_available()) {
         computer->qpu = quantum_init();
@@ -62,9 +57,7 @@ real_computer_t* real_computer_init(void) {
     return computer;
 }
 
-/**
- * Cleanup real computer system
- */
+/* Multi-block comment removed */
 void real_computer_cleanup(real_computer_t *computer) {
     if (!computer) return;
 
@@ -78,9 +71,7 @@ void real_computer_cleanup(real_computer_t *computer) {
     free(computer);
 }
 
-/**
- * Check hardware availability
- */
+/* Multi-block comment removed */
 void real_computer_check_hardware(real_computer_t *computer) {
     if (!computer) return;
 
@@ -97,9 +88,7 @@ void real_computer_check_hardware(real_computer_t *computer) {
     }
 }
 
-/**
- * Create task definition
- */
+/* Multi-block comment removed */
 task_definition_t real_computer_create_task(uint32_t task_id, workload_type_t type,
                                            const char *description) {
     task_definition_t task;
@@ -113,7 +102,7 @@ task_definition_t real_computer_create_task(uint32_t task_id, workload_type_t ty
         strncpy(task.description, description, sizeof(task.description) - 1);
     }
 
-    /* Set default parameters based on type */
+    /* Multi-block comment removed */
     switch (type) {
         case WORKLOAD_GPU_COMPUTE:
             task.gpu_threads = 1024;
@@ -166,9 +155,7 @@ task_definition_t real_computer_create_task(uint32_t task_id, workload_type_t ty
     return task;
 }
 
-/**
- * Execute GPU compute workload
- */
+/* Multi-block comment removed */
 task_result_t* real_computer_gpu_workload(real_computer_t *computer,
                                          task_definition_t *task) {
     if (!computer || !computer->gpu_available || !task) {
@@ -185,7 +172,7 @@ task_result_t* real_computer_gpu_workload(real_computer_t *computer,
     result->task_id = task->task_id;
     strcpy(result->hardware_used, "NVIDIA CUDA GPU");
 
-    /* Allocate GPU memory */
+    /* Multi-block comment removed */
     gpu_buffer_t *buffer = cuda_malloc(computer->gpu, task->gpu_memory_mb * 1024 * 1024);
     if (!buffer) {
         result->success = false;
@@ -194,25 +181,25 @@ task_result_t* real_computer_gpu_workload(real_computer_t *computer,
         return result;
     }
 
-    /* Simulate GPU computation */
+    /* Multi-block comment removed */
     float *host_data = (float *)malloc(task->gpu_memory_mb * 1024 * 1024);
     if (host_data) {
-        /* Initialize host data */
+        /* Multi-block comment removed */
         for (size_t i = 0; i < (task->gpu_memory_mb * 1024 * 1024 / sizeof(float)); i++) {
             host_data[i] = (float)i * 0.001f;
         }
 
-        /* Transfer to GPU */
+        /* Multi-block comment removed */
         cudaError_t err = cuda_h2d(buffer, host_data, task->gpu_memory_mb * 1024 * 1024);
         if (err != cudaSuccess) {
             result->success = false;
             snprintf(result->result_summary, sizeof(result->result_summary),
                     "GPU memory transfer failed: %s", cudaGetErrorString(err));
         } else {
-            /* Simulate GPU kernel execution */
-            usleep(10000);  /* 10ms GPU work simulation */
+            /* Multi-block comment removed */
+            usleep(10000);  /* Multi-block comment removed */
 
-            /* Transfer back to host */
+            /* Multi-block comment removed */
             err = cuda_d2h(host_data, buffer, task->gpu_memory_mb * 1024 * 1024);
             result->success = (err == cudaSuccess);
 
@@ -232,14 +219,12 @@ task_result_t* real_computer_gpu_workload(real_computer_t *computer,
     clock_gettime(CLOCK_MONOTONIC, &end);
     result->execution_time_ms = (end.tv_sec - start.tv_sec) * 1000.0 +
                                (end.tv_nsec - start.tv_nsec) / 1000000.0;
-    result->energy_consumed_mj = 250.0;  /* Estimated GPU energy */
+    result->energy_consumed_mj = 250.0;  /* Multi-block comment removed */
 
     return result;
 }
 
-/**
- * Execute quantum workload
- */
+/* Multi-block comment removed */
 task_result_t* real_computer_quantum_workload(real_computer_t *computer,
                                              task_definition_t *task) {
     if (!computer || !computer->qpu_available || !task) {
@@ -256,7 +241,7 @@ task_result_t* real_computer_quantum_workload(real_computer_t *computer,
     result->task_id = task->task_id;
     strcpy(result->hardware_used, "Cirq Quantum Simulator");
 
-    /* Create quantum circuit */
+    /* Multi-block comment removed */
     quantum_circuit_t *circuit = quantum_create_circuit(computer->qpu,
                                                         task->quantum_qubits,
                                                         "optimization_circuit");
@@ -267,17 +252,17 @@ task_result_t* real_computer_quantum_workload(real_computer_t *computer,
         return result;
     }
 
-    /* Build circuit with gates */
+    /* Multi-block comment removed */
     for (uint32_t q = 0; q < task->quantum_qubits; q++) {
         quantum_add_h_gate(computer->qpu, circuit, q);
     }
 
-    /* Add entangling gates */
+    /* Multi-block comment removed */
     for (uint32_t q = 0; q < task->quantum_qubits - 1; q++) {
         quantum_add_cnot_gate(computer->qpu, circuit, q, q + 1);
     }
 
-    /* Run simulation */
+    /* Multi-block comment removed */
     quantum_result_t *qresult = quantum_run_circuit(computer->qpu, circuit,
                                                    task->quantum_shots);
 
@@ -299,14 +284,12 @@ task_result_t* real_computer_quantum_workload(real_computer_t *computer,
     clock_gettime(CLOCK_MONOTONIC, &end);
     result->execution_time_ms = (end.tv_sec - start.tv_sec) * 1000.0 +
                                (end.tv_nsec - start.tv_nsec) / 1000000.0;
-    result->energy_consumed_mj = 75.0;  /* Estimated quantum energy */
+    result->energy_consumed_mj = 75.0;  /* Multi-block comment removed */
 
     return result;
 }
 
-/**
- * Execute hybrid GPU+Quantum workload
- */
+/* Multi-block comment removed */
 task_result_t* real_computer_hybrid_workload(real_computer_t *computer,
                                             task_definition_t *task) {
     if (!computer || !task) {
@@ -325,7 +308,7 @@ task_result_t* real_computer_hybrid_workload(real_computer_t *computer,
 
     bool gpu_success = false, qpu_success = false;
 
-    /* Run GPU phase */
+    /* Multi-block comment removed */
     if (computer->gpu_available) {
         task_result_t *gpu_result = real_computer_gpu_workload(computer, task);
         if (gpu_result) {
@@ -334,7 +317,7 @@ task_result_t* real_computer_hybrid_workload(real_computer_t *computer,
         }
     }
 
-    /* Run Quantum phase */
+    /* Multi-block comment removed */
     if (computer->qpu_available) {
         task_result_t *qpu_result = real_computer_quantum_workload(computer, task);
         if (qpu_result) {
@@ -354,14 +337,12 @@ task_result_t* real_computer_hybrid_workload(real_computer_t *computer,
     clock_gettime(CLOCK_MONOTONIC, &end);
     result->execution_time_ms = (end.tv_sec - start.tv_sec) * 1000.0 +
                                (end.tv_nsec - start.tv_nsec) / 1000000.0;
-    result->energy_consumed_mj = 325.0;  /* Combined energy estimate */
+    result->energy_consumed_mj = 325.0;  /* Multi-block comment removed */
 
     return result;
 }
 
-/**
- * Execute task on real hardware
- */
+/* Multi-block comment removed */
 task_result_t* real_computer_execute_task(real_computer_t *computer,
                                          task_definition_t *task) {
     if (!computer || !task) {

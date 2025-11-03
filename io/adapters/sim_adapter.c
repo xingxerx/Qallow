@@ -1,9 +1,4 @@
-/**
- * @file sim_adapter.c
- * @brief Simulation adapter for internal testing
- * 
- * Generates synthetic data streams for testing without external dependencies
- */
+/* Multi-block comment removed */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -29,9 +24,7 @@ static sim_state_t sim_state = {
     .noise_level = 0.001
 };
 
-/**
- * Generate synthetic coherence value
- */
+/* Multi-block comment removed */
 static double sim_generate_coherence(void) {
     // Oscillate around 0.9984 with small noise
     double noise = (rand() % 1000) / 1000000.0 - 0.0005;
@@ -39,9 +32,7 @@ static double sim_generate_coherence(void) {
     return (value < 0.0) ? 0.0 : (value > 1.0) ? 1.0 : value;
 }
 
-/**
- * Generate synthetic decoherence value
- */
+/* Multi-block comment removed */
 static double sim_generate_decoherence(void) {
     // Very small value with noise
     double noise = (rand() % 100) / 10000000.0;
@@ -49,9 +40,7 @@ static double sim_generate_decoherence(void) {
     return (value < 0.0) ? 0.0 : value;
 }
 
-/**
- * Generate synthetic stability value
- */
+/* Multi-block comment removed */
 static double sim_generate_stability(void) {
     // Oscillate around 0.9984
     double noise = (rand() % 1000) / 1000000.0 - 0.0005;
@@ -59,17 +48,13 @@ static double sim_generate_stability(void) {
     return (value < 0.0) ? 0.0 : (value > 1.0) ? 1.0 : value;
 }
 
-/**
- * Generate synthetic feedback score
- */
+/* Multi-block comment removed */
 static double sim_generate_feedback(void) {
     // Human feedback score (0.0-1.0)
     return 0.75 + (rand() % 200) / 1000.0 - 0.1;
 }
 
-/**
- * Generate a synthetic data packet
- */
+/* Multi-block comment removed */
 int sim_adapter_generate_packet(ingest_packet_type_t type, 
                                 ingest_packet_t* packet) {
     if (!packet) return -1;
@@ -111,9 +96,7 @@ int sim_adapter_generate_packet(ingest_packet_type_t type,
     return 0;
 }
 
-/**
- * Poll simulation and push packet to ingestion manager
- */
+/* Multi-block comment removed */
 int sim_adapter_poll(ingest_manager_t* mgr, ingest_packet_type_t type) {
     if (!mgr) return -1;
     
@@ -135,9 +118,7 @@ int sim_adapter_poll(ingest_manager_t* mgr, ingest_packet_type_t type) {
     return 0;
 }
 
-/**
- * Run continuous simulation
- */
+/* Multi-block comment removed */
 int sim_adapter_run_cycle(ingest_manager_t* mgr) {
     if (!mgr) return -1;
     
@@ -150,9 +131,7 @@ int sim_adapter_run_cycle(ingest_manager_t* mgr) {
     return 0;
 }
 
-/**
- * Initialize simulation adapter
- */
+/* Multi-block comment removed */
 void sim_adapter_init(void) {
     srand((unsigned int)time(NULL));
     printf("[SIM_ADAPTER] Simulation adapter initialized\n");

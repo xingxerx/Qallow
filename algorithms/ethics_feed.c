@@ -1,7 +1,4 @@
-/**
- * ethics_feed.c - Secure ingestion layer for hardware-verified ethics signals
- * Part of Qallow Phase 13: Closed-loop ethics monitoring
- */
+/* Multi-block comment removed */
 
 #include <math.h>
 #include <stdio.h>
@@ -12,13 +9,7 @@
 
 #define MAX_LINE 512
 
-/**
- * Ingest ethics signals from trusted data file
- * Format: 10 space-separated floats [0,1]
- *   safety[3] clarity[4] human[3]
- * Averages each category into single metric value
- * Returns: 1 on success, 0 on failure
- */
+/* Multi-block comment removed */
 int ethics_ingest_signal(const char *path, ethics_metrics_t *metrics) {
     if (!path || !metrics) {
         fprintf(stderr, "[ethics_feed] ERROR: NULL parameters\n");

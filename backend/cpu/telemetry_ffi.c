@@ -1,9 +1,4 @@
-/*
- * Qallow Telemetry FFI Implementation
- *
- * Provides shared memory ring buffer for telemetry export and
- * POSIX message queue for control commands.
- */
+/* Multi-block comment removed */
 
 #include "../../include/qallow_telemetry_ffi.h"
 #include <sys/mman.h>
@@ -17,12 +12,12 @@
 #include <mqueue.h>
 #include <errno.h>
 
-/* ========================================================================== */
-/* Telemetry Ring Buffer                                                     */
-/* ========================================================================== */
+/* Multi-block comment removed */
+/* Multi-block comment removed */
+/* Multi-block comment removed */
 
 #define TELEMETRY_SHM_NAME    "/qallow_telemetry_stream"
-#define TELEMETRY_RING_SIZE   (1 << 20)  /* 1 MB ring buffer */
+#define TELEMETRY_RING_SIZE   (1 << 20)  /* Multi-block comment removed */
 #define TELEMETRY_MAGIC       0xDEADBEEF
 
 typedef struct {
@@ -35,23 +30,23 @@ static TelemetryRing* g_telemetry_ring = NULL;
 static int g_telemetry_fd = -1;
 
 void telemetry_ffi_init(void) {
-    if (g_telemetry_ring) return;  /* Already initialized */
+    if (g_telemetry_ring) return;  /* Multi-block comment removed */
 
-    /* Create or open shared memory */
+    /* Multi-block comment removed */
     g_telemetry_fd = shm_open(TELEMETRY_SHM_NAME, O_CREAT | O_RDWR, 0666);
     if (g_telemetry_fd < 0) {
         perror("shm_open failed");
         return;
     }
 
-    /* Resize to ring buffer size */
+    /* Multi-block comment removed */
     if (ftruncate(g_telemetry_fd, sizeof(TelemetryRing)) < 0) {
         perror("ftruncate failed");
         close(g_telemetry_fd);
         return;
     }
 
-    /* Map into memory */
+    /* Multi-block comment removed */
     g_telemetry_ring = (TelemetryRing*)mmap(
         NULL,
         sizeof(TelemetryRing),
@@ -68,7 +63,7 @@ void telemetry_ffi_init(void) {
         return;
     }
 
-    /* Initialize header on first creation */
+    /* Multi-block comment removed */
     if (g_telemetry_ring->magic != TELEMETRY_MAGIC) {
         g_telemetry_ring->magic = TELEMETRY_MAGIC;
         atomic_store(&g_telemetry_ring->write_pos, sizeof(uint32_t));
@@ -80,12 +75,12 @@ void telemetry_ffi_init(void) {
 
 void telemetry_ffi_emit(TelemetryType type, const void* data, size_t len) {
     if (!g_telemetry_ring || !data || len == 0) return;
-    if (len > 240) len = 240;  /* Cap payload */
+    if (len > 240) len = 240;  /* Multi-block comment removed */
 
     TelemetryHeader hdr = {
         .type = (uint32_t)type,
         .len = (uint32_t)len,
-        .timestamp = 0  /* Would be filled by caller with global_tick */
+        .timestamp = 0  /* Multi-block comment removed */
     };
 
     uint32_t hdr_len = sizeof(TelemetryHeader);
@@ -93,28 +88,28 @@ void telemetry_ffi_emit(TelemetryType type, const void* data, size_t len) {
     uint32_t pos = atomic_load_explicit(&g_telemetry_ring->write_pos, memory_order_acquire);
     uint32_t next_pos = (pos + total_len) % (TELEMETRY_RING_SIZE - 8);
 
-    /* Check for wrap-around overflow */
+    /* Multi-block comment removed */
     if (next_pos < pos && next_pos > 0) {
-        /* Ring is full, skip this event */
+        /* Multi-block comment removed */
         return;
     }
 
-    /* Write header */
+    /* Multi-block comment removed */
     memcpy(&g_telemetry_ring->data[pos], &hdr, hdr_len);
 
-    /* Write payload */
+    /* Multi-block comment removed */
     uint32_t payload_start = (pos + hdr_len) % (TELEMETRY_RING_SIZE - 8);
     if (payload_start + len <= TELEMETRY_RING_SIZE - 8) {
-        /* No wrap */
+        /* Multi-block comment removed */
         memcpy(&g_telemetry_ring->data[payload_start], data, len);
     } else {
-        /* Wrap around */
+        /* Multi-block comment removed */
         size_t first_part = TELEMETRY_RING_SIZE - 8 - payload_start;
         memcpy(&g_telemetry_ring->data[payload_start], data, first_part);
         memcpy(&g_telemetry_ring->data[0], (uint8_t*)data + first_part, len - first_part);
     }
 
-    /* Update write position */
+    /* Multi-block comment removed */
     atomic_store_explicit(&g_telemetry_ring->write_pos, next_pos, memory_order_release);
 }
 
@@ -150,7 +145,7 @@ void telemetry_ffi_emit_ethics_event(
         .action = action,
         .roi_delta = roi_delta,
         .tick = tick,
-        .crc64 = 0,  /* Would be computed by caller */
+        .crc64 = 0,  /* Multi-block comment removed */
     };
     telemetry_ffi_emit(TELEMETRY_ETHICS_EVENT, &evt, sizeof(evt));
 }
@@ -217,8 +212,8 @@ void telemetry_ffi_cleanup(void) {
     }
 }
 
-/* ========================================================================== */
-/* Control Message Queue                                                     */
+/* Multi-block comment removed */
+/* Multi-block comment removed */
 /* ========================================================================== */
 
 #define CONTROL_MQ_NAME "/qallow_control"

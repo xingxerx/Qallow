@@ -1,17 +1,4 @@
-/**
- * Phase 17: Memory Persistence & Decay
- * 
- * Purpose: Introduce long-term memory modeling with retention, forgetting, and distortion.
- * Simulate aging, trauma, and wisdom accumulation.
- * 
- * Algorithm:
- * 1. Load historical memory vectors from prior phases
- * 2. Apply decay function (exponential forgetting)
- * 3. Introduce distortion (trauma/noise)
- * 4. Accumulate wisdom (pattern consolidation)
- * 5. Store consolidated memory state
- * 6. Report memory health metrics
- */
+/* Multi-block comment removed */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -40,16 +27,12 @@ typedef struct {
     float memory_coherence;
 } MemoryState;
 
-/**
- * Apply exponential decay to memory strength
- */
+/* Multi-block comment removed */
 float apply_decay(float strength, float age, float decay_rate) {
     return strength * exp(-decay_rate * age);
 }
 
-/**
- * Introduce distortion (trauma/noise)
- */
+/* Multi-block comment removed */
 void apply_distortion(MemoryTrace *memory, float trauma_factor) {
     float distortion = (rand() / (float)RAND_MAX) * trauma_factor;
     memory->distortion = distortion;
@@ -62,9 +45,7 @@ void apply_distortion(MemoryTrace *memory, float trauma_factor) {
     }
 }
 
-/**
- * Consolidate memories into wisdom
- */
+/* Multi-block comment removed */
 float consolidate_wisdom(MemoryState *state) {
     float total_strength = 0.0;
     float pattern_coherence = 0.0;

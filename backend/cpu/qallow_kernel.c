@@ -605,7 +605,7 @@ void qallow_csv_log_close(void) {
 // Phase 8-10: Adaptive-Predictive-Temporal Loop
 // ========================================================================
 
-/* Helper: Calculate global stability from all overlays */
+/* Multi-block comment removed */
 float qallow_global_stability(const qallow_state_t* state) {
     if (!state) return 0.0f;
     float total = 0.0f;
@@ -615,7 +615,7 @@ float qallow_global_stability(const qallow_state_t* state) {
     return total / NUM_OVERLAYS;
 }
 
-/* Phase 8: Adaptive Governance — maintain ethics balance */
+/* Multi-block comment removed */
 void adaptive_governance(qallow_state_t* state) {
     if (!state) return;
 

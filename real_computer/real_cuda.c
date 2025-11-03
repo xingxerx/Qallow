@@ -1,7 +1,4 @@
-/*
- * Real CUDA GPU Wrapper - Implementation
- * Direct CUDA Runtime API bindings for actual GPU compute
- */
+/* Multi-block comment removed */
 
 #include "real_cuda.h"
 #include <stdio.h>
@@ -9,9 +6,7 @@
 #include <string.h>
 #include <time.h>
 
-/**
- * Initialize CUDA context on specified device
- */
+/* Multi-block comment removed */
 cuda_context_t* cuda_init(int device_id) {
     cuda_context_t *ctx = (cuda_context_t *)malloc(sizeof(cuda_context_t));
     if (!ctx) {
@@ -25,7 +20,7 @@ cuda_context_t* cuda_init(int device_id) {
     ctx->bytes_transferred = 0;
     ctx->total_compute_time_ms = 0.0;
 
-    /* Set device */
+    /* Multi-block comment removed */
     cudaError_t err = cudaSetDevice(device_id);
     if (err != cudaSuccess) {
         fprintf(stderr, "CUDA Error: Failed to set device %d: %s\n", 
@@ -34,7 +29,7 @@ cuda_context_t* cuda_init(int device_id) {
         return NULL;
     }
 
-    /* Get device properties */
+    /* Multi-block comment removed */
     err = cudaGetDeviceProperties(&ctx->device_prop, device_id);
     if (err != cudaSuccess) {
         fprintf(stderr, "CUDA Error: Failed to get device properties: %s\n",
@@ -52,9 +47,7 @@ cuda_context_t* cuda_init(int device_id) {
     return ctx;
 }
 
-/**
- * Cleanup CUDA context
- */
+/* Multi-block comment removed */
 void cuda_cleanup(cuda_context_t *ctx) {
     if (!ctx) return;
     if (ctx->initialized) {
@@ -63,9 +56,7 @@ void cuda_cleanup(cuda_context_t *ctx) {
     free(ctx);
 }
 
-/**
- * Allocate device memory
- */
+/* Multi-block comment removed */
 gpu_buffer_t* cuda_malloc(cuda_context_t *ctx, size_t size) {
     if (!ctx || !ctx->initialized || size == 0) {
         return NULL;
@@ -81,7 +72,7 @@ gpu_buffer_t* cuda_malloc(cuda_context_t *ctx, size_t size) {
     buffer->size = size;
     buffer->pinned = false;
 
-    /* Allocate device memory */
+    /* Multi-block comment removed */
     cudaError_t err = cudaMalloc(&buffer->device_ptr, size);
     if (err != cudaSuccess) {
         fprintf(stderr, "CUDA Error: cudaMalloc failed for %zu bytes: %s\n",
@@ -90,7 +81,7 @@ gpu_buffer_t* cuda_malloc(cuda_context_t *ctx, size_t size) {
         return NULL;
     }
 
-    /* Allocate host memory */
+    /* Multi-block comment removed */
     buffer->host_ptr = malloc(size);
     if (!buffer->host_ptr) {
         fprintf(stderr, "Failed to allocate host memory for GPU buffer\n");
@@ -102,9 +93,7 @@ gpu_buffer_t* cuda_malloc(cuda_context_t *ctx, size_t size) {
     return buffer;
 }
 
-/**
- * Free device memory
- */
+/* Multi-block comment removed */
 void cuda_free(gpu_buffer_t *buffer) {
     if (!buffer) return;
     
@@ -123,9 +112,7 @@ void cuda_free(gpu_buffer_t *buffer) {
     free(buffer);
 }
 
-/**
- * Allocate pinned host memory for faster transfers
- */
+/* Multi-block comment removed */
 gpu_buffer_t* cuda_malloc_pinned(cuda_context_t *ctx, size_t size) {
     if (!ctx || !ctx->initialized || size == 0) {
         return NULL;
@@ -141,7 +128,7 @@ gpu_buffer_t* cuda_malloc_pinned(cuda_context_t *ctx, size_t size) {
     buffer->size = size;
     buffer->pinned = true;
 
-    /* Allocate device memory */
+    /* Multi-block comment removed */
     cudaError_t err = cudaMalloc(&buffer->device_ptr, size);
     if (err != cudaSuccess) {
         fprintf(stderr, "CUDA Error: cudaMalloc failed for %zu bytes: %s\n",
@@ -150,7 +137,7 @@ gpu_buffer_t* cuda_malloc_pinned(cuda_context_t *ctx, size_t size) {
         return NULL;
     }
 
-    /* Allocate pinned host memory */
+    /* Multi-block comment removed */
     err = cudaMallocHost(&buffer->host_ptr, size);
     if (err != cudaSuccess) {
         fprintf(stderr, "CUDA Error: cudaMallocHost failed for %zu bytes: %s\n",
@@ -163,9 +150,7 @@ gpu_buffer_t* cuda_malloc_pinned(cuda_context_t *ctx, size_t size) {
     return buffer;
 }
 
-/**
- * Synchronous copy host to device
- */
+/* Multi-block comment removed */
 cudaError_t cuda_h2d(gpu_buffer_t *buffer, const void *host_data, size_t size) {
     if (!buffer || !host_data || size > buffer->size) {
         return cudaErrorInvalidValue;
@@ -178,9 +163,7 @@ cudaError_t cuda_h2d(gpu_buffer_t *buffer, const void *host_data, size_t size) {
     return err;
 }
 
-/**
- * Synchronous copy device to host
- */
+/* Multi-block comment removed */
 cudaError_t cuda_d2h(void *host_data, gpu_buffer_t *buffer, size_t size) {
     if (!buffer || !host_data || size > buffer->size) {
         return cudaErrorInvalidValue;
@@ -189,9 +172,7 @@ cudaError_t cuda_d2h(void *host_data, gpu_buffer_t *buffer, size_t size) {
     return cudaMemcpy(host_data, buffer->device_ptr, size, cudaMemcpyDeviceToHost);
 }
 
-/**
- * Asynchronous copy host to device
- */
+/* Multi-block comment removed */
 cudaError_t cuda_h2d_async(gpu_buffer_t *buffer, const void *host_data, size_t size,
                           cudaStream_t stream) {
     if (!buffer || !host_data || size > buffer->size) {
@@ -202,9 +183,7 @@ cudaError_t cuda_h2d_async(gpu_buffer_t *buffer, const void *host_data, size_t s
                           cudaMemcpyHostToDevice, stream);
 }
 
-/**
- * Asynchronous copy device to host
- */
+/* Multi-block comment removed */
 cudaError_t cuda_d2h_async(void *host_data, gpu_buffer_t *buffer, size_t size,
                           cudaStream_t stream) {
     if (!buffer || !host_data || size > buffer->size) {
@@ -215,9 +194,7 @@ cudaError_t cuda_d2h_async(void *host_data, gpu_buffer_t *buffer, size_t size,
                           cudaMemcpyDeviceToHost, stream);
 }
 
-/**
- * Create kernel configuration
- */
+/* Multi-block comment removed */
 kernel_config_t cuda_make_kernel_config(uint32_t grid_x, uint32_t grid_y, uint32_t grid_z,
                                        uint32_t block_x, uint32_t block_y, uint32_t block_z,
                                        size_t shared_memory) {
@@ -233,9 +210,7 @@ kernel_config_t cuda_make_kernel_config(uint32_t grid_x, uint32_t grid_y, uint32
     return config;
 }
 
-/**
- * Get device properties as formatted string
- */
+/* Multi-block comment removed */
 void cuda_get_device_properties(cuda_context_t *ctx, char *buffer, size_t size) {
     if (!ctx || !buffer || size == 0) return;
 
@@ -268,9 +243,7 @@ void cuda_get_device_properties(cuda_context_t *ctx, char *buffer, size_t size) 
         prop->clockRate / 1000000.0);
 }
 
-/**
- * Get current memory info
- */
+/* Multi-block comment removed */
 void cuda_get_memory_info(cuda_context_t *ctx, size_t *free, size_t *total) {
     if (!ctx) return;
 

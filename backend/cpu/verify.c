@@ -1,9 +1,4 @@
-/**
- * @file verify.c
- * @brief System verification implementation
- *
- * Verifies system integrity before Phase 6 expansion
- */
+/* Multi-block comment removed */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,9 +10,7 @@
 #include "sandbox.h"
 #include "telemetry.h"
 
-/**
- * Verify system integrity
- */
+/* Multi-block comment removed */
 int verify_system(verify_report_t* report) {
     if (!report) return -1;
 

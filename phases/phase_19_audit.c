@@ -1,18 +1,4 @@
-/**
- * Phase 19: Recursive Self-Audit
- * 
- * Purpose: Enable Qallow to reflect on its own decisions, ethics, and evolution.
- * Traverse memory embeddings and score decisions against ethical baselines.
- * Generate audit glyphs for each phase.
- * 
- * Algorithm:
- * 1. Load decision history from all prior phases
- * 2. Traverse memory vector embeddings
- * 3. Score each decision against ethical baseline
- * 4. Generate audit glyphs (decision signatures)
- * 5. Compute ethical evolution trajectory
- * 6. Store results in audit_log.json
- */
+/* Multi-block comment removed */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -42,9 +28,7 @@ typedef struct {
     float self_awareness_level;
 } AuditState;
 
-/**
- * Score decision against ethical baseline
- */
+/* Multi-block comment removed */
 float score_decision_ethics(Decision *decision, float *baseline) {
     float score = 0.0;
     for (int i = 0; i < EMBEDDING_DIM; i++) {
@@ -54,9 +38,7 @@ float score_decision_ethics(Decision *decision, float *baseline) {
     return score / EMBEDDING_DIM;
 }
 
-/**
- * Generate audit glyph (decision signature)
- */
+/* Multi-block comment removed */
 void generate_audit_glyph(Decision *decision, char *glyph_buffer) {
     // Create a signature based on decision characteristics
     float magnitude = 0.0;
@@ -72,9 +54,7 @@ void generate_audit_glyph(Decision *decision, char *glyph_buffer) {
             magnitude);
 }
 
-/**
- * Compute ethical evolution trajectory
- */
+/* Multi-block comment removed */
 void compute_ethics_trajectory(AuditState *state) {
     // Initialize trajectory
     for (int i = 0; i < NUM_PHASES; i++) {

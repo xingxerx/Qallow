@@ -1,7 +1,4 @@
-/*
- * Cirq Quantum Processor - Implementation
- * Python C API bindings to Google Cirq quantum simulation framework
- */
+/* Multi-block comment removed */
 
 #include "cirq_quantum.h"
 #include <stdio.h>
@@ -10,7 +7,7 @@
 #include <time.h>
 #include <inttypes.h>
 
-/* Python helper macros */
+/* Multi-block comment removed */
 #define PY_CHECK_ERROR() \
     do { if (PyErr_Occurred()) { \
         PyErr_Print(); \
@@ -24,11 +21,9 @@
         return false; \
     }} while(0)
 
-/**
- * Initialize Cirq quantum processor
- */
+/* Multi-block comment removed */
 quantum_context_t* quantum_init(void) {
-    /* Initialize Python interpreter */
+    /* Multi-block comment removed */
     if (!Py_IsInitialized()) {
         Py_Initialize();
     }
@@ -41,7 +36,7 @@ quantum_context_t* quantum_init(void) {
 
     memset(ctx, 0, sizeof(quantum_context_t));
 
-    /* Import cirq module */
+    /* Multi-block comment removed */
     PyObject *cirq = PyImport_ImportModule("cirq");
     if (!cirq) {
         fprintf(stderr, "Error: Failed to import cirq. Ensure cirq is installed.\n");
@@ -54,7 +49,7 @@ quantum_context_t* quantum_init(void) {
 
     ctx->cirq_module = cirq;
 
-    /* Create simulator */
+    /* Multi-block comment removed */
     PyObject *sim_class = PyObject_GetAttrString(cirq, "Simulator");
     if (!sim_class) {
         fprintf(stderr, "Error: Failed to get Simulator class from cirq\n");
@@ -63,7 +58,7 @@ quantum_context_t* quantum_init(void) {
         return NULL;
     }
 
-    /* Instantiate simulator */
+    /* Multi-block comment removed */
     ctx->simulator = PyObject_CallObject(sim_class, NULL);
     Py_DECREF(sim_class);
 
@@ -88,9 +83,7 @@ quantum_context_t* quantum_init(void) {
     return ctx;
 }
 
-/**
- * Cleanup quantum context
- */
+/* Multi-block comment removed */
 void quantum_cleanup(quantum_context_t *ctx) {
     if (!ctx) return;
 
@@ -103,13 +96,11 @@ void quantum_cleanup(quantum_context_t *ctx) {
 
     free(ctx);
 
-    /* Finalize Python only if we need to */
-    /* Note: Typically leave Python running unless doing cleanup */
+    /* Multi-block comment removed */
+    /* Multi-block comment removed */
 }
 
-/**
- * Create quantum circuit
- */
+/* Multi-block comment removed */
 quantum_circuit_t* quantum_create_circuit(quantum_context_t *ctx, uint32_t num_qubits,
                                          const char *name) {
     if (!ctx || num_qubits == 0) {
@@ -136,31 +127,27 @@ quantum_circuit_t* quantum_create_circuit(quantum_context_t *ctx, uint32_t num_q
     return circuit;
 }
 
-/**
- * Destroy quantum circuit
- */
+/* Multi-block comment removed */
 void quantum_destroy_circuit(quantum_circuit_t *circuit) {
     if (circuit) {
         free(circuit);
     }
 }
 
-/**
- * Helper: Build circuit with operations
- */
+/* Multi-block comment removed */
 static PyObject* quantum_build_cirq_circuit(quantum_context_t *ctx,
                                            quantum_circuit_t *circuit) {
     if (!ctx || !circuit || !ctx->cirq_module) {
         return NULL;
     }
 
-    /* Create qubits */
+    /* Multi-block comment removed */
     PyObject *circuit_class = PyObject_GetAttrString(ctx->cirq_module, "Circuit");
     if (!circuit_class) {
         return NULL;
     }
 
-    /* Create empty circuit */
+    /* Multi-block comment removed */
     PyObject *cirq_circuit = PyObject_CallObject(circuit_class, NULL);
     Py_DECREF(circuit_class);
 
@@ -171,9 +158,7 @@ static PyObject* quantum_build_cirq_circuit(quantum_context_t *ctx,
     return cirq_circuit;
 }
 
-/**
- * Add Hadamard gate
- */
+/* Multi-block comment removed */
 bool quantum_add_h_gate(quantum_context_t *ctx, quantum_circuit_t *circuit,
                        uint32_t target_qubit) {
     if (!ctx || !circuit || target_qubit >= circuit->num_qubits) {
@@ -184,9 +169,7 @@ bool quantum_add_h_gate(quantum_context_t *ctx, quantum_circuit_t *circuit,
     return true;
 }
 
-/**
- * Add X gate
- */
+/* Multi-block comment removed */
 bool quantum_add_x_gate(quantum_context_t *ctx, quantum_circuit_t *circuit,
                        uint32_t target_qubit) {
     if (!ctx || !circuit || target_qubit >= circuit->num_qubits) {
@@ -197,9 +180,7 @@ bool quantum_add_x_gate(quantum_context_t *ctx, quantum_circuit_t *circuit,
     return true;
 }
 
-/**
- * Add Y gate
- */
+/* Multi-block comment removed */
 bool quantum_add_y_gate(quantum_context_t *ctx, quantum_circuit_t *circuit,
                        uint32_t target_qubit) {
     if (!ctx || !circuit || target_qubit >= circuit->num_qubits) {
@@ -210,9 +191,7 @@ bool quantum_add_y_gate(quantum_context_t *ctx, quantum_circuit_t *circuit,
     return true;
 }
 
-/**
- * Add Z gate
- */
+/* Multi-block comment removed */
 bool quantum_add_z_gate(quantum_context_t *ctx, quantum_circuit_t *circuit,
                        uint32_t target_qubit) {
     if (!ctx || !circuit || target_qubit >= circuit->num_qubits) {
@@ -223,9 +202,7 @@ bool quantum_add_z_gate(quantum_context_t *ctx, quantum_circuit_t *circuit,
     return true;
 }
 
-/**
- * Add CNOT gate
- */
+/* Multi-block comment removed */
 bool quantum_add_cnot_gate(quantum_context_t *ctx, quantum_circuit_t *circuit,
                           uint32_t control_qubit, uint32_t target_qubit) {
     if (!ctx || !circuit || control_qubit >= circuit->num_qubits ||
@@ -237,9 +214,7 @@ bool quantum_add_cnot_gate(quantum_context_t *ctx, quantum_circuit_t *circuit,
     return true;
 }
 
-/**
- * Add Rx rotation gate
- */
+/* Multi-block comment removed */
 bool quantum_add_rx_gate(quantum_context_t *ctx, quantum_circuit_t *circuit,
                         uint32_t target_qubit, double angle_rad) {
     if (!ctx || !circuit || target_qubit >= circuit->num_qubits) {
@@ -250,9 +225,7 @@ bool quantum_add_rx_gate(quantum_context_t *ctx, quantum_circuit_t *circuit,
     return true;
 }
 
-/**
- * Add Rz rotation gate
- */
+/* Multi-block comment removed */
 bool quantum_add_rz_gate(quantum_context_t *ctx, quantum_circuit_t *circuit,
                         uint32_t target_qubit, double angle_rad) {
     if (!ctx || !circuit || target_qubit >= circuit->num_qubits) {
@@ -263,9 +236,7 @@ bool quantum_add_rz_gate(quantum_context_t *ctx, quantum_circuit_t *circuit,
     return true;
 }
 
-/**
- * Add measurement
- */
+/* Multi-block comment removed */
 bool quantum_add_measurement(quantum_context_t *ctx, quantum_circuit_t *circuit,
                             uint32_t qubit, const char *measurement_key) {
     if (!ctx || !circuit || qubit >= circuit->num_qubits) {
@@ -276,9 +247,7 @@ bool quantum_add_measurement(quantum_context_t *ctx, quantum_circuit_t *circuit,
     return true;
 }
 
-/**
- * Run quantum circuit simulation
- */
+/* Multi-block comment removed */
 quantum_result_t* quantum_run_circuit(quantum_context_t *ctx, quantum_circuit_t *circuit,
                                       uint32_t num_shots) {
     if (!ctx || !circuit || num_shots == 0) {
@@ -296,16 +265,16 @@ quantum_result_t* quantum_run_circuit(quantum_context_t *ctx, quantum_circuit_t 
     memset(result, 0, sizeof(quantum_result_t));
     result->num_qubits = circuit->num_qubits;
     result->num_shots = num_shots;
-    result->total_counts = 1ULL << circuit->num_qubits;  /* 2^num_qubits */
+    result->total_counts = 1ULL << circuit->num_qubits;  /* Multi-block comment removed */
 
-    /* Allocate measurement buffer */
+    /* Multi-block comment removed */
     result->measurements = (uint8_t *)calloc(num_shots, sizeof(uint8_t));
     if (!result->measurements) {
         free(result);
         return NULL;
     }
 
-    /* Allocate probability buffer */
+    /* Multi-block comment removed */
     result->probabilities = (double *)calloc(result->total_counts, sizeof(double));
     if (!result->probabilities) {
         free(result->measurements);
@@ -313,14 +282,14 @@ quantum_result_t* quantum_run_circuit(quantum_context_t *ctx, quantum_circuit_t 
         return NULL;
     }
 
-    /* Simulate uniform superposition for demo */
-    /* In a full implementation, this would run actual Cirq circuit */
+    /* Multi-block comment removed */
+    /* Multi-block comment removed */
     double prob = 1.0 / result->total_counts;
     for (uint64_t i = 0; i < result->total_counts; i++) {
         result->probabilities[i] = prob;
     }
 
-    /* Generate random measurements */
+    /* Multi-block comment removed */
     for (uint32_t shot = 0; shot < num_shots; shot++) {
         uint64_t state = rand() % result->total_counts;
         result->measurements[shot] = (uint8_t)(state & 0xFF);
@@ -337,9 +306,7 @@ quantum_result_t* quantum_run_circuit(quantum_context_t *ctx, quantum_circuit_t 
     return result;
 }
 
-/**
- * Destroy quantum result
- */
+/* Multi-block comment removed */
 void quantum_destroy_result(quantum_result_t *result) {
     if (!result) return;
 
@@ -353,9 +320,7 @@ void quantum_destroy_result(quantum_result_t *result) {
     free(result);
 }
 
-/**
- * Get probability for a state
- */
+/* Multi-block comment removed */
 double quantum_get_probability(quantum_result_t *result, uint32_t state) {
     if (!result || state >= result->total_counts) {
         return 0.0;
@@ -364,9 +329,7 @@ double quantum_get_probability(quantum_result_t *result, uint32_t state) {
     return result->probabilities[state];
 }
 
-/**
- * Print quantum result
- */
+/* Multi-block comment removed */
 void quantum_print_result(quantum_result_t *result) {
     if (!result) return;
 
@@ -376,7 +339,7 @@ void quantum_print_result(quantum_result_t *result) {
     printf("  Total States: %" PRIu64 "\n", result->total_counts);
     printf("  Top Measured States:\n");
 
-    /* Find top 5 most probable states */
+    /* Multi-block comment removed */
     int top_count = 5 < result->total_counts ? 5 : result->total_counts;
     for (int i = 0; i < top_count; i++) {
         printf("    State |%u⟩: %.4f%%\n", i, 

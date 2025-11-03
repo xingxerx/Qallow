@@ -1,18 +1,4 @@
-/**
- * Phase 16: Constraint Validation Engine
- *
- * Purpose: Validate system state against operational constraints.
- * Detect constraint violations and measure system resilience.
- * Useful for stress-testing constraint satisfaction and robustness.
- *
- * Algorithm:
- * 1. Load synthesis vector from Phase 15
- * 2. Generate constraint violation vectors (systematic perturbations)
- * 3. Score each violation against baseline constraints
- * 4. Amplify high-impact violations
- * 5. Test system resilience to constraint violations
- * 6. Record validation metrics
- */
+/* Multi-block comment removed */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -40,9 +26,7 @@ typedef struct {
     float violation_avg;
 } ValidationState;
 
-/**
- * Generate constraint violation vector with controlled perturbation
- */
+/* Multi-block comment removed */
 void generate_constraint_vector(ConstraintVector *constraint, float *synthesis, float magnitude) {
     for (int i = 0; i < VECTOR_DIM; i++) {
         // Perturbation scaled by violation magnitude
@@ -52,9 +36,7 @@ void generate_constraint_vector(ConstraintVector *constraint, float *synthesis, 
     constraint->violation_magnitude = magnitude;
 }
 
-/**
- * Score constraint violation against baseline
- */
+/* Multi-block comment removed */
 float score_constraint_violation(ConstraintVector *constraint, float *constraint_baseline) {
     float violation = 0.0;
     for (int i = 0; i < VECTOR_DIM; i++) {
