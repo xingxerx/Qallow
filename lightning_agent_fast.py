@@ -49,12 +49,12 @@ logger = logging.getLogger(__name__)
 PAUSE_BEFORE_FIX = 0.05     # seconds - ultra-fast (5x speedup)
 PAUSE_SHOW_CODE = 0.05      # seconds - ultra-fast (5x speedup)
 PAUSE_BETWEEN_FIXES = 0.05  # seconds - ultra-fast (5x speedup)
-PAUSE_BETWEEN_ITERATIONS = 1   # seconds - ultra-fast daemon sleep (5x speedup)
+PAUSE_BETWEEN_ITERATIONS = 10   # seconds - daemon sleep between iterations
 
 # Parallelization configuration
 MAX_WORKERS = min(8, os.cpu_count() or 4)  # Use up to 8 CPU cores
 CUDA_ENABLED = os.environ.get('QALLOW_ENABLE_CUDA', 'OFF').upper() == 'ON'
-CIRQ_ENABLED = CIRQ_AVAILABLE and os.environ.get('QALLOW_QISKIT', '0') == '1'
+CIRQ_ENABLED = CIRQ_AVAILABLE and os.environ.get('QALLOW_CIRQ', '1') == '1'
 
 # Speed configuration
 FAST_MODE = False
@@ -1218,12 +1218,16 @@ class LightningAgentFast:
 
                 if fixes_this_round > 0:
                     print(f"\n   ✅ Applied {fixes_this_round} fix(es) based on test output")
+                    # Commit the test-driven fixes
+                    self.commit_improvements(fixes_this_round)
                     pause_for_reading("Rebuilding to verify fixes...", PAUSE_BETWEEN_ITERATIONS)
                     continue
 
                 if quality_findings > 0:
                     print(f"\n✅ Code quality analysis applied {quality_findings} improvement(s)")
                     self.total_fixes += quality_findings
+                    # Commit the improvements
+                    self.commit_improvements(quality_findings)
                     pause_for_reading("Rebuilding with fixes applied...", PAUSE_BETWEEN_ITERATIONS)
                     continue
 
@@ -1345,6 +1349,49 @@ class LightningAgentFast:
             pause_for_reading("Fixes applied. Ready to rebuild.", PAUSE_BETWEEN_FIXES)
         
         return False, warning_fixes, test_fixes, output
+
+    def commit_improvements(self, improvements_count: int) -> bool:
+        """Commit applied improvements to git."""
+        try:
+            # Check if there are any changes
+            result = subprocess.run(
+                ["git", "status", "--porcelain"],
+                cwd=str(self.project_root),
+                capture_output=True,
+                text=True,
+                timeout=5
+            )
+            
+            if not result.stdout.strip():
+                return False  # No changes to commit
+            
+            # Add all changes
+            subprocess.run(
+                ["git", "add", "-A"],
+                cwd=str(self.project_root),
+                capture_output=True,
+                timeout=5
+            )
+            
+            # Commit with descriptive message
+            commit_msg = f"Refactor: Code quality improvements - {improvements_count} fixes applied"
+            result = subprocess.run(
+                ["git", "commit", "-m", commit_msg],
+                cwd=str(self.project_root),
+                capture_output=True,
+                text=True,
+                timeout=5
+            )
+            
+            if result.returncode == 0:
+                print(f"   📝 ✅ Committed: {commit_msg}")
+                return True
+            else:
+                return False
+                
+        except Exception as e:
+            logger.debug(f"Git commit failed: {e}")
+            return False
 
 
 def main():

@@ -82,9 +82,6 @@ static bool qallow_env_truthy(const char* value) {
 
 static const char* qallow_get_cirq_script(void) {
     const char* override_path = getenv("QALLOW_CIRQ_BRIDGE");
-    if (!override_path || override_path[0] == '\0') {
-        override_path = getenv("QALLOW_QISKIT_BRIDGE");
-    }
     if (override_path && override_path[0] != '\0') {
         return override_path;
     }
@@ -107,10 +104,7 @@ static const char* qallow_token_from_value(float value) {
 static bool qallow_cirq_enabled(void) {
     const char* toggle = getenv("QALLOW_CIRQ");
     if (!qallow_env_truthy(toggle)) {
-        toggle = getenv("QALLOW_QISKIT");
-        if (!qallow_env_truthy(toggle)) {
-            return false;
-        }
+        return false;
     }
 
     const char* script_path = qallow_get_cirq_script();
