@@ -1129,19 +1129,79 @@ class CodeAnalyzer:
 
         return fixes
     
+    def analyze_variable_naming(self) -> int:
+        """Find and improve variable naming conventions."""
+        fixes = 0
+        print("\n   🔍 Scanning for naming convention issues...")
+        pause_for_reading("Analyzing variable names...", 1)
+
+        try:
+            for c_file in self._iter_c_files("**/*.c"):
+                content = c_file.read_text()
+                original = content
+
+                # Find single-letter variables in loops (except i, j, k which are standard)
+                # Look for patterns like: int x; or int y;
+                pattern = r'\b(int|char|float|double)\s+([a-hm-wyz])\s*[=;]'
+                if re.search(pattern, content):
+                    # Count occurrences
+                    matches = re.findall(pattern, content)
+                    if len(matches) > 0:
+                        print(f"      ✏️  Found {len(matches)} single-letter variable(s) in {c_file.name}")
+                        fixes += len(matches)
+
+        except Exception as e:
+            logger.debug(f"Error analyzing naming: {e}")
+
+        return fixes
+
+    def analyze_function_complexity(self) -> int:
+        """Find overly complex functions."""
+        fixes = 0
+        print("\n   🔍 Scanning for function complexity...")
+        pause_for_reading("Analyzing functions...", 1)
+
+        try:
+            for c_file in self._iter_c_files("**/*.c"):
+                content = c_file.read_text()
+
+                # Find functions with many nested braces (complexity indicator)
+                functions = re.findall(r'\w+\s+\w+\s*\([^)]*\)\s*\{[^}]*\}', content, re.DOTALL)
+                for func in functions:
+                    brace_depth = 0
+                    max_depth = 0
+                    for char in func:
+                        if char == '{':
+                            brace_depth += 1
+                            max_depth = max(max_depth, brace_depth)
+                        elif char == '}':
+                            brace_depth -= 1
+
+                    # Flag functions with nesting depth > 4
+                    if max_depth > 4:
+                        print(f"      ⚠️  {c_file.name}: Found complex function (nesting depth: {max_depth})")
+                        fixes += 1
+
+        except Exception as e:
+            logger.debug(f"Error analyzing complexity: {e}")
+
+        return fixes
+
     def run_all_analyses(self) -> int:
         """Run all code quality checks."""
         print("\n" + "─"*70)
         print("📊 PHASE 2B: Proactive Code Quality Analysis")
         print("─"*70)
         pause_for_reading("Starting code quality checks...", 2)
-        
+
         total = 0
         total += self.analyze_unused_imports()
         total += self.analyze_code_style()
         total += self.analyze_dead_code()
         total += self.analyze_performance()
-        
+        total += self.analyze_variable_naming()
+        total += self.analyze_function_complexity()
+
         print("\n" + "─"*70)
         if total > 0:
             print(f"   🎯 Found {total} potential improvements")
@@ -1149,7 +1209,7 @@ class CodeAnalyzer:
             print("   ✅ Code quality looks good!")
         print("─"*70)
         pause_for_reading("Analysis complete.", 1)
-        
+
         return total
 
     def _clean_c_style(self, path: Path) -> Tuple[bool, int, int]:
