@@ -129,10 +129,14 @@ while (( ITER < MAX_ITER )); do
             # Check for kernel launches followed by immediate memory operations
             if grep -q "<<<.*>>>" "$file"; then
                 # Count existing cudaDeviceSynchronize calls
-                SYNC_COUNT=$(grep -c "cudaDeviceSynchronize" "$file" || echo "0")
-                KERNEL_COUNT=$(grep -c "<<<.*>>>" "$file" || echo "0")
+                SYNC_COUNT=$(grep -c "cudaDeviceSynchronize" "$file" 2>/dev/null || echo "0")
+                KERNEL_COUNT=$(grep -c "<<<.*>>>" "$file" 2>/dev/null || echo "0")
                 
-                if [ "$SYNC_COUNT" -lt "$KERNEL_COUNT" ]; then
+                # Remove any whitespace/newlines
+                SYNC_COUNT=$(echo "$SYNC_COUNT" | tr -d '\n\r ')
+                KERNEL_COUNT=$(echo "$KERNEL_COUNT" | tr -d '\n\r ')
+                
+                if [ "$SYNC_COUNT" -lt "$KERNEL_COUNT" ] 2>/dev/null; then
                     log_fix "Adding cudaDeviceSynchronize to $file"
                     
                     # Add sync after each kernel launch (simplified - would need better parser)
@@ -156,6 +160,12 @@ while (( ITER < MAX_ITER )); do
     for file in $C_FILES; do
         MALLOC_COUNT=$(grep -c "malloc\|calloc" "$file" 2>/dev/null || echo "0")
         FREE_COUNT=$(grep -c "free(" "$file" 2>/dev/null || echo "0")
+        
+        # Clean values
+        MALLOC_COUNT=$(echo "$MALLOC_COUNT" | tr -d '\n\r ' | grep -o '[0-9]*' | head -1)
+        FREE_COUNT=$(echo "$FREE_COUNT" | tr -d '\n\r ' | grep -o '[0-9]*' | head -1)
+        : ${MALLOC_COUNT:=0}
+        : ${FREE_COUNT:=0}
         
         if [ "$MALLOC_COUNT" -gt 0 ] && [ "$FREE_COUNT" -lt "$MALLOC_COUNT" ]; then
             log_fix "Potential memory leak in $file (malloc: $MALLOC_COUNT, free: $FREE_COUNT)"
@@ -200,6 +210,8 @@ while (( ITER < MAX_ITER )); do
     for file in $QUANTUM_FILES; do
         # Check for inefficient loops
         NESTED_LOOPS=$(grep -c "for.*for" "$file" 2>/dev/null || echo "0")
+        NESTED_LOOPS=$(echo "$NESTED_LOOPS" | tr -d '\n\r ' | grep -o '[0-9]*' | head -1)
+        : ${NESTED_LOOPS:=0}
         
         if [ "$NESTED_LOOPS" -gt 3 ]; then
             log_fix "Deep nested loops in $file (consider parallelization)"
@@ -229,8 +241,10 @@ while (( ITER < MAX_ITER )); do
     
     cd ..
     
-    # Count warnings
-    WARNING_COUNT=$(grep -c "warning:" /tmp/make_warnings.log || echo "0")
+    # Count warnings safely
+    WARNING_COUNT=$(grep -c "warning:" /tmp/make_warnings.log 2>/dev/null || echo "0")
+    WARNING_COUNT=$(echo "$WARNING_COUNT" | tr -d '\n\r ' | grep -o '[0-9]*' | head -1)
+    : ${WARNING_COUNT:=0}
     
     if [ "$WARNING_COUNT" -gt 0 ]; then
         log_fix "Found $WARNING_COUNT compilation warnings"
