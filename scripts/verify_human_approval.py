@@ -1,13 +1,10 @@
 #!/usr/bin/env python3
 """CI guard ensuring a human has explicitly approved the latest changes."""
 
-from __future__ import annotations
 
 import json
 import sys
 from datetime import datetime, timezone
-from pathlib import Path
-from typing import NoReturn
 
 
 CONFIG_PATH = Path("config/human_approval.json")

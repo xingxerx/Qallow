@@ -33,7 +33,6 @@
 
 
 
-from sys import version_info as _swig_python_version_info
 # Import the low-level C/C++ module
 if __package__ or "." in __name__:
     from . import _NvRules
@@ -1097,9 +1096,6 @@ def require_rules(handle, rules):
         ev.require_rule(rule)
 
 
-from abc import ABC, abstractmethod
-from typing import List, Optional
-from warnings import warn
 
 class _ConfigParser(ABC):
     @abstractmethod

@@ -2,7 +2,6 @@ import argparse
 import ctypes
 import math
 import sys
-from pathlib import Path
 
 
 def load_c_helper(lib_path):

@@ -24,7 +24,6 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import NvRules
 from RequestedMetrics import Importance, MetricRequest, RequestedMetricsParser
-from TableBuilder import PipelineTableBuilder
 
 requested_metrics = [
     MetricRequest("device__attribute_compute_capability_major", "cc_major"),

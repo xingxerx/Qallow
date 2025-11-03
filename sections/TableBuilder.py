@@ -1,10 +1,5 @@
-from abc import ABC, abstractmethod
-from collections import defaultdict
-from pathlib import Path
-from typing import Any
 
 import NvRules
-from MetricAggregation import ByOpcodeMetricAggregate, ByOpcodeMetricAggregator
 
 
 class TableBuilder(ABC):

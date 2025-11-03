@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
 """Bridge script between Qallow CPU kernel and Cirq execution layer."""
 
-from __future__ import annotations
 
 import argparse
 import json
 import sys
-from typing import List
 
 from python.quantum.qallow_ibm_bridge import run_ternary_sim
 
