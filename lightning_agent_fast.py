@@ -1138,7 +1138,6 @@ class CodeAnalyzer:
         try:
             for c_file in self._iter_c_files("**/*.c"):
                 content = c_file.read_text()
-                original = content
 
                 # Find single-letter variables in loops (except i, j, k which are standard)
                 # Look for patterns like: int x; or int y;
