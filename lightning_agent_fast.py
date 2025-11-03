@@ -1036,7 +1036,7 @@ class CodeAnalyzer:
         return fixes
     
     def analyze_dead_code(self) -> int:
-        """Find potential dead code."""
+        """Find and remove dead code patterns."""
         fixes = 0
         print("\n   🔍 Scanning for dead code patterns...")
         pause_for_reading("Analyzing dead code...", 1)
@@ -1044,18 +1044,26 @@ class CodeAnalyzer:
         try:
             for c_file in self._iter_c_files("**/*.c"):
                 content = c_file.read_text()
+                original = content
 
-                # Check for commented-out code blocks
+                # Remove excessive comment blocks (keep max 2)
                 if '/*' in content and '*/' in content:
-                    count = content.count('/*')
-                    if count > 2:
-                        print(f"      📍 {c_file.name}: {count} comment blocks (possible dead code)")
+                    comment_count = content.count('/*')
+                    if comment_count > 2:
+                        # Replace multiple comment blocks with single comment
+                        content = re.sub(r'/\*\s*.*?\s*\*/', '/* Multi-block comment removed */', content, count=comment_count-2, flags=re.DOTALL)
+                        print(f"      ✏️  Cleaned {c_file.name}: removed excessive comment blocks")
                         fixes += 1
                 
-                # Check for empty functions
+                # Remove empty functions
                 if re.search(r'^\s*\w+\s+\w+\([^)]*\)\s*\{\s*\}', content, re.MULTILINE):
-                    print(f"      📍 {c_file.name}: empty function definitions")
+                    content = re.sub(r'^\s*\w+\s+\w+\([^)]*\)\s*\{\s*\}\n', '', content, flags=re.MULTILINE)
+                    print(f"      ✏️  Cleaned {c_file.name}: removed empty functions")
                     fixes += 1
+                
+                # Write back if changed
+                if content != original:
+                    c_file.write_text(content)
         
         except Exception as e:
             logger.debug(f"Error analyzing dead code: {e}")
