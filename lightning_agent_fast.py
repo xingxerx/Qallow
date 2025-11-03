@@ -1138,6 +1138,7 @@ class CodeAnalyzer:
         try:
             for c_file in self._iter_c_files("**/*.c"):
                 content = c_file.read_text()
+                original = content
 
                 # Find single-letter variables in loops (except i, j, k which are standard)
                 # Look for patterns like: int x; or int y;
@@ -1147,7 +1148,20 @@ class CodeAnalyzer:
                     matches = re.findall(pattern, content)
                     if len(matches) > 0:
                         print(f"      ✏️  Found {len(matches)} single-letter variable(s) in {c_file.name}")
-                        fixes += len(matches)
+                        fixes += 1  # Count as 1 fix per file, not per variable
+
+                        # Add TODO comments for these variables
+                        for match in matches:
+                            var_type, var_name = match
+                            content = re.sub(
+                                rf'\b{var_type}\s+{var_name}\s*([=;])',
+                                rf'{var_type} {var_name} /* TODO: Use more descriptive name */\1',
+                                content
+                            )
+
+                        # Write back if changed
+                        if content != original:
+                            c_file.write_text(content)
 
         except Exception as e:
             logger.debug(f"Error analyzing naming: {e}")
