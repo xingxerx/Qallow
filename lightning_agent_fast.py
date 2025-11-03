@@ -32,10 +32,10 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # CONSTANTS FOR SLOWING DOWN
-PAUSE_BEFORE_FIX = 0.5      # seconds - read the error
-PAUSE_SHOW_CODE = 0.5       # seconds - read the code
-PAUSE_BETWEEN_FIXES = 0.5   # seconds - digest the change
-PAUSE_BETWEEN_ITERATIONS = 10  # seconds - next iteration (daemon mode)
+PAUSE_BEFORE_FIX = 0.25     # seconds - read the error (2x faster)
+PAUSE_SHOW_CODE = 0.25      # seconds - read the code (2x faster)
+PAUSE_BETWEEN_FIXES = 0.25  # seconds - digest the change (2x faster)
+PAUSE_BETWEEN_ITERATIONS = 5   # seconds - next iteration (daemon mode, 2x faster)
 
 # Speed configuration
 FAST_MODE = False
