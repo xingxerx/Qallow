@@ -1,4 +1,4 @@
-/* TODO: Refactor complex functions - consider breaking into smaller functions */
+/* Multi-block comment removed */
 #include "meta_introspect.h"
 
 #include <ctype.h>
