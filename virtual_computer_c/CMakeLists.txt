@@ -11,18 +11,18 @@ find_library(MATH_LIBRARY m)
 
 # Source files (with full paths)
 set(SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/cuda_simulator.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/neuromorphic_simulator.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/photonic_simulator.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/cuda_gpu.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/neuromorphic.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/photonic.c
     ${CMAKE_CURRENT_SOURCE_DIR}/virtual_computer.c
     ${CMAKE_CURRENT_SOURCE_DIR}/main.c
 )
 
 # Headers
 set(HEADERS
-    ${CMAKE_CURRENT_SOURCE_DIR}/cuda_simulator.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/neuromorphic_simulator.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/photonic_simulator.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/cuda_gpu.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/neuromorphic.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/photonic.h
     ${CMAKE_CURRENT_SOURCE_DIR}/virtual_computer.h
 )
 
@@ -36,9 +36,9 @@ endif()
 
 # Create library
 add_library(virtual_computer_lib STATIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/cuda_simulator.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/neuromorphic_simulator.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/photonic_simulator.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/cuda_gpu.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/neuromorphic.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/photonic.c
     ${CMAKE_CURRENT_SOURCE_DIR}/virtual_computer.c
 )
 
@@ -62,4 +62,3 @@ message(STATUS "VirtualComputer Configuration:")
 message(STATUS "  C Compiler: ${CMAKE_C_COMPILER}")
 message(STATUS "  C Flags: ${CMAKE_C_FLAGS}")
 message(STATUS "  Math Library: ${MATH_LIBRARY}")
-
