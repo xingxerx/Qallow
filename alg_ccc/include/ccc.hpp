@@ -1,10 +1,15 @@
 #pragma once
 #include <cstdint>
+#include <functional>
 
 namespace qallow::ccc {
 
+// Human-in-the-loop callback that receives the Gray input and decoded value.
+using GrayReviewCallback = std::function<bool(uint32_t /*gray_bits*/, int /*decoded*/)>;
+
 // Gray → int (host)
 int gray2int(uint32_t g);
+int gray2int(uint32_t g, const GrayReviewCallback& reviewer);
 
 // Params
 struct CCCParams {

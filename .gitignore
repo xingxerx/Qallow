@@ -40,6 +40,7 @@ Thumbs.db
 # Data
 data/snapshots/
 *.json
+!config/human_approval.json
 
 # Secrets & API Keys
 .env

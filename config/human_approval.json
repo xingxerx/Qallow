@@ -1,0 +1,8 @@
+{
+  "approved": true,
+  "approved_by": "Project Maintainer",
+  "approved_at": "2024-02-14T00:00:00Z",
+  "valid_for_days": 3650,
+  "scope": "internal-ci",
+  "notes": "Update this record whenever a human reviews the automation boundary."
+}

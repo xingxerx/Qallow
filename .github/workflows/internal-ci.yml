@@ -9,13 +9,27 @@ on:
   pull_request:
 
 jobs:
+  human-approval:
+    name: Human Review Gate
+    runs-on: ubuntu-22.04
+    environment:
+      name: human-in-the-loop
+    steps:
+      - name: Await documented human approval
+        run: |
+          echo "Manual approvers: review the diff, update config/human_approval.json, and approve the 'human-in-the-loop' environment to continue."
+
   build-and-test:
+    needs: human-approval
     name: Build and Accelerator Smoke
     runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Validate human approval metadata
+        run: python3 scripts/verify_human_approval.py
 
       - name: Free up disk space
         run: |
