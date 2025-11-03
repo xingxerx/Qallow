@@ -13,7 +13,6 @@ import shlex
 import subprocess
 import threading
 import time
-from collections import deque
 from datetime import datetime
 
 from flask import Flask, render_template, jsonify, request

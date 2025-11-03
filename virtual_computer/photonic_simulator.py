@@ -7,9 +7,6 @@ Simulates optical computing with photonic gates, light propagation, and optical 
 import random
 import time
 import math
-from dataclasses import dataclass, field
-from typing import Dict, List, Tuple, Optional
-from enum import Enum
 
 
 class PhotonicGateType(Enum):

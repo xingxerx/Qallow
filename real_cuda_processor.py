@@ -5,8 +5,6 @@ Uses actual CUDA 12.6 installed on system.
 
 import pycuda.driver as cuda
 import pycuda.autoinit
-import numpy as np
-from typing import Dict, Tuple, List
 import time
 import os
 

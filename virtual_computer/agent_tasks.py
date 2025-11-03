@@ -5,8 +5,6 @@ Test workloads for Lightning Agent to discover, analyze, and optimize
 """
 
 import random
-from dataclasses import dataclass
-from typing import Dict, List, Callable
 
 
 @dataclass
