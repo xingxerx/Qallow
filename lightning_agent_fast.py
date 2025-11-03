@@ -1071,7 +1071,7 @@ class CodeAnalyzer:
         return fixes
     
     def analyze_performance(self) -> int:
-        """Find potential performance issues."""
+        """Find and fix performance issues."""
         fixes = 0
         print("\n   🔍 Scanning for performance patterns...")
         pause_for_reading("Analyzing performance...", 1)
@@ -1080,19 +1080,27 @@ class CodeAnalyzer:
             # Check for common performance anti-patterns
             for c_file in self._iter_c_files("backend/**/*.c"):
                 content = c_file.read_text()
+                original = content
                 
-                # Check for unbounded loops
+                # Fix unbounded loops (while(1) → while condition)
                 if re.search(r'while\s*\(\s*1\s*\)', content):
-                    print(f"      📍 {c_file.name}: infinite loop detected")
+                    content = re.sub(r'while\s*\(\s*1\s*\)', 'while (should_run)', content)
+                    print(f"      ✏️  Fixed {c_file.name}: replaced infinite loop")
                     fixes += 1
                 
-                # Check for malloc/free in loops
-                if 'for' in content and 'malloc' in content:
-                    print(f"      📍 {c_file.name}: malloc in loop (potential leak)")
+                # Flag malloc in loops (document but don't auto-fix)
+                if 'for' in content and 'malloc' in content and 'ERROR' not in content:
+                    print(f"      ⚠️  {c_file.name}: malloc in loop - review needed")
                     fixes += 1
+                
+                # Write back if changed
+                if content != original:
+                    c_file.write_text(content)
         
         except Exception as e:
             logger.debug(f"Error analyzing performance: {e}")
+        
+        return fixes
         
         return fixes
     
