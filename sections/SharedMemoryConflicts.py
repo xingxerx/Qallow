@@ -23,7 +23,6 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import NvRules
-from RequestedMetrics import MetricRequest, RequestedMetricsParser, Importance
 
 requested_metrics = [
     MetricRequest("smsp__sass_inst_executed_op_shared_ld.sum", None, Importance.OPTIONAL, 0),

@@ -1,4 +1,3 @@
-from re import compile as re_compile
 
 import NvRules
 

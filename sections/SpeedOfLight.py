@@ -25,7 +25,6 @@
 import math
 
 import NvRules
-from RequestedMetrics import Importance, MetricRequest, RequestedMetricsParser
 
 requested_metrics = [
     MetricRequest("sm__throughput.avg.pct_of_peak_sustained_elapsed", "sm_sol_pct"),

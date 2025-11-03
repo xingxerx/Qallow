@@ -25,7 +25,6 @@
 import re
 
 import NvRules
-from RequestedMetrics import Importance, MetricRequest, RequestedMetricsParser
 
 requested_metrics = [
     MetricRequest("smsp__issue_active.avg.per_cycle_active", "issue_active"),

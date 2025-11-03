@@ -6,7 +6,6 @@ import argparse
 import json
 import sys
 
-from python.quantum.qallow_ibm_bridge import run_ternary_sim
 
 
 def _parse_states(raw: str) -> List[int]:

@@ -23,7 +23,6 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import NvRules
-from RequestedMetrics import Importance, MetricRequest, RequestedMetricsParser
 
 requested_metrics = [
     MetricRequest("smsp__thread_inst_executed_per_inst_executed.ratio", "thread_inst_executed"),

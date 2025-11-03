@@ -24,7 +24,6 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import NvRules
-from RequestedMetrics import Importance, MetricRequest, RequestedMetricsParser
 
 requested_metrics = [
     MetricRequest("memory_l2_theoretical_sectors_global", "l2_sectors", Importance.OPTIONAL, None, False),

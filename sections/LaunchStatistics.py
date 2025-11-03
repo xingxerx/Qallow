@@ -25,7 +25,6 @@
 import math
 
 import NvRules
-from RequestedMetrics import Importance, MetricRequest, RequestedMetricsParser
 
 requested_metrics = [
     MetricRequest("launch__block_size", "block_size", Importance.OPTIONAL, None, False),

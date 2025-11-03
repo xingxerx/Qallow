@@ -4,7 +4,6 @@ Virtual Computer Demo - Full System Integration
 Shows how Lightning Agent can optimize the virtual computer system
 """
 
-import sys
 import time
 from virtual_computer import (
     VirtualComputer,

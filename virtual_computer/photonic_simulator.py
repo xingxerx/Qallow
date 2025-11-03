@@ -5,7 +5,6 @@ Simulates optical computing with photonic gates, light propagation, and optical 
 """
 
 import random
-import time
 import math
 
 

@@ -23,7 +23,6 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import NvRules
-from RequestedMetrics import MetricRequest, RequestedMetricsParser
 
 requested_metrics = [
     MetricRequest("smsp__issue_active.avg.per_cycle_active", "issue_active"),

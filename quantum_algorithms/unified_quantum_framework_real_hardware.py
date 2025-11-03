@@ -8,8 +8,6 @@ Supports local simulation and Google Quantum hardware
 import os
 
 # Google Cirq - Primary framework
-import cirq
-from cirq import Circuit, LineQubit, ops, Simulator, DensityMatrixSimulator
 
 print("=" * 80)
 print("🚀 CIRQ QUANTUM HARDWARE FRAMEWORK")

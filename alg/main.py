@@ -11,7 +11,6 @@ import os
 # Add core module to path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from core import build, run, test, verify
 
 
 def print_usage():

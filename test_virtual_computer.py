@@ -7,7 +7,6 @@ Purpose: CUDA + Neuromorphic + Photonic processor simulation for Lightning Agent
 """
 
 import sys
-import os
 
 # Add virtual_computer to path
 sys.path.insert(0, '/home/xing/Qallow')

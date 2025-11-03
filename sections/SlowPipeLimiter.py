@@ -23,7 +23,6 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import NvRules
-from RequestedMetrics import MetricRequest, RequestedMetricsParser
 
 requested_metrics = [
     MetricRequest("sm__instruction_throughput.avg.pct_of_peak_sustained_elapsed", "instruction_throughput"),

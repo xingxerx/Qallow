@@ -3,10 +3,6 @@ Real CUDA GPU Processor - Direct GPU kernel execution with PyCUDA
 Uses actual CUDA 12.6 installed on system.
 """
 
-import pycuda.driver as cuda
-import pycuda.autoinit
-import time
-import os
 
 class RealCudaProcessor:
     """Direct interface to NVIDIA GPU using PyCUDA."""

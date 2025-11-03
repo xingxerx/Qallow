@@ -14,8 +14,6 @@ import pathlib
 import queue
 import subprocess
 import threading
-import tkinter as tk
-from tkinter import messagebox, scrolledtext
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[1]
 

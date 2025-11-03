@@ -6,7 +6,6 @@ Part of Phase 13: Closed-loop ethics monitoring
 """
 
 import json
-import os
 import sys
 import time
 import subprocess

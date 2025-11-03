@@ -13,7 +13,6 @@ from unittest.mock import MagicMock, patch
 import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'examples'))
 
-from quantum_echoes_demo import QuantumEchoesEngine, run_quantum_echoes_demo
 
 
 class TestQuantumEchoesEngine(unittest.TestCase):

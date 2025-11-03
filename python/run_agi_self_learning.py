@@ -11,7 +11,6 @@ import logging
 # Add python directory to path
 sys.path.insert(0, str(Path(__file__).parent))
 
-from agi_self_learning import QallowAGISelfLearning, create_agi_learner, demo_agi_learning
 
 logging.basicConfig(
     level=logging.INFO,
