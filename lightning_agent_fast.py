@@ -1050,11 +1050,21 @@ class CodeAnalyzer:
                 if '/*' in content and '*/' in content:
                     comment_count = content.count('/*')
                     if comment_count > 2:
-                        # Replace ALL excessive comment blocks with single comment
-                        content = re.sub(r'/\*\s*.*?\s*\*/', '/* Multi-block comment removed */', content, flags=re.DOTALL)
-                        # Count how many were actually replaced
-                        new_count = content.count('/* Multi-block comment removed */')
-                        if new_count > 0:
+                        # Remove excessive comment blocks, keeping only the first 2
+                        # Split by comment blocks and rebuild
+                        parts = re.split(r'/\*.*?\*/', content, flags=re.DOTALL)
+                        comments = re.findall(r'/\*.*?\*/', content, flags=re.DOTALL)
+
+                        if len(comments) > 2:
+                            # Keep first 2 comments, remove the rest
+                            new_content = parts[0]
+                            for i, comment in enumerate(comments[:2]):
+                                new_content += comment + parts[i+1]
+                            # Add remaining content
+                            if len(parts) > len(comments[:2]) + 1:
+                                new_content += ''.join(parts[len(comments[:2])+1:])
+
+                            content = new_content
                             print(f"      ✏️  Cleaned {c_file.name}: removed excessive comment blocks")
                             fixes += 1
 
