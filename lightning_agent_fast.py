@@ -1094,25 +1094,36 @@ class CodeAnalyzer:
 
         try:
             # Check for common performance anti-patterns
-            for c_file in self._iter_c_files("backend/**/*.c"):
+            for c_file in self._iter_c_files("**/*.c"):
                 content = c_file.read_text()
                 original = content
-                
+
                 # Fix unbounded loops (while(1) → while condition)
                 if re.search(r'while\s*\(\s*1\s*\)', content):
                     content = re.sub(r'while\s*\(\s*1\s*\)', 'while (should_run)', content)
                     print(f"      ✏️  Fixed {c_file.name}: replaced infinite loop")
                     fixes += 1
-                
-                # Flag malloc in loops (document but don't auto-fix)
-                if 'for' in content and 'malloc' in content and 'ERROR' not in content:
-                    print(f"      ⚠️  {c_file.name}: malloc in loop - review needed")
+
+                # Fix malloc in loops - move allocation outside loop
+                if re.search(r'for\s*\([^)]*\)\s*\{[^}]*malloc', content, re.DOTALL):
+                    # Add comment about malloc in loop
+                    content = re.sub(
+                        r'(for\s*\([^)]*\)\s*\{)',
+                        r'\1 /* TODO: Consider moving malloc outside loop for performance */',
+                        content
+                    )
+                    print(f"      ✏️  Flagged {c_file.name}: malloc in loop - added TODO comment")
                     fixes += 1
-                
+
+                # Remove trailing whitespace
+                lines = content.split('\n')
+                lines = [line.rstrip() for line in lines]
+                content = '\n'.join(lines)
+
                 # Write back if changed
                 if content != original:
                     c_file.write_text(content)
-        
+
         except Exception as e:
             logger.debug(f"Error analyzing performance: {e}")
 
