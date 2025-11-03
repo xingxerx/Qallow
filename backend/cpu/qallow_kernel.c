@@ -640,7 +640,6 @@ void adaptive_governance(qallow_state_t* state) {
     }
 }
 
-
 #define QALLOW_WINDOW 8
 typedef struct {
     double h[QALLOW_WINDOW];
@@ -677,7 +676,6 @@ void predictive_control(qallow_state_t* state) {
     if (state->ethics_H < 0.0f) state->ethics_H = 0.0f;
     if (state->ethics_H > 1.0f) state->ethics_H = 1.0f;
 }
-
 
 typedef struct {
     double mae;        // mean absolute error

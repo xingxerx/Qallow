@@ -20,14 +20,12 @@ void ingest_init(ingest_manager_t* mgr) {
     printf("[INGEST] Manager initialized\n");
 }
 
-
 void ingest_cleanup(ingest_manager_t* mgr) {
     if (!mgr) return;
 
     mgr->running = 0;
     printf("[INGEST] Manager cleaned up\n");
 }
-
 
 int ingest_add_stream(ingest_manager_t* mgr, const char* name, const char* endpoint) {
     if (!mgr || !name || !endpoint) return -1;
@@ -47,7 +45,6 @@ int ingest_add_stream(ingest_manager_t* mgr, const char* name, const char* endpo
     return 0;
 }
 
-
 int ingest_remove_stream(ingest_manager_t* mgr, const char* name) {
     if (!mgr || !name) return -1;
 
@@ -65,7 +62,6 @@ int ingest_remove_stream(ingest_manager_t* mgr, const char* name) {
     return -1;
 }
 
-
 int ingest_enable_stream(ingest_manager_t* mgr, const char* name) {
     if (!mgr || !name) return -1;
 
@@ -78,7 +74,6 @@ int ingest_enable_stream(ingest_manager_t* mgr, const char* name) {
     }
     return -1;
 }
-
 
 int ingest_disable_stream(ingest_manager_t* mgr, const char* name) {
     if (!mgr || !name) return -1;
@@ -93,7 +88,6 @@ int ingest_disable_stream(ingest_manager_t* mgr, const char* name) {
     return -1;
 }
 
-
 int ingest_pause_all(ingest_manager_t* mgr) {
     if (!mgr) return -1;
     mgr->paused = 1;
@@ -101,14 +95,12 @@ int ingest_pause_all(ingest_manager_t* mgr) {
     return 0;
 }
 
-
 int ingest_resume_all(ingest_manager_t* mgr) {
     if (!mgr) return -1;
     mgr->paused = 0;
     printf("[INGEST] All streams resumed\n");
     return 0;
 }
-
 
 int ingest_push_packet(ingest_manager_t* mgr, const ingest_packet_t* packet) {
     if (!mgr || !packet) return -1;
@@ -127,7 +119,6 @@ int ingest_push_packet(ingest_manager_t* mgr, const ingest_packet_t* packet) {
     return 0;
 }
 
-
 int ingest_pop_packet(ingest_manager_t* mgr, ingest_packet_t* packet) {
     if (!mgr || !packet) return -1;
     if (mgr->buffer_count == 0) return -1;
@@ -139,7 +130,6 @@ int ingest_pop_packet(ingest_manager_t* mgr, ingest_packet_t* packet) {
     return 0;
 }
 
-
 int ingest_peek_packet(ingest_manager_t* mgr, ingest_packet_t* packet) {
     if (!mgr || !packet) return -1;
     if (mgr->buffer_count == 0) return -1;
@@ -148,12 +138,10 @@ int ingest_peek_packet(ingest_manager_t* mgr, ingest_packet_t* packet) {
     return 0;
 }
 
-
 int ingest_packet_count(ingest_manager_t* mgr) {
     if (!mgr) return 0;
     return mgr->buffer_count;
 }
-
 
 void ingest_print_stats(ingest_manager_t* mgr) {
     if (!mgr) return;
@@ -166,7 +154,6 @@ void ingest_print_stats(ingest_manager_t* mgr) {
     printf("Buffer Usage: %d / %d\n", mgr->buffer_count, INGEST_BUFFER_SIZE);
     printf("Status: %s\n", mgr->paused ? "PAUSED" : "RUNNING");
 }
-
 
 void ingest_print_streams(ingest_manager_t* mgr) {
     if (!mgr) return;

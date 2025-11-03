@@ -71,7 +71,6 @@ int verify_system(verify_report_t* report) {
     return report->status;
 }
 
-
 void verify_print_report(const verify_report_t* report) {
     if (!report) return;
 
@@ -100,7 +99,6 @@ void verify_print_report(const verify_report_t* report) {
     printf("  Ethics:        %s\n", report->ethics_enforced ? "ENFORCED" : "DISABLED");
     printf("\nMessage: %s\n\n", report->message);
 }
-
 
 int verify_is_healthy(const verify_report_t* report) {
     if (!report) return 0;
