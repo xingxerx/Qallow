@@ -7,8 +7,6 @@ scipy>=1.10.0
 pandas>=2.0.0
 
 # Quantum Computing Frameworks
-qiskit>=0.43.0
-qiskit-machine-learning>=0.7.0
 cirq>=1.2.0
 pennylane>=0.31.0
 

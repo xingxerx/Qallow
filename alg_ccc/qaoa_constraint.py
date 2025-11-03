@@ -88,7 +88,7 @@ def main(argv=None):
         print(qc)
 
     # Print minimal status line for qallow logs
-    print("[CCC] Scaffold ready :: export=", args.export, ":: has_qiskit=", qc is not None)
+    print("[CCC] Scaffold ready :: export=", args.export, ":: has_cirq=", qc is not None)
     return 0
 
 if __name__ == "__main__":

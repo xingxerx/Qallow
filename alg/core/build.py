@@ -1,6 +1,6 @@
 """
 ALG Build Module
-Checks and installs dependencies (Qiskit, NumPy, etc.)
+Checks and installs core scientific dependencies (NumPy, Cirq, etc.)
 """
 
 import subprocess
@@ -63,8 +63,7 @@ def exec(args=None):
     packages = [
         ("numpy", "numpy"),
         ("scipy", "scipy"),
-        ("qiskit", "qiskit"),
-        ("qiskit-aer", "qiskit_aer"),
+        ("cirq", "cirq"),
     ]
     
     print("\n[ALG BUILD] Checking dependencies...")
@@ -91,4 +90,3 @@ def exec(args=None):
     print("\n" + "="*70)
     print("BUILD COMPLETE - All dependencies ready")
     print("="*70 + "\n")
-

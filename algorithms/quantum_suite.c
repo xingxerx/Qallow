@@ -131,8 +131,14 @@ static const char* detect_python_binary(void) {
     if (env_python && *env_python && QALLOW_ACCESS(env_python, X_OK) == 0) {
         return env_python;
     }
-    if (QALLOW_ACCESS("./qiskit-env/bin/python", X_OK) == 0) {
-        return "./qiskit-env/bin/python";
+    if (QALLOW_ACCESS("./cirq-env/bin/python", X_OK) == 0) {
+        return "./cirq-env/bin/python";
+    }
+    if (QALLOW_ACCESS("./venv/bin/python", X_OK) == 0) {
+        return "./venv/bin/python";
+    }
+    if (QALLOW_ACCESS("./.venv/bin/python", X_OK) == 0) {
+        return "./.venv/bin/python";
     }
     if (QALLOW_ACCESS("python3", X_OK) == 0) {
         return "python3";

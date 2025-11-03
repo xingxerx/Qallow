@@ -1,19 +1,19 @@
 # -*- coding: utf-8 -*-
 """Quantum-assisted adaptive decision module for Qallow.
 
-This module wraps a lightweight Qiskit policy circuit that can be trained
+This module wraps a lightweight Cirq policy circuit that can be trained
 online against Qallow telemetry. The agent encodes telemetry-derived features
-into a parameterised two-qubit circuit, executes it on the chosen backend
-(Aer simulator by default), and interprets measurement outcomes as phase
-actions. Rewards computed from telemetry deltas are used to adjust the circuit
-parameters, producing a very small reinforcement-style learning loop.
+into a parameterised two-qubit circuit, executes it on a Cirq simulator, and
+interprets measurement outcomes as phase actions. Rewards computed from
+telemetry deltas are used to adjust the circuit parameters, producing a very
+small reinforcement-style learning loop.
 """
 
 from __future__ import annotations
 
 import math
 from dataclasses import dataclass, field
-from typing import Sequence, Tuple
+from typing import Dict, Sequence, Tuple
 
 try:
     import cirq
@@ -41,14 +41,10 @@ class QuantumAdaptiveAgent:
     exploration: float = 0.05
     seed: int | None = None
     _params: Tuple[float, float] = field(default_factory=lambda: (math.pi / 4, math.pi / 6))
-    _backend: AerSimulator = field(init=False)
+    _simulator: cirq.Simulator = field(init=False, repr=False)
 
     def __post_init__(self) -> None:
-        backend_options = {}
-        if self.seed is not None:
-            backend_options["seed_simulator"] = self.seed
-            backend_options["seed_transpiler"] = self.seed
-        self._backend = AerSimulator(**backend_options)
+        self._simulator = cirq.Simulator()
 
     @property
     def parameters(self) -> Tuple[float, float]:
@@ -68,26 +64,30 @@ class QuantumAdaptiveAgent:
         theta1 = f1 * math.pi
         return theta0, theta1
 
-    def _build_circuit(self, features: Sequence[float]) -> QuantumCircuit:
+    def _build_circuit(self, features: Sequence[float]) -> cirq.Circuit:
         theta0, theta1 = self._encode_angles(features)
         param0, param1 = self._params
+        qubits = cirq.LineQubit.range(2)
+        circuit = cirq.Circuit()
 
-        qc = QuantumCircuit(2, 2)
-        qc.ry(theta0 + param0, 0)
-        qc.ry(theta1 + param1, 1)
-        qc.cz(0, 1)
-        qc.ry(param0 * 0.5, 0)
-        qc.rz(param1 * 0.5, 1)
-        qc.barrier()
-        qc.measure(0, 0)
-        qc.measure(1, 1)
-        return qc
+        circuit.append(cirq.ry(theta0 + param0)(qubits[0]))
+        circuit.append(cirq.ry(theta1 + param1)(qubits[1]))
+        circuit.append(cirq.CZ(qubits[0], qubits[1]))
+        circuit.append(cirq.ry(param0 * 0.5)(qubits[0]))
+        circuit.append(cirq.rz(param1 * 0.5)(qubits[1]))
+        circuit.append(cirq.measure(*qubits, key="m"))
+
+        return circuit
 
     def choose_action(self, features: Sequence[float]) -> Tuple[int, dict[str, float]]:
         circuit = self._build_circuit(features)
-        transpiled = transpile(circuit, self._backend, seed_transpiler=self.seed)
-        job = self._backend.run(transpiled, shots=self.shots, seed_simulator=self.seed)
-        counts = job.result().get_counts()
+        random_state = self.seed if self.seed is not None else None
+        result = self._simulator.run(circuit, repetitions=self.shots, random_state=random_state)
+        measurements = result.measurements["m"]
+        counts: Dict[str, int] = {}
+        for row in measurements:
+            bitstring = "".join(str(int(bit)) for bit in row)
+            counts[bitstring] = counts.get(bitstring, 0) + 1
 
         total = float(sum(counts.values())) or 1.0
         probabilities = {state: count / total for state, count in counts.items()}

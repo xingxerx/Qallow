@@ -77,9 +77,9 @@ def main():
    ./build.sh
    ./qallow_unified run
 
-✨ OPTION 3: Run Quantum Algorithms (requires numpy, qiskit, cirq)
+✨ OPTION 3: Run Quantum Algorithms (requires numpy, cirq)
    cd /home/xing/qallow/Qallow/quantum_algorithms
-   pip install numpy qiskit cirq
+   pip install numpy cirq
    python3 application_runner.py
 
 ✨ OPTION 4: Build and Run Native App (requires Rust)

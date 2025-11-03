@@ -21,16 +21,16 @@ extern void runPhotonicSimulation(double* hostData, int n, unsigned long seed);
 extern void runQuantumOptimizer(double* hostData, int n);
 #endif
 
-#define QALLOW_QISKIT_DEFAULT_SHOTS 512
-#define QALLOW_MAX_QISKIT_SAMPLES 32
+#define QALLOW_CIRQ_DEFAULT_SHOTS 512
+#define QALLOW_MAX_QUANTUM_SAMPLES 32
 
 #ifdef _WIN32
 
-static bool qallow_qiskit_enabled(void) {
+static bool qallow_cirq_enabled(void) {
     return false;
 }
 
-static void qallow_apply_qiskit_feedback(qallow_state_t* state) {
+static void qallow_apply_cirq_feedback(qallow_state_t* state) {
     (void)state;
 }
 
@@ -80,12 +80,15 @@ static bool qallow_env_truthy(const char* value) {
     return false;
 }
 
-static const char* qallow_get_qiskit_script(void) {
-    const char* override_path = getenv("QALLOW_QISKIT_BRIDGE");
+static const char* qallow_get_cirq_script(void) {
+    const char* override_path = getenv("QALLOW_CIRQ_BRIDGE");
+    if (!override_path || override_path[0] == '\0') {
+        override_path = getenv("QALLOW_QISKIT_BRIDGE");
+    }
     if (override_path && override_path[0] != '\0') {
         return override_path;
     }
-    return "scripts/qiskit_bridge.py";
+    return "python/quantum/run_phase11_bridge.py";
 }
 
 static const char* qallow_token_from_value(float value) {
@@ -101,18 +104,21 @@ static const char* qallow_token_from_value(float value) {
     return "N";
 }
 
-static bool qallow_qiskit_enabled(void) {
-    const char* toggle = getenv("QALLOW_QISKIT");
+static bool qallow_cirq_enabled(void) {
+    const char* toggle = getenv("QALLOW_CIRQ");
     if (!qallow_env_truthy(toggle)) {
-        return false;
+        toggle = getenv("QALLOW_QISKIT");
+        if (!qallow_env_truthy(toggle)) {
+            return false;
+        }
     }
 
-    const char* script_path = qallow_get_qiskit_script();
+    const char* script_path = qallow_get_cirq_script();
     errno = 0;
     if (access(script_path, R_OK) != 0) {
         static bool warned = false;
         if (!warned) {
-            fprintf(stderr, "[Qallow][Qiskit] Bridge script not readable at %s (errno=%d)\n", script_path, errno);
+            fprintf(stderr, "[Qallow][Cirq] Bridge script not readable at %s (errno=%d)\n", script_path, errno);
             warned = true;
         }
         return false;
@@ -121,14 +127,14 @@ static bool qallow_qiskit_enabled(void) {
     return true;
 }
 
-static bool qallow_run_qiskit_bridge(const float* values, int count, float* coherence_out) {
+static bool qallow_run_cirq_bridge(const float* values, int count, float* coherence_out) {
     if (!values || !coherence_out || count <= 0) {
         return false;
     }
 
     int sample = count;
-    if (sample > QALLOW_MAX_QISKIT_SAMPLES) {
-        sample = QALLOW_MAX_QISKIT_SAMPLES;
+    if (sample > QALLOW_MAX_QUANTUM_SAMPLES) {
+        sample = QALLOW_MAX_QUANTUM_SAMPLES;
     }
 
     char states[256];
@@ -145,19 +151,19 @@ static bool qallow_run_qiskit_bridge(const float* values, int count, float* cohe
         offset += (size_t)written;
     }
 
-    const char* script = qallow_get_qiskit_script();
+    const char* script = qallow_get_cirq_script();
     char command[1024];
     int command_len = snprintf(command, sizeof(command),
-                               "python3 \"%s\" --states \"%s\" --shots %d --allow-simulator",
-                               script, states, QALLOW_QISKIT_DEFAULT_SHOTS);
+                               "python3 \"%s\" --states \"%s\" --shots %d",
+                               script, states, QALLOW_CIRQ_DEFAULT_SHOTS);
     if (command_len < 0 || command_len >= (int)sizeof(command)) {
-        fprintf(stderr, "[Qallow][Qiskit] Command buffer too small for bridge invocation\n");
+        fprintf(stderr, "[Qallow][Cirq] Command buffer too small for bridge invocation\n");
         return false;
     }
 
     FILE* pipe = popen(command, "r");
     if (!pipe) {
-        fprintf(stderr, "[Qallow][Qiskit] popen failed for bridge command: %s\n", command);
+        fprintf(stderr, "[Qallow][Cirq] popen failed for bridge command: %s\n", command);
         return false;
     }
 
@@ -174,18 +180,18 @@ static bool qallow_run_qiskit_bridge(const float* values, int count, float* cohe
 
     int status = pclose(pipe);
     if (status == -1) {
-        fprintf(stderr, "[Qallow][Qiskit] Failed to close bridge pipe\n");
+        fprintf(stderr, "[Qallow][Cirq] Failed to close bridge pipe\n");
         return false;
     }
 
     if (!WIFEXITED(status) || WEXITSTATUS(status) != 0) {
         int exit_code = WIFEXITED(status) ? WEXITSTATUS(status) : status;
-        fprintf(stderr, "[Qallow][Qiskit] Bridge script exited abnormally (status=%d)\n", exit_code);
+        fprintf(stderr, "[Qallow][Cirq] Bridge script exited abnormally (status=%d)\n", exit_code);
         return false;
     }
 
     if (!parsed) {
-        fprintf(stderr, "[Qallow][Qiskit] Bridge output missing coherence token\n");
+        fprintf(stderr, "[Qallow][Cirq] Bridge output missing coherence token\n");
         return false;
     }
 
@@ -193,12 +199,12 @@ static bool qallow_run_qiskit_bridge(const float* values, int count, float* cohe
     return true;
 }
 
-static void qallow_apply_qiskit_feedback(qallow_state_t* state) {
+static void qallow_apply_cirq_feedback(qallow_state_t* state) {
     if (!state) {
         return;
     }
 
-    if (!qallow_qiskit_enabled()) {
+    if (!qallow_cirq_enabled()) {
         return;
     }
 
@@ -209,12 +215,12 @@ static void qallow_apply_qiskit_feedback(qallow_state_t* state) {
     }
 
     int sample = nodes;
-    if (sample > QALLOW_MAX_QISKIT_SAMPLES) {
-        sample = QALLOW_MAX_QISKIT_SAMPLES;
+    if (sample > QALLOW_MAX_QUANTUM_SAMPLES) {
+        sample = QALLOW_MAX_QUANTUM_SAMPLES;
     }
 
     float coherence = 0.0f;
-    if (!qallow_run_qiskit_bridge(overlay->values, sample, &coherence)) {
+    if (!qallow_run_cirq_bridge(overlay->values, sample, &coherence)) {
         return;
     }
 
@@ -230,7 +236,7 @@ static void qallow_apply_qiskit_feedback(qallow_state_t* state) {
         overlay->values[i] = blended;
     }
 
-    fprintf(stdout, "[Qallow][Qiskit] coherence=%.4f (samples=%d)\n", coherence, sample);
+    fprintf(stdout, "[Qallow][Cirq] coherence=%.4f (samples=%d)\n", coherence, sample);
 }
 
 #endif  // _WIN32
@@ -299,7 +305,7 @@ void qallow_kernel_tick(qallow_state_t* state) {
     qallow_cpu_process_overlays(state);
 #endif
 
-    qallow_apply_qiskit_feedback(state);
+    qallow_apply_cirq_feedback(state);
 
     // Update decoherence
     qallow_update_decoherence(state);
