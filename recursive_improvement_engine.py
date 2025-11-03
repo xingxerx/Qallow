@@ -309,7 +309,7 @@ class RecursiveImprovementEngine:
     def run(self) -> List[ExecutionResult]:
         """Run the recursive improvement loop."""
         logger.info("=" * 70)
-        logger.info("Starting Recursive Improvement Engine (CUDA + Agent Lightning)")
+        logger.info("Starting Recursive Improvement Engine (CUDA heuristic mode)")
         logger.info("=" * 70)
         
         for iteration in range(1, self.max_iterations + 1):

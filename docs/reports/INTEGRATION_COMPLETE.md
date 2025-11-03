@@ -291,9 +291,8 @@ Edit `agi_learning_state.json`:
 │   ├── qallow_agi_integration.py     ⭐ Complete integration
 │   ├── quantum_learning_system.py    (existing)
 │   └── quantum/                       (existing)
-├── agent_lightning_demo.py            ⭐ Agent Lightning demo
 ├── AGI_SELF_LEARNING_README.md        ⭐ Complete usage guide
-├── AGENT_LIGHTNING_SETUP.md           ⭐ Setup guide
+├── (legacy) Agent Lightning assets    ✖️ Removed in 2024-10
 ├── INSTALL_DOTNET_DEPENDENCIES.md     ⭐ .NET guide
 ├── INTEGRATION_COMPLETE.md            ⭐ This file
 ├── agi_learning_state.json            (auto-generated)
@@ -310,7 +309,7 @@ Edit `agi_learning_state.json`:
 
 ## 🎓 Key Achievements
 
-1. ✅ **Agent Lightning Installed** - v0.2.1 with all dependencies
+1. ✅ **Legacy Agent Lightning Integration** - archived; internal heuristics active
 2. ✅ **AGI Self-Learning Module** - Complete RL-powered learning system
 3. ✅ **Quantum Algorithm Optimizer** - Learns best algorithms for each problem
 4. ✅ **Ethics Decision Agent** - Optimizes ethics weights through RL
@@ -325,7 +324,7 @@ Edit `agi_learning_state.json`:
 
 The foundation is complete! Future enhancements could include:
 
-1. **Enable Full RL Training** - Install Agent Lightning and enable RL mode
+1. **Legacy Reference** - Agent Lightning support has been deprecated
 2. **Multi-Agent Systems** - Train specialized agents for different tasks
 3. **Human-in-the-Loop** - Interactive learning from user feedback
 4. **Advanced Algorithms** - PPO, GRPO, APO integration
@@ -337,7 +336,6 @@ The foundation is complete! Future enhancements could include:
 ## 📚 Documentation
 
 - **Main Guide**: `AGI_SELF_LEARNING_README.md`
-- **Agent Lightning**: `AGENT_LIGHTNING_SETUP.md`
 - **.NET Setup**: `INSTALL_DOTNET_DEPENDENCIES.md`
 - **This Summary**: `INTEGRATION_COMPLETE.md`
 
@@ -348,7 +346,7 @@ The foundation is complete! Future enhancements could include:
 ### What You Now Have:
 
 🧠 **Self-Improving AGI** that learns from experience  
-⚡ **Agent Lightning Integration** for reinforcement learning  
+⚡ **Legacy Agent Lightning hooks** retained for reference  
 🔬 **Quantum Algorithm Optimization** with RL  
 🎯 **Ethics Decision Making** with learned weights  
 📊 **Complete Telemetry** and monitoring  

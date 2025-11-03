@@ -1,8 +1,10 @@
-# Qallow AGI Self-Learning with Agent Lightning ⚡
+# Qallow AGI Self-Learning (Legacy Agent Lightning Integration) ⚡
 
 ## Overview
 
-**Complete integration of Microsoft's Agent Lightning** reinforcement learning framework with Qallow's quantum-photonic AGI system for **continuous self-improvement and autonomous learning**.
+**Historical reference for Microsoft's Agent Lightning integration** with Qallow's quantum-photonic AGI system.
+
+> **Update (2024-10):** Agent Lightning dependencies have been removed from the active codebase. The self-learning module now operates with internal feedback loops only. Use this document as legacy guidance if you need to understand the original integration.
 
 ## 🎯 What Was Built
 
@@ -17,7 +19,7 @@ Core RL-powered agents for self-improvement:
 
 ### 2. **Telemetry Bridge** (`python/agi_telemetry_bridge.py`)
 
-Connects Agent Lightning traces to Qallow's monitoring:
+Originally connected Agent Lightning traces to Qallow's monitoring:
 
 - **RL Trace Capture** - Records all RL training events
 - **Metrics Collection** - Aggregates performance metrics
@@ -55,15 +57,9 @@ python3 python/agi_telemetry_bridge.py
 
 ## 📦 Installation
 
-### Agent Lightning (Optional but Recommended)
+### Agent Lightning (Legacy Only)
 
-```bash
-# Install Agent Lightning for full RL capabilities
-
-# Or use the already installed version
-```
-
-**Note**: The system works WITHOUT Agent Lightning installed, but RL training is disabled.
+Support for Microsoft's Agent Lightning has been removed. You no longer need to install the package; the remaining scripts fall back to internal heuristics automatically.
 
 ### .NET Dependencies (For Future C# Integration)
 
@@ -328,10 +324,10 @@ All demos should complete successfully with:
 | File | Purpose |
 |------|---------|
 | `python/agi_self_learning.py` | Core AGI self-learning module with RL agents |
-| `python/agi_telemetry_bridge.py` | Telemetry integration with Agent Lightning |
+| `python/agi_telemetry_bridge.py` | Telemetry integration (legacy Agent Lightning hooks) |
 | `python/qallow_agi_integration.py` | Complete integration interface |
-| `agent_lightning_demo.py` | Agent Lightning demonstration |
-| `AGENT_LIGHTNING_SETUP.md` | Agent Lightning setup guide |
+| _Removed_ | Agent Lightning demonstration (deprecated) |
+| _Removed_ | Agent Lightning setup guide (deprecated) |
 | `INSTALL_DOTNET_DEPENDENCIES.md` | .NET dependencies guide |
 | `AGI_SELF_LEARNING_README.md` | This file |
 | `agi_learning_state.json` | Persistent learning state (auto-generated) |
@@ -363,7 +359,7 @@ All demos should complete successfully with:
 
 - **Agent Lightning**: https://github.com/microsoft/agent-lightning
 - **Qallow Project**: /home/xing/Qallow
-- **Documentation**: This file + AGENT_LIGHTNING_SETUP.md
+- **Documentation**: This file (Agent Lightning setup guide deprecated)
 
 ## 🎉 Summary
 
@@ -382,4 +378,3 @@ You now have a **fully integrated AGI self-learning system** that:
 **Created**: 2025-11-01  
 **Status**: ✅ Production Ready  
 **Integration**: Complete
-

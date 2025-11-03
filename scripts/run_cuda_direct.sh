@@ -179,7 +179,6 @@ PERFORMANCE:
     - Memory usage: GPU VRAM instead of system RAM
 
 For more information:
-  See: AGENT_LIGHTNING_ANALYSIS.md
   See: CUDA_QUICK_START.md
 
 EOF
