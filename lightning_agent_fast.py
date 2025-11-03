@@ -23,9 +23,9 @@ import re
 import subprocess
 import sys
 import time
-from dataclasses import dataclass
-from pathlib import Path
-from typing import Iterable, List, Optional, Tuple
+from dataclasses import dataclass  # noqa: F401 - Used via @dataclass decorator
+from pathlib import Path  # noqa: F401 - Used in type hints
+from typing import Iterable, List, Optional, Tuple  # noqa: F401 - Used in type hints
 
 # Configure logging with MORE verbose output
 logging.basicConfig(
@@ -35,10 +35,10 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # CONSTANTS FOR SLOWING DOWN
-PAUSE_BEFORE_FIX = 2        # seconds - read the error
-PAUSE_SHOW_CODE = 3         # seconds - read the code
-PAUSE_BETWEEN_FIXES = 4     # seconds - digest the change
-PAUSE_BETWEEN_ITERATIONS = 5  # seconds - next iteration
+PAUSE_BEFORE_FIX = 0.5      # seconds - read the error
+PAUSE_SHOW_CODE = 0.5       # seconds - read the code
+PAUSE_BETWEEN_FIXES = 0.5   # seconds - digest the change
+PAUSE_BETWEEN_ITERATIONS = 10  # seconds - next iteration (daemon mode)
 
 # Speed configuration
 FAST_MODE = False
@@ -98,7 +98,7 @@ def show_code_context(file_path: Path, line_number: int, context_lines: int = 3)
     except Exception as e:
         print(f"Could not read context: {e}\n")
 
-def pause_for_reading(reason: str, duration: int = 2):
+def pause_for_reading(reason: str, duration: float = 2):
     """Pause and let user read the output."""
     effective = duration * PAUSE_SCALE
     if FAST_MODE or effective <= 0:
@@ -1229,8 +1229,9 @@ def main():
         help='Maximum iterations (default: 10)'
     )
     parser.add_argument(
-        '--daemon',
+        '--daemon', '--continuous',
         action='store_true',
+        dest='daemon',
         help='Run continuously with pauses between runs'
     )
     parser.add_argument(
@@ -1239,14 +1240,14 @@ def main():
         help='Skip interactive pauses and reduce narration for quicker feedback'
     )
     parser.add_argument(
-        '--use-cuda',
+        '--use-cuda', '--cuda',
         action='store_true',
         dest='use_cuda',
         default=True,
         help='Enable CUDA support when building (default: enabled; requires CUDA toolchain)'
     )
     parser.add_argument(
-        '--no-cuda',
+        '--no-cuda', '--cpu-only',
         action='store_false',
         dest='use_cuda',
         help='Disable CUDA support when building'
@@ -1285,15 +1286,15 @@ def main():
                 agent.run_loop()
                 
                 print("\n" + "─"*70)
-                print("⏱️  Daemon sleeping for 60 seconds before next run...")
+                print("⏱️  Daemon sleeping for 20 seconds before next run...")
                 print("   (Press Ctrl+C to stop)")
                 print("─"*70)
                 
                 import time
-                for i in range(60, 0, -10):
-                    if i <= 10:
+                for i in range(20, 0, -5):
+                    if i <= 5:
                         print(f"   {i} seconds remaining...", end='\r')
-                    time.sleep(10)
+                    time.sleep(5)
                 
                 pause_for_reading("Ready for next run...", 1)
         

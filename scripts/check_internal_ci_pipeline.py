@@ -6,15 +6,12 @@ reference pipeline we maintain in-repo.  It is meant to be run in CI as
 well as locally before pushing workflow changes.
 """
 
-from __future__ import annotations
 
 import argparse
 import base64
 import difflib
 import sys
 import zlib
-from pathlib import Path
-from typing import List, Sequence, Tuple
 
 WORKFLOW_PATH = Path(".github/workflows/internal-ci.yml")
 

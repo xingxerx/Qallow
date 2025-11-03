@@ -6,6 +6,7 @@ if(QALLOW_ENABLE_CUDA)
   add_library(alg_ccc STATIC
     hamiltonian.cu
     koopman_cuda.cu
+    gray.cpp
   )
   set_target_properties(alg_ccc PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
   target_link_libraries(alg_ccc PUBLIC cuda cudart)
