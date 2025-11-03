@@ -1,6 +1,7 @@
 /* TODO: Refactor complex functions - consider breaking into smaller functions */
 /* Multi-block comment removed */
-/* TODO: Refactor complex functions - consider breaking into smaller functions */
+/* Multi-block comment removed */
+
 
 #include "overlay.h"
 #include <string.h>
