@@ -54,8 +54,8 @@ static void apply_gate(PhotonicProcessor *pp, PhotonicGate *g) {
 
     switch (g->type) {
         case PHOTONIC_GATE_BS: {
-            float t = g->eta;
-            float r = 1.0f - t;
+            float t /* TODO: Use more descriptive name */= g->eta;
+            float r /* TODO: Use more descriptive name */= 1.0f - t;
             oa->amplitude = t * a->amplitude + r * b->amplitude;
             ob->amplitude = r * a->amplitude + t * b->amplitude;
             oa->phase = a->phase;

@@ -36,7 +36,7 @@ static CUDA_CALLABLE float estimate_reality_drift(float safety,
 
 static float load_human_weight(float fallback) {
 #ifndef __CUDA_ARCH__
-    float w = fallback;
+    float w /* TODO: Use more descriptive name */= fallback;
     const char* env = getenv("QALLOW_H");
     if (env && *env) {
         w = (float)atof(env);

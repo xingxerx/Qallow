@@ -55,7 +55,7 @@ static int parse_probabilities(const char* value, double* out, int max_count) {
     const char* cursor = value;
     while (*cursor && count < max_count) {
         char* end_ptr = NULL;
-        double v = strtod(cursor, &end_ptr);
+        double v /* TODO: Use more descriptive name */= strtod(cursor, &end_ptr);
         if (cursor == end_ptr) {
             break;
         }

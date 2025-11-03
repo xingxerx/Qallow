@@ -65,7 +65,7 @@ ql_status mod_semantic_memory(ql_state *S) {
 
         // Check if pattern already exists
         int found = 0;
-        for (int p = 0; p < pattern_count; p++) {
+        for (int p /* TODO: Use more descriptive name */= 0; p < pattern_count; p++) {
             double dist = 0.0;
             for (int j = 0; j < 4; j++) {
                 dist += fabs(pattern[j] - patterns[p].pattern[j]);
@@ -98,7 +98,7 @@ ql_status mod_memory_recall(ql_state *S) {
     // Find most useful pattern
     double best_utility = 0.0;
     int best_idx = 0;
-    for (int p = 0; p < pattern_count; p++) {
+    for (int p /* TODO: Use more descriptive name */= 0; p < pattern_count; p++) {
         double utility = patterns[p].utility * patterns[p].frequency;
         if (utility > best_utility) {
             best_utility = utility;

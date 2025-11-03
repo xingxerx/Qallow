@@ -45,7 +45,7 @@ static void compute_attention(attention_head_t *head, int n) {
 // Multi-head attention module
 ql_status mod_attention(ql_state *S) {
     // Initialize attention heads based on state
-    for (int h = 0; h < 4; h++) {
+    for (int h /* TODO: Use more descriptive name */= 0; h < 4; h++) {
         // Query: what are we looking for?
         heads[h].query[0] = S->energy;      // Energy importance
         heads[h].query[1] = 1.0 - S->risk;  // Risk aversion
@@ -63,7 +63,7 @@ ql_status mod_attention(ql_state *S) {
 
     // Aggregate attention across heads
     double avg_attention[4] = {0};
-    for (int h = 0; h < 4; h++) {
+    for (int h /* TODO: Use more descriptive name */= 0; h < 4; h++) {
         for (int i = 0; i < 4; i++) {
             avg_attention[i] += heads[h].attention[i];
         }

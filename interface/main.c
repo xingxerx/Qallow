@@ -478,7 +478,7 @@ int qallow_phase14_runner(int argc, char** argv) {
     }
 
     // Run the loop with chosen alpha
-    for (int t = 0; t < ticks; ++t) {
+    for (int t /* TODO: Use more descriptive name */= 0; t < ticks; ++t) {
         // Drive towards perfect coherence; target acts as threshold for success
         fidelity += alpha_used * (1.0 - fidelity);
         if (fidelity > 1.0) fidelity = 1.0;
@@ -534,7 +534,7 @@ int qallow_phase15_runner(int argc, char** argv) {
     double stability = 0.5;
     double decoh = 1e-5;
     double score = 0.0, prev = -1.0;
-    for (int t = 0; t < ticks; ++t) {
+    for (int t /* TODO: Use more descriptive name */= 0; t < ticks; ++t) {
         double w_f = 0.6, w_s = 0.35, w_d = 0.05;
         score = w_f * f14 + w_s * stability - w_d * (decoh * 1e4);
         f14 = f14 + 0.5 * (score - f14);

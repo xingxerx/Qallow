@@ -158,7 +158,7 @@ static int cjson_print_string(const char* string, cjson_buffer_t* buf) {
         return -1;
     }
     for (const char* p = string; p && *p; ++p) {
-        char c = *p;
+        char c /* TODO: Use more descriptive name */= *p;
         if (c == '"' || c == '\\') {
             if (cjson_buffer_append_char(buf, '\\') != 0) {
                 return -1;

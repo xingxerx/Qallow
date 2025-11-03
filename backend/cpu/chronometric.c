@@ -48,7 +48,7 @@ void chrono_bank_record_event(chrono_bank_t* bank,
 void chrono_bank_update_stats(chrono_bank_t* bank) {
     if (!bank || bank->history_count == 0) return;
 
-    int n = bank->history_count;
+    int n /* TODO: Use more descriptive name */= bank->history_count;
 
     // Calculate mean delta_t
     double sum = 0.0;

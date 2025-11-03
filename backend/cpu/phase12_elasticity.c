@@ -40,7 +40,7 @@ int run_phase12_elasticity(const char* audit_tag,
     float entropy   = 0.00070f;
     float deco      = 0.000009f;
 
-    for (int t = 1; t <= ticks; ++t) {
+    for (int t /* TODO: Use more descriptive name */= 1; t <= ticks; ++t) {
         float stretch = clamp(eps, 0.0f, 1e-2f);
         entropy  = clamp(entropy - 0.000001f + stretch * 0.0000002f, 0.0f, 0.001f);
         coherence = clamp(1.0f - entropy * 0.2f, 0.0f, 1.0f);

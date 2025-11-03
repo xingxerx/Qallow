@@ -270,7 +270,7 @@ static const char* find_matching_brace(const char* start) {
     int depth = 0;
     bool in_string = false;
     for (const char* p = start; *p; ++p) {
-        char c = *p;
+        char c /* TODO: Use more descriptive name */= *p;
         if (c == '"') {
             bool escaped = (p > start && *(p - 1) == '\\');
             if (!escaped) {
@@ -300,7 +300,7 @@ static const char* find_matching_bracket(const char* start) {
     int depth = 0;
     bool in_string = false;
     for (const char* p = start; *p; ++p) {
-        char c = *p;
+        char c /* TODO: Use more descriptive name */= *p;
         if (c == '"') {
             bool escaped = (p > start && *(p - 1) == '\\');
             if (!escaped) {
