@@ -1177,7 +1177,6 @@ class CodeAnalyzer:
         try:
             for c_file in self._iter_c_files("**/*.c"):
                 content = c_file.read_text()
-                original = content
 
                 # Find functions with many nested braces (complexity indicator)
                 functions = re.findall(r'\w+\s+\w+\s*\([^)]*\)\s*\{[^}]*\}', content, re.DOTALL)
