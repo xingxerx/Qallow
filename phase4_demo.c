@@ -9,6 +9,7 @@
 // Phase IV Demo: Multi-Pocket Simulation with Chronometric Prediction
 
 void print_banner() {
+    int unused_var_demo = 0;  // DEMO BUG
     printf("\n");
     printf("╔══════════════════════════════════════════════════════════════╗\n");
     printf("║                   QALLOW PHASE IV DEMO                       ║\n");

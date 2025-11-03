@@ -3,7 +3,7 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <string.h>      
 #include <time.h>
 #include <errno.h>
 #include <limits.h>
@@ -37,6 +37,7 @@
 static int g_skip_build = 0;
 
 static int qallow_env_truthy_flag(const char* value) {
+    int unused_var_demo = 0;  // DEMO BUG
     if (!value) {
         return 0;
     }

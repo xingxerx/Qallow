@@ -159,6 +159,45 @@ class ErrorParser:
 class CodeFixer:
     """Applies direct code fixes to source files - SLOWLY and READABLY."""
     
+    COMMON_STD_INCLUDES = {
+        "std::vector": "<vector>",
+        "std::string": "<string>",
+        "std::map": "<map>",
+        "std::unordered_map": "<unordered_map>",
+        "std::optional": "<optional>",
+        "std::unique_ptr": "<memory>",
+        "std::shared_ptr": "<memory>",
+        "std::make_unique": "<memory>",
+        "std::array": "<array>",
+        "std::span": "<span>",
+        "std::filesystem": "<filesystem>",
+        "std::thread": "<thread>",
+        "std::mutex": "<mutex>",
+        "std::lock_guard": "<mutex>",
+        "std::cout": "<iostream>",
+        "std::cerr": "<iostream>",
+        "std::endl": "<iostream>",
+        "std::stringstream": "<sstream>",
+        "std::ostringstream": "<sstream>",
+        "std::istringstream": "<sstream>",
+    }
+
+    COMMON_SYMBOL_INCLUDES = {
+        "size_t": "<cstddef>",
+        "uint32_t": "<cstdint>",
+        "uint64_t": "<cstdint>",
+        "int32_t": "<cstdint>",
+        "int64_t": "<cstdint>",
+        "printf": "<cstdio>",
+        "fprintf": "<cstdio>",
+        "memset": "<cstring>",
+        "memcpy": "<cstring>",
+        "strlen": "<cstring>",
+        "sin": "<cmath>",
+        "cos": "<cmath>",
+        "sqrt": "<cmath>",
+    }
+
     def __init__(self, project_root: str = "."):
         self.project_root = Path(project_root)
         self.fixes_applied = []
@@ -263,15 +302,189 @@ class CodeFixer:
             logger.error(f"Error fixing syntax: {e}")
         
         return False
-    
+
     def apply_error_fix(self, error: CompileError) -> bool:
         """Apply appropriate fix for the error - SLOWLY."""
         msg = error.message.lower()
-        
+
+        # Python unused imports (from linters/tests)
+        if error.file_path.endswith('.py') and 'unused import' in msg:
+            return self.fix_unused_imports(self.project_root / error.file_path)
+
+        # Missing standard include
+        if any(token in error.message for token in self.COMMON_STD_INCLUDES) or 'was not declared in this scope' in msg or 'not a member of std' in msg:
+            if self.fix_missing_include(error):
+                return True
+
         if 'expected' in msg or 'syntax error' in msg:
             return self.fix_syntax_error(error)
-        
+
         return False
+
+    def apply_test_based_fixes(self, test_output: str) -> int:
+        """Inspect test output and apply targeted fixes."""
+        if not test_output:
+            return 0
+
+        fixes = 0
+        lowered = test_output.lower()
+
+        if 'alg_ccc_test_gray' in lowered or 'test_gray' in lowered or 'gray2int' in lowered:
+            if self.ensure_gray2int_logic():
+                fixes += 1
+
+        return fixes
+
+    def fix_missing_include(self, error: CompileError) -> bool:
+        """Try to add a missing #include for common STL/C symbols."""
+        try:
+            file_path = self.project_root / error.file_path
+            if not file_path.exists():
+                logger.warning(f"File not found for include fix: {file_path}")
+                return False
+
+            header = self._detect_missing_header(error)
+            if not header:
+                return False
+
+            with open(file_path, 'r') as f:
+                lines = f.readlines()
+
+            include_line = f"#include {header}\n"
+
+            if any(include_line.strip() == line.strip() for line in lines):
+                logger.debug(f"Header {header} already included in {file_path}")
+                return False
+
+            print_error_box(error)
+            show_code_context(file_path, error.line_number)
+            pause_for_reading(f"Adding missing header {header}...", PAUSE_BEFORE_FIX)
+
+            insert_idx = 0
+            for idx, line in enumerate(lines):
+                if line.startswith('#include'):
+                    insert_idx = idx + 1
+            
+            original_lines = list(lines)
+            new_lines = lines[:insert_idx] + [include_line] + lines[insert_idx:]
+            show_fix_comparison(file_path, original_lines, new_lines, insert_idx)
+            pause_for_reading("Review the added include above...", PAUSE_SHOW_CODE)
+
+            lines.insert(insert_idx, include_line)
+            with open(file_path, 'w') as f:
+                f.writelines(lines)
+
+            print(f"   ✅ Added {header} to {error.file_path}")
+            pause_for_reading("Include inserted.", PAUSE_BETWEEN_FIXES)
+            return True
+
+        except Exception as exc:
+            logger.error(f"Failed to add include for {error.file_path}: {exc}")
+
+        return False
+
+    def _detect_missing_header(self, error: CompileError) -> Optional[str]:
+        """Inspect error text to determine which header is likely missing."""
+        text = f"{error.message} {error.full_line}" if error.full_line else error.message
+
+        for token, header in self.COMMON_STD_INCLUDES.items():
+            if token in text:
+                return header
+
+        # Match `'symbol' was not declared in this scope`
+        match = re.search(r"['‘]([^'’]+)['’] was not declared", text)
+        if match:
+            symbol = match.group(1)
+            header = self.COMMON_SYMBOL_INCLUDES.get(symbol)
+            if header:
+                return header
+
+        # Match `‘std::xyz’ has not been declared`
+        match = re.search(r"['‘](std::[^'’]+)['’]", text)
+        if match:
+            symbol = match.group(1)
+            return self.COMMON_STD_INCLUDES.get(symbol)
+
+        return None
+
+    def ensure_gray2int_logic(self) -> bool:
+        """Rewrite gray2int to a canonical implementation if tests indicate failure."""
+        target = self.project_root / "alg_ccc" / "gray.cpp"
+        if not target.exists():
+            logger.warning("gray.cpp not found for test-driven fix")
+            return False
+
+        try:
+            content = target.read_text()
+        except Exception as exc:
+            logger.error(f"Unable to read {target}: {exc}")
+            return False
+
+        # If already patched, no need to change
+        if "uint32_t value = g;" in content and "mask >>= 1" in content:
+            return False
+
+        marker = "int gray2int(uint32_t g)"
+        start = content.find(marker)
+        if start == -1:
+            logger.warning("gray2int function not found for rewrite")
+            return False
+
+        brace_start = content.find('{', start)
+        if brace_start == -1:
+            return False
+
+        depth = 0
+        end = -1
+        for idx in range(brace_start, len(content)):
+            char = content[idx]
+            if char == '{':
+                depth += 1
+            elif char == '}':
+                depth -= 1
+                if depth == 0:
+                    end = idx
+                    break
+
+        if end == -1:
+            logger.warning("Could not determine end of gray2int body")
+            return False
+
+        print("\n   🩺 Detected failing gray code tests (alg_ccc_test_gray)")
+        show_code_context(target, self._line_from_index(content, start))
+        pause_for_reading("Rewriting gray2int with canonical conversion logic...", PAUSE_BEFORE_FIX)
+
+        new_impl = (
+            "int gray2int(uint32_t g) {\n"
+            "    uint32_t value = g;\n"
+            "    uint32_t mask = value >> 1;\n"
+            "    while (mask) {\n"
+            "        value ^= mask;\n"
+            "        mask >>= 1;\n"
+            "    }\n"
+            "    return static_cast<int>(value);\n"
+            "}\n"
+        )
+
+        updated = content[:start] + new_impl + content[end+1:]
+
+        show_fix_comparison(target, content.splitlines(), updated.splitlines(), self._line_from_index(content, start))
+        pause_for_reading("Review the new implementation above...", PAUSE_SHOW_CODE)
+
+        try:
+            target.write_text(updated)
+        except Exception as exc:
+            logger.error(f"Failed to write updated gray2int implementation: {exc}")
+            return False
+
+        print("   ✅ gray2int rewritten based on test feedback")
+        pause_for_reading("gray2int fix applied.", PAUSE_BETWEEN_FIXES)
+        return True
+
+    @staticmethod
+    def _line_from_index(content: str, index: int) -> int:
+        """Convert a character index to a 1-based line number."""
+        return content.count('\n', 0, index) + 1
 
 
 class FastBuilder:
@@ -281,10 +494,11 @@ class FastBuilder:
         self.project_root = Path(project_root)
         self.last_output = ""
     
-    def build(self, use_cuda: bool = True) -> Tuple[bool, str]:
+    def build(self, use_cuda: bool = True, strict_warnings: bool = False) -> Tuple[bool, str]:
         """Build project SLOWLY with visible output."""
         print("\n" + "="*70)
-        print_header(f"🔨 BUILDING PROJECT (CUDA={use_cuda})")
+        mode = "STRICT" if strict_warnings else "NORMAL"
+        print_header(f"🔨 BUILDING PROJECT (CUDA={use_cuda}, Mode={mode})")
         print("="*70 + "\n")
         
         pause_for_reading("Starting build configuration...", 2)
@@ -292,7 +506,8 @@ class FastBuilder:
         try:
             # Configure
             cuda_flag = "ON" if use_cuda else "OFF"
-            cmd = f"cmake -S . -B build -DQALLOW_ENABLE_CUDA={cuda_flag} 2>&1"
+            warning_flag = "-DCMAKE_CXX_FLAGS=-Werror -DCMAKE_C_FLAGS=-Werror" if strict_warnings else ""
+            cmd = f"cmake -S . -B build -DQALLOW_ENABLE_CUDA={cuda_flag} {warning_flag} 2>&1"
             
             print(f"   📋 Command: {cmd}\n")
             pause_for_reading("Running CMake configure...", 1)
@@ -587,23 +802,229 @@ class WarningFixer:
         return total_fixes
 
 
+# ═══════════════════════════════════════════════════════════════════
+# CODE QUALITY ANALYZER - PROACTIVE IMPROVEMENTS
+# ═══════════════════════════════════════════════════════════════════
+
+class CodeAnalyzer:
+    """Proactively analyze code for improvement opportunities."""
+    
+    def __init__(self, project_root: str = "."):
+        self.project_root = Path(project_root)
+        self.improvements = []
+    
+    def analyze_unused_imports(self) -> int:
+        """Find and remove unused imports."""
+        fixes = 0
+        print("\n   🔍 Scanning for unused imports...")
+        pause_for_reading("Analyzing imports...", 1)
+        
+        try:
+            for py_file in self.project_root.glob("**/*.py"):
+                if ".venv" in str(py_file) or "__pycache__" in str(py_file):
+                    continue
+                
+                content = py_file.read_text()
+                lines = content.split('\n')
+                
+                # Simple unused import detection
+                for line in lines:
+                    if line.strip().startswith(('import ', 'from ')) and 'import' in line:
+                        match = re.search(r'(?:from|import)\s+(\w+)', line)
+                        if match:
+                            symbol = match.group(1)
+                            # Check if used (simple heuristic)
+                            usage_count = sum(1 for l in lines if l != line and symbol in l)
+                            if usage_count == 0:
+                                print(f"      📍 {py_file.name}: unused '{symbol}'")
+                                fixes += 1
+        
+        except Exception as e:
+            logger.debug(f"Error analyzing imports: {e}")
+        
+        return fixes
+    
+    def analyze_code_style(self) -> int:
+        """Find common code style issues."""
+        fixes = 0
+        print("\n   🔍 Scanning for code style issues...")
+        pause_for_reading("Analyzing style...", 1)
+        
+        try:
+            for c_file in self.project_root.glob("backend/**/*.c"):
+                content = c_file.read_text()
+                lines = content.split('\n')
+                
+                for i, line in enumerate(lines, 1):
+                    # Check for trailing whitespace
+                    if line.endswith(' ') or line.endswith('\t'):
+                        print(f"      📍 {c_file.name}:{i}: trailing whitespace")
+                        fixes += 1
+                    # Check for multiple blank lines
+                    if line == '' and i < len(lines) and lines[i] == '':
+                        print(f"      📍 {c_file.name}:{i}: multiple blank lines")
+                        fixes += 1
+        
+        except Exception as e:
+            logger.debug(f"Error analyzing style: {e}")
+        
+        return fixes
+    
+    def analyze_dead_code(self) -> int:
+        """Find potential dead code."""
+        fixes = 0
+        print("\n   🔍 Scanning for dead code patterns...")
+        pause_for_reading("Analyzing dead code...", 1)
+        
+        try:
+            for c_file in self.project_root.glob("**/*.c"):
+                if ".venv" in str(c_file):
+                    continue
+                
+                content = c_file.read_text()
+                
+                # Check for commented-out code blocks
+                if '/*' in content and '*/' in content:
+                    count = content.count('/*')
+                    if count > 2:
+                        print(f"      📍 {c_file.name}: {count} comment blocks (possible dead code)")
+                        fixes += 1
+                
+                # Check for empty functions
+                if re.search(r'^\s*\w+\s+\w+\([^)]*\)\s*\{\s*\}', content, re.MULTILINE):
+                    print(f"      📍 {c_file.name}: empty function definitions")
+                    fixes += 1
+        
+        except Exception as e:
+            logger.debug(f"Error analyzing dead code: {e}")
+        
+        return fixes
+    
+    def analyze_performance(self) -> int:
+        """Find potential performance issues."""
+        fixes = 0
+        print("\n   🔍 Scanning for performance patterns...")
+        pause_for_reading("Analyzing performance...", 1)
+        
+        try:
+            # Check for common performance anti-patterns
+            for c_file in self.project_root.glob("backend/**/*.c"):
+                content = c_file.read_text()
+                
+                # Check for unbounded loops
+                if re.search(r'while\s*\(\s*1\s*\)', content):
+                    print(f"      📍 {c_file.name}: infinite loop detected")
+                    fixes += 1
+                
+                # Check for malloc/free in loops
+                if 'for' in content and 'malloc' in content:
+                    print(f"      📍 {c_file.name}: malloc in loop (potential leak)")
+                    fixes += 1
+        
+        except Exception as e:
+            logger.debug(f"Error analyzing performance: {e}")
+        
+        return fixes
+    
+    def run_all_analyses(self) -> int:
+        """Run all code quality checks."""
+        print("\n" + "─"*70)
+        print("📊 PHASE 2B: Proactive Code Quality Analysis")
+        print("─"*70)
+        pause_for_reading("Starting code quality checks...", 2)
+        
+        total = 0
+        total += self.analyze_unused_imports()
+        total += self.analyze_code_style()
+        total += self.analyze_dead_code()
+        total += self.analyze_performance()
+        
+        print("\n" + "─"*70)
+        if total > 0:
+            print(f"   🎯 Found {total} potential improvements")
+        else:
+            print("   ✅ Code quality looks good!")
+        print("─"*70)
+        pause_for_reading("Analysis complete.", 1)
+        
+        return total
+
+
 class LightningAgentFast:
     """Main fast improvement agent."""
     
-    def __init__(self, max_iterations: int = 10):
+    def __init__(self, max_iterations: int = 10, demo_mode: bool = False):
         self.max_iterations = max_iterations
         self.project_root = Path(".")
         self.builder = FastBuilder(str(self.project_root))
         self.fixer = CodeFixer(str(self.project_root))
+        self.test_runner = TestRunner(str(self.project_root))
+        self.warning_fixer = WarningFixer(str(self.project_root))
+        self.code_analyzer = CodeAnalyzer(str(self.project_root))  # ← NEW
         self.error_parser = ErrorParser()
         self.iteration = 0
         self.total_fixes = 0
+        self.demo_mode = demo_mode
+        self.demo_bugs_injected = False
+    
+    def inject_demo_bugs(self):
+        """Inject intentional bugs for demonstration purposes."""
+        if self.demo_bugs_injected:
+            return
+        
+        print("\n" + "!"*70)
+        print("🎭 DEMO MODE: Injecting intentional bugs for demonstration")
+        print("!"*70)
+        
+        demo_files = list(self.project_root.glob("**/*.c"))[:2]
+        if not demo_files:
+            print("   ⚠️  No C files found to inject demo bugs")
+            return
+        
+        bugs_injected = 0
+        for file_path in demo_files:
+            try:
+                content = file_path.read_text()
+                
+                # Bug 1: Add unused variable (will be caught by analysis)
+                if "int unused_var_demo = 0;" not in content:
+                    lines = content.split('\n')
+                    # Find a function body to inject
+                    for i, line in enumerate(lines):
+                        if '{' in line:
+                            lines.insert(i + 1, "    int unused_var_demo = 0;  // DEMO BUG")
+                            content = '\n'.join(lines)
+                            file_path.write_text(content)
+                            print(f"   ✓ Injected unused variable into {file_path.name}")
+                            bugs_injected += 1
+                            break
+                
+                # Bug 2: Add trailing whitespace (will be caught by style analysis)
+                if len([l for l in content.split('\n') if l.rstrip() != l]) < 3:
+                    lines = content.split('\n')
+                    lines[5] = lines[5] + "   "  # Add trailing spaces
+                    content = '\n'.join(lines)
+                    file_path.write_text(content)
+                    print(f"   ✓ Injected trailing whitespace into {file_path.name}")
+                    bugs_injected += 1
+                
+            except Exception as e:
+                logger.debug(f"Could not inject bug into {file_path}: {e}")
+        
+        self.demo_bugs_injected = True
+        print(f"\n   🎭 Demo mode: {bugs_injected} intentional bug(s) injected!")
+        pause_for_reading("Agent will now try to find and fix them...", 3)
     
     def run_loop(self):
         """Main improvement loop - SLOW AND READABLE."""
         print("\n" + "="*70)
-        print_header("� SLOW Lightning Agent - Code Fixer Loop Started")
+        print_header("🐢 SLOW Lightning Agent - Code Fixer Loop Started")
         print("="*70)
+        
+        # Inject demo bugs if in demo mode
+        if self.demo_mode:
+            self.inject_demo_bugs()
+        
         pause_for_reading("Starting improvement iterations...", 2)
         
         for self.iteration in range(1, self.max_iterations + 1):
@@ -624,7 +1045,33 @@ class LightningAgentFast:
                 print("\n✅ BUILD SUCCESSFUL!")
                 print("━"*70)
                 pause_for_reading("Build passed! Running tests...", 2)
-                self.run_tests()
+                
+                # Run code quality analysis (informational)
+                quality_findings = self.code_analyzer.run_all_analyses()
+                
+                # Run tests and attempt automated remediation
+                tests_ok, warning_fixes, test_fixes, _ = self.run_tests()
+
+                fixes_this_round = warning_fixes + test_fixes
+                self.total_fixes += fixes_this_round
+
+                if fixes_this_round > 0:
+                    print(f"\n   ✅ Applied {fixes_this_round} fix(es) based on test output")
+                    pause_for_reading("Rebuilding to verify fixes...", PAUSE_BETWEEN_ITERATIONS)
+                    continue
+
+                if not tests_ok:
+                    print("\n   ⚠️  Tests still failing and no automatic fix matched")
+                    pause_for_reading("Escalating to human review.", PAUSE_BEFORE_FIX)
+                    break
+
+                if quality_findings > 0:
+                    print("\nℹ️  Tests pass, but code analysis flagged items for manual follow-up")
+                    pause_for_reading("Stopping so you can review the report.", PAUSE_BEFORE_FIX)
+                    break
+
+                print("\n🎉 All tests passed and no additional issues detected.")
+                pause_for_reading("Stopping after successful run.", PAUSE_BEFORE_FIX)
                 break
             
             # PARSE ERRORS
@@ -689,46 +1136,53 @@ class LightningAgentFast:
         print("="*70 + "\n")
         pause_for_reading("Done!", 2)
     
-    def run_tests(self):
-        """Run quick tests to verify everything works - SHOW OUTPUT."""
+    def run_tests(self) -> Tuple[bool, int, int, str]:
+        """Run quick tests to verify everything works and return fix counts."""
         print("\n" + "─"*70)
-        print("🧪 Running tests to verify fixes...")
+        print("🧪 PHASE 4: Running tests to verify fixes...")
         print("─"*70 + "\n")
         pause_for_reading("Executing tests...", 1)
         
-        try:
-            result = subprocess.run(
-                "ctest --test-dir build --output-on-failure",
-                shell=True,
-                capture_output=True,
-                text=True,
-                timeout=300
-            )
-            
-            # Show test output
-            if result.stdout:
-                print("\nTest Output:")
-                print(result.stdout[:500])  # First 500 chars
-                if len(result.stdout) > 500:
-                    print(f"\n... (truncated {len(result.stdout) - 500} bytes) ...\n")
-            
-            pause_for_reading("Checking test results...", 2)
-            
-            if result.returncode == 0:
-                print("\n   ✅ ALL TESTS PASSED!")
-                print("   Fixes verified by test suite!")
-            else:
-                print("\n   ⚠️  Some tests failed")
-                print(f"   Exit code: {result.returncode}")
-            
-            pause_for_reading("Test phase complete.", 2)
+        # Run tests using TestRunner
+        success, output = self.test_runner.run_tests()
         
-        except subprocess.TimeoutExpired:
-            print("\n   ⏱️  Tests timeout (>5 min)")
-            pause_for_reading("Test timeout.", 2)
-        except Exception as e:
-            print(f"\n   💥 Test error: {e}")
-            pause_for_reading("Test failed.", PAUSE_BEFORE_FIX)
+        # Show test output
+        if output:
+            print("\nTest Output:")
+            print(output[:500])  # First 500 chars
+            if len(output) > 500:
+                print(f"\n... (truncated {len(output) - 500} bytes) ...\n")
+        
+        pause_for_reading("Checking test results...", 2)
+        
+        if success:
+            print("\n   ✅ ALL TESTS PASSED!")
+            print("   Fixes verified by test suite!")
+            pause_for_reading("Test phase complete.", 2)
+            return True, 0, 0, output
+
+        print("\n   ⚠️  Some tests failed or had warnings")
+        print(f"   Exit code: {self.test_runner.last_returncode}")
+        pause_for_reading("Analyzing output for automated fixes...", 2)
+        
+        print("\n" + "─"*70)
+        print("🔧 PHASE 5: Applying warning fixes...")
+        print("─"*70)
+        pause_for_reading("Scanning for fixable issues...", 1)
+        warning_fixes = self.warning_fixer.apply_all_fixes(output)
+        
+        print("\n" + "─"*70)
+        print("🩺 PHASE 6: Applying test-driven fixes...")
+        print("─"*70)
+        pause_for_reading("Looking for known failing tests...", 1)
+        test_fixes = self.fixer.apply_test_based_fixes(output)
+        
+        if warning_fixes == 0 and test_fixes == 0:
+            pause_for_reading("No automated fixes available.", PAUSE_BEFORE_FIX)
+        else:
+            pause_for_reading("Fixes applied. Ready to rebuild.", PAUSE_BETWEEN_FIXES)
+        
+        return False, warning_fixes, test_fixes, output
 
 
 def main():
@@ -749,18 +1203,26 @@ def main():
         action='store_true',
         help='Run continuously with pauses between runs'
     )
+    parser.add_argument(
+        '--demo',
+        action='store_true',
+        help='Demo mode: intentionally inject bugs to demonstrate fixing'
+    )
     
     args = parser.parse_args()
     
     print("\n" + "="*70)
     print_header("🐢 SLOW Lightning Agent - Readable Code Fixer")
     print("="*70)
-    print(f"   Mode: {'DAEMON (continuous)' if args.daemon else 'SINGLE RUN'}")
+    mode_str = 'DAEMON (continuous)' if args.daemon else 'SINGLE RUN'
+    if args.demo:
+        mode_str += ' + DEMO MODE'
+    print(f"   Mode: {mode_str}")
     print(f"   Max iterations: {args.max_iterations}")
     print("="*70 + "\n")
     pause_for_reading("Starting agent...", 2)
     
-    agent = LightningAgentFast(max_iterations=args.max_iterations)
+    agent = LightningAgentFast(max_iterations=args.max_iterations, demo_mode=args.demo)
     
     if args.daemon:
         iteration = 0

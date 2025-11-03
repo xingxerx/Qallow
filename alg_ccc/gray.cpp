@@ -5,10 +5,15 @@ namespace qallow {
 namespace ccc {
 
 int gray2int(uint32_t g) {
-    int result = 0;
-    for (; g; g >>= 1) result ^= g;
-    return result;
+    uint32_t value = g;
+    uint32_t mask = value >> 1;
+    while (mask) {
+        value ^= mask;
+        mask >>= 1;
+    }
+    return static_cast<int>(value);
 }
+
 
 int gray2int(uint32_t g, const GrayReviewCallback& reviewer) {
     if (!reviewer) {
