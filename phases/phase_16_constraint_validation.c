@@ -36,7 +36,7 @@ void generate_constraint_vector(ConstraintVector *constraint, float *synthesis, 
     constraint->violation_magnitude = magnitude;
 }
 
-/* Multi-block comment removed */
+
 float score_constraint_violation(ConstraintVector *constraint, float *constraint_baseline) {
     float violation = 0.0;
     for (int i = 0; i < VECTOR_DIM; i++) {
@@ -46,9 +46,7 @@ float score_constraint_violation(ConstraintVector *constraint, float *constraint
     return sqrt(violation / VECTOR_DIM);
 }
 
-/**
- * Test system resilience to constraint violations
- */
+
 float test_system_resilience(ValidationState *state) {
     float total_impact = 0.0;
     for (int i = 0; i < state->num_violations; i++) {
@@ -60,9 +58,7 @@ float test_system_resilience(ValidationState *state) {
     return resilience;
 }
 
-/**
- * Main Phase 16 execution
- */
+
 int main(int argc, char *argv[]) {
     printf("================================================================================\n");
     printf("  Phase 16: Constraint Validation Engine - Resilience & Robustness Testing\n");

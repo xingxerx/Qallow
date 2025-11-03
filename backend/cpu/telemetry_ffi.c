@@ -13,11 +13,11 @@
 #include <errno.h>
 
 /* Multi-block comment removed */
-/* Multi-block comment removed */
-/* Multi-block comment removed */
+
+
 
 #define TELEMETRY_SHM_NAME    "/qallow_telemetry_stream"
-#define TELEMETRY_RING_SIZE   (1 << 20)  /* Multi-block comment removed */
+#define TELEMETRY_RING_SIZE   (1 << 20)  
 #define TELEMETRY_MAGIC       0xDEADBEEF
 
 typedef struct {
@@ -30,23 +30,23 @@ static TelemetryRing* g_telemetry_ring = NULL;
 static int g_telemetry_fd = -1;
 
 void telemetry_ffi_init(void) {
-    if (g_telemetry_ring) return;  /* Multi-block comment removed */
+    if (g_telemetry_ring) return;  
 
-    /* Multi-block comment removed */
+    
     g_telemetry_fd = shm_open(TELEMETRY_SHM_NAME, O_CREAT | O_RDWR, 0666);
     if (g_telemetry_fd < 0) {
         perror("shm_open failed");
         return;
     }
 
-    /* Multi-block comment removed */
+    
     if (ftruncate(g_telemetry_fd, sizeof(TelemetryRing)) < 0) {
         perror("ftruncate failed");
         close(g_telemetry_fd);
         return;
     }
 
-    /* Multi-block comment removed */
+    
     g_telemetry_ring = (TelemetryRing*)mmap(
         NULL,
         sizeof(TelemetryRing),
@@ -63,7 +63,7 @@ void telemetry_ffi_init(void) {
         return;
     }
 
-    /* Multi-block comment removed */
+    
     if (g_telemetry_ring->magic != TELEMETRY_MAGIC) {
         g_telemetry_ring->magic = TELEMETRY_MAGIC;
         atomic_store(&g_telemetry_ring->write_pos, sizeof(uint32_t));
@@ -75,12 +75,12 @@ void telemetry_ffi_init(void) {
 
 void telemetry_ffi_emit(TelemetryType type, const void* data, size_t len) {
     if (!g_telemetry_ring || !data || len == 0) return;
-    if (len > 240) len = 240;  /* Multi-block comment removed */
+    if (len > 240) len = 240;  
 
     TelemetryHeader hdr = {
         .type = (uint32_t)type,
         .len = (uint32_t)len,
-        .timestamp = 0  /* Multi-block comment removed */
+        .timestamp = 0  
     };
 
     uint32_t hdr_len = sizeof(TelemetryHeader);
@@ -88,28 +88,28 @@ void telemetry_ffi_emit(TelemetryType type, const void* data, size_t len) {
     uint32_t pos = atomic_load_explicit(&g_telemetry_ring->write_pos, memory_order_acquire);
     uint32_t next_pos = (pos + total_len) % (TELEMETRY_RING_SIZE - 8);
 
-    /* Multi-block comment removed */
+    
     if (next_pos < pos && next_pos > 0) {
-        /* Multi-block comment removed */
+        
         return;
     }
 
-    /* Multi-block comment removed */
+    
     memcpy(&g_telemetry_ring->data[pos], &hdr, hdr_len);
 
-    /* Multi-block comment removed */
+    
     uint32_t payload_start = (pos + hdr_len) % (TELEMETRY_RING_SIZE - 8);
     if (payload_start + len <= TELEMETRY_RING_SIZE - 8) {
-        /* Multi-block comment removed */
+        
         memcpy(&g_telemetry_ring->data[payload_start], data, len);
     } else {
-        /* Multi-block comment removed */
+        
         size_t first_part = TELEMETRY_RING_SIZE - 8 - payload_start;
         memcpy(&g_telemetry_ring->data[payload_start], data, first_part);
         memcpy(&g_telemetry_ring->data[0], (uint8_t*)data + first_part, len - first_part);
     }
 
-    /* Multi-block comment removed */
+    
     atomic_store_explicit(&g_telemetry_ring->write_pos, next_pos, memory_order_release);
 }
 
@@ -145,7 +145,7 @@ void telemetry_ffi_emit_ethics_event(
         .action = action,
         .roi_delta = roi_delta,
         .tick = tick,
-        .crc64 = 0,  /* Multi-block comment removed */
+        .crc64 = 0,  
     };
     telemetry_ffi_emit(TELEMETRY_ETHICS_EVENT, &evt, sizeof(evt));
 }
@@ -212,9 +212,9 @@ void telemetry_ffi_cleanup(void) {
     }
 }
 
-/* Multi-block comment removed */
-/* Multi-block comment removed */
-/* ========================================================================== */
+
+
+
 
 #define CONTROL_MQ_NAME "/qallow_control"
 #define CONTROL_MQ_MAXMSG 10
@@ -232,7 +232,7 @@ void control_mq_init(void) {
         .mq_curmsgs = 0,
     };
 
-    /* Try to open existing, or create new */
+    
     g_control_mq = mq_open(CONTROL_MQ_NAME, O_CREAT | O_RDONLY | O_NONBLOCK, 0666, &attr);
     if (g_control_mq == (mqd_t)-1) {
         perror("mq_open failed");

@@ -29,7 +29,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    /* Multi-block comment removed */
+    
     real_computer_check_hardware(computer);
 
     if (!computer->gpu_available && !computer->qpu_available) {
@@ -43,9 +43,9 @@ int main(int argc, char *argv[]) {
 
     printf("\n=== Setting Up Workloads ===\n");
 
-    /* Multi-block comment removed */
+    
     task_definition_t tasks[] = {
-        /* Multi-block comment removed */
+        
         real_computer_create_task(1, WORKLOAD_GPU_COMPUTE,
                                  "Matrix multiplication on GPU (512MB)"),
         real_computer_create_task(2, WORKLOAD_GPU_ACCELERATED_NN,
@@ -53,13 +53,13 @@ int main(int argc, char *argv[]) {
         real_computer_create_task(3, WORKLOAD_MIXED_PRECISION,
                                  "Mixed precision GPU computation"),
 
-        /* Multi-block comment removed */
+        
         real_computer_create_task(4, WORKLOAD_QUANTUM_CIRCUIT,
                                  "Bell state preparation (8 qubits)"),
         real_computer_create_task(5, WORKLOAD_QUANTUM_OPTIMIZATION,
                                  "QAOA optimization circuit (10 qubits)"),
 
-        /* Multi-block comment removed */
+        
         real_computer_create_task(6, WORKLOAD_HYBRID_OPTIMIZATION,
                                  "Hybrid GPU-Quantum optimization loop"),
     };
@@ -99,13 +99,13 @@ int main(int argc, char *argv[]) {
     printf("\n=== Executing Workloads on Real Hardware ===\n");
     printf("This will use actual CUDA GPU and Cirq quantum simulation...\n");
 
-    /* Multi-block comment removed */
+    
     task_result_t *results[num_tasks];
     for (uint32_t i = 0; i < num_tasks; i++) {
         results[i] = real_computer_execute_task(computer, &tasks[i]);
     }
 
-    /* Multi-block comment removed */
+    
     printf("\n=== Execution Results ===\n");
     double total_score = 0.0;
     double total_energy = 0.0;
@@ -129,7 +129,7 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    /* Multi-block comment removed */
+    
     printf("\n=== Aggregate System Statistics ===\n");
     real_computer_print_stats(computer);
 
@@ -143,7 +143,7 @@ int main(int argc, char *argv[]) {
     printf("Total Execution Time: %.2f ms\n", total_time);
     printf("Average Task Time: %.2f ms\n", total_time / num_tasks);
 
-    /* Hardware efficiency metrics */
+    
     if (computer->gpu_available && computer->gpu) {
         size_t free_mem, total_mem;
         cuda_get_memory_info(computer->gpu, &free_mem, &total_mem);
@@ -165,7 +165,7 @@ int main(int argc, char *argv[]) {
     printf("All workloads executed on real hardware (not simulation).\n");
     printf("System supports scaling to thousands of concurrent tasks.\n\n");
 
-    /* Cleanup */
+    
     real_computer_cleanup(computer);
 
     return 0;

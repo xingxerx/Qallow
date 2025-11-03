@@ -32,7 +32,7 @@ float apply_decay(float strength, float age, float decay_rate) {
     return strength * exp(-decay_rate * age);
 }
 
-/* Multi-block comment removed */
+
 void apply_distortion(MemoryTrace *memory, float trauma_factor) {
     float distortion = (rand() / (float)RAND_MAX) * trauma_factor;
     memory->distortion = distortion;
@@ -45,7 +45,7 @@ void apply_distortion(MemoryTrace *memory, float trauma_factor) {
     }
 }
 
-/* Multi-block comment removed */
+
 float consolidate_wisdom(MemoryState *state) {
     float total_strength = 0.0;
     float pattern_coherence = 0.0;
@@ -62,9 +62,7 @@ float consolidate_wisdom(MemoryState *state) {
     return pattern_coherence;
 }
 
-/**
- * Calculate memory coherence
- */
+
 float calculate_coherence(MemoryState *state) {
     float coherence = 0.0;
     
@@ -83,9 +81,7 @@ float calculate_coherence(MemoryState *state) {
     return coherence;
 }
 
-/**
- * Main Phase 17 execution
- */
+
 int main(int argc, char *argv[]) {
     printf("╔════════════════════════════════════════════════════════════════╗\n");
     printf("║  Phase 17: Memory Persistence & Decay - Aging & Wisdom       ║\n");

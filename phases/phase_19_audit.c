@@ -38,7 +38,7 @@ float score_decision_ethics(Decision *decision, float *baseline) {
     return score / EMBEDDING_DIM;
 }
 
-/* Multi-block comment removed */
+
 void generate_audit_glyph(Decision *decision, char *glyph_buffer) {
     // Create a signature based on decision characteristics
     float magnitude = 0.0;
@@ -54,7 +54,7 @@ void generate_audit_glyph(Decision *decision, char *glyph_buffer) {
             magnitude);
 }
 
-/* Multi-block comment removed */
+
 void compute_ethics_trajectory(AuditState *state) {
     // Initialize trajectory
     for (int i = 0; i < NUM_PHASES; i++) {
@@ -79,9 +79,7 @@ void compute_ethics_trajectory(AuditState *state) {
     }
 }
 
-/**
- * Calculate self-awareness level
- */
+
 float calculate_self_awareness(AuditState *state) {
     // Self-awareness = consistency of ethical reflection
     float variance = 0.0;
@@ -101,9 +99,7 @@ float calculate_self_awareness(AuditState *state) {
     return awareness;
 }
 
-/**
- * Main Phase 19 execution
- */
+
 int main(int argc, char *argv[]) {
     printf("╔════════════════════════════════════════════════════════════════╗\n");
     printf("║  Phase 19: Recursive Self-Audit - Ethical Reflection         ║\n");

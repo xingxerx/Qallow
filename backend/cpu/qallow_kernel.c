@@ -640,7 +640,7 @@ void adaptive_governance(qallow_state_t* state) {
     }
 }
 
-/* Phase 9: Predictive Control — forecast next-tick stability */
+
 #define QALLOW_WINDOW 8
 typedef struct {
     double h[QALLOW_WINDOW];
@@ -678,7 +678,7 @@ void predictive_control(qallow_state_t* state) {
     if (state->ethics_H > 1.0f) state->ethics_H = 1.0f;
 }
 
-/* Phase 10: Temporal Memory Alignment — validate prediction history */
+
 typedef struct {
     double mae;        // mean absolute error
     double total_err;

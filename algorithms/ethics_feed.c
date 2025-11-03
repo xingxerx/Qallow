@@ -95,9 +95,7 @@ int ethics_ingest_signal(const char *path, ethics_metrics_t *metrics) {
     return 1;
 }
 
-/**
- * Log ethics decision to audit trail
- */
+
 void ethics_log_decision(const char *log_path, double score, const char *action) {
     FILE *f = fopen(log_path, "a");
     if (!f) return;
@@ -107,9 +105,7 @@ void ethics_log_decision(const char *log_path, double score, const char *action)
     fclose(f);
 }
 
-/**
- * Verify signal freshness (< 5 seconds old)
- */
+
 int ethics_verify_freshness(const char *path, int max_age_sec) {
     FILE *f = fopen(path, "r");
     if (!f) return 0;

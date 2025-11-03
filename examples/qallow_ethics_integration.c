@@ -31,16 +31,13 @@ int qallow_ethics_init(ethics_model_t *model, const char *config_dir) {
     return 0;
 }
 
-/* Multi-block comment removed */
+
 int qallow_ethics_refresh_signals(void) {
     int rc = system("python3 /root/Qallow/python/collect_signals.py 2>/dev/null");
     return (rc == 0) ? 0 : -1;
 }
 
-/**
- * Check ethics constraints
- * Returns: 1 if ethical, 0 if violation, -1 on error
- */
+
 int qallow_ethics_check(ethics_model_t *model, const char *signal_path, 
                         ethics_score_details_t *details_out) {
     // Ingest current signals
@@ -84,9 +81,7 @@ int qallow_ethics_check(ethics_model_t *model, const char *signal_path,
     return pass;
 }
 
-/**
- * Example main loop integration
- */
+
 int main(void) {
     printf("========================================\n");
     printf("Qallow Ethics Integration Example\n");

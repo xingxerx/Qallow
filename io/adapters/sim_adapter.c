@@ -32,7 +32,7 @@ static double sim_generate_coherence(void) {
     return (value < 0.0) ? 0.0 : (value > 1.0) ? 1.0 : value;
 }
 
-/* Multi-block comment removed */
+
 static double sim_generate_decoherence(void) {
     // Very small value with noise
     double noise = (rand() % 100) / 10000000.0;
@@ -40,7 +40,7 @@ static double sim_generate_decoherence(void) {
     return (value < 0.0) ? 0.0 : value;
 }
 
-/* Multi-block comment removed */
+
 static double sim_generate_stability(void) {
     // Oscillate around 0.9984
     double noise = (rand() % 1000) / 1000000.0 - 0.0005;
@@ -48,13 +48,13 @@ static double sim_generate_stability(void) {
     return (value < 0.0) ? 0.0 : (value > 1.0) ? 1.0 : value;
 }
 
-/* Multi-block comment removed */
+
 static double sim_generate_feedback(void) {
     // Human feedback score (0.0-1.0)
     return 0.75 + (rand() % 200) / 1000.0 - 0.1;
 }
 
-/* Multi-block comment removed */
+
 int sim_adapter_generate_packet(ingest_packet_type_t type, 
                                 ingest_packet_t* packet) {
     if (!packet) return -1;
@@ -96,7 +96,7 @@ int sim_adapter_generate_packet(ingest_packet_type_t type,
     return 0;
 }
 
-/* Multi-block comment removed */
+
 int sim_adapter_poll(ingest_manager_t* mgr, ingest_packet_type_t type) {
     if (!mgr) return -1;
     
@@ -118,7 +118,7 @@ int sim_adapter_poll(ingest_manager_t* mgr, ingest_packet_type_t type) {
     return 0;
 }
 
-/* Multi-block comment removed */
+
 int sim_adapter_run_cycle(ingest_manager_t* mgr) {
     if (!mgr) return -1;
     
@@ -131,22 +131,18 @@ int sim_adapter_run_cycle(ingest_manager_t* mgr) {
     return 0;
 }
 
-/* Multi-block comment removed */
+
 void sim_adapter_init(void) {
     srand((unsigned int)time(NULL));
     printf("[SIM_ADAPTER] Simulation adapter initialized\n");
 }
 
-/**
- * Cleanup simulation adapter
- */
+
 void sim_adapter_cleanup(void) {
     printf("[SIM_ADAPTER] Simulation adapter cleaned up\n");
 }
 
-/**
- * Get simulation state
- */
+
 void sim_adapter_get_state(sim_state_t* state) {
     if (state) {
         *state = sim_state;

@@ -46,7 +46,7 @@ void compute_consensus(MultiplayerState *state) {
     }
 }
 
-/* Multi-block comment removed */
+
 float calculate_consensus_strength(MultiplayerState *state) {
     float total_deviation = 0.0;
     
@@ -65,7 +65,7 @@ float calculate_consensus_strength(MultiplayerState *state) {
     return strength;
 }
 
-/* Multi-block comment removed */
+
 int validate_peer_state(NodeState *peer, MultiplayerState *state) {
     // Check if peer state is within acceptable range
     for (int i = 0; i < STATE_VECTOR_DIM; i++) {
@@ -82,9 +82,7 @@ int validate_peer_state(NodeState *peer, MultiplayerState *state) {
     return 1;
 }
 
-/**
- * Merge states into shared ledger
- */
+
 void merge_into_ledger(MultiplayerState *state) {
     state->ledger_entries = state->num_nodes;
     
@@ -94,9 +92,7 @@ void merge_into_ledger(MultiplayerState *state) {
     }
 }
 
-/**
- * Main Phase 18 execution
- */
+
 int main(int argc, char *argv[]) {
     printf("╔════════════════════════════════════════════════════════════════╗\n");
     printf("║  Phase 18: Multiplayer Synchronization - Consensus Ledger    ║\n");

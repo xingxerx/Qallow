@@ -71,9 +71,7 @@ int verify_system(verify_report_t* report) {
     return report->status;
 }
 
-/**
- * Print verification report
- */
+
 void verify_print_report(const verify_report_t* report) {
     if (!report) return;
 
@@ -103,9 +101,7 @@ void verify_print_report(const verify_report_t* report) {
     printf("\nMessage: %s\n\n", report->message);
 }
 
-/**
- * Check if system is healthy
- */
+
 int verify_is_healthy(const verify_report_t* report) {
     if (!report) return 0;
     return report->status == VERIFY_OK;

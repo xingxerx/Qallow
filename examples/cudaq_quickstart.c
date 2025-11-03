@@ -6,7 +6,7 @@
 #include <math.h>
 
 /* Multi-block comment removed */
-/* Multi-block comment removed */
+
 
 typedef struct {
     int num_qubits;
@@ -22,11 +22,11 @@ typedef struct {
     int id;
 } cudaq_kernel;
 
-/* Multi-block comment removed */
+
 #define CUDAQ_SUCCESS 0
 #define CUDAQ_ERROR 1
 
-/* Multi-block comment removed */
+
 int cudaq_init(void) { return CUDAQ_SUCCESS; }
 cudaq_kernel cudaq_kernel_create(const char* name) { return (cudaq_kernel){0}; }
 cudaq_qvector cudaq_qvector_create(int n) { return (cudaq_qvector){n}; }
@@ -34,49 +34,49 @@ cudaq_sample_result cudaq_sample(cudaq_kernel k, int shots) { return (cudaq_samp
 const char** cudaq_get_targets(void) { return NULL; }
 const char* cudaq_get_target(void) { return "qasm-sim"; }
 
-/* Multi-block comment removed */
-/* Multi-block comment removed */
-/* Multi-block comment removed */
+
+
+
 void example_bell_state() {
     printf("\n%s\n", "========================================================================");
     printf("Example 1: Bell State (Entanglement)\n");
     printf("%s\n", "========================================================================");
     
-    /* Multi-block comment removed */
+    
     cudaq_kernel kernel = cudaq_kernel_create("bell_state");
     
-    /* Multi-block comment removed */
+    
     cudaq_qvector qubits = cudaq_qvector_create(2);
     
-    /* Multi-block comment removed */
+    
     cudaq_h(qubits, 0);
     
-    /* Multi-block comment removed */
+    
     cudaq_cx(qubits, 0, 1);
     
-    /* Multi-block comment removed */
+    
     cudaq_mz(qubits);
     
-    /* Multi-block comment removed */
+    
     cudaq_sample_result result = cudaq_sample(kernel, 1000);
     
     printf("\nBell State Results (1000 shots):\n");
     printf("Expected: ~500 '00' and ~500 '11' (maximally entangled)\n");
     
-    /* Multi-block comment removed */
+    
     for (int i = 0; i < result.num_states; i++) {
         printf("  %s: %d\n", result.states[i], result.counts[i]);
     }
     
-    /* Multi-block comment removed */
+    
     cudaq_sample_result_free(&result);
     cudaq_qvector_free(&qubits);
     cudaq_kernel_free(&kernel);
 }
 
-/* Multi-block comment removed */
-/* Multi-block comment removed */
-/* Multi-block comment removed */
+
+
+
 void example_superposition() {
     printf("\n%s\n", "========================================================================");
     printf("Example 2: Superposition\n");
@@ -85,15 +85,15 @@ void example_superposition() {
     cudaq_kernel kernel = cudaq_kernel_create("superposition");
     cudaq_qvector qubits = cudaq_qvector_create(3);
     
-    /* Multi-block comment removed */
+    
     for (int i = 0; i < 3; i++) {
         cudaq_h(qubits, i);
     }
     
-    /* Multi-block comment removed */
+    
     cudaq_mz(qubits);
     
-    /* Multi-block comment removed */
+    
     cudaq_sample_result result = cudaq_sample(kernel, 1000);
     
     printf("\nSuperposition Results (1000 shots):\n");
@@ -108,35 +108,35 @@ void example_superposition() {
     cudaq_kernel_free(&kernel);
 }
 
-/* Multi-block comment removed */
-/* Multi-block comment removed */
-/* Multi-block comment removed */
+
+
+
 void example_phase_estimation() {
     printf("\n%s\n", "========================================================================");
     printf("Example 3: Quantum Phase Estimation\n");
     printf("%s\n", "========================================================================");
     
-    double angle = M_PI / 2;  /* Multi-block comment removed */
+    double angle = M_PI / 2;  
     
     cudaq_kernel kernel = cudaq_kernel_create("phase_estimation");
     cudaq_qvector qubits = cudaq_qvector_create(2);
     
-    /* Multi-block comment removed */
+    
     cudaq_h(qubits, 0);
     
-    /* Multi-block comment removed */
+    
     cudaq_rz(angle, qubits, 1);
     
-    /* Multi-block comment removed */
+    
     cudaq_cx(qubits, 0, 1);
     
-    /* Multi-block comment removed */
+    
     cudaq_h(qubits, 0);
     
-    /* Multi-block comment removed */
+    
     cudaq_mz(qubits);
     
-    /* Multi-block comment removed */
+    
     cudaq_sample_result result = cudaq_sample(kernel, 100);
     
     printf("\nPhase Estimation Results (angle=%.3f):\n", angle);
@@ -149,9 +149,9 @@ void example_phase_estimation() {
     cudaq_kernel_free(&kernel);
 }
 
-/* Multi-block comment removed */
-/* Multi-block comment removed */
-/* Multi-block comment removed */
+
+
+
 void example_grovers_algorithm() {
     printf("\n%s\n", "========================================================================");
     printf("Example 4: Grover's Algorithm\n");
@@ -160,19 +160,19 @@ void example_grovers_algorithm() {
     cudaq_kernel kernel = cudaq_kernel_create("grovers_algorithm");
     cudaq_qvector qubits = cudaq_qvector_create(2);
     
-    /* Multi-block comment removed */
+    
     for (int i = 0; i < 2; i++) {
         cudaq_h(qubits, i);
     }
     
-    /* Multi-block comment removed */
+    
     cudaq_z(qubits, 0);
     cudaq_z(qubits, 1);
     cudaq_cx(qubits, 0, 1);
     cudaq_z(qubits, 0);
     cudaq_z(qubits, 1);
     
-    /* Multi-block comment removed */
+    
     for (int i = 0; i < 2; i++) {
         cudaq_h(qubits, i);
     }
@@ -187,10 +187,10 @@ void example_grovers_algorithm() {
         cudaq_h(qubits, i);
     }
     
-    /* Multi-block comment removed */
+    
     cudaq_mz(qubits);
     
-    /* Multi-block comment removed */
+    
     cudaq_sample_result result = cudaq_sample(kernel, 1000);
     
     printf("\nGrover's Algorithm Results (1000 shots):\n");
@@ -205,9 +205,9 @@ void example_grovers_algorithm() {
     cudaq_kernel_free(&kernel);
 }
 
-/* Multi-block comment removed */
-/* Multi-block comment removed */
-/* Multi-block comment removed */
+
+
+
 void example_available_targets() {
     printf("\n%s\n", "========================================================================");
     printf("Example 5: Available Quantum Backends\n");
@@ -220,14 +220,14 @@ void example_available_targets() {
     printf("  • stim\n");
     printf("  • nvidia-mqpu\n");
 
-    /* Multi-block comment removed */
+    
     const char* current = cudaq_get_target();
     printf("\nCurrent target: %s\n", current);
 }
 
-/* Multi-block comment removed */
-/* Multi-block comment removed */
-/* Multi-block comment removed */
+
+
+
 void example_parameterized_circuit() {
     printf("\n%s\n", "========================================================================");
     printf("Example 6: Parameterized Circuit\n");
@@ -239,19 +239,19 @@ void example_parameterized_circuit() {
     cudaq_kernel kernel = cudaq_kernel_create("parameterized_circuit");
     cudaq_qvector qubits = cudaq_qvector_create(2);
     
-    /* Multi-block comment removed */
+    
     cudaq_ry(theta, qubits, 0);
     
-    /* Multi-block comment removed */
+    
     cudaq_rz(phi, qubits, 1);
     
-    /* Multi-block comment removed */
+    
     cudaq_cx(qubits, 0, 1);
     
-    /* Multi-block comment removed */
+    
     cudaq_mz(qubits);
     
-    /* Multi-block comment removed */
+    
     cudaq_sample_result result = cudaq_sample(kernel, 100);
     
     printf("\nParameterized Circuit Results (θ=%.3f, φ=%.3f):\n", theta, phi);
@@ -264,15 +264,15 @@ void example_parameterized_circuit() {
     cudaq_kernel_free(&kernel);
 }
 
-/* Multi-block comment removed */
-/* Multi-block comment removed */
-/* Multi-block comment removed */
+
+
+
 int main(int argc, char* argv[]) {
     printf("\n%s\n", "========================================================================");
     printf("CUDA-Q Quick Start Examples for Qallow (C Version)\n");
     printf("%s\n", "========================================================================");
     
-    /* Multi-block comment removed */
+    
     if (cudaq_init() != CUDAQ_SUCCESS) {
         fprintf(stderr, "❌ Failed to initialize CUDA-Q\n");
         return 1;
@@ -280,7 +280,7 @@ int main(int argc, char* argv[]) {
     
     printf("✅ CUDA-Q initialized successfully!\n");
     
-    /* Multi-block comment removed */
+    
     example_bell_state();
     example_superposition();
     example_phase_estimation();
@@ -288,10 +288,10 @@ int main(int argc, char* argv[]) {
     example_available_targets();
     example_parameterized_circuit();
     
-    /* Cleanup */
+    
     cudaq_finalize();
     
-    /* Summary */
+    
     printf("\n%s\n", "========================================================================");
     printf("✅ CUDA-Q Quick Start Complete!\n");
     printf("%s\n", "========================================================================");

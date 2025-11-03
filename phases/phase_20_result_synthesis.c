@@ -38,7 +38,7 @@ float validation_oracle(float *synthesis, ResultState *state) {
     return validation / RESULT_DIM;
 }
 
-/* Multi-block comment removed */
+
 void optimization_amplification(SynthesisState *state) {
     // Find maximum validation score
     float max_validation = 0.0;
@@ -59,7 +59,7 @@ void optimization_amplification(SynthesisState *state) {
     state->result_quality = max_validation;
 }
 
-/* Multi-block comment removed */
+
 float calculate_aggregation_score(SynthesisState *state) {
     float total_score = 0.0;
 
@@ -74,9 +74,7 @@ float calculate_aggregation_score(SynthesisState *state) {
     return 0.0;
 }
 
-/**
- * Finalize results with quality threshold
- */
+
 int finalize_results(SynthesisState *state, float quality_threshold) {
     if (state->result_quality >= quality_threshold) {
         state->aggregation_score = calculate_aggregation_score(state);
@@ -85,9 +83,7 @@ int finalize_results(SynthesisState *state, float quality_threshold) {
     return 0;
 }
 
-/**
- * Main Phase 20 execution
- */
+
 int main(int argc, char *argv[]) {
     printf("================================================================================\n");
     printf("  Phase 20: Result Synthesis & Aggregation\n");

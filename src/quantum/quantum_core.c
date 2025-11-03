@@ -9,8 +9,8 @@
 #include <json-c/json.h>
 
 /* Multi-block comment removed */
-/* Multi-block comment removed */
-/* Multi-block comment removed */
+
+
 
 typedef struct {
     int n_qubits;
@@ -21,24 +21,24 @@ typedef struct {
     int cuda_available;
 } CUDAQuantumSimulator;
 
-/* Multi-block comment removed */
+
 CUDAQuantumSimulator* cuda_quantum_simulator_create(int n_qubits, int use_cuda) {
     CUDAQuantumSimulator* sim = malloc(sizeof(CUDAQuantumSimulator));
     if (!sim) return NULL;
     
     sim->n_qubits = n_qubits;
-    sim->state_size = 1 << n_qubits;  /* Multi-block comment removed */
+    sim->state_size = 1 << n_qubits;  
     sim->cuda_available = use_cuda;
     sim->num_measurements = 0;
     
-    /* Multi-block comment removed */
+    
     sim->state_vector = malloc(sim->state_size * sizeof(double complex));
     if (!sim->state_vector) {
         free(sim);
         return NULL;
     }
     
-    /* Multi-block comment removed */
+    
     sim->measurement_results = malloc(1000 * sizeof(int));
     if (!sim->measurement_results) {
         free(sim->state_vector);
@@ -46,7 +46,7 @@ CUDAQuantumSimulator* cuda_quantum_simulator_create(int n_qubits, int use_cuda) 
         return NULL;
     }
     
-    /* Multi-block comment removed */
+    
     for (int i = 0; i < sim->state_size; i++) {
         sim->state_vector[i] = 0.0 + 0.0*I;
     }
@@ -58,7 +58,7 @@ CUDAQuantumSimulator* cuda_quantum_simulator_create(int n_qubits, int use_cuda) 
     return sim;
 }
 
-/* Multi-block comment removed */
+
 void cuda_quantum_simulator_apply_hadamard(CUDAQuantumSimulator* sim, int qubit) {
     if (!sim || qubit >= sim->n_qubits) return;
     
@@ -67,11 +67,11 @@ void cuda_quantum_simulator_apply_hadamard(CUDAQuantumSimulator* sim, int qubit)
         {1.0/M_SQRT2, -1.0/M_SQRT2}
     };
     
-    /* Multi-block comment removed */
+    
     for (int i = 0; i < sim->state_size; i++) {
         if ((i >> qubit) & 1) {
-            /* Multi-block comment removed */
-            int j = i ^ (1 << qubit);  /* Multi-block comment removed */
+            
+            int j = i ^ (1 << qubit);  
             double complex temp = sim->state_vector[i];
             sim->state_vector[i] = h_matrix[1][0] * sim->state_vector[j] +
                                    h_matrix[1][1] * sim->state_vector[i];
@@ -81,13 +81,13 @@ void cuda_quantum_simulator_apply_hadamard(CUDAQuantumSimulator* sim, int qubit)
     }
 }
 
-/* Multi-block comment removed */
+
 void cuda_quantum_simulator_apply_cnot(CUDAQuantumSimulator* sim, int control, int target) {
     if (!sim || control >= sim->n_qubits || target >= sim->n_qubits) return;
     
     for (int i = 0; i < sim->state_size; i++) {
         if ((i >> control) & 1) {
-            /* Multi-block comment removed */
+            
             int j = i ^ (1 << target);
             double complex temp = sim->state_vector[i];
             sim->state_vector[i] = sim->state_vector[j];
@@ -96,11 +96,11 @@ void cuda_quantum_simulator_apply_cnot(CUDAQuantumSimulator* sim, int control, i
     }
 }
 
-/* Multi-block comment removed */
+
 int cuda_quantum_simulator_measure(CUDAQuantumSimulator* sim, int qubit) {
     if (!sim || qubit >= sim->n_qubits) return -1;
     
-    /* Multi-block comment removed */
+    
     double prob_0 = 0.0;
     for (int i = 0; i < sim->state_size; i++) {
         if (!((i >> qubit) & 1)) {
@@ -108,7 +108,7 @@ int cuda_quantum_simulator_measure(CUDAQuantumSimulator* sim, int qubit) {
         }
     }
     
-    /* Multi-block comment removed */
+    
     int result = (drand48() < prob_0) ? 0 : 1;
     
     if (sim->num_measurements < 1000) {
@@ -118,7 +118,7 @@ int cuda_quantum_simulator_measure(CUDAQuantumSimulator* sim, int qubit) {
     return result;
 }
 
-/* Multi-block comment removed */
+
 void cuda_quantum_simulator_free(CUDAQuantumSimulator* sim) {
     if (!sim) return;
     free(sim->state_vector);
@@ -126,9 +126,9 @@ void cuda_quantum_simulator_free(CUDAQuantumSimulator* sim) {
     free(sim);
 }
 
-/* Multi-block comment removed */
-/* Multi-block comment removed */
-/* Multi-block comment removed */
+
+
+
 
 typedef struct {
     char* state_file;
@@ -138,7 +138,7 @@ typedef struct {
     int history_capacity;
 } QuantumLearningSystem;
 
-/* Multi-block comment removed */
+
 QuantumLearningSystem* quantum_learning_system_create(const char* state_file) {
     QuantumLearningSystem* sys = malloc(sizeof(QuantumLearningSystem));
     if (!sys) return NULL;
@@ -150,7 +150,7 @@ QuantumLearningSystem* quantum_learning_system_create(const char* state_file) {
     sys->history_size = 0;
     sys->history_capacity = 1000;
     
-    /* Multi-block comment removed */
+    
     FILE* f = fopen(state_file, "r");
     if (f) {
         char buffer[4096];
@@ -167,7 +167,7 @@ QuantumLearningSystem* quantum_learning_system_create(const char* state_file) {
     return sys;
 }
 
-/* Multi-block comment removed */
+
 void quantum_learning_system_record_metric(QuantumLearningSystem* sys, int metric) {
     if (!sys) return;
     if (sys->history_size >= sys->history_capacity) {
@@ -177,7 +177,7 @@ void quantum_learning_system_record_metric(QuantumLearningSystem* sys, int metri
     sys->history[sys->history_size++] = metric;
 }
 
-/* Multi-block comment removed */
+
 double quantum_learning_system_get_average_performance(QuantumLearningSystem* sys) {
     if (!sys || sys->history_size == 0) return 0.0;
     
@@ -188,7 +188,7 @@ double quantum_learning_system_get_average_performance(QuantumLearningSystem* sy
     return (double)sum / sys->history_size;
 }
 
-/* Multi-block comment removed */
+
 int quantum_learning_system_save_state(QuantumLearningSystem* sys) {
     if (!sys) return -1;
     
@@ -202,7 +202,7 @@ int quantum_learning_system_save_state(QuantumLearningSystem* sys) {
     return 0;
 }
 
-/* Multi-block comment removed */
+
 void quantum_learning_system_free(QuantumLearningSystem* sys) {
     if (!sys) return;
     free(sys->state_file);
@@ -211,9 +211,9 @@ void quantum_learning_system_free(QuantumLearningSystem* sys) {
     free(sys);
 }
 
-/* Multi-block comment removed */
-/* Multi-block comment removed */
-/* Multi-block comment removed */
+
+
+
 
 typedef struct {
     double safety_metrics[10];
@@ -222,7 +222,7 @@ typedef struct {
     int num_metrics;
 } SignalCollector;
 
-/* Multi-block comment removed */
+
 SignalCollector* signal_collector_create() {
     SignalCollector* collector = malloc(sizeof(SignalCollector));
     if (!collector) return NULL;
@@ -231,25 +231,25 @@ SignalCollector* signal_collector_create() {
     return collector;
 }
 
-/* Multi-block comment removed */
+
 void signal_collector_collect_safety(SignalCollector* collector, double value) {
     if (!collector || collector->num_metrics >= 10) return;
     collector->safety_metrics[collector->num_metrics] = value;
 }
 
-/* Multi-block comment removed */
+
 void signal_collector_collect_clarity(SignalCollector* collector, double value) {
     if (!collector || collector->num_metrics >= 10) return;
     collector->clarity_metrics[collector->num_metrics] = value;
 }
 
-/* Multi-block comment removed */
+
 void signal_collector_collect_human(SignalCollector* collector, double value) {
     if (!collector || collector->num_metrics >= 10) return;
     collector->human_metrics[collector->num_metrics] = value;
 }
 
-/* Multi-block comment removed */
+
 double signal_collector_get_average(double* metrics, int count) {
     if (count == 0) return 0.0;
     double sum = 0.0;
@@ -259,36 +259,36 @@ double signal_collector_get_average(double* metrics, int count) {
     return sum / count;
 }
 
-/* Multi-block comment removed */
+
 void signal_collector_free(SignalCollector* collector) {
     if (collector) free(collector);
 }
 
-/* Multi-block comment removed */
-/* Multi-block comment removed */
-/* Multi-block comment removed */
+
+
+
 
 int main() {
     printf("Quantum Core Module - C Implementation\n");
     printf("=====================================\n\n");
     
-    /* Multi-block comment removed */
+    
     CUDAQuantumSimulator* sim = cuda_quantum_simulator_create(2, 1);
     if (!sim) {
         fprintf(stderr, "Failed to create simulator\n");
         return 1;
     }
     
-    /* Multi-block comment removed */
+    
     cuda_quantum_simulator_apply_hadamard(sim, 0);
     cuda_quantum_simulator_apply_cnot(sim, 0, 1);
     
-    /* Multi-block comment removed */
+    
     int result0 = cuda_quantum_simulator_measure(sim, 0);
     int result1 = cuda_quantum_simulator_measure(sim, 1);
     printf("Measurement results: %d, %d\n", result0, result1);
     
-    /* Multi-block comment removed */
+    
     QuantumLearningSystem* learning = quantum_learning_system_create("/tmp/quantum_state.json");
     if (!learning) {
         fprintf(stderr, "Failed to create learning system\n");
@@ -296,7 +296,7 @@ int main() {
         return 1;
     }
     
-    /* Multi-block comment removed */
+    
     quantum_learning_system_record_metric(learning, 95);
     quantum_learning_system_record_metric(learning, 87);
     quantum_learning_system_record_metric(learning, 92);
@@ -304,10 +304,10 @@ int main() {
     double avg = quantum_learning_system_get_average_performance(learning);
     printf("Average performance: %.2f\n", avg);
     
-    /* Save state */
+    
     quantum_learning_system_save_state(learning);
     
-    /* Cleanup */
+    
     cuda_quantum_simulator_free(sim);
     quantum_learning_system_free(learning);
     

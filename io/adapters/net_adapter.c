@@ -28,7 +28,7 @@ static int parse_json_value(const char* json_str, double* value, char* source) {
     return 0;
 }
 
-/* Multi-block comment removed */
+
 static int fetch_http_data(const char* endpoint, char* buffer, int buffer_size) {
     if (!endpoint || !buffer) return -1;
     
@@ -44,7 +44,7 @@ static int fetch_http_data(const char* endpoint, char* buffer, int buffer_size) 
     return 0;
 }
 
-/* Multi-block comment removed */
+
 int net_adapter_convert(const char* endpoint, const char* response, 
                         ingest_packet_t* packet) {
     if (!endpoint || !response || !packet) return -1;
@@ -70,7 +70,7 @@ int net_adapter_convert(const char* endpoint, const char* response,
     return 0;
 }
 
-/* Multi-block comment removed */
+
 int net_adapter_poll(ingest_manager_t* mgr, const char* endpoint, 
                      const char* stream_name) {
     if (!mgr || !endpoint || !stream_name) return -1;
@@ -99,16 +99,12 @@ int net_adapter_poll(ingest_manager_t* mgr, const char* endpoint,
     return 0;
 }
 
-/**
- * Initialize network adapter
- */
+
 void net_adapter_init(void) {
     printf("[NET_ADAPTER] Network adapter initialized\n");
 }
 
-/**
- * Cleanup network adapter
- */
+
 void net_adapter_cleanup(void) {
     printf("[NET_ADAPTER] Network adapter cleaned up\n");
 }
