@@ -5,6 +5,13 @@
 		}
 	],
 	"settings": {
-		"terminal.integrated.defaultProfile.linux": "bash"
+		"terminal.integrated.defaultProfile.linux": "bash",
+		"python-envs.pythonProjects": [
+			{
+				"path": "alg",
+				"envManager": "ms-python.python:venv",
+				"packageManager": "ms-python.python:pip"
+			}
+		]
 	}
 }

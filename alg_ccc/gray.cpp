@@ -3,8 +3,8 @@
 namespace qallow {
 namespace ccc {
 
-unsigned int gray2int(unsigned int g) {
-    unsigned int result = 0;
+int gray2int(uint32_t g) {
+    int result = 0;
     for (; g; g >>= 1) result ^= g;
     return result;
 }
