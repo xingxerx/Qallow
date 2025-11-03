@@ -1,7 +1,6 @@
-/* TODO: Refactor complex functions - consider breaking into smaller functions */
 /* Multi-block comment removed */
 /* Multi-block comment removed */
-
+/* Multi-block comment removed */
 
 // Phase 7 Unified Integration - Proactive AGI Layer
 
