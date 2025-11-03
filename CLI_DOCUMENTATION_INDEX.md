@@ -87,7 +87,7 @@ qallow phase 13 --nodes=16 --ticks=500
 
 ### Auto-Improve
 ```bash
-bash run_agent_lightning_loop.sh &
+python3 recursive_improvement_engine.py
 qallow run unified
 ```
 

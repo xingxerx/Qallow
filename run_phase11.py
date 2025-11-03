@@ -4,24 +4,10 @@ from __future__ import annotations
 
 from typing import Any, Optional
 
-try:
-    from agentlightning.litagent import LitAgent
-except ModuleNotFoundError:  # pragma: no cover - optional dependency
 
-    class LitAgent:  # type: ignore[too-few-public-methods]
-        """Minimal stub so the bridge can run without Agent Lightning installed."""
-
-        def __init__(self, *args: Any, **kwargs: Any) -> None:
-            pass
-
-        def send(self, payload: Any) -> None:
-            # When running standalone there is no messaging layer, so ignore sends.
-            pass
-
-
-class QuantumBridgeAgent(LitAgent):
+class QuantumBridgeAgent:
     def on_message(self, message: Any) -> Optional[Any]:
-        """Handle Agent Lightning messages for the bridge flow."""
+        """Handle bridge messages (legacy Agent Lightning shim)."""
         if getattr(message, "content", None) != "run_bridge":
             return None
 
@@ -33,6 +19,11 @@ class QuantumBridgeAgent(LitAgent):
             sender(payload)
 
         return payload
+
+    def send(self, payload: Any) -> None:  # pragma: no cover - compatibility no-op
+        """Standalone shim keeps compatibility with older orchestrators."""
+        # No message bus is available when Agent Lightning is removed.
+        return None
 
     def run_quantum_bridge(self) -> Any:
         """Invoke the Phase 11 quantum bridge entrypoint."""

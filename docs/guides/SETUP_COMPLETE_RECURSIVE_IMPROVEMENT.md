@@ -337,7 +337,6 @@ If execution times out:
 
 If Agent Lightning not installed:
   System works fine without it (RL features disabled)
-  Install with: pip install agentlightning
 
 For more issues:
   See RECURSIVE_IMPROVEMENT_GUIDE.md troubleshooting section

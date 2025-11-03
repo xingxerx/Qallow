@@ -48,7 +48,7 @@ scripts/
 ├── hparam_eval.py
 └── ... (26 more build/run scripts)
 
-Root: Only run_agent_lightning_loop.sh remains (primary entry point)
+Root: Only recursive_improvement_engine.py remains (primary entry point)
 ```
 
 ### 4. Directory Structure Verified
@@ -147,7 +147,7 @@ $ make -j$(nproc)
 - `.gitignore` - Git ignores
 - `.env.example` - Runtime config template
 - `docker-compose.yml` - Container orchestration
-- `run_agent_lightning_loop.sh` - Primary optimization tool
+- `recursive_improvement_engine.py` - Primary optimization tool
 
 ## Next Steps
 
@@ -180,7 +180,7 @@ cd /home/xing/qallow/Everything
 ./tests/smoke/test_modules.sh
 
 # Run Agent Lightning optimization
-./run_agent_lightning_loop.sh
+./recursive_improvement_engine.py
 
 # Check CUDA acceleration
 ./build/qallow_unified_cuda

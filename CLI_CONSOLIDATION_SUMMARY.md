@@ -165,7 +165,7 @@ qallow run unified
 ### Advanced Workflows
 ```bash
 # With Lightning Agent auto-improvement
-bash run_agent_lightning_loop.sh &
+python3 recursive_improvement_engine.py
 qallow run unified
 
 # With quantum hardware integration

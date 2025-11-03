@@ -204,7 +204,6 @@ To use RL training on collected data:
 
 ```bash
 # Install Agent Lightning (if not already done)
-pip install agentlightning
 
 # After running improvements, view collected data
 agl store view
@@ -324,7 +323,6 @@ rm -rf build/
 ### Agent Lightning Not Installed
 ```bash
 # Install it
-pip install agentlightning
 
 # System works without it (fallback mode, no RL)
 ./run_with_improvement.sh 10 120 cuda  # Still works!

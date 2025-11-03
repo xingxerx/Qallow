@@ -184,7 +184,7 @@ Environment:
 1. qallow system build         # Build
 2. qallow system verify        # Check health
 3. qallow run unified          # Execute
-4. bash run_agent_lightning_loop.sh &  # Auto-improve
+4. python3 recursive_improvement_engine.py  # Auto-improve
 ```
 
 ### Testing Individual Phases
@@ -319,7 +319,7 @@ $ qallow phase 13 --nodes=256 --ticks=600 --audit-tag=benchmark
 
 ### Flow 5: Auto-Improve
 ```
-$ bash run_agent_lightning_loop.sh &
+$ python3 recursive_improvement_engine.py
 $ qallow run unified
 $ qallow phase 13 --nodes=32 --ticks=400
 ```

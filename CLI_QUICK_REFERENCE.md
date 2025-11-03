@@ -139,7 +139,7 @@ qallow system clear
 qallow system build
 qallow system verify
 qallow run unified
-bash run_agent_lightning_loop.sh &
+python3 recursive_improvement_engine.py
 ```
 
 ### Benchmarking
@@ -169,7 +169,7 @@ qallow run vm --self-audit --export-pocket-map /tmp/pockets.json
 ### Auto-Improvement Loop
 ```bash
 # Runs in background, continuously improving codebase
-bash run_agent_lightning_loop.sh &
+python3 recursive_improvement_engine.py
 
 # In another terminal, run phases as needed
 qallow run unified
@@ -252,7 +252,7 @@ qallow run bench
 qallow run vm --integrate phase11
 
 # 6. Auto-improve the codebase
-bash run_agent_lightning_loop.sh &
+python3 recursive_improvement_engine.py
 qallow run unified
 
 # 7. Get help

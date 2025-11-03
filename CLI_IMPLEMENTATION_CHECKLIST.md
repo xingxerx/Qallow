@@ -282,7 +282,7 @@ All code is already implemented in `interface/launcher.c` and working. The docum
 
 3. ✅ **Integrate with Lightning Agent**
    ```bash
-   bash run_agent_lightning_loop.sh &
+   python3 recursive_improvement_engine.py
    qallow run unified
    ```
 

@@ -18,7 +18,7 @@ qallow system build
 qallow run
 
 # Run with automatic Lightning Agent improvement loop
-bash run_agent_lightning_loop.sh
+python3 recursive_improvement_engine.py
 
 # Run a specific phase
 qallow phase 13 --nodes=16 --ticks=500
@@ -375,7 +375,7 @@ For continuous automatic codebase improvement:
 
 ```bash
 # Run Lightning Agent auto-improvement loop
-bash run_agent_lightning_loop.sh
+python3 recursive_improvement_engine.py
 ```
 
 This loop:
@@ -385,7 +385,7 @@ This loop:
 4. Benchmarks performance (CUDA vs CPU)
 5. Iterates continuously (Ctrl+C to stop)
 
-See `run_agent_lightning_loop.sh` and `qallow_lightning_integration.py` for details.
+See `recursive_improvement_engine.py` for details.
 
 ---
 
@@ -425,7 +425,7 @@ qallow run unified
 qallow phase 13 --nodes=32 --ticks=400 --k=0.0015
 
 # 5. Enable auto-improvement
-bash run_agent_lightning_loop.sh &
+python3 recursive_improvement_engine.py
 ```
 
 ### Performance Benchmarking
@@ -556,5 +556,4 @@ qallow run unified --integrate-phase13-ticks=100
 
 - [`README.md`](README.md) - Project overview
 - [`docs/ARCHITECTURE_SPEC.md`](docs/ARCHITECTURE_SPEC.md) - Technical architecture
-- [`run_agent_lightning_loop.sh`](run_agent_lightning_loop.sh) - Auto-improvement loop
-- [`qallow_lightning_integration.py`](qallow_lightning_integration.py) - Lightning Agent bridge
+- [`recursive_improvement_engine.py`](recursive_improvement_engine.py) - Auto-improvement loop

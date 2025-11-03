@@ -416,10 +416,8 @@ export QALLOW_MEMORY_LIMIT=32768  # 32GB
 
 ```bash
 # Install Agent Lightning
-pip install agentlightning
 
 # Verify installation
-python3 -c "import agentlightning; print(agentlightning.__version__)"
 
 # The system will run without RL if not installed (fallback mode)
 ```

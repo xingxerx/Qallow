@@ -121,7 +121,7 @@ qallow build          # Still works ⚠️ "Deprecated, use qallow system build"
 ### ✅ Lightning Agent Integration
 Seamless integration with auto-improvement loop:
 ```bash
-bash run_agent_lightning_loop.sh &
+python3 recursive_improvement_engine.py
 qallow run unified    # Auto-improves while running
 ```
 
@@ -158,7 +158,7 @@ qallow phase 11 --hardware-only
 
 ### Auto-Improvement Loop
 ```bash
-bash run_agent_lightning_loop.sh &
+python3 recursive_improvement_engine.py
 qallow run unified
 ```
 
@@ -231,7 +231,7 @@ Executes: Phase 13 with ticks=400
 qallow system build
 qallow system verify
 qallow run unified
-bash run_agent_lightning_loop.sh &
+python3 recursive_improvement_engine.py
 ```
 
 ### For Benchmarking
@@ -262,7 +262,7 @@ qallow run vm --integrate phase11
 **With Lightning Agent:**
 ```bash
 # Auto-improvement loop detects and fixes issues
-bash run_agent_lightning_loop.sh &
+python3 recursive_improvement_engine.py
 
 # Run qallow commands as needed - agent monitors and improves
 qallow run unified
@@ -327,7 +327,7 @@ qallow run unified
 ### 4. Use It
 ```bash
 # Integrate with Lightning Agent
-bash run_agent_lightning_loop.sh &
+python3 recursive_improvement_engine.py
 
 # Run phases
 qallow run unified
@@ -374,7 +374,7 @@ qallow system verify                 # Check health
 qallow run                           # Execute VM
 qallow run unified                   # Run phases 12-15
 qallow phase 13 --ticks=100         # Run phase 13
-bash run_agent_lightning_loop.sh &  # Auto-improve
+python3 recursive_improvement_engine.py  # Auto-improve
 ```
 
 ---

@@ -108,7 +108,7 @@ python3 << 'PYEOF'
 import sys
 
 required_packages = ['pathlib', 'dataclasses', 'logging']
-optional_packages = ['agentlightning']
+optional_packages: list[str] = []
 
 for pkg in required_packages:
     try:

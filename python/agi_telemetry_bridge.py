@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-AGI Telemetry Bridge - Connects Agent Lightning traces to Qallow telemetry
-Integrates RL training data with existing Qallow monitoring infrastructure
+AGI Telemetry Bridge
+Collects reinforcement-style telemetry from Qallow components and exports it for monitoring.
 """
 
 import json
@@ -10,26 +10,12 @@ from pathlib import Path
 from datetime import datetime
 from typing import Dict, List, Optional
 
-try:
-    import agentlightning as agl
-    AGENT_LIGHTNING_AVAILABLE = True
-except ImportError:
-    AGENT_LIGHTNING_AVAILABLE = False
-
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
 class AGITelemetryBridge:
-    """
-    Bridge between Agent Lightning and Qallow telemetry system
-    
-    Captures RL training traces and integrates them with:
-    - Qallow's existing telemetry pipeline
-    - Web dashboard metrics
-    - Audit trail system
-    - Performance monitoring
-    """
+    """Bridge reinforcement-learning telemetry into Qallow's monitoring stack."""
     
     def __init__(self, 
                  telemetry_dir: str = '/root/Qallow/telemetry',
@@ -51,14 +37,14 @@ class AGITelemetryBridge:
         
         Args:
             task_id: Unique task identifier
-            trace_data: Trace data from Agent Lightning
+            trace_data: RL trace data collected from Qallow subsystems
         """
         
         trace = {
             'task_id': task_id,
             'timestamp': datetime.now().isoformat(),
             'data': trace_data,
-            'source': 'agent_lightning'
+            'source': 'qallow_rl'
         }
         
         self.traces.append(trace)
@@ -345,4 +331,3 @@ def demo_telemetry_bridge():
 
 if __name__ == "__main__":
     demo_telemetry_bridge()
-

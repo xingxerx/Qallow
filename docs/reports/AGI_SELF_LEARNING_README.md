@@ -59,10 +59,8 @@ python3 python/agi_telemetry_bridge.py
 
 ```bash
 # Install Agent Lightning for full RL capabilities
-pip install agentlightning
 
 # Or use the already installed version
-/var/data/python/bin/pip install agentlightning
 ```
 
 **Note**: The system works WITHOUT Agent Lightning installed, but RL training is disabled.

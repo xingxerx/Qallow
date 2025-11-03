@@ -2,7 +2,9 @@
 
 ## Mission Accomplished ✅
 
-**Microsoft's Agent Lightning** has been successfully integrated with **Qallow's Quantum-Photonic AGI System** for **continuous self-improvement and autonomous learning**!
+**Microsoft's Agent Lightning** was previously integrated with **Qallow's Quantum-Photonic AGI System** for **continuous self-improvement and autonomous learning**.
+
+> **Update (2024-10):** Agent Lightning support has been retired from the active codebase. The materials below remain for historical context.
 
 ---
 
@@ -31,16 +33,15 @@
    - Telemetry export
    - Integration report generation
 
-### Documentation (4 Files)
+### Documentation (3 Files)
 
 1. **`AGI_SELF_LEARNING_README.md`** - Complete usage guide
-2. **`AGENT_LIGHTNING_SETUP.md`** - Agent Lightning setup and resources
-3. **`INSTALL_DOTNET_DEPENDENCIES.md`** - .NET dependencies guide
-4. **`INTEGRATION_COMPLETE.md`** - This summary
+2. **`INSTALL_DOTNET_DEPENDENCIES.md`** - .NET dependencies guide
+3. **`INTEGRATION_COMPLETE.md`** - This summary
 
-### Demo Files (1 File)
+### Demo Files (Deprecated)
 
-1. **`agent_lightning_demo.py`** - Agent Lightning demonstration
+- Agent Lightning demo assets have been removed alongside the integration.
 
 ---
 
@@ -382,4 +383,3 @@ python3 python/qallow_agi_integration.py
 **System Status**: 🟢 **OPERATIONAL**
 
 🎉 **Congratulations! Your AGI can now learn and improve itself!** 🎉
-

@@ -145,12 +145,12 @@ else
 fi
 
 ################################################################################
-# STEP 4: AGENT LIGHTNING CODE ANALYSIS
+# STEP 4: STATIC CODE ANALYSIS
 ################################################################################
 
 echo ""
 echo "═══════════════════════════════════════════════════════════════════"
-echo "STEP 4: Agent Lightning Code Analysis"
+echo "STEP 4: Static Code Analysis"
 echo "═══════════════════════════════════════════════════════════════════"
 echo ""
 
@@ -162,31 +162,23 @@ if ! command -v python3 &> /dev/null; then
     exit 1
 fi
 
-# Check Agent Lightning
-if python3 -c "import agentlightning" 2>/dev/null; then
-    log_success "Agent Lightning available"
-    
-    # Run code analysis
-    log_info "Running static analysis..."
-    
-    # Analyze quantum algorithms
-    QUANTUM_FILES=$(find src/quantum -name "*.c" 2>/dev/null | head -5)
-    if [ -n "$QUANTUM_FILES" ]; then
-        for file in $QUANTUM_FILES; do
-            echo "  Analyzing: $file"
-            # Count functions
-            FUNC_COUNT=$(grep -c "^[a-z_].*(.*).*{" "$file" 2>/dev/null || echo "0")
-            # Count lines
-            LINE_COUNT=$(wc -l < "$file" 2>/dev/null || echo "0")
-            echo "    Functions: $FUNC_COUNT, Lines: $LINE_COUNT"
-        done
-    fi
-    
-    log_success "Code analysis complete"
-else
-    log_warning "Agent Lightning not available"
-    log_info "Install: pip install agentlightning"
+# Run code analysis
+log_info "Running static analysis..."
+
+# Analyze quantum algorithms
+QUANTUM_FILES=$(find src/quantum -name "*.c" 2>/dev/null | head -5)
+if [ -n "$QUANTUM_FILES" ]; then
+    for file in $QUANTUM_FILES; do
+        echo "  Analyzing: $file"
+        # Count functions
+        FUNC_COUNT=$(grep -c "^[a-z_].*(.*).*{" "$file" 2>/dev/null || echo "0")
+        # Count lines
+        LINE_COUNT=$(wc -l < "$file" 2>/dev/null || echo "0")
+        echo "    Functions: $FUNC_COUNT, Lines: $LINE_COUNT"
+    done
 fi
+
+log_success "Code analysis complete"
 
 ################################################################################
 # STEP 5: RUN QUANTUM BENCHMARKS
