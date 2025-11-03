@@ -10,14 +10,14 @@ from quantum_algorithms.quantum_clustering import (
 )
 
 
-class TestSparseEncoderQiskit:
-    """Test sparse encoder with Qiskit backend."""
+class TestSparseEncoderCirq:
+    """Test sparse encoder with Cirq backend."""
     
     @pytest.fixture
     def config(self):
         """Create test configuration."""
         return ClusteringConfig(
-            n=10, d=64, s=4, k=2, m=4, backend="qiskit", seed=42
+            n=10, d=64, s=4, k=2, m=4, backend="cirq", seed=42
         )
     
     @pytest.fixture
@@ -34,8 +34,8 @@ class TestSparseEncoderQiskit:
     
     def test_initialization(self, encoder):
         """Test encoder initialization."""
-        assert encoder.config.backend == "qiskit"
-        assert encoder.backend == "qiskit"
+        assert encoder.config.backend == "cirq"
+        assert encoder.backend == "cirq"
     
     def test_prepare_state_structure(self, encoder, sparse_vector):
         """Test state preparation returns correct structure."""
@@ -46,7 +46,7 @@ class TestSparseEncoderQiskit:
         assert "depth" in state_dict
         assert "vector_norm" in state_dict
         assert "backend" in state_dict
-        assert state_dict["backend"] == "qiskit"
+        assert state_dict["backend"] == "cirq"
     
     def test_prepare_state_qubits(self, encoder, sparse_vector):
         """Test qubit count is correct."""
@@ -74,7 +74,7 @@ class TestSparseEncoderQiskit:
     
     def test_prepare_multiple_vectors(self, encoder):
         """Test preparing multiple vectors."""
-        config = ClusteringConfig(n=5, d=64, s=4, k=2, m=4, backend="qiskit", seed=42)
+        config = ClusteringConfig(n=5, d=64, s=4, k=2, m=4, backend="cirq", seed=42)
         dataset = SparseDataset.generate(config)
         
         for vec in dataset.vectors:
@@ -83,46 +83,12 @@ class TestSparseEncoderQiskit:
             assert state_dict["depth"] > 0
 
 
-class TestSparseEncoderCirq:
-    """Test sparse encoder with Cirq backend."""
-    
-    @pytest.fixture
-    def config(self):
-        """Create test configuration."""
-        return ClusteringConfig(
-            n=10, d=64, s=4, k=2, m=4, backend="cirq", seed=42
-        )
-    
-    @pytest.fixture
-    def encoder(self, config):
-        """Create encoder instance."""
-        try:
-            return SparseEncoder(config)
-        except ImportError:
-            pytest.skip("Cirq not available")
-    
-    @pytest.fixture
-    def sparse_vector(self):
-        """Create test sparse vector."""
-        indices = np.array([0, 5, 10, 15])
-        values = np.array([0.5, 0.3, 0.2, 0.1])
-        return SparseVector(indices, values, dimension=64)
-    
-    def test_prepare_state_cirq(self, encoder, sparse_vector):
-        """Test state preparation with Cirq."""
-        state_dict = encoder.prepare_state(sparse_vector)
-        
-        assert "circuit" in state_dict
-        assert state_dict["backend"] == "cirq"
-        assert state_dict["qubits"] == 11
-
-
 class TestSparseEncoderEdgeCases:
     """Test edge cases and error handling."""
     
     def test_zero_vector(self):
         """Test encoding zero vector."""
-        config = ClusteringConfig(n=10, d=64, s=4, k=2, m=4, backend="qiskit")
+        config = ClusteringConfig(n=10, d=64, s=4, k=2, m=4, backend="cirq")
         encoder = SparseEncoder(config)
         
         indices = np.array([0])
@@ -134,7 +100,7 @@ class TestSparseEncoderEdgeCases:
     
     def test_single_nonzero(self):
         """Test vector with single nonzero."""
-        config = ClusteringConfig(n=10, d=64, s=1, k=2, m=4, backend="qiskit")
+        config = ClusteringConfig(n=10, d=64, s=1, k=2, m=4, backend="cirq")
         encoder = SparseEncoder(config)
         
         indices = np.array([10])
@@ -146,7 +112,7 @@ class TestSparseEncoderEdgeCases:
     
     def test_full_vector(self):
         """Test dense vector (all nonzeros)."""
-        config = ClusteringConfig(n=10, d=16, s=16, k=2, m=4, backend="qiskit")
+        config = ClusteringConfig(n=10, d=16, s=16, k=2, m=4, backend="cirq")
         encoder = SparseEncoder(config)
         
         indices = np.arange(16)
@@ -159,4 +125,3 @@ class TestSparseEncoderEdgeCases:
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
-

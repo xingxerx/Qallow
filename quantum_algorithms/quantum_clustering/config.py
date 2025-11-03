@@ -18,8 +18,8 @@ class ClusteringConfig:
         k: Number of clusters
         m: Projection dimension (feature qubits). Default 6.
         seed: Random seed for reproducibility. Default 42.
-        backend: Quantum backend ('qiskit' or 'cirq'). Default 'qiskit'.
-        simulator: Simulator type ('aer' for Qiskit, 'clifford' for Cirq). Default 'aer'.
+        backend: Quantum backend ('cirq'). Default 'cirq'.
+        simulator: Simulator type ('qsim', 'clifford'). Default 'qsim'.
         shots: Number of measurement shots. Default 1000.
         max_circuit_depth: Maximum circuit depth for NISQ devices. Default 20.
         normalize: Whether to normalize vectors. Default True.
@@ -35,8 +35,8 @@ class ClusteringConfig:
     # Quantum parameters
     m: int = 6  # Projection dimension (feature qubits)
     seed: int = 42  # Random seed
-    backend: Literal["qiskit", "cirq"] = "qiskit"
-    simulator: str = "aer"  # 'aer' for Qiskit, 'clifford' for Cirq
+    backend: Literal["cirq"] = "cirq"
+    simulator: str = "qsim"  # Cirq simulator selection
     shots: int = 1000  # Measurement shots
     max_circuit_depth: int = 20  # NISQ device limit
     
@@ -61,8 +61,8 @@ class ClusteringConfig:
             raise ValueError(f"m must be in [1, 20] (qubit limit), got {self.m}")
         if self.shots < 100:
             logger.warning(f"shots={self.shots} is low; recommend >= 500 for accuracy")
-        if self.backend not in ["qiskit", "cirq"]:
-            raise ValueError(f"backend must be 'qiskit' or 'cirq', got {self.backend}")
+        if self.backend != "cirq":
+            raise ValueError(f"backend must be 'cirq', got {self.backend}")
         
         logger.setLevel(self.log_level)
     
@@ -99,4 +99,3 @@ class ClusteringConfig:
             f"ClusteringConfig(n={self.n}, d={self.d}, s={self.s}, k={self.k}, "
             f"m={self.m}, qubits={self.total_qubits}, backend={self.backend})"
         )
-
