@@ -4,6 +4,7 @@
 #include "cuda_gpu.h"
 #include "neuromorphic.h"
 #include "photonic.h"
+#include "temporal_memory.h"
 #include <stddef.h>
 
 typedef enum {
@@ -22,6 +23,7 @@ typedef struct {
     CudaGPU gpu;
     NeuromorphicProcessor neuro;
     PhotonicProcessor photon;
+    TemporalMemory memory;
 } VirtualComputer;
 
 int vc_init(VirtualComputer *vc);

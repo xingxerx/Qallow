@@ -7,6 +7,39 @@ CPU_BUILD_DIR := $(BUILD_ROOT)/CPU
 CUDA_BUILD_DIR := $(BUILD_ROOT)/CUDA
 CMAKE_COMMON_FLAGS ?=
 
+# Bootstrap targets
+.PHONY: bootstrap
+bootstrap:
+	@chmod +x bootstrap.sh
+	@./bootstrap.sh
+
+.PHONY: bootstrap-no-cuda
+bootstrap-no-cuda:
+	@chmod +x bootstrap.sh
+	@./bootstrap.sh --no-cuda
+
+.PHONY: bootstrap-skip-tests
+bootstrap-skip-tests:
+	@chmod +x bootstrap.sh
+	@./bootstrap.sh --skip-tests
+
+.PHONY: bootstrap-no-python
+bootstrap-no-python:
+	@chmod +x bootstrap.sh
+	@./bootstrap.sh --no-python
+
+.PHONY: fetch-assets
+fetch-assets:
+	python3 scripts/fetch_assets.py
+
+.PHONY: fetch-assets-force
+fetch-assets-force:
+	python3 scripts/fetch_assets.py --force
+
+.PHONY: fetch-assets-list
+fetch-assets-list:
+	python3 scripts/fetch_assets.py --list
+
 define configure
 	$(CMAKE) -S . -B $(1) $(CMAKE_COMMON_FLAGS) $(2)
 endef

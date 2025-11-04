@@ -14,6 +14,7 @@ set(SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/cuda_gpu.c
     ${CMAKE_CURRENT_SOURCE_DIR}/neuromorphic.c
     ${CMAKE_CURRENT_SOURCE_DIR}/photonic.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../src/temporal_memory.c
     ${CMAKE_CURRENT_SOURCE_DIR}/virtual_computer.c
     ${CMAKE_CURRENT_SOURCE_DIR}/main.c
 )
@@ -33,18 +34,27 @@ add_executable(virtual_computer_demo ${SOURCES} ${HEADERS})
 if(MATH_LIBRARY)
     target_link_libraries(virtual_computer_demo ${MATH_LIBRARY})
 endif()
+target_include_directories(virtual_computer_demo PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../include
+)
 
 # Create library
 add_library(virtual_computer_lib STATIC
     ${CMAKE_CURRENT_SOURCE_DIR}/cuda_gpu.c
     ${CMAKE_CURRENT_SOURCE_DIR}/neuromorphic.c
     ${CMAKE_CURRENT_SOURCE_DIR}/photonic.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../src/temporal_memory.c
     ${CMAKE_CURRENT_SOURCE_DIR}/virtual_computer.c
 )
 
 if(MATH_LIBRARY)
     target_link_libraries(virtual_computer_lib ${MATH_LIBRARY})
 endif()
+target_include_directories(virtual_computer_lib PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../include
+)
 
 # Installation
 install(TARGETS virtual_computer_demo
