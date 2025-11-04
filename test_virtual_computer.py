@@ -1,23 +1,23 @@
-# [REVIEWED] # [REVIEWED] # [REVIEWED] #!/usr/bin/env python3
-# [REVIEWED] # [REVIEWED] # [REVIEWED] """
-# [REVIEWED] # [REVIEWED] # [REVIEWED] VIRTUAL COMPUTER SYSTEM - IMPLEMENTATION SUMMARY
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] Created: November 2, 2025
-# [REVIEWED] # [REVIEWED] # [REVIEWED] Purpose: CUDA + Neuromorphic + Photonic processor simulation for AgentLightning Runner optimization
-# [REVIEWED] # [REVIEWED] # [REVIEWED] """
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # Add virtual_computer to path
-# [REVIEWED] # [REVIEWED] # [REVIEWED] sys.path.insert(0, '/home/xing/Qallow')
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] print("\n" + "="*80)
-# [REVIEWED] # [REVIEWED] # [REVIEWED] print("  VIRTUAL COMPUTER SYSTEM - IMPORT & INITIALIZATION TEST")
-# [REVIEWED] # [REVIEWED] # [REVIEWED] print("="*80 + "\n")
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] try:
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     print("1. Testing CUDA GPU Simulator...")
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     from virtual_computer.cuda_simulator import VirtualGPU
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] #!/usr/bin/env python3
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] """
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] VIRTUAL COMPUTER SYSTEM - IMPLEMENTATION SUMMARY
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] Created: November 2, 2025
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] Purpose: CUDA + Neuromorphic + Photonic processor simulation for AgentLightning Runner optimization
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] """
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # Add virtual_computer to path
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] sys.path.insert(0, '/home/xing/Qallow')
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] print("\n" + "="*80)
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] print("  VIRTUAL COMPUTER SYSTEM - IMPORT & INITIALIZATION TEST")
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] print("="*80 + "\n")
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] try:
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     print("1. Testing CUDA GPU Simulator...")
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     from virtual_computer.cuda_simulator import VirtualGPU
     gpu = VirtualGPU(device_id=0, device_memory_mb=8192)
     print("   ✅ CUDA GPU initialized")
     print(f"      Device Memory: {gpu.device_memory / (1024*1024):.0f} MB")

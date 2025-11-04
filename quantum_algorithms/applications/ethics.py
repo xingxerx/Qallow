@@ -1,23 +1,23 @@
-# [REVIEWED] # [REVIEWED] # [REVIEWED] """
-# [REVIEWED] # [REVIEWED] # [REVIEWED] Shared ethical governance utilities for quantum application pipelines.
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] The auditor checks per-domain coherence thresholds and consolidates metrics that
-# [REVIEWED] # [REVIEWED] # [REVIEWED] downstream services can persist or forward to trust dashboards.
-# [REVIEWED] # [REVIEWED] # [REVIEWED] """
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] @dataclass
-# [REVIEWED] # [REVIEWED] # [REVIEWED] class CoherenceReport:
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     """Result of an ethical compliance check."""
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     domain: str
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     metrics: Dict[str, float]
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     thresholds: Dict[str, float]
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     failures: Dict[str, float] = field(default_factory=dict)
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     @property
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     def passed(self) -> bool:
-# [REVIEWED] # [REVIEWED] # [REVIEWED]         return not self.failures
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] """
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] Shared ethical governance utilities for quantum application pipelines.
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] The auditor checks per-domain coherence thresholds and consolidates metrics that
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] downstream services can persist or forward to trust dashboards.
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] """
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] @dataclass
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] class CoherenceReport:
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     """Result of an ethical compliance check."""
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     domain: str
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     metrics: Dict[str, float]
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     thresholds: Dict[str, float]
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     failures: Dict[str, float] = field(default_factory=dict)
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     @property
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     def passed(self) -> bool:
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]         return not self.failures
 
 
 DEFAULT_THRESHOLDS: Dict[str, Dict[str, float]] = {

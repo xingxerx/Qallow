@@ -1,23 +1,23 @@
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] from .ethics import CoherenceAuditor, CoherenceReport
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] try:  # Optional dependency on Cirq-based implementation
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     from quantum_algorithms.algorithms.vqe_algorithm import vqe_optimization  # type: ignore
-# [REVIEWED] # [REVIEWED] # [REVIEWED] except ImportError:  # pragma: no cover - executed when cirq is unavailable
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     vqe_optimization = None  # type: ignore
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] @dataclass
-# [REVIEWED] # [REVIEWED] # [REVIEWED] class DrugDiscoveryConfig:
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     """Configuration for the molecular VQE workload."""
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     n_qubits: int = 2
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     n_iterations: int = 6
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     classical_baseline_hours: float = 120.0
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     quantum_batch_factor: float = 12.0
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     target_energy_hartree: float = -1.0
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] from .ethics import CoherenceAuditor, CoherenceReport
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] try:  # Optional dependency on Cirq-based implementation
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     from quantum_algorithms.algorithms.vqe_algorithm import vqe_optimization  # type: ignore
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] except ImportError:  # pragma: no cover - executed when cirq is unavailable
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     vqe_optimization = None  # type: ignore
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] @dataclass
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] class DrugDiscoveryConfig:
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     """Configuration for the molecular VQE workload."""
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     n_qubits: int = 2
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     n_iterations: int = 6
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     classical_baseline_hours: float = 120.0
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     quantum_batch_factor: float = 12.0
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     target_energy_hartree: float = -1.0
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
 class DrugDiscoveryPipeline:
     """Runs a lightweight VQE pass and records lead-time metrics."""
 

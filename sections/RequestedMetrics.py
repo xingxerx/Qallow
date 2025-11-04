@@ -1,23 +1,23 @@
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # TODO: switch to enum.Enum once this is available in static interpreter
-# [REVIEWED] # [REVIEWED] # [REVIEWED] class Importance:
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     OPTIONAL = 1
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     REQUIRED = 2
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] _MetricRequest = namedtuple(
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     "MetricRequest",
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     ["name", "alias", "importance", "default_value", "warn_when_missing"],
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     defaults=(None, None, Importance.REQUIRED, 0.0, True),
-# [REVIEWED] # [REVIEWED] # [REVIEWED] )
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] class MetricRequest(_MetricRequest):
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     """A metric request containing name, and optional alias, importance and default value.
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # TODO: switch to enum.Enum once this is available in static interpreter
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] class Importance:
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     OPTIONAL = 1
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     REQUIRED = 2
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] _MetricRequest = namedtuple(
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     "MetricRequest",
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     ["name", "alias", "importance", "default_value", "warn_when_missing"],
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     defaults=(None, None, Importance.REQUIRED, 0.0, True),
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] )
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] class MetricRequest(_MetricRequest):
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     """A metric request containing name, and optional alias, importance and default value.
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
     Args:
         name (str): The name of the metric.
         alias (str, optional): An alias for the metric name. Defaults to None.

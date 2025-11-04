@@ -1,23 +1,23 @@
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] def build_qubo(space):
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     """Construct a naive QUBO matrix from the discrete hyperparameter space."""
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     keys = list(space.keys())
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     options = [space[key]["values"] for key in keys]
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     combos = list(itertools.product(*options))
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     if not combos:
-# [REVIEWED] # [REVIEWED] # [REVIEWED]         raise ValueError("No hyperparameter combinations generated from space.")
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     losses = np.linspace(0.1, 1.0, len(combos))
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     qubo = {}
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     for i in range(len(combos)):
-# [REVIEWED] # [REVIEWED] # [REVIEWED]         for j in range(len(combos)):
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] def build_qubo(space):
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     """Construct a naive QUBO matrix from the discrete hyperparameter space."""
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     keys = list(space.keys())
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     options = [space[key]["values"] for key in keys]
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     combos = list(itertools.product(*options))
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     if not combos:
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]         raise ValueError("No hyperparameter combinations generated from space.")
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     losses = np.linspace(0.1, 1.0, len(combos))
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     qubo = {}
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     for i in range(len(combos)):
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]         for j in range(len(combos)):
             qubo[(i, j)] = float((losses[i] + losses[j]) / 2.0)
     return qubo, combos
 

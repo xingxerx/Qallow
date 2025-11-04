@@ -1,23 +1,23 @@
-# [REVIEWED] # [REVIEWED] # [REVIEWED] #!/usr/bin/env python3
-# [REVIEWED] # [REVIEWED] # [REVIEWED] """Generate GHZ/W multipartite entanglement probabilities using QuTiP.
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] The script prints key=value pairs so native code can parse the output.
-# [REVIEWED] # [REVIEWED] # [REVIEWED] It attempts to validate the generated state with Cirq. The caller can disable
-# [REVIEWED] # [REVIEWED] # [REVIEWED] validation by omitting --validate.
-# [REVIEWED] # [REVIEWED] # [REVIEWED] """
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] try:
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     import numpy as np
-# [REVIEWED] # [REVIEWED] # [REVIEWED] except ImportError as exc:  # pragma: no cover - numpy is required by QuTiP
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     print(f"ERROR=Numpy missing: {exc}", file=sys.stderr)
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     sys.exit(2)
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] try:
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     from qutip.states import ghz_state, w_state
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] #!/usr/bin/env python3
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] """Generate GHZ/W multipartite entanglement probabilities using QuTiP.
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] The script prints key=value pairs so native code can parse the output.
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] It attempts to validate the generated state with Cirq. The caller can disable
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] validation by omitting --validate.
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] """
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] try:
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     import numpy as np
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] except ImportError as exc:  # pragma: no cover - numpy is required by QuTiP
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     print(f"ERROR=Numpy missing: {exc}", file=sys.stderr)
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     sys.exit(2)
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] try:
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     from qutip.states import ghz_state, w_state
 except ImportError as exc:
     print(f"ERROR=QuTiP missing: {exc}", file=sys.stderr)
     sys.exit(2)

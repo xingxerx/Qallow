@@ -1,23 +1,23 @@
-# [REVIEWED] # [REVIEWED] # [REVIEWED] #!/usr/bin/env python3
-# [REVIEWED] # [REVIEWED] # [REVIEWED] """
-# [REVIEWED] # [REVIEWED] # [REVIEWED] Grover's Algorithm - Quantum Search Algorithm
-# [REVIEWED] # [REVIEWED] # [REVIEWED] Searches an unsorted database in O(√N) time
-# [REVIEWED] # [REVIEWED] # [REVIEWED] """
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] def grover_oracle(qubits: List[cirq.Qid], marked_state: int) -> cirq.Circuit:
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     """
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     Create an oracle that marks the target state
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     Args:
-# [REVIEWED] # [REVIEWED] # [REVIEWED]         qubits: List of qubits
-# [REVIEWED] # [REVIEWED] # [REVIEWED]         marked_state: The state to mark (as integer)
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     Returns:
-# [REVIEWED] # [REVIEWED] # [REVIEWED]         Circuit implementing the oracle
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     """
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] #!/usr/bin/env python3
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] """
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] Grover's Algorithm - Quantum Search Algorithm
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] Searches an unsorted database in O(√N) time
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] """
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] def grover_oracle(qubits: List[cirq.Qid], marked_state: int) -> cirq.Circuit:
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     """
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     Create an oracle that marks the target state
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     Args:
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]         qubits: List of qubits
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]         marked_state: The state to mark (as integer)
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     Returns:
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]         Circuit implementing the oracle
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     """
     circuit = cirq.Circuit()
     n = len(qubits)
     

@@ -1,23 +1,23 @@
-# [REVIEWED] # [REVIEWED] # [REVIEWED] #!/usr/bin/env python3
-# [REVIEWED] # [REVIEWED] # [REVIEWED] """
-# [REVIEWED] # [REVIEWED] # [REVIEWED] ⚡ AgentLightning Runner
-# [REVIEWED] # [REVIEWED] # [REVIEWED] ========================
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] Parallelized code analysis and automated fixes for the Qallow project.
-# [REVIEWED] # [REVIEWED] # [REVIEWED] Targets: Python, C/CUDA, JavaScript code across the repository.
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] Features:
-# [REVIEWED] # [REVIEWED] # [REVIEWED]   🚀 Ultra-fast parallel processing (16 CPU cores + GPU)
-# [REVIEWED] # [REVIEWED] # [REVIEWED]   🔧 Automatic code fixing with validation
-# [REVIEWED] # [REVIEWED] # [REVIEWED]   📊 Detailed change tracking and reporting
-# [REVIEWED] # [REVIEWED] # [REVIEWED]   🔄 Continuous improvement loops
-# [REVIEWED] # [REVIEWED] # [REVIEWED] """
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] import logging
-# [REVIEWED] # [REVIEWED] # [REVIEWED] import os
-# [REVIEWED] # [REVIEWED] # [REVIEWED] import re
-# [REVIEWED] # [REVIEWED] # [REVIEWED] import subprocess
-# [REVIEWED] # [REVIEWED] # [REVIEWED] import sys
+# [REVIEWED] # [REVIEWED] #!/usr/bin/env python3
+# [REVIEWED] # [REVIEWED] """
+# [REVIEWED] # [REVIEWED] ⚡ AgentLightning Runner
+# [REVIEWED] # [REVIEWED] ========================
+# [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] Parallelized code analysis and automated fixes for the Qallow project.
+# [REVIEWED] # [REVIEWED] Targets: Python, C/CUDA, JavaScript code across the repository.
+# [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] Features:
+# [REVIEWED] # [REVIEWED]   🚀 Ultra-fast parallel processing (16 CPU cores + GPU)
+# [REVIEWED] # [REVIEWED]   🔧 Automatic code fixing with validation
+# [REVIEWED] # [REVIEWED]   📊 Detailed change tracking and reporting
+# [REVIEWED] # [REVIEWED]   🔄 Continuous improvement loops
+# [REVIEWED] # [REVIEWED] """
+# [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] import logging
+# [REVIEWED] # [REVIEWED] import os
+# [REVIEWED] # [REVIEWED] import re
+# [REVIEWED] # [REVIEWED] import subprocess
+# [REVIEWED] # [REVIEWED] import sys
 import time
 import json
 from pathlib import Path

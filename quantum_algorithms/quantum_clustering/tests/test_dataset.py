@@ -1,23 +1,23 @@
-# [REVIEWED] # [REVIEWED] # [REVIEWED] """Unit tests for dataset generation and sparse vectors."""
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     ClusteringConfig,
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     SparseDataset,
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     SparseVector,
-# [REVIEWED] # [REVIEWED] # [REVIEWED] )
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] class TestSparseVector:
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     """Test SparseVector class."""
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     def test_creation(self):
-# [REVIEWED] # [REVIEWED] # [REVIEWED]         """Test sparse vector creation."""
-# [REVIEWED] # [REVIEWED] # [REVIEWED]         indices = np.array([0, 2, 5])
-# [REVIEWED] # [REVIEWED] # [REVIEWED]         values = np.array([0.5, 0.3, 0.2])
-# [REVIEWED] # [REVIEWED] # [REVIEWED]         vec = SparseVector(indices, values, dimension=10)
-# [REVIEWED] # [REVIEWED] # [REVIEWED]         
-# [REVIEWED] # [REVIEWED] # [REVIEWED]         assert len(vec.indices) == 3
-# [REVIEWED] # [REVIEWED] # [REVIEWED]         assert vec.dimension == 10
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] """Unit tests for dataset generation and sparse vectors."""
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     ClusteringConfig,
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     SparseDataset,
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     SparseVector,
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] )
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] class TestSparseVector:
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     """Test SparseVector class."""
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     def test_creation(self):
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]         """Test sparse vector creation."""
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]         indices = np.array([0, 2, 5])
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]         values = np.array([0.5, 0.3, 0.2])
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]         vec = SparseVector(indices, values, dimension=10)
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]         
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]         assert len(vec.indices) == 3
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]         assert vec.dimension == 10
         assert vec.cluster_id is None
     
     def test_to_dense(self):

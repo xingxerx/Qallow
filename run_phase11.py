@@ -1,23 +1,23 @@
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # run_phase11_bridge_agent.py
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] class QuantumBridgeAgent:
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     def on_message(self, message: Any) -> Optional[Any]:
-# [REVIEWED] # [REVIEWED] # [REVIEWED]         """Handle bridge messages (legacy Agent Lightning shim)."""
-# [REVIEWED] # [REVIEWED] # [REVIEWED]         if getattr(message, "content", None) != "run_bridge":
-# [REVIEWED] # [REVIEWED] # [REVIEWED]             return None
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED]         result = self.run_quantum_bridge()
-# [REVIEWED] # [REVIEWED] # [REVIEWED]         payload = {"content": f"Bridge result: {result}", "to": getattr(message, "sender", None)}
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED]         sender = getattr(self, "send", None)
-# [REVIEWED] # [REVIEWED] # [REVIEWED]         if callable(sender):
-# [REVIEWED] # [REVIEWED] # [REVIEWED]             sender(payload)
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED]         return payload
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     def send(self, payload: Any) -> None:  # pragma: no cover - compatibility no-op
-# [REVIEWED] # [REVIEWED] # [REVIEWED]         """Standalone shim keeps compatibility with older orchestrators."""
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # run_phase11_bridge_agent.py
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] class QuantumBridgeAgent:
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     def on_message(self, message: Any) -> Optional[Any]:
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]         """Handle bridge messages (legacy Agent Lightning shim)."""
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]         if getattr(message, "content", None) != "run_bridge":
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]             return None
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]         result = self.run_quantum_bridge()
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]         payload = {"content": f"Bridge result: {result}", "to": getattr(message, "sender", None)}
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]         sender = getattr(self, "send", None)
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]         if callable(sender):
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]             sender(payload)
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]         return payload
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     def send(self, payload: Any) -> None:  # pragma: no cover - compatibility no-op
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]         """Standalone shim keeps compatibility with older orchestrators."""
         # No message bus is available when Agent Lightning is removed.
         return None
 

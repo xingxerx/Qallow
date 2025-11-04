@@ -1,23 +1,23 @@
-# [REVIEWED] # [REVIEWED] # [REVIEWED] #!/usr/bin/env python3
-# [REVIEWED] # [REVIEWED] # [REVIEWED] """
-# [REVIEWED] # [REVIEWED] # [REVIEWED] Hello Quantum - Basic Cirq Example
-# [REVIEWED] # [REVIEWED] # [REVIEWED] Demonstrates fundamental quantum operations with Cirq
-# [REVIEWED] # [REVIEWED] # [REVIEWED] """
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] def hello_quantum():
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     """Create and run a simple quantum circuit"""
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     print("╔════════════════════════════════════════════════════════════════╗")
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     print("║              Hello Quantum - Cirq Example                      ║")
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     print("╚════════════════════════════════════════════════════════════════╝\n")
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     # Create qubits
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     q0, q1, q2 = cirq.LineQubit.range(3)
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     print(f"✅ Created 3 qubits: {q0}, {q1}, {q2}\n")
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     # Create a simple circuit
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] #!/usr/bin/env python3
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] """
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] Hello Quantum - Basic Cirq Example
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] Demonstrates fundamental quantum operations with Cirq
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] """
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] def hello_quantum():
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     """Create and run a simple quantum circuit"""
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     print("╔════════════════════════════════════════════════════════════════╗")
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     print("║              Hello Quantum - Cirq Example                      ║")
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     print("╚════════════════════════════════════════════════════════════════╝\n")
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     # Create qubits
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     q0, q1, q2 = cirq.LineQubit.range(3)
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     print(f"✅ Created 3 qubits: {q0}, {q1}, {q2}\n")
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     # Create a simple circuit
     circuit = cirq.Circuit(
         cirq.H(q0),                    # Hadamard on q0
         cirq.CNOT(q0, q1),             # CNOT: q0 controls q1

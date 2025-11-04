@@ -1,23 +1,23 @@
-# [REVIEWED] # [REVIEWED] # [REVIEWED] #!/usr/bin/env python3
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # Minimal QAOA-like scaffold; integrates with Qallow via --file
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] try:
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     import cirq
-# [REVIEWED] # [REVIEWED] # [REVIEWED] except Exception:
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     cirq = None
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] DEFAULT = dict(M=8, b=6, H=4,
-# [REVIEWED] # [REVIEWED] # [REVIEWED]                alpha=1.0, beta=1.0, rho=0.1, gamma=5.0, eta=1.0, kappa=0.1, xi=0.1,
-# [REVIEWED] # [REVIEWED] # [REVIEWED]                ethics_tau=0.94, layers=2, shots=2048)
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] def gray2int(g: int) -> int:
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     x = g
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     while g:
-# [REVIEWED] # [REVIEWED] # [REVIEWED]         g >>= 1
-# [REVIEWED] # [REVIEWED] # [REVIEWED]         x ^= g
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     return x
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] #!/usr/bin/env python3
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # Minimal QAOA-like scaffold; integrates with Qallow via --file
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] try:
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     import cirq
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] except Exception:
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     cirq = None
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] DEFAULT = dict(M=8, b=6, H=4,
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]                alpha=1.0, beta=1.0, rho=0.1, gamma=5.0, eta=1.0, kappa=0.1, xi=0.1,
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]                ethics_tau=0.94, layers=2, shots=2048)
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] def gray2int(g: int) -> int:
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     x = g
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     while g:
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]         g >>= 1
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]         x ^= g
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     return x
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
 def make_circuit(M:int, b:int, H:int, layers:int) -> Any:
     if cirq is None:
         return None

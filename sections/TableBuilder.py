@@ -1,23 +1,23 @@
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] class TableBuilder(ABC):
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     """Interface to construct inputs to the NvRules.IFrontend.generate_table method."""
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     @abstractmethod
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     def build(self) -> tuple[list[str], list[list[Any]], dict[str, Any] | None]:
-# [REVIEWED] # [REVIEWED] # [REVIEWED]         """Build the inputs to the NvRules.IFrontend.generate_table method.
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED]         Returns:
-# [REVIEWED] # [REVIEWED] # [REVIEWED]             Header, data and (optional) configuration for the table.
-# [REVIEWED] # [REVIEWED] # [REVIEWED]         """
-# [REVIEWED] # [REVIEWED] # [REVIEWED]         pass
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] class AggregatedMetricByOpcodeTableBuilder(TableBuilder):
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     """Implementation to build a table from a metric that is aggregated by opcodes.
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] class TableBuilder(ABC):
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     """Interface to construct inputs to the NvRules.IFrontend.generate_table method."""
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     @abstractmethod
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     def build(self) -> tuple[list[str], list[list[Any]], dict[str, Any] | None]:
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]         """Build the inputs to the NvRules.IFrontend.generate_table method.
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]         Returns:
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]             Header, data and (optional) configuration for the table.
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]         """
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]         pass
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] class AggregatedMetricByOpcodeTableBuilder(TableBuilder):
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     """Implementation to build a table from a metric that is aggregated by opcodes.
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
     The table will display the top N source locations (and their associated source code)
     that have the highest aggregated value for the the given metric and opcodes.
 

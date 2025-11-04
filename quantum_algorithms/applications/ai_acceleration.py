@@ -1,23 +1,23 @@
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] from .ethics import CoherenceAuditor, CoherenceReport
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] try:
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     from quantum_algorithms.algorithms.quantum_ml import QuantumClassifier  # type: ignore
-# [REVIEWED] # [REVIEWED] # [REVIEWED] except ImportError:  # pragma: no cover
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     QuantumClassifier = None  # type: ignore
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] @dataclass
-# [REVIEWED] # [REVIEWED] # [REVIEWED] class AiAccelerationConfig:
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     """Configuration for the quantum-assisted ML probe."""
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     epochs: int = 3
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     learning_rate: float = 0.08
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     baseline_accuracy: float = 0.5
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     energy_savings_hint: float = 0.12
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     minimum_accuracy_gain: float = 0.12
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] from .ethics import CoherenceAuditor, CoherenceReport
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] try:
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     from quantum_algorithms.algorithms.quantum_ml import QuantumClassifier  # type: ignore
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] except ImportError:  # pragma: no cover
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     QuantumClassifier = None  # type: ignore
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] @dataclass
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] class AiAccelerationConfig:
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     """Configuration for the quantum-assisted ML probe."""
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     epochs: int = 3
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     learning_rate: float = 0.08
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     baseline_accuracy: float = 0.5
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     energy_savings_hint: float = 0.12
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     minimum_accuracy_gain: float = 0.12
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
 
 class AiAccelerationPipeline:
     """Trains a tiny quantum classifier to gauge accuracy lift."""

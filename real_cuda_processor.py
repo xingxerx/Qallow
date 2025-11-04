@@ -1,23 +1,23 @@
-# [REVIEWED] # [REVIEWED] # [REVIEWED] """
-# [REVIEWED] # [REVIEWED] # [REVIEWED] Real CUDA GPU Processor - Direct GPU kernel execution with PyCUDA
-# [REVIEWED] # [REVIEWED] # [REVIEWED] Uses actual CUDA 12.6 installed on system.
-# [REVIEWED] # [REVIEWED] # [REVIEWED] """
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] class RealCudaProcessor:
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     """Direct interface to NVIDIA GPU using PyCUDA."""
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     def __init__(self):
-# [REVIEWED] # [REVIEWED] # [REVIEWED]         """Initialize CUDA context and GPU."""
-# [REVIEWED] # [REVIEWED] # [REVIEWED]         self.device = cuda.Device(0)
-# [REVIEWED] # [REVIEWED] # [REVIEWED]         self.ctx = self.device.make_context()
-# [REVIEWED] # [REVIEWED] # [REVIEWED]         self.properties = self.device.get_attributes()
-# [REVIEWED] # [REVIEWED] # [REVIEWED]         self._init_kernels()
-# [REVIEWED] # [REVIEWED] # [REVIEWED]         
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     def _init_kernels(self):
-# [REVIEWED] # [REVIEWED] # [REVIEWED]         """Compile and initialize CUDA kernels."""
-# [REVIEWED] # [REVIEWED] # [REVIEWED]         # Simple vector addition kernel
-# [REVIEWED] # [REVIEWED] # [REVIEWED]         self.kernel_code = """
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] """
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] Real CUDA GPU Processor - Direct GPU kernel execution with PyCUDA
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] Uses actual CUDA 12.6 installed on system.
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] """
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] class RealCudaProcessor:
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     """Direct interface to NVIDIA GPU using PyCUDA."""
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     def __init__(self):
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]         """Initialize CUDA context and GPU."""
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]         self.device = cuda.Device(0)
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]         self.ctx = self.device.make_context()
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]         self.properties = self.device.get_attributes()
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]         self._init_kernels()
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]         
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     def _init_kernels(self):
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]         """Compile and initialize CUDA kernels."""
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]         # Simple vector addition kernel
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]         self.kernel_code = """
         __global__ void vector_add(float *a, float *b, float *c, int n) {
             int idx = blockIdx.x * blockDim.x + threadIdx.x;
             if (idx < n) {

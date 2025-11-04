@@ -1,23 +1,23 @@
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] def load_c_helper(lib_path):
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     if not lib_path.exists():
-# [REVIEWED] # [REVIEWED] # [REVIEWED]         return None
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     try:
-# [REVIEWED] # [REVIEWED] # [REVIEWED]         lib = ctypes.CDLL(str(lib_path))
-# [REVIEWED] # [REVIEWED] # [REVIEWED]         lib.qallow_qaoa_eval_score.restype = ctypes.c_double
-# [REVIEWED] # [REVIEWED] # [REVIEWED]         lib.qallow_qaoa_eval_score.argtypes = [
-# [REVIEWED] # [REVIEWED] # [REVIEWED]             ctypes.c_char_p,
-# [REVIEWED] # [REVIEWED] # [REVIEWED]             ctypes.c_double,
-# [REVIEWED] # [REVIEWED] # [REVIEWED]             ctypes.c_int,
-# [REVIEWED] # [REVIEWED] # [REVIEWED]         ]
-# [REVIEWED] # [REVIEWED] # [REVIEWED]         return lib
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     except OSError as exc:
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] def load_c_helper(lib_path):
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     if not lib_path.exists():
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]         return None
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     try:
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]         lib = ctypes.CDLL(str(lib_path))
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]         lib.qallow_qaoa_eval_score.restype = ctypes.c_double
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]         lib.qallow_qaoa_eval_score.argtypes = [
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]             ctypes.c_char_p,
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]             ctypes.c_double,
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]             ctypes.c_int,
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]         ]
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]         return lib
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     except OSError as exc:
         print(f"Warning: failed to load {lib_path}: {exc}", file=sys.stderr)
         return None
 

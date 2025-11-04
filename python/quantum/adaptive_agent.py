@@ -1,23 +1,23 @@
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # -*- coding: utf-8 -*-
-# [REVIEWED] # [REVIEWED] # [REVIEWED] """Quantum-assisted adaptive decision module for Qallow.
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] This module wraps a lightweight Cirq policy circuit that can be trained
-# [REVIEWED] # [REVIEWED] # [REVIEWED] online against Qallow telemetry. The agent encodes telemetry-derived features
-# [REVIEWED] # [REVIEWED] # [REVIEWED] into a parameterised two-qubit circuit, executes it on a Cirq simulator, and
-# [REVIEWED] # [REVIEWED] # [REVIEWED] interprets measurement outcomes as phase actions. Rewards computed from
-# [REVIEWED] # [REVIEWED] # [REVIEWED] telemetry deltas are used to adjust the circuit parameters, producing a very
-# [REVIEWED] # [REVIEWED] # [REVIEWED] small reinforcement-style learning loop.
-# [REVIEWED] # [REVIEWED] # [REVIEWED] """
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] from dataclasses import dataclass, field
-# [REVIEWED] # [REVIEWED] # [REVIEWED] from typing import Tuple, Dict, Sequence
-# [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] try:
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     import cirq
-# [REVIEWED] # [REVIEWED] # [REVIEWED] except ImportError as exc:  # pragma: no cover - dependency may be optional during linting
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     raise RuntimeError(
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # -*- coding: utf-8 -*-
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] """Quantum-assisted adaptive decision module for Qallow.
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] This module wraps a lightweight Cirq policy circuit that can be trained
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] online against Qallow telemetry. The agent encodes telemetry-derived features
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] into a parameterised two-qubit circuit, executes it on a Cirq simulator, and
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] interprets measurement outcomes as phase actions. Rewards computed from
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] telemetry deltas are used to adjust the circuit parameters, producing a very
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] small reinforcement-style learning loop.
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] """
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] from dataclasses import dataclass, field
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] from typing import Tuple, Dict, Sequence
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] try:
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     import cirq
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] except ImportError as exc:  # pragma: no cover - dependency may be optional during linting
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     raise RuntimeError(
         "cirq is required for python.quantum.adaptive_agent. "
         "Install it via 'pip install cirq'."
     ) from exc
