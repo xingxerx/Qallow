@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-⚡ ULTRA-FAST Agent-Lightning Code Fixer
-===========================================
+⚡ AgentLightning Runner
+========================
 
-Uses Microsoft Agent-Lightning for parallelized code analysis and fixes.
-Targets: Python, C/CUDA, JavaScript code across the Qallow project.
+Parallelized code analysis and automated fixes for the Qallow project.
+Targets: Python, C/CUDA, JavaScript code across the repository.
 
 Features:
   🚀 Ultra-fast parallel processing (16 CPU cores + GPU)
@@ -44,7 +44,7 @@ ENABLE_GPU = os.environ.get('QALLOW_ENABLE_CUDA', 'ON').upper() == 'ON'
 ENABLE_CIRQ = os.environ.get('QALLOW_CIRQ', '1') == '1'
 
 class QallowCodeFixer:
-    """Main Agent-Lightning runner for Qallow project."""
+    """Primary AgentLightning runner for the Qallow project."""
     
     def __init__(self):
         self.repo_root = REPO_ROOT
@@ -328,7 +328,7 @@ class QallowCodeFixer:
         
         # Display summary
         logger.info("\n" + "="*60)
-        logger.info(f"📊 AGENT-LIGHTNING REPORT")
+        logger.info(f"📊 AGENTLIGHTNING RUNNER REPORT")
         logger.info("="*60)
         logger.info(f"⏱️  Time: {elapsed:.1f}s")
         logger.info(f"🔧 Changes: {len(self.changes)}")
@@ -337,7 +337,7 @@ class QallowCodeFixer:
     
     def run(self, iterations: int = 1):
         """Main execution loop."""
-        logger.info(f"\n⚡ Starting Agent-Lightning Runner")
+        logger.info(f"\n⚡ Starting AgentLightning Runner")
         logger.info(f"📁 Repository: {self.repo_root}")
         logger.info(f"🔢 Iterations: {iterations}")
         logger.info(f"👷 Workers: {CPU_WORKERS}")
@@ -393,10 +393,10 @@ def main():
         success = fixer.run(iterations=3)
         
         if success:
-            logger.info("✅ Agent-Lightning completed successfully")
+            logger.info("✅ AgentLightning Runner completed successfully")
             sys.exit(0)
         else:
-            logger.info("⚠️ Agent-Lightning completed with no changes")
+            logger.info("⚠️ AgentLightning Runner completed with no changes")
             sys.exit(0)
     
     except KeyboardInterrupt:

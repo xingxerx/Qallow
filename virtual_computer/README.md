@@ -267,7 +267,7 @@ Integration Example:
     # Create systems
     vc = VirtualComputer()
     tasks = AgentOptimizationTasks()
-    agent = QallowCodeFixer(max_iterations=10)
+    agent = QallowCodeFixer()
     
     # Agent optimization loop
     for iteration in range(10):
@@ -277,6 +277,9 @@ Integration Example:
         # Optimize one task
         task = high_priority[0]
         result = tasks.simulate_optimization(task.task_id, 0.5)
+        
+        # Apply agent improvements (one iteration per loop)
+        agent.run(iterations=1)
         
         # Report progress
         print(f"Improvement: {result['improvement_percent']:.1f}%")
