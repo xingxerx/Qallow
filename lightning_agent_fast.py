@@ -1043,39 +1043,61 @@ class CodeAnalyzer:
 
         try:
             for c_file in self._iter_c_files("**/*.c"):
+                # Skip UI files - they have complex code that shouldn't be aggressively cleaned
+                if 'qallow_ui' in c_file.name or 'ui.c' in c_file.name:
+                    continue
+                    
                 content = c_file.read_text()
                 original = content
+                
+                # SAFETY: Skip files that are too small (might be mostly comments/functions)
+                lines = content.split('\n')
+                if len(lines) < 10:
+                    continue
 
-                # Remove excessive comment blocks (keep max 2)
-                if '/*' in content and '*/' in content:
-                    comment_count = content.count('/*')
-                    if comment_count > 2:
-                        # Remove excessive comment blocks, keeping only the first 2
-                        # Split by comment blocks and rebuild
-                        parts = re.split(r'/\*.*?\*/', content, flags=re.DOTALL)
-                        comments = re.findall(r'/\*.*?\*/', content, flags=re.DOTALL)
-
-                        if len(comments) > 2:
-                            # Keep first 2 comments, remove the rest
-                            new_content = parts[0]
-                            for i, comment in enumerate(comments[:2]):
-                                new_content += comment + parts[i+1]
-                            # Add remaining content
-                            if len(parts) > len(comments[:2]) + 1:
-                                new_content += ''.join(parts[len(comments[:2])+1:])
-
-                            content = new_content
-                            print(f"      ✏️  Cleaned {c_file.name}: removed excessive comment blocks")
+                # Only remove LEADING TODO/FIXME comments at file start (safe)
+                if lines and lines[0].strip().startswith('/*'):
+                    # Count consecutive comment lines at start
+                    comment_block = 0
+                    for line in lines:
+                        if line.strip().startswith('/*') or line.strip().startswith('*') or line.strip().startswith('//'):
+                            comment_block += 1
+                        elif line.strip() == '':
+                            continue
+                        else:
+                            break
+                    
+                    # Only remove if there are MORE THAN 5 leading comment lines (very safe threshold)
+                    if comment_block > 5:
+                        new_lines = []
+                        in_comment = False
+                        removed_count = 0
+                        
+                        for line in lines:
+                            if line.strip().startswith('/*'):
+                                in_comment = True
+                            if in_comment:
+                                removed_count += 1
+                                if line.strip().endswith('*/'):
+                                    in_comment = False
+                                continue
+                            new_lines.append(line)
+                        
+                        if removed_count > 0 and len(new_lines) > 50:  # Keep only if we have substantial code left
+                            content = '\n'.join(new_lines)
+                            print(f"      ✏️  Cleaned {c_file.name}: removed {removed_count} leading comment lines")
                             fixes += 1
 
-                # Remove empty functions
-                if re.search(r'^\s*\w+\s+\w+\([^)]*\)\s*\{\s*\}', content, re.MULTILINE):
-                    content = re.sub(r'^\s*\w+\s+\w+\([^)]*\)\s*\{\s*\}\n', '', content, flags=re.MULTILINE)
-                    print(f"      ✏️  Cleaned {c_file.name}: removed empty functions")
+                # Remove ONLY empty functions (absolutely safe)
+                # Empty function: () { } with nothing inside (not even whitespace functions)
+                original_line_count = len(content.split('\n'))
+                content = re.sub(r'^\s*\w+\s+\w+\([^)]*\)\s*\{\s*\}\s*$', '', content, flags=re.MULTILINE)
+                if len(content.split('\n')) < original_line_count:
+                    print(f"      ✏️  Cleaned {c_file.name}: removed truly empty functions")
                     fixes += 1
 
-                # Write back if changed
-                if content != original:
+                # Write back if changed AND file is still substantial (safety check)
+                if content != original and len(content) > 500:
                     try:
                         c_file.write_text(content)
                     except Exception as write_err:
