@@ -4,6 +4,7 @@
 
 import argparse
 import json
+from typing import List
 
 from . import run_ternary_sim
 

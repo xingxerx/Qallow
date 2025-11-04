@@ -2,6 +2,9 @@
 
 
 import os
+from dataclasses import dataclass
+from typing import Mapping, Optional, Tuple, Dict, Sequence
+from collections import Counter, defaultdict
 
 try:  # Cirq is optional to keep the bridge runnable in minimal environments.
     import cirq  # type: ignore

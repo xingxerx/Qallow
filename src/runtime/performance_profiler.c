@@ -35,7 +35,7 @@ void qallow_profiler_mark(qallow_profiler_t* prof, const char* label) {
     prof->marks[idx].label[sizeof(prof->marks[idx].label) - 1] = '\0';
     prof->marks[idx].clock_time = clock();
     prof->marks[idx].usec_timestamp = qallow_get_usec_timestamp();
-    
+
     /* Calculate elapsed time since start */
     int64_t elapsed_usec = prof->marks[idx].usec_timestamp - prof->start_usec;
     prof->marks[idx].elapsed_ms = elapsed_usec / 1000.0;
@@ -45,7 +45,7 @@ void qallow_profiler_record_phase(qallow_profiler_t* prof,
                                    int phase_num,
                                    double elapsed_ms) {
     if (!prof) return;
-    
+
     switch (phase_num) {
         case 12:
             prof->phase12_time_ms = elapsed_ms;
@@ -178,10 +178,10 @@ void qallow_profiler_print_summary(const qallow_profiler_t* prof) {
         printf("\nGPU vs CPU Performance:\n");
         printf("  Ratio: %.2fx\n", prof->gpu_vs_cpu_ratio);
         if (prof->gpu_vs_cpu_ratio < 1.0) {
-            printf("  Status: GPU is %.0f%% faster\n", 
+            printf("  Status: GPU is %.0f%% faster\n",
                    (1.0 - prof->gpu_vs_cpu_ratio) * 100.0);
         } else {
-            printf("  Status: CPU is %.0f%% faster\n", 
+            printf("  Status: CPU is %.0f%% faster\n",
                    (prof->gpu_vs_cpu_ratio - 1.0) * 100.0);
         }
     }

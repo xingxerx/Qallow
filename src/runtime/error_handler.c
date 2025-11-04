@@ -16,7 +16,7 @@ const char* qallow_error_message(int code) {
     switch (code) {
         case QALLOW_SUCCESS:
             return "Success";
-        
+
         /* Core System */
         case QALLOW_ERR_UNKNOWN:
             return "Unknown error";
@@ -24,7 +24,7 @@ const char* qallow_error_message(int code) {
             return "Feature not implemented";
         case QALLOW_ERR_UNSUPPORTED:
             return "Operation not supported on this platform";
-        
+
         /* Memory Management */
         case QALLOW_ERR_MEMORY_ALLOC:
             return "Memory allocation failed";
@@ -32,7 +32,7 @@ const char* qallow_error_message(int code) {
             return "Memory limit exceeded";
         case QALLOW_ERR_NULL_POINTER:
             return "Null pointer dereference";
-        
+
         /* Input Validation */
         case QALLOW_ERR_INVALID_PARAMETER:
             return "Invalid parameter";
@@ -42,7 +42,7 @@ const char* qallow_error_message(int code) {
             return "Bounds check failed";
         case QALLOW_ERR_TYPE_MISMATCH:
             return "Type mismatch";
-        
+
         /* File I/O */
         case QALLOW_ERR_FILE_NOT_FOUND:
             return "File not found";
@@ -54,7 +54,7 @@ const char* qallow_error_message(int code) {
             return "Failed to write file";
         case QALLOW_ERR_PATH_INVALID:
             return "Invalid file path";
-        
+
         /* CUDA/Hardware */
         case QALLOW_ERR_CUDA_INIT:
             return "CUDA initialization failed";
@@ -66,7 +66,7 @@ const char* qallow_error_message(int code) {
             return "CUDA memory error";
         case QALLOW_ERR_GPU_NOT_AVAILABLE:
             return "GPU not available";
-        
+
         /* Quantum */
         case QALLOW_ERR_QUANTUM_CIRCUIT:
             return "Invalid quantum circuit";
@@ -76,7 +76,7 @@ const char* qallow_error_message(int code) {
             return "Qubit limit exceeded";
         case QALLOW_ERR_QUANTUM_SIM:
             return "Quantum simulator error";
-        
+
         /* Networking */
         case QALLOW_ERR_SOCKET_CREATE:
             return "Failed to create socket";
@@ -90,7 +90,7 @@ const char* qallow_error_message(int code) {
             return "Send failed";
         case QALLOW_ERR_SOCKET_RECV:
             return "Receive failed";
-        
+
         /* Database */
         case QALLOW_ERR_DB_OPEN:
             return "Database open failed";
@@ -100,7 +100,7 @@ const char* qallow_error_message(int code) {
             return "Database commit failed";
         case QALLOW_ERR_DB_CONSTRAINT:
             return "Constraint violation";
-        
+
         /* Timeout/Performance */
         case QALLOW_ERR_TIMEOUT:
             return "Operation timeout";
@@ -108,7 +108,7 @@ const char* qallow_error_message(int code) {
             return "Deadlock detected";
         case QALLOW_ERR_RESOURCE_EXHAUSTED:
             return "Resource exhausted";
-        
+
         /* Logic */
         case QALLOW_ERR_ASSERTION_FAILED:
             return "Assertion failed";
@@ -116,7 +116,7 @@ const char* qallow_error_message(int code) {
             return "Invariant violated";
         case QALLOW_ERR_LOGIC_ERROR:
             return "Logic error";
-        
+
         default:
             return "Unrecognized error code";
     }
@@ -146,7 +146,7 @@ int qallow_error_is_recoverable(int code) {
         case QALLOW_ERR_GPU_NOT_AVAILABLE:
         case QALLOW_ERR_FILE_NOT_FOUND:
             return 1;
-        
+
         /* Non-recoverable errors */
         case QALLOW_ERR_INVALID_PARAMETER:
         case QALLOW_ERR_NULL_POINTER:
@@ -154,7 +154,7 @@ int qallow_error_is_recoverable(int code) {
         case QALLOW_ERR_ASSERTION_FAILED:
         case QALLOW_ERR_MEMORY_LIMIT:
             return 0;
-        
+
         default:
             /* Most errors are potentially recoverable */
             return 1;
@@ -200,7 +200,7 @@ void qallow_error_log(int code,
     const char* msg = qallow_error_message(code);
     qallow_error_severity_t severity = qallow_error_severity(code);
     long timestamp = qallow_get_timestamp_ms();
-    
+
     /* Determine severity prefix */
     const char* severity_str = "INFO";
     if (severity == QALLOW_SEVERITY_DEBUG) {
@@ -212,15 +212,15 @@ void qallow_error_log(int code,
     } else if (severity == QALLOW_SEVERITY_CRITICAL) {
         severity_str = "CRITICAL";
     }
-    
+
     /* Log to stderr */
     fprintf(stderr, "[%s] %s (code=%d) at %s:%d in %s()\n",
             severity_str, msg, code, file, line, function);
-    
+
     if (context) {
         fprintf(stderr, "       Context: %s\n", context);
     }
-    
+
     fprintf(stderr, "       Recovery: %s\n", qallow_error_recovery_hint(code));
     fprintf(stderr, "       Timestamp: %ld ms\n", timestamp);
 }

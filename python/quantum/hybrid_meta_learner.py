@@ -12,7 +12,14 @@ persistent checkpoints compatible with Qallow's adaptive learning loop.
 import json
 import math
 import random
+from dataclasses import dataclass, field
+from typing import Tuple, Sequence, List, Iterable
+from pathlib import Path
 
+try:
+    import numpy as np
+except ImportError as exc:
+    raise RuntimeError("numpy is required") from exc
 
 try:
     import cirq

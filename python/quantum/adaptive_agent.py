@@ -12,7 +12,7 @@ small reinforcement-style learning loop.
 
 import math
 from dataclasses import dataclass, field
-from typing import Tuple
+from typing import Tuple, Dict, Sequence
 
 try:
     import cirq
