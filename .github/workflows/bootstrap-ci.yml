@@ -1,0 +1,252 @@
+name: Qallow CI with Bootstrap
+
+on:
+  push:
+    branches: [ main, develop, release/** ]
+  pull_request:
+
+env:
+  CACHE_VERSION: v1
+  BOOTSTRAP_CACHE_KEY_PREFIX: qallow-bootstrap
+
+jobs:
+  # Stage 1: Setup & Cache Management
+  setup:
+    name: Setup and Cache Management
+    runs-on: ubuntu-22.04
+    outputs:
+      cache_key_venv: ${{ steps.cache-key.outputs.venv_key }}
+      cache_key_assets: ${{ steps.cache-key.outputs.assets_key }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Generate cache keys
+        id: cache-key
+        run: |
+          # Python venv cache key (invalidate on requirements changes)
+          echo "venv_key=${{ env.CACHE_VERSION }}-${{ runner.os }}-venv-${{ hashFiles('requirements*.txt') }}" >> $GITHUB_OUTPUT
+          
+          # Asset cache key (invalidate on manifest changes)
+          echo "assets_key=${{ env.CACHE_VERSION }}-assets-${{ hashFiles('scripts/assets.json') }}" >> $GITHUB_OUTPUT
+          
+          echo "Generated cache keys:"
+          echo "  venv_key: ${{ steps.cache-key.outputs.venv_key }}"
+          echo "  assets_key: ${{ steps.cache-key.outputs.assets_key }}"
+
+      - name: Report cache status
+        run: |
+          echo "Cache setup completed"
+          echo "Cache keys will be used in subsequent jobs"
+
+  # Stage 2: Build (CPU-only, optimized for CI)
+  build-cpu:
+    name: Build (CPU)
+    needs: setup
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Cache Python venv
+        uses: actions/cache@v3
+        id: cache-venv
+        with:
+          path: .venv
+          key: ${{ needs.setup.outputs.cache_key_venv }}
+          restore-keys: |
+            ${{ env.CACHE_VERSION }}-${{ runner.os }}-venv-
+
+      - name: Cache asset downloads
+        uses: actions/cache@v3
+        id: cache-assets
+        with:
+          path: ~/.cache/qallow
+          key: ${{ needs.setup.outputs.cache_key_assets }}
+          restore-keys: |
+            ${{ env.CACHE_VERSION }}-assets-
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+            cmake ninja-build gcc g++ make git
+          sudo apt-get clean
+          sudo rm -rf /var/lib/apt/lists/*
+
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc /opt/hostedtoolcache
+          df -h
+
+      - name: Run bootstrap (CPU-only, skip tests for speed)
+        run: |
+          chmod +x ./bootstrap.sh
+          ./bootstrap.sh --no-cuda --skip-tests
+        timeout-minutes: 15
+
+      - name: Run verification tests
+        run: |
+          cd build
+          ctest --output-on-failure --timeout 60
+        timeout-minutes: 10
+
+      - name: Upload build logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-logs-cpu
+          path: build/CMakeOutput.log
+          retention-days: 5
+
+  # Stage 3: Build (with CUDA if available)
+  build-cuda:
+    name: Build (CUDA)
+    needs: setup
+    runs-on: ubuntu-22.04
+    continue-on-error: true  # CUDA setup may fail, but we still want to report CPU success
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Cache Python venv
+        uses: actions/cache@v3
+        id: cache-venv
+        with:
+          path: .venv
+          key: ${{ needs.setup.outputs.cache_key_venv }}
+          restore-keys: |
+            ${{ env.CACHE_VERSION }}-${{ runner.os }}-venv-
+
+      - name: Cache asset downloads
+        uses: actions/cache@v3
+        id: cache-assets
+        with:
+          path: ~/.cache/qallow
+          key: ${{ needs.setup.outputs.cache_key_assets }}
+          restore-keys: |
+            ${{ env.CACHE_VERSION }}-assets-
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+            cmake ninja-build gcc g++ make git wget
+          sudo apt-get clean
+          sudo rm -rf /var/lib/apt/lists/*
+
+      - name: Install CUDA (optional)
+        continue-on-error: true
+        run: |
+          sudo apt-get update
+          wget -q https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.1-1_all.deb
+          sudo dpkg -i cuda-keyring_1.1-1_all.deb
+          sudo apt-get update
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+            cuda-toolkit-11-8 cuda-nsight-compute-11-8
+          echo "/usr/local/cuda-11.8/bin" >> $GITHUB_PATH
+          echo "LD_LIBRARY_PATH=/usr/local/cuda-11.8/lib64:$LD_LIBRARY_PATH" >> $GITHUB_ENV
+          sudo apt-get clean
+          sudo rm -rf /var/lib/apt/lists/*
+
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc /opt/hostedtoolcache
+          df -h
+
+      - name: Run bootstrap (with CUDA)
+        run: |
+          chmod +x ./bootstrap.sh
+          ./bootstrap.sh --cuda --skip-tests
+        timeout-minutes: 20
+
+      - name: Run verification tests
+        run: |
+          cd build
+          ctest --output-on-failure --timeout 60
+        timeout-minutes: 10
+
+      - name: Upload build logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-logs-cuda
+          path: build/CMakeOutput.log
+          retention-days: 5
+
+  # Stage 4: Code Quality & Analysis
+  quality:
+    name: Code Quality
+    needs: build-cpu
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Check Makefile sources
+        run: |
+          python3 -m pip install --quiet pyyaml
+          python3 scripts/check_makefile_sources.py
+
+      - name: Validate internal CI
+        run: python3 scripts/check_internal_ci_pipeline.py
+
+  # Stage 5: Report
+  summary:
+    name: Build Summary
+    if: always()
+    needs: [ build-cpu, build-cuda, quality ]
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Report results
+        run: |
+          echo "╔════════════════════════════════════════════════════════════════════════════╗"
+          echo "║                   Qallow CI/CD Summary                                     ║"
+          echo "╚════════════════════════════════════════════════════════════════════════════╝"
+          echo ""
+          echo "Build Status:"
+          echo "  CPU:       ${{ needs.build-cpu.result }}"
+          echo "  CUDA:      ${{ needs.build-cuda.result }}"
+          echo "  Quality:   ${{ needs.quality.result }}"
+          echo ""
+          echo "Bootstrap System:"
+          echo "  ✅ Python venv caching enabled"
+          echo "  ✅ Asset download caching enabled"
+          echo "  ✅ Reproducible builds"
+          echo "  ✅ CPU-only default (faster)"
+          echo "  ✅ Optional CUDA support"
+          echo ""
+          echo "Next Steps:"
+          echo "  • View logs: GitHub Actions > This workflow > Logs"
+          echo "  • Download artifacts: GitHub Actions > This workflow > Artifacts"
+          echo "  • Local test: ./bootstrap.sh && cd build && ctest"
+
+      - name: Fail if critical build failed
+        if: needs.build-cpu.result != 'success'
+        run: |
+          echo "❌ Critical build (CPU) failed"
+          exit 1

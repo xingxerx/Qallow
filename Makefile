@@ -129,6 +129,7 @@ SRC_C := $(filter-out interface/qallow_ui.c,$(wildcard interface/*.c)) \
          runtime/meta_introspect.c \
          $(wildcard src/mind/*.c) \
 		 $(wildcard src/runtime/*.c) \
+         src/temporal_memory.c \
          src/qallow_phase13.c
 SRC_CPP := $(wildcard src/runtime/*.cpp) \
            runtime/dl_integration.cpp

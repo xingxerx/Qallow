@@ -205,52 +205,49 @@ target_link_libraries(qallow_interface_base PUBLIC qallow_core)
 target_include_directories(qallow_interface_base PUBLIC ${QALLOW_INCLUDE_DIRS})
 
 
-# TODO: Fix linker errors for these targets  
-# add_executable(qallow ${QALLOW_INTERFACE_SOURCES})
-# set_source_files_properties(${QALLOW_INTERFACE_SOURCES} PROPERTIES LANGUAGE CXX)
-# set_target_properties(qallow PROPERTIES LINKER_LANGUAGE CXX)
-# target_link_libraries(qallow
-#     PRIVATE
-#         -Wl,--whole-archive
-#         qallow_backend_cpu
-#         qallow_backend_neuro
-#         qallow_temporal_memory
-#         qallow_algorithms
-#         qallow_runtime
-#         -Wl,--no-whole-archive
-#         Threads::Threads
-#         m
-# )
+# Main qallow executable
+add_executable(qallow ${QALLOW_INTERFACE_SOURCES})
+set_source_files_properties(${QALLOW_INTERFACE_SOURCES} PROPERTIES LANGUAGE C)
+target_link_libraries(qallow
+    PRIVATE
+        qallow_interface_base
+        qallow_backend_cpu
+        qallow_backend_neuro
+        qallow_temporal_memory
+        qallow_algorithms
+        qallow_runtime
+        Threads::Threads
+        m
+)
 
-# if(QALLOW_ENABLE_CUDA)
-#     target_link_libraries(qallow PRIVATE qallow_backend_cuda CUDA::cudart)
-#     target_compile_definitions(qallow PRIVATE QALLOW_ENABLE_CUDA)
-# endif()
+if(QALLOW_ENABLE_CUDA)
+    target_link_libraries(qallow PRIVATE qallow_backend_cuda CUDA::cudart)
+    target_compile_definitions(qallow PRIVATE QALLOW_ENABLE_CUDA)
+endif()
 
-# TODO: Fix linker errors
-# add_executable(qallow_unified ${QALLOW_INTERFACE_SOURCES})
-# set_source_files_properties(${QALLOW_INTERFACE_SOURCES} PROPERTIES LANGUAGE CXX)
-# set_target_properties(qallow_unified PROPERTIES LINKER_LANGUAGE CXX)
-# target_link_libraries(qallow_unified
-#     PRIVATE
-#         -Wl,--whole-archive
-#         qallow_backend_cpu
-#         qallow_backend_neuro
-#         qallow_algorithms
-#         qallow_runtime
-#         -Wl,--no-whole-archive
-#         Threads::Threads
-#         m
-# )
-# target_compile_definitions(qallow_unified PRIVATE QALLOW_UNIFIED)
+# Unified runner executable
+add_executable(qallow_unified ${QALLOW_INTERFACE_SOURCES})
+set_source_files_properties(${QALLOW_INTERFACE_SOURCES} PROPERTIES LANGUAGE C)
+target_link_libraries(qallow_unified
+    PRIVATE
+        qallow_interface_base
+        qallow_backend_cpu
+        qallow_backend_neuro
+        qallow_algorithms
+        qallow_runtime
+        qallow_temporal_memory
+        Threads::Threads
+        m
+)
+target_compile_definitions(qallow_unified PRIVATE QALLOW_UNIFIED)
 
-# if(QALLOW_ENABLE_CUDA)
-#     target_link_libraries(qallow_unified PRIVATE qallow_backend_cuda CUDA::cudart)
-#     target_compile_definitions(qallow_unified PRIVATE QALLOW_ENABLE_CUDA)
-#     set_target_properties(qallow_unified PROPERTIES OUTPUT_NAME "qallow_unified_cuda")
-# else()
-#     set_target_properties(qallow_unified PROPERTIES OUTPUT_NAME "qallow_unified_cpu")
-# endif()
+if(QALLOW_ENABLE_CUDA)
+    target_link_libraries(qallow_unified PRIVATE qallow_backend_cuda CUDA::cudart)
+    target_compile_definitions(qallow_unified PRIVATE QALLOW_ENABLE_CUDA)
+    set_target_properties(qallow_unified PROPERTIES OUTPUT_NAME "qallow_unified_cuda")
+else()
+    set_target_properties(qallow_unified PROPERTIES OUTPUT_NAME "qallow_unified_cpu")
+endif()
 
 # Optional SDL-based telemetry UI
 find_package(SDL2 QUIET)
