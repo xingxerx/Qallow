@@ -5,14 +5,14 @@
 void adaptive_load(adaptive_state_t* state) {
     if (!state) return;
 
-    // Default values
+
     state->target_ms = 50.0;
     state->last_run_ms = 0.0;
     state->threads = 4;
     state->learning_rate = 0.0034;
     state->human_score = 0.8;
 
-    // Try to load from adapt_state.json
+
     FILE* f = fopen("adapt_state.json", "r");
     if (f) {
         fscanf(f, "{\n  \"target_ms\": %lf,\n  \"last_run_ms\": %lf,\n  \"threads\": %d,\n  \"learning_rate\": %lf,\n  \"human_score\": %lf\n}",
@@ -48,7 +48,7 @@ void adaptive_update(adaptive_state_t* state, double run_ms, double human_score)
     state->last_run_ms = run_ms;
     state->human_score = human_score;
 
-    // Adjust learning rate based on human feedback
+
     if (human_score < 0.7) {
         state->learning_rate *= 0.9;
         printf("[ADAPTIVE] Learning rate decreased (low score): %.4f\n", state->learning_rate);
@@ -57,7 +57,7 @@ void adaptive_update(adaptive_state_t* state, double run_ms, double human_score)
         printf("[ADAPTIVE] Learning rate increased (high score): %.4f\n", state->learning_rate);
     }
 
-    // Adjust thread count based on performance
+
     if (run_ms > state->target_ms) {
         state->threads++;
         printf("[ADAPTIVE] Threads increased to %d (slow run: %.2fms)\n", state->threads, run_ms);
@@ -68,11 +68,11 @@ void adaptive_update(adaptive_state_t* state, double run_ms, double human_score)
         }
     }
 
-    // Clamp learning rate
+
     if (state->learning_rate < 0.001) state->learning_rate = 0.001;
     if (state->learning_rate > 0.1) state->learning_rate = 0.1;
 
-    // Clamp threads
+
     if (state->threads < 1) state->threads = 1;
     if (state->threads > 16) state->threads = 16;
 

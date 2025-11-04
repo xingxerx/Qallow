@@ -38,7 +38,7 @@ void apply_distortion(MemoryTrace *memory, float trauma_factor) {
     memory->distortion = distortion;
     memory->trauma_level = (int)(trauma_factor * 10);
 
-    // Apply distortion to vector
+
     for (int i = 0; i < MEMORY_VECTOR_DIM; i++) {
         float noise = (rand() / (float)RAND_MAX - 0.5) * distortion;
         memory->vector[i] += noise;
@@ -54,7 +54,7 @@ float consolidate_wisdom(MemoryState *state) {
         total_strength += state->memories[i].strength;
     }
 
-    // Wisdom = consolidated patterns from strong memories
+
     if (state->num_memories > 0) {
         pattern_coherence = total_strength / state->num_memories;
     }
@@ -67,7 +67,7 @@ float calculate_coherence(MemoryState *state) {
     float coherence = 0.0;
 
     for (int i = 0; i < state->num_memories; i++) {
-        // Coherence reduced by distortion and trauma
+
         float memory_quality = state->memories[i].strength *
                               (1.0 - state->memories[i].distortion) *
                               (1.0 - state->memories[i].trauma_level / 10.0);
@@ -92,13 +92,13 @@ int main(int argc, char *argv[]) {
     MemoryState state = {0};
     state.decay_rate = 0.1;
 
-    // Load historical memories
+
     printf("📚 Loading historical memory traces...\n");
     int num_memories = 50 + (rand() % 100);
     state.num_memories = num_memories;
 
     for (int i = 0; i < num_memories; i++) {
-        // Initialize memory vector
+
         for (int j = 0; j < MEMORY_VECTOR_DIM; j++) {
             state.memories[i].vector[j] = (rand() / (float)RAND_MAX);
         }
@@ -106,29 +106,29 @@ int main(int argc, char *argv[]) {
         state.memories[i].strength = 0.5 + (rand() / (float)RAND_MAX) * 0.5;
         state.memories[i].age = rand() % 100;
 
-        // Apply decay based on age
+
         state.memories[i].strength = apply_decay(
             state.memories[i].strength,
             state.memories[i].age,
             state.decay_rate
         );
 
-        // Apply distortion (trauma)
+
         float trauma_factor = (rand() / (float)RAND_MAX) * 0.3;
         apply_distortion(&state.memories[i], trauma_factor);
         state.total_trauma += trauma_factor;
     }
     state.total_trauma /= num_memories;
 
-    // Consolidate wisdom
+
     printf("🧠 Consolidating wisdom from memories...\n");
     state.wisdom_accumulation = consolidate_wisdom(&state);
 
-    // Calculate memory coherence
+
     printf("🔗 Calculating memory coherence...\n");
     state.memory_coherence = calculate_coherence(&state);
 
-    // Report results
+
     printf("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
     printf("📈 Memory Persistence & Decay Results:\n");
     printf("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");

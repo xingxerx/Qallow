@@ -11,9 +11,9 @@ Usage:
     python3 telemetry_dashboard.py --gpu-bench gpu_profile.json
 """
 
-import sys
-import csv
-import json
+
+
+
 from pathlib import Path
 from typing import Dict, List, Tuple
 from dataclasses import dataclass

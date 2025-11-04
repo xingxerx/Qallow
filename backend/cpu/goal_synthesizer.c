@@ -1,4 +1,4 @@
-// Goal Synthesizer - Proactive goal generation with ethics gating
+
 
 #include "phase7.h"
 #include "ethics.h"
@@ -7,16 +7,16 @@
 #include <time.h>
 #include <stdio.h>
 
-// ============================================================================
-// INITIALIZATION
-// ============================================================================
+
+
+
 
 int gs_init(goal_synthesizer_t* gs) {
     if (!gs) return -1;
 
     memset(gs, 0, sizeof(goal_synthesizer_t));
 
-    // Default weights for goal scoring
+
     gs->w_benefit = 1.0;
     gs->w_risk = 1.5;      // Risk penalty weighted higher
     gs->w_clarity = 0.5;
@@ -33,9 +33,9 @@ void gs_shutdown(goal_synthesizer_t* gs) {
     memset(gs, 0, sizeof(goal_synthesizer_t));
 }
 
-// ============================================================================
-// GOAL GENERATION
-// ============================================================================
+
+
+
 
 static void generate_goal_id(char* out, int max_len) {
     uint64_t ts = (uint64_t)time(NULL);
@@ -46,8 +46,8 @@ int gs_propose(goal_synthesizer_t* gs, const char* input_text, goal_t* out_goals
     if (!gs || !input_text || !out_goals || max_goals <= 0) return -1;
     if (gs->goal_count >= GS_MAX_GOALS) return -1;
 
-    // Parse input text and synthesize goals
-    // For now, create a simple demonstration goal
+
+
     int goals_generated = 0;
 
     if (strstr(input_text, "optimize") || strstr(input_text, "improve")) {
@@ -91,7 +91,7 @@ int gs_propose(goal_synthesizer_t* gs, const char* input_text, goal_t* out_goals
         }
     }
 
-    // Add goals to synthesizer
+
     for (int i = 0; i < goals_generated && gs->goal_count < GS_MAX_GOALS; i++) {
         memcpy(&gs->goals[gs->goal_count++], &out_goals[i], sizeof(goal_t));
     }
@@ -104,11 +104,11 @@ int gs_propose_from_telemetry(goal_synthesizer_t* gs, const void* telemetry_data
                                goal_t* out_goals, int max_goals) {
     if (!gs || !telemetry_data || !out_goals || max_goals <= 0) return -1;
 
-    // Analyze telemetry for goal opportunities
-    // For demonstration, create goals based on system metrics
+
+
     int goals_generated = 0;
 
-    // Example: Monitor coherence and generate stabilization goal if needed
+
     goal_t* goal = &out_goals[goals_generated++];
     memset(goal, 0, sizeof(goal_t));
 
@@ -127,7 +127,7 @@ int gs_propose_from_telemetry(goal_synthesizer_t* gs, const void* telemetry_data
     snprintf(goal->constraints[0], sizeof(goal->constraints[0]), "coherence >= 0.99");
     goal->smg_node_id = -1;
 
-    // Add to synthesizer
+
     for (int i = 0; i < goals_generated && gs->goal_count < GS_MAX_GOALS; i++) {
         memcpy(&gs->goals[gs->goal_count++], &out_goals[i], sizeof(goal_t));
     }
@@ -135,14 +135,14 @@ int gs_propose_from_telemetry(goal_synthesizer_t* gs, const void* telemetry_data
     return goals_generated;
 }
 
-// ============================================================================
-// GOAL SCORING
-// ============================================================================
+
+
+
 
 double gs_score_goal(const goal_synthesizer_t* gs, const goal_t* goal) {
     if (!gs || !goal) return 0.0;
 
-    // Priority = w1*Benefit - w2*Risk + w3*Clarity - w4*Cost
+
     double score = gs->w_benefit * goal->benefit
                  - gs->w_risk * goal->risk
                  + gs->w_clarity * goal->clarity
@@ -155,7 +155,7 @@ static int compare_goals_by_score(const void* a, const void* b) {
     const goal_t* goal_a = (const goal_t*)a;
     const goal_t* goal_b = (const goal_t*)b;
 
-    // Use priority field for comparison (should be pre-computed)
+
     if (goal_b->priority > goal_a->priority) return 1;
     if (goal_b->priority < goal_a->priority) return -1;
     return 0;
@@ -164,27 +164,27 @@ static int compare_goals_by_score(const void* a, const void* b) {
 int gs_rank_goals(goal_synthesizer_t* gs) {
     if (!gs) return -1;
 
-    // Compute scores for all proposed goals
+
     for (int i = 0; i < gs->goal_count; i++) {
         if (gs->goals[i].status == GOAL_STATUS_PROPOSED) {
             gs->goals[i].priority = gs_score_goal(gs, &gs->goals[i]);
         }
     }
 
-    // Sort goals by priority descending
+
     qsort(gs->goals, gs->goal_count, sizeof(goal_t), compare_goals_by_score);
 
     return 0;
 }
 
-// ============================================================================
-// GOAL COMMITMENT (WITH ETHICS GATE)
-// ============================================================================
+
+
+
 
 int gs_commit(goal_synthesizer_t* gs, const char* goal_id, const void* ethics_state) {
     if (!gs || !goal_id) return -1;
 
-    // Find goal
+
     goal_t* goal = NULL;
     for (int i = 0; i < gs->goal_count; i++) {
         if (strcmp(gs->goals[i].id, goal_id) == 0) {
@@ -195,13 +195,13 @@ int gs_commit(goal_synthesizer_t* gs, const char* goal_id, const void* ethics_st
 
     if (!goal || goal->status != GOAL_STATUS_PROPOSED) return -1;
 
-    // ETHICS GATE CHECK
+
     if (ethics_state) {
         const ethics_state_t* eth = (const ethics_state_t*)ethics_state;
 
         double E = eth->total_ethics_score;
 
-        // Hard stop: E < 2.95
+
         if (E < 2.95) {
             goal->status = GOAL_STATUS_REJECTED;
             return -2;  // Ethics gate failure
@@ -212,14 +212,14 @@ int gs_commit(goal_synthesizer_t* gs, const char* goal_id, const void* ethics_st
             return -4;  // Reality drift guard triggered
         }
 
-        // Risk threshold check
+
         if (goal->risk > 0.8) {
             goal->status = GOAL_STATUS_REJECTED;
             return -3;  // Risk too high
         }
     }
 
-    // Pass ethics gate - commit goal
+
     goal->status = GOAL_STATUS_COMMITTED;
     goal->committed_ts = (uint64_t)time(NULL);
 
@@ -240,9 +240,9 @@ int gs_reject(goal_synthesizer_t* gs, const char* goal_id, const char* reason) {
     return -1;
 }
 
-// ============================================================================
-// GOAL LIFECYCLE
-// ============================================================================
+
+
+
 
 int gs_activate(goal_synthesizer_t* gs, const char* goal_id) {
     if (!gs || !goal_id) return -1;
@@ -286,9 +286,9 @@ int gs_fail(goal_synthesizer_t* gs, const char* goal_id, const char* reason) {
     return -1;
 }
 
-// ============================================================================
-// QUERY
-// ============================================================================
+
+
+
 
 int gs_get_goal(const goal_synthesizer_t* gs, const char* goal_id, goal_t* out) {
     if (!gs || !goal_id || !out) return -1;

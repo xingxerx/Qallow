@@ -1,4 +1,4 @@
-// Compile: nvcc livelang_cuda.cu -o livelang_cuda
+
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>

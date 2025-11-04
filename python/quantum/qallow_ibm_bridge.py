@@ -1,7 +1,7 @@
 """Utilities to bridge Qallow ternary state experiments with Cirq backends."""
 
 
-import os
+
 from dataclasses import dataclass
 from typing import Mapping, Optional, Tuple, Dict, Sequence
 from collections import Counter, defaultdict

@@ -4,9 +4,9 @@ Quantum Learning System - Adaptive learning from quantum workload outputs
 Integrates with Qallow's adaptive learning framework
 """
 
-import json
+
 from datetime import datetime
-import logging
+
 
 logger = logging.getLogger(__name__)
 

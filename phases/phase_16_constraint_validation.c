@@ -29,7 +29,7 @@ typedef struct {
 /* Multi-block comment removed */
 void generate_constraint_vector(ConstraintVector *constraint, float *synthesis, float magnitude) {
     for (int i = 0; i < VECTOR_DIM; i++) {
-        // Perturbation scaled by violation magnitude
+
         float perturbation = (rand() / (float)RAND_MAX - 0.5) * 2.0 * magnitude;
         constraint->vector[i] = synthesis[i] + perturbation;
     }
@@ -53,7 +53,7 @@ float test_system_resilience(ValidationState *state) {
         total_impact += state->violations[i].impact_strength;
     }
 
-    // Resilience = ability to absorb violations without failure
+
     float resilience = 1.0 / (1.0 + (total_impact / state->num_violations));
     return resilience;
 }
@@ -68,19 +68,19 @@ int main(int argc, char *argv[]) {
 
     ValidationState state = {0};
 
-    // Initialize synthesis vector (from Phase 15)
+
     printf("[INFO] Initializing synthesis vector from Phase 15...\n");
     for (int i = 0; i < VECTOR_DIM; i++) {
         state.synthesis[i] = 0.5 + (rand() / (float)RAND_MAX - 0.5) * 0.2;
     }
 
-    // Generate constraint baseline
+
     float constraint_baseline[VECTOR_DIM];
     for (int i = 0; i < VECTOR_DIM; i++) {
         constraint_baseline[i] = 0.5;
     }
 
-    // Generate constraint violation vectors
+
     printf("[INFO] Generating constraint violation vectors...\n");
     int num_violations = 50 + (rand() % 100);
     state.num_violations = num_violations;
@@ -89,24 +89,24 @@ int main(int argc, char *argv[]) {
         float magnitude = 0.1 + (rand() / (float)RAND_MAX) * 0.4;
         generate_constraint_vector(&state.violations[i], state.synthesis, magnitude);
 
-        // Score constraint violation
+
         state.violations[i].constraint_score = score_constraint_violation(&state.violations[i], constraint_baseline);
 
-        // Impact strength based on constraint score
+
         state.violations[i].impact_strength = state.violations[i].constraint_score * magnitude;
 
         state.violation_avg += state.violations[i].constraint_score;
     }
     state.violation_avg /= num_violations;
 
-    // Test system resilience
+
     printf("[INFO] Testing system resilience to constraint violations...\n");
     state.system_resilience = test_system_resilience(&state);
 
-    // Calculate system stability
+
     state.system_stability = 1.0 - (state.violation_avg * 0.5);
 
-    // Report results
+
     printf("\n================================================================================\n");
     printf("Constraint Validation Results:\n");
     printf("================================================================================\n");

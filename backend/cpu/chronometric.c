@@ -4,10 +4,10 @@
 #include <string.h>
 #include <math.h>
 
-// Chronometric Prediction Layer - Corrected Implementation
-// Matches the interface in chronometric.h
 
-// Initialize chronometric time bank
+
+
+
 void chrono_bank_init(chrono_bank_t* bank) {
     if (!bank) return;
 
@@ -22,7 +22,7 @@ void chrono_bank_init(chrono_bank_t* bank) {
     printf("[CHRONO-BANK] Initialized\n");
 }
 
-// Record an event in the time bank
+
 void chrono_bank_record_event(chrono_bank_t* bank,
                               int event_id,
                               double observed_time,
@@ -44,13 +44,13 @@ void chrono_bank_record_event(chrono_bank_t* bank,
     chrono_bank_update_stats(bank);
 }
 
-// Update time bank statistics
+
 void chrono_bank_update_stats(chrono_bank_t* bank) {
     if (!bank || bank->history_count == 0) return;
 
     int n /* TODO: Use more descriptive name */= bank->history_count;
 
-    // Calculate mean delta_t
+
     double sum = 0.0;
     double conf_sum = 0.0;
     for (int i = 0; i < n; i++) {
@@ -60,7 +60,7 @@ void chrono_bank_update_stats(chrono_bank_t* bank) {
     bank->avg_delta_t = sum / n;
     bank->overall_confidence = conf_sum / n;
 
-    // Calculate standard deviation
+
     double variance = 0.0;
     for (int i = 0; i < n; i++) {
         double diff = bank->history[i].delta_t - bank->avg_delta_t;
@@ -69,18 +69,18 @@ void chrono_bank_update_stats(chrono_bank_t* bank) {
     bank->std_delta_t = sqrt(variance / n);
 }
 
-// Get overall confidence from time bank
+
 double chrono_bank_get_confidence(const chrono_bank_t* bank) {
     if (!bank || bank->history_count == 0) return 0.0;
 
-    // Confidence based on consistency and sample size
+
     double sample_factor = (double)bank->history_count / CHRONO_HISTORY_SIZE;
     double consistency = 1.0 / (1.0 + bank->std_delta_t);
 
     return bank->overall_confidence * consistency * sample_factor;
 }
 
-// Initialize chronometric state
+
 void chronometric_init(chronometric_state_t* chrono) {
     if (!chrono) return;
 
@@ -92,7 +92,7 @@ void chronometric_init(chronometric_state_t* chrono) {
     chrono->last_tick_time = chrono->simulation_start_time;
     chrono->drift_alert_active = false;
 
-    // Open telemetry file
+
     sprintf(chrono->telemetry_file, "chronometric_telemetry.csv");
     chrono->chrono_telemetry = fopen(chrono->telemetry_file, "w");
 
@@ -104,7 +104,7 @@ void chronometric_init(chronometric_state_t* chrono) {
     printf("[CHRONOMETRIC] State initialized\n");
 }
 
-// Cleanup chronometric state
+
 void chronometric_cleanup(chronometric_state_t* chrono) {
     if (!chrono) return;
 
@@ -115,7 +115,7 @@ void chronometric_cleanup(chronometric_state_t* chrono) {
     printf("[CHRONOMETRIC] Cleanup complete\n");
 }
 
-// Generate temporal forecasts
+
 void chronometric_generate_forecasts(chronometric_state_t* chrono,
                                      const qallow_state_t* current_state,
                                      int horizon_ticks) {
@@ -134,7 +134,7 @@ void chronometric_generate_forecasts(chronometric_state_t* chrono,
         forecast->tick_offset = i + 1;
         forecast->predicted_time = predicted_delta * (i + 1);
 
-        // Predict metrics with decay
+
         double decay = pow(0.98, i);
         forecast->predicted_coherence = current_state->global_coherence * decay;
         forecast->predicted_decoherence = current_state->decoherence_level * (1.0 + i * 0.01);
@@ -146,13 +146,13 @@ void chronometric_generate_forecasts(chronometric_state_t* chrono,
     chrono->num_forecasts = horizon_ticks;
 }
 
-// Update forecast based on observation
+
 void chronometric_update_forecast(chronometric_state_t* chrono,
                                  const qallow_state_t* observed_state,
                                  int tick) {
     if (!chrono || !observed_state) return;
 
-    // Record actual timing for this tick
+
     double current_time = (double)clock() / CLOCKS_PER_SEC;
     double tick_duration = current_time - chrono->last_tick_time;
 
@@ -164,7 +164,7 @@ void chronometric_update_forecast(chronometric_state_t* chrono,
     chronometric_update_tick_timing(chrono, tick_duration);
 }
 
-// Track drift over time
+
 void chronometric_track_drift(chronometric_state_t* chrono,
                              double observed_time,
                              double expected_time) {
@@ -178,7 +178,7 @@ void chronometric_track_drift(chronometric_state_t* chrono,
         chrono->drift_rate = chrono->accumulated_drift / elapsed;
     }
 
-    // Alert if drift exceeds 10ms
+
     if (fabs(instant_drift) > 0.01) {
         chrono->drift_alert_active = true;
         printf("[CHRONO-ALERT] Temporal drift: %.6f sec\n", instant_drift);
@@ -187,7 +187,7 @@ void chronometric_track_drift(chronometric_state_t* chrono,
     }
 }
 
-// Update tick timing statistics
+
 void chronometric_update_tick_timing(chronometric_state_t* chrono,
                                     double tick_duration) {
     if (!chrono) return;
@@ -202,7 +202,7 @@ void chronometric_update_tick_timing(chronometric_state_t* chrono,
     chrono->tick_duration_std = sqrt(chrono->tick_duration_std * chrono->tick_duration_std * 0.95 + diff * diff * 0.05);
 }
 
-// Detect temporal anomalies
+
 bool chronometric_detect_anomaly(const chronometric_state_t* chrono,
                                 const qallow_state_t* state) {
     if (!chrono || !state) return false;
@@ -221,19 +221,19 @@ bool chronometric_detect_anomaly(const chronometric_state_t* chrono,
     return false;
 }
 
-// Calculate temporal offset
+
 double chronometric_calculate_temporal_offset(const chronometric_state_t* chrono) {
     if (!chrono) return 0.0;
     return chrono->time_bank.avg_delta_t + chrono->accumulated_drift;
 }
 
-// Predict next tick time
+
 double chronometric_predict_next_tick_time(const chronometric_state_t* chrono) {
     if (!chrono) return 0.0;
     return chrono->last_tick_time + chrono->tick_duration_avg;
 }
 
-// Analyze temporal patterns
+
 void chronometric_analyze_patterns(chronometric_state_t* chrono) {
     if (!chrono || chrono->time_bank.history_count < 20) {
         printf("[CHRONO-PATTERN] Insufficient data\n");
@@ -251,7 +251,7 @@ void chronometric_analyze_patterns(chronometric_state_t* chrono) {
     printf("=================================\n\n");
 }
 
-// Write telemetry for current tick
+
 void chronometric_write_telemetry(chronometric_state_t* chrono, int tick) {
     if (!chrono || !chrono->chrono_telemetry) return;
 
@@ -268,7 +268,7 @@ void chronometric_write_telemetry(chronometric_state_t* chrono, int tick) {
     }
 }
 
-// Write forecast report
+
 void chronometric_write_forecast_report(const chronometric_state_t* chrono) {
     if (!chrono) return;
 

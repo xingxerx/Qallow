@@ -1,4 +1,4 @@
-// Semantic Memory Grid - In-memory implementation
+
 // TODO: Upgrade to LMDB for production persistence
 
 #include "phase7.h"
@@ -7,9 +7,9 @@
 #include <time.h>
 #include <math.h>
 
-// ============================================================================
-// INTERNAL STATE
-// ============================================================================
+
+
+
 
 static smg_node_t* node_table = NULL;
 static int node_count = 0;
@@ -26,9 +26,9 @@ static int skill_capacity = 0;
 static bool smg_is_initialized = false;
 static char smg_db_path[256] = {0};
 
-// ============================================================================
-// HELPER FUNCTIONS
-// ============================================================================
+
+
+
 
 static uint64_t get_timestamp(void) {
     return (uint64_t)time(NULL);
@@ -49,16 +49,16 @@ static int allocate_node_id(void) {
     return node_count++;
 }
 
-// ============================================================================
-// INITIALIZATION
-// ============================================================================
+
+
+
 
 int smg_init(const char* db_path) {
     if (smg_is_initialized) {
         return 0;  // Already initialized
     }
 
-    // Allocate tables
+
     node_capacity = 10000;
     node_table = (smg_node_t*)calloc(node_capacity, sizeof(smg_node_t));
     if (!node_table) return -1;
@@ -105,19 +105,19 @@ void smg_shutdown(void) {
     smg_is_initialized = false;
 }
 
-// ============================================================================
-// NODE OPERATIONS
-// ============================================================================
+
+
+
 
 int smg_upsert_concept(const char* label, const float* embedding, int dim, smg_node_type_t type) {
     if (!smg_is_initialized || !label || !embedding) return -1;
     if (dim > SMG_EMBEDDING_DIM) return -1;
     if (node_count >= node_capacity) return -1;
 
-    // Check if concept already exists
+
     for (int i = 0; i < node_count; i++) {
         if (node_table[i].is_active && strcmp(node_table[i].label, label) == 0) {
-            // Update existing
+
             memcpy(node_table[i].embedding, embedding, dim * sizeof(float));
             node_table[i].timestamp = get_timestamp();
             node_table[i].confidence = 0.9f;  // Refresh confidence
@@ -125,7 +125,7 @@ int smg_upsert_concept(const char* label, const float* embedding, int dim, smg_n
         }
     }
 
-    // Create new
+
     int id = allocate_node_id();
     smg_node_t* node = &node_table[id];
 
@@ -157,9 +157,9 @@ int smg_delete_node(int node_id) {
     return 0;
 }
 
-// ============================================================================
-// EDGE OPERATIONS
-// ============================================================================
+
+
+
 
 int smg_link(int src_id, int dst_id, const char* relation, double weight) {
     if (!smg_is_initialized || !relation) return -1;
@@ -167,19 +167,19 @@ int smg_link(int src_id, int dst_id, const char* relation, double weight) {
     if (dst_id < 0 || dst_id >= node_count) return -1;
     if (edge_count >= edge_capacity) return -1;
 
-    // Check if edge already exists
+
     for (int i = 0; i < edge_count; i++) {
         if (edge_table[i].src_id == src_id &&
             edge_table[i].dst_id == dst_id &&
             strcmp(edge_table[i].relation, relation) == 0) {
-            // Update weight
+
             edge_table[i].weight = weight;
             edge_table[i].timestamp = get_timestamp();
             return 0;
         }
     }
 
-    // Create new edge
+
     smg_edge_t* edge = &edge_table[edge_count++];
     edge->src_id = src_id;
     edge->dst_id = dst_id;
@@ -213,7 +213,7 @@ int smg_delete_edge(int src_id, int dst_id, const char* relation) {
         if (edge_table[i].src_id == src_id &&
             edge_table[i].dst_id == dst_id &&
             strcmp(edge_table[i].relation, relation) == 0) {
-            // Shift remaining edges
+
             memmove(&edge_table[i], &edge_table[i+1],
                    (edge_count - i - 1) * sizeof(smg_edge_t));
             edge_count--;
@@ -224,9 +224,9 @@ int smg_delete_edge(int src_id, int dst_id, const char* relation) {
     return -1;
 }
 
-// ============================================================================
-// RETRIEVAL (VECTOR SIMILARITY)
-// ============================================================================
+
+
+
 
 typedef struct {
     int id;
@@ -244,7 +244,7 @@ int smg_retrieve(const float* query_vec, int dim, int k, int* out_ids, float* ou
     if (!smg_is_initialized || !query_vec || !out_ids) return -1;
     if (dim > SMG_EMBEDDING_DIM || k <= 0) return -1;
 
-    // Compute similarities for all active nodes
+
     search_result_t* results = (search_result_t*)malloc(node_count * sizeof(search_result_t));
     if (!results) return -1;
 
@@ -258,10 +258,10 @@ int smg_retrieve(const float* query_vec, int dim, int k, int* out_ids, float* ou
         result_count++;
     }
 
-    // Sort by score descending
+
     qsort(results, result_count, sizeof(search_result_t), compare_search_results);
 
-    // Return top k
+
     int return_count = (k < result_count) ? k : result_count;
     for (int i = 0; i < return_count; i++) {
         out_ids[i] = results[i].id;
@@ -276,7 +276,7 @@ int smg_retrieve_by_type(const float* query_vec, int dim, smg_node_type_t type, 
     if (!smg_is_initialized || !query_vec || !out_ids) return -1;
     if (dim > SMG_EMBEDDING_DIM || k <= 0) return -1;
 
-    // Filtered retrieval
+
     search_result_t* results = (search_result_t*)malloc(node_count * sizeof(search_result_t));
     if (!results) return -1;
 
@@ -301,9 +301,9 @@ int smg_retrieve_by_type(const float* query_vec, int dim, smg_node_type_t type, 
     return return_count;
 }
 
-// ============================================================================
-// SKILL MANAGEMENT
-// ============================================================================
+
+
+
 
 int smg_register_skill(const char* name, const char* io_sig, void* code_ptr, smg_skill_t* out) {
     if (!smg_is_initialized || !name || !io_sig) return -1;
@@ -342,9 +342,9 @@ int smg_update_skill_score(int skill_id, double score) {
     return 0;
 }
 
-// ============================================================================
-// MAINTENANCE
-// ============================================================================
+
+
+
 
 int smg_compact(double min_weight_threshold, uint64_t max_age_seconds) {
     if (!smg_is_initialized) return -1;
@@ -352,7 +352,7 @@ int smg_compact(double min_weight_threshold, uint64_t max_age_seconds) {
     uint64_t now = get_timestamp();
     int removed = 0;
 
-    // Remove low-weight or old edges
+
     for (int i = edge_count - 1; i >= 0; i--) {
         bool should_remove = false;
 
@@ -388,12 +388,12 @@ int smg_checkpoint(const char* snapshot_path) {
     FILE* f = fopen(snapshot_path, "wb");
     if (!f) return -1;
 
-    // Write header
+
     fwrite(&node_count, sizeof(int), 1, f);
     fwrite(&edge_count, sizeof(int), 1, f);
     fwrite(&skill_count, sizeof(int), 1, f);
 
-    // Write tables
+
     fwrite(node_table, sizeof(smg_node_t), node_count, f);
     fwrite(edge_table, sizeof(smg_edge_t), edge_count, f);
     fwrite(skill_table, sizeof(smg_skill_t), skill_count, f);
@@ -405,7 +405,7 @@ int smg_checkpoint(const char* snapshot_path) {
 int smg_verify_integrity(void) {
     if (!smg_is_initialized) return -1;
 
-    // Check node references in edges
+
     for (int i = 0; i < edge_count; i++) {
         if (edge_table[i].src_id >= node_count || edge_table[i].dst_id >= node_count) {
             return -1;  // Invalid reference

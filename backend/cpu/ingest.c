@@ -50,7 +50,7 @@ int ingest_remove_stream(ingest_manager_t* mgr, const char* name) {
 
     for (int i = 0; i < mgr->stream_count; i++) {
         if (strcmp(mgr->streams[i].name, name) == 0) {
-            // Shift remaining streams
+
             for (int j = i; j < mgr->stream_count - 1; j++) {
                 mgr->streams[j] = mgr->streams[j + 1];
             }

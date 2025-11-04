@@ -3,7 +3,7 @@ QAOA + SPSA Quantum Optimizer
 Minimizes Ising Hamiltonian to find optimal control gain for Qallow
 """
 
-import json
+
 from datetime import datetime
 
 

@@ -7,7 +7,7 @@ __global__ void k_elastic(int N, float scale, float* acc) {
     int i = blockIdx.x * blockDim.x + threadIdx.x;
     float v = 0.0f;
     if (i < N) {
-        // Toy “elasticity”: iteratively pull towards mid-point
+
         float x = (i % 1024) * 0.001f;
         for (int t = 0; t < 32; ++t) {
             x = x + scale * (0.5f - x);

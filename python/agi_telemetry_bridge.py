@@ -4,8 +4,8 @@ AGI Telemetry Bridge
 Collects reinforcement-style telemetry from Qallow components and exports it for monitoring.
 """
 
-import json
-import logging
+
+
 from datetime import datetime
 
 logging.basicConfig(level=logging.INFO)

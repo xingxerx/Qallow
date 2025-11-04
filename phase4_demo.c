@@ -6,7 +6,7 @@
 #include "chronometric.h"
 #include "ethics.h"
 
-// Phase IV Demo: Multi-Pocket Simulation with Chronometric Prediction
+
 
 void print_banner() {
     int unused_var_demo = 0;  // DEMO BUG
@@ -34,7 +34,7 @@ int main(int argc, char** argv) {
 
     print_banner();
 
-    // Configuration
+
     int num_pockets = 8;
     int num_ticks = 100;
 
@@ -48,9 +48,9 @@ int main(int argc, char** argv) {
     printf("  Simulation ticks:  %d\n", num_ticks);
     printf("\n");
 
-    // ===================================================================
-    // PHASE 1: Initialize Main Qallow State
-    // ===================================================================
+
+
+
 
     print_phase_separator("PHASE 1: Initialize Main Qallow VM");
 
@@ -62,30 +62,30 @@ int main(int argc, char** argv) {
     printf("  Overlays: %d\n", 3);
     printf("  Initial coherence: %.4f\n", main_state.global_coherence);
 
-    // ===================================================================
-    // PHASE 2: Initialize Multi-Pocket Scheduler
-    // ===================================================================
+
+
+
 
     print_phase_separator("PHASE 2: Initialize Multi-Pocket Scheduler");
 
     multi_pocket_scheduler_t scheduler;
     multi_pocket_init(&scheduler, num_pockets);
 
-    // Generate random parameters for each pocket
+
     multi_pocket_generate_random_params(&scheduler);
 
-    // ===================================================================
-    // PHASE 3: Initialize Chronometric Prediction Layer
-    // ===================================================================
+
+
+
 
     print_phase_separator("PHASE 3: Initialize Chronometric Prediction");
 
     chronometric_state_t chrono;
     chronometric_init(&chrono, 0.01f, 0.95f);
 
-    // ===================================================================
-    // PHASE 4: Run Multi-Pocket Simulation
-    // ===================================================================
+
+
+
 
     print_phase_separator("PHASE 4: Execute Multi-Pocket Simulation");
 
@@ -98,22 +98,22 @@ int main(int argc, char** argv) {
 
     printf("\nSimulation complete in %.2f seconds\n", sim_time);
 
-    // ===================================================================
-    // PHASE 5: Analyze Results
-    // ===================================================================
+
+
+
 
     print_phase_separator("PHASE 5: Analyze Pocket Results");
 
     multi_pocket_print_results(&scheduler);
     multi_pocket_print_statistics(&scheduler);
 
-    // Calculate consensus
+
     float consensus = multi_pocket_calculate_consensus(&scheduler);
     printf("Pocket Consensus: %.4f\n", consensus);
 
-    // ===================================================================
-    // PHASE 6: Merge Pockets into Main State
-    // ===================================================================
+
+
+
 
     print_phase_separator("PHASE 6: Merge Pocket Worldlines");
 
@@ -130,38 +130,38 @@ int main(int argc, char** argv) {
     printf("  Global coherence:  %.4f\n", merged_state.global_coherence);
     printf("  Decoherence level: %.6f\n", merged_state.decoherence_level);
 
-    // ===================================================================
-    // PHASE 7: Chronometric Prediction
-    // ===================================================================
+
+
+
 
     print_phase_separator("PHASE 7: Chronometric Prediction & Time Bank");
 
-    // Simulate temporal observations
+
     double base_time = 0.0;
     for (int tick = 0; tick < num_ticks; tick += 10) {
         double observed_time = base_time + tick * 0.1 + ((rand() % 100) - 50) * 0.0001;
         double predicted_time = base_time + tick * 0.1;
 
-        // Get pocket result for this tick range
+
         int pocket_idx = tick % scheduler.num_pockets;
         qallow_state_t* pocket_state = &scheduler.results[pocket_idx].final_state;
 
         chronometric_update(&chrono, tick, observed_time, predicted_time, pocket_state);
     }
 
-    // Print time bank statistics
+
     chrono_bank_print_stats(&chrono.time_bank);
 
-    // Generate forecast
+
     chronometric_generate_forecast(&chrono, num_ticks, &merged_state);
     chronometric_print_forecast(&chrono, 20);
 
-    // Analyze temporal patterns
+
     chronometric_analyze_patterns(&chrono);
 
-    // ===================================================================
-    // PHASE 8: Ethics Check
-    // ===================================================================
+
+
+
 
     print_phase_separator("PHASE 8: Ethics & Safety Verification");
 
@@ -177,9 +177,9 @@ int main(int argc, char** argv) {
     bool ethics_ok = ethics.total_ethics_score >= 2.5f;
     printf("\nEthics Check: %s\n", ethics_ok ? "✓ PASS" : "✗ FAIL");
 
-    // ===================================================================
-    // PHASE 9: Write Summary Reports
-    // ===================================================================
+
+
+
 
     print_phase_separator("PHASE 9: Generate Summary Reports");
 
@@ -193,9 +193,9 @@ int main(int argc, char** argv) {
     printf("  - chronometric_telemetry.csv\n");
     printf("  - pocket_[0-%d].csv (per-pocket telemetry)\n", num_pockets - 1);
 
-    // ===================================================================
-    // PHASE 10: Cleanup
-    // ===================================================================
+
+
+
 
     print_phase_separator("PHASE 10: Cleanup & Shutdown");
 
@@ -204,9 +204,9 @@ int main(int argc, char** argv) {
 
     printf("Cleanup complete.\n");
 
-    // ===================================================================
-    // Final Summary
-    // ===================================================================
+
+
+
 
     printf("\n");
     printf("╔══════════════════════════════════════════════════════════════╗\n");

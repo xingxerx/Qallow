@@ -101,7 +101,7 @@ static int ensure_directory(const char* path) {
         return -1;
     }
 
-    // Trim trailing slash to avoid double-creating
+
     if (tmp[len - 1] == '/') {
         tmp[len - 1] = '\0';
     }
@@ -293,7 +293,7 @@ static cache_t* cache_attach(void) {
     return (cache_t*)p;
 }
 
-// linear-probe insert/find
+
 static int cache_get(const char* key, char* out, size_t out_sz) {
     uint64_t h = fnv1a64(key, strlen(key));
     size_t idx = h % QALLOW_CACHE_ENTRIES;
@@ -383,7 +383,7 @@ static int queue_pop(job_t* out) {
     return 1;
 }
 
-// Simulated “analysis”: hash + short sleep to emulate heavy work
+
 static void analyze_and_cache(const char* path, time_t mt) {
     char key[QALLOW_KEY_MAX];
     snprintf(key, sizeof(key), "%s|%ld", path, (long)mt);
@@ -392,7 +392,7 @@ static void analyze_and_cache(const char* path, time_t mt) {
         qallow_infof("[Qallow] cache hit: %s -> %s\n", path, hit);
         return;
     }
-    // heavy work placeholder
+
     struct timespec ts = {.tv_sec = 0, .tv_nsec = 50 * 1000 * 1000}; // 50 ms
     nanosleep(&ts, NULL);
     char val[QALLOW_VAL_MAX];
@@ -559,9 +559,9 @@ static int accelerator_run(const phase13_accel_config_t* cfg) {
         close(ifd);
     }
 
-    // Optional export of processed inputs summary
+
     if (cfg->export_path && cfg->export_path[0]) {
-        // Derive directory and ensure exists
+
         char dirbuf[PATH_MAX];
         const char* slash = strrchr(cfg->export_path, '/');
         if (slash) {

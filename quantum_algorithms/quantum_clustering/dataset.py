@@ -1,6 +1,6 @@
 """Sparse vector dataset generation and management."""
 
-import logging
+
 from scipy.sparse import csr_matrix, coo_matrix
 from .config import ClusteringConfig
 

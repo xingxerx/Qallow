@@ -10,7 +10,7 @@ __global__ void photonicKernel(double* out, int n, unsigned long seed){
     if (i < n){
         curandStatePhilox4_32_10_t state;
         curand_init((unsigned long long)seed, i, 0, &state);
-        // emulate photon probability sample in [0,1)
+
         double r = curand_uniform_double(&state);
         out[i] = r;
     }

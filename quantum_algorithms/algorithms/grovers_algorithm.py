@@ -4,7 +4,7 @@ Grover's Algorithm - Quantum Search Algorithm
 Searches an unsorted database in O(√N) time
 """
 
-import cirq
+
 
 
 def grover_oracle(qubits: List[cirq.Qid], marked_state: int) -> cirq.Circuit:

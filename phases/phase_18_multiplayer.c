@@ -29,12 +29,12 @@ typedef struct {
 
 /* Multi-block comment removed */
 void compute_consensus(MultiplayerState *state) {
-    // Initialize consensus vector
+
     for (int i = 0; i < STATE_VECTOR_DIM; i++) {
         state->consensus_vector[i] = 0.0;
     }
 
-    // Average all node states
+
     for (int i = 0; i < state->num_nodes; i++) {
         for (int j = 0; j < STATE_VECTOR_DIM; j++) {
             state->consensus_vector[j] += state->nodes[i].state_vector[j];
@@ -67,14 +67,14 @@ float calculate_consensus_strength(MultiplayerState *state) {
 
 
 int validate_peer_state(NodeState *peer, MultiplayerState *state) {
-    // Check if peer state is within acceptable range
+
     for (int i = 0; i < STATE_VECTOR_DIM; i++) {
         if (peer->state_vector[i] < 0.0 || peer->state_vector[i] > 1.0) {
             return 0;
         }
     }
 
-    // Check confidence level
+
     if (peer->confidence < 0.5) {
         return 0;
     }
@@ -86,7 +86,7 @@ int validate_peer_state(NodeState *peer, MultiplayerState *state) {
 void merge_into_ledger(MultiplayerState *state) {
     state->ledger_entries = state->num_nodes;
 
-    // Each node contributes to the ledger
+
     for (int i = 0; i < state->num_nodes; i++) {
         state->nodes[i].confidence = state->consensus_strength;
     }
@@ -102,7 +102,7 @@ int main(int argc, char *argv[]) {
 
     MultiplayerState state = {0};
 
-    // Initialize nodes
+
     printf("🌐 Initializing multiplayer nodes...\n");
     int num_nodes = 3 + (rand() % 8);
     state.num_nodes = num_nodes;
@@ -112,13 +112,13 @@ int main(int argc, char *argv[]) {
         state.nodes[i].timestamp = time(NULL);
         state.nodes[i].confidence = 0.7 + (rand() / (float)RAND_MAX) * 0.3;
 
-        // Initialize state vector
+
         for (int j = 0; j < STATE_VECTOR_DIM; j++) {
             state.nodes[i].state_vector[j] = (rand() / (float)RAND_MAX);
         }
     }
 
-    // Validate peer states
+
     printf("✅ Validating peer states...\n");
     int valid_peers = 0;
     for (int i = 0; i < num_nodes; i++) {
@@ -127,28 +127,28 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    // Compute consensus
+
     printf("🤝 Computing consensus from %d nodes...\n", valid_peers);
     compute_consensus(&state);
 
-    // Calculate consensus strength
+
     state.consensus_strength = calculate_consensus_strength(&state);
 
-    // Check if consensus meets threshold
+
     if (state.consensus_strength >= CONSENSUS_THRESHOLD) {
         printf("✅ Consensus achieved (strength: %.4f)\n", state.consensus_strength);
     } else {
         printf("⚠️  Weak consensus (strength: %.4f)\n", state.consensus_strength);
     }
 
-    // Merge into ledger
+
     printf("📝 Merging states into shared ledger...\n");
     merge_into_ledger(&state);
 
-    // Calculate synchronization quality
+
     state.synchronization_quality = (valid_peers / (float)num_nodes) * state.consensus_strength;
 
-    // Report results
+
     printf("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
     printf("📈 Multiplayer Synchronization Results:\n");
     printf("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");

@@ -4,14 +4,14 @@
 
 namespace qallow::ccc {
 
-// ── util: gray decode ──
+
 __device__ __forceinline__ uint32_t d_gray2int(uint32_t g){
   for(uint32_t b=g>>1; b; b>>=1) g ^= b;
   return g;
 }
-// gray2int is defined in gray.cpp and linked from there
 
-// ── H_dyn partials: σ^z coeffs for modes and ctrl ──
+
+
 __global__ void k_build_cost_coeffs(const float* __restrict__ lambda_m, // [B,M]
                                     const float* __restrict__ c_bits,   // [B,b]
                                     float* __restrict__ hz_mode,        // [B,M]
@@ -30,8 +30,8 @@ void build_cost_coeffs(const float* lambda_m, const float* c_bits,
   cudaDeviceSynchronize();
 }
 
-// ── H_temp: Ising chain penalty per bit between t and t+1 ──
-// pair_cost[B] accumulates η * Hamming(ctrl_t, ctrl_tp1)
+
+
 __global__ void k_temporal_chain(const uint8_t* __restrict__ mem_t,  // [B,b]
                                  const uint8_t* __restrict__ mem_tp, // [B,b]
                                  float* __restrict__ out_cost, float eta, int b){

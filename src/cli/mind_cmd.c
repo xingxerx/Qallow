@@ -12,7 +12,7 @@ int qallow_cmd_mind(int argc, char **argv){
   (void)argc; (void)argv;
   size_t n=0;
   const ql_module *mods = ql_get_mind_modules(&n);
-  // init state
+
   float latent_buf[8] = {0};
   ql_state S = {
     .t=0.0, .reward=0.0, .energy=0.5, .risk=0.5,

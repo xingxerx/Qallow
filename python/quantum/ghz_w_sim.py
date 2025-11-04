@@ -7,8 +7,8 @@ validation by omitting --validate.
 """
 
 
-import argparse
-import sys
+
+
 
 try:
     import numpy as np

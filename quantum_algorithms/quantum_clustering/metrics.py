@@ -1,7 +1,7 @@
 """Evaluation metrics and profiling for quantum clustering."""
 
-import logging
-import time
+
+
 from .dataset import SparseDataset
 
 logger = logging.getLogger(__name__)

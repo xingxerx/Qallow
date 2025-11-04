@@ -1,4 +1,4 @@
-// Transfer Engine - Cross-domain planning and skill adaptation
+
 
 #include "phase7.h"
 #include <stdlib.h>
@@ -16,7 +16,7 @@ void te_shutdown(transfer_engine_t* te) {
     if (te) memset(te, 0, sizeof(transfer_engine_t));
 }
 
-// Generate plan ID
+
 static void generate_plan_id(char* out, int max_len, const char* goal_id) {
     snprintf(out, max_len, "PLAN_%s_%lld", goal_id, (long long)time(NULL));
 }
@@ -25,10 +25,10 @@ int te_plan(transfer_engine_t* te, const char* goal_id, const goal_t* goal,
             plan_t* out_plans, int max_plans) {
     if (!te || !goal_id || !goal || !out_plans || max_plans <= 0) return -1;
 
-    // Generate plan variants
+
     int plans_generated = 0;
 
-    // Variant 1: Conservative approach (fewer steps, lower risk)
+
     plan_t* plan1 = &out_plans[plans_generated++];
     memset(plan1, 0, sizeof(plan_t));
     generate_plan_id(plan1->plan_id, sizeof(plan1->plan_id), goal_id);
@@ -46,7 +46,7 @@ int te_plan(transfer_engine_t* te, const char* goal_id, const goal_t* goal,
     plan1->expected_utility = te_compute_expected_utility(plan1);
     plan1->created_ts = (uint64_t)time(NULL);
 
-    // Variant 2: Aggressive approach (more steps, higher potential)
+
     if (plans_generated < max_plans) {
         plan_t* plan2 = &out_plans[plans_generated++];
         memset(plan2, 0, sizeof(plan_t));
@@ -68,7 +68,7 @@ int te_plan(transfer_engine_t* te, const char* goal_id, const goal_t* goal,
         plan2->created_ts = (uint64_t)time(NULL);
     }
 
-    // Add plans to engine
+
     for (int i = 0; i < plans_generated && te->plan_count < TE_MAX_PLAN_VARIANTS; i++) {
         memcpy(&te->plans[te->plan_count++], &out_plans[i], sizeof(plan_t));
     }
@@ -79,7 +79,7 @@ int te_plan(transfer_engine_t* te, const char* goal_id, const goal_t* goal,
 double te_compute_expected_utility(const plan_t* plan) {
     if (!plan) return 0.0;
 
-    // EU = SuccessProb * Benefit - RiskCost - ComputeCost
+
     double eu = plan->expected_success_prob * plan->expected_benefit
               - plan->risk_cost
               - plan->compute_cost;
@@ -106,7 +106,7 @@ int te_select_best_plan(const transfer_engine_t* te, const plan_t* plans, int pl
 int te_assign_pockets(plan_t* plan, int num_pockets) {
     if (!plan || num_pockets <= 0) return -1;
 
-    // Assign pockets to plan steps
+
     for (int i = 0; i < plan->step_count && i < num_pockets; i++) {
         plan->steps[i].pocket_id = i;
     }
@@ -117,7 +117,7 @@ int te_assign_pockets(plan_t* plan, int num_pockets) {
 int te_adapt(transfer_engine_t* te, int skill_id, const char* domain_sig, int* out_adapted_skill_id) {
     if (!te || !domain_sig || !out_adapted_skill_id) return -1;
 
-    // Simplified adaptation: return new skill ID
+
     *out_adapted_skill_id = skill_id + 1000;  // Placeholder
 
     return te_cache_domain(te, domain_sig);
@@ -126,14 +126,14 @@ int te_adapt(transfer_engine_t* te, int skill_id, const char* domain_sig, int* o
 int te_cache_domain(transfer_engine_t* te, const char* domain_sig) {
     if (!te || !domain_sig) return -1;
 
-    // Check if already cached
+
     for (int i = 0; i < te->domain_count; i++) {
         if (strcmp(te->domain_cache[i], domain_sig) == 0) {
             return i;  // Already cached
         }
     }
 
-    // Add new domain
+
     if (te->domain_count < 64) {
         strncpy(te->domain_cache[te->domain_count], domain_sig, TE_MAX_DOMAIN_SIG - 1);
         return te->domain_count++;

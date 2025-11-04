@@ -2,8 +2,8 @@
 """CLI entry point to execute Phase 11 ternary coherence checks via Cirq bridge."""
 
 
-import argparse
-import json
+
+
 from typing import List
 
 from . import run_ternary_sim

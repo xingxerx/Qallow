@@ -40,7 +40,7 @@ float validation_oracle(float *synthesis, ResultState *state) {
 
 
 void optimization_amplification(SynthesisState *state) {
-    // Find maximum validation score
+
     float max_validation = 0.0;
     int best_state = 0;
 
@@ -51,7 +51,7 @@ void optimization_amplification(SynthesisState *state) {
         }
     }
 
-    // Amplify best state
+
     for (int i = 0; i < RESULT_DIM; i++) {
         state->final_result[i] = state->states[best_state].result_vector[i];
     }
@@ -93,13 +93,13 @@ int main(int argc, char *argv[]) {
 
     SynthesisState state = {0};
 
-    // Initialize synthesis vector
+
     printf("[INFO] Initializing synthesis vector from all prior phases...\n");
     for (int i = 0; i < RESULT_DIM; i++) {
         state.synthesis_vector[i] = 0.5 + (rand() / (float)RAND_MAX - 0.5) * 0.2;
     }
 
-    // Create superposition of result states
+
     printf("[INFO] Creating superposition of result states...\n");
     int num_states = 50 + (rand() % 100);
     state.num_states = num_states;
@@ -107,27 +107,27 @@ int main(int argc, char *argv[]) {
     for (int i = 0; i < num_states; i++) {
         state.states[i].phase_origin = (i % 20) + 1;
 
-        // Initialize result vector
+
         for (int j = 0; j < RESULT_DIM; j++) {
             state.states[i].result_vector[j] = (rand() / (float)RAND_MAX);
         }
 
-        // Apply validation oracle
+
         state.states[i].validation_score = validation_oracle(state.synthesis_vector, &state.states[i]);
         state.states[i].quality_metric = 0.7 + (rand() / (float)RAND_MAX) * 0.3;
     }
 
-    // Apply optimization amplification
+
     printf("[INFO] Applying optimization amplification for best result...\n");
     optimization_amplification(&state);
 
-    // Check quality threshold
+
     float quality_threshold = 0.75;
     printf("[INFO] Measuring final aggregated state (threshold: %.2f)...\n", quality_threshold);
 
     int finalization_success = finalize_results(&state, quality_threshold);
 
-    // Report results
+
     printf("\n================================================================================\n");
     printf("Result Synthesis & Aggregation Report:\n");
     printf("================================================================================\n");

@@ -4,7 +4,7 @@ Quantum Machine Learning Algorithms
 Quantum classifiers and clustering using quantum circuits
 """
 
-import cirq
+
 
 
 @dataclass

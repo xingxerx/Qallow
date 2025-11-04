@@ -816,7 +816,7 @@ static int command_thread(void *userdata) {
 
     pid_t pid = fork();
     if (pid == 0) {
-        // Child
+
         if (request.working_dir[0] != '\0') {
             if (chdir(request.working_dir) != 0) {
                 fprintf(stderr, "qallow_ui: chdir failed: %s\n", strerror(errno));

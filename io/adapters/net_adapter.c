@@ -10,16 +10,16 @@
 static int parse_json_value(const char* json_str, double* value, char* source) {
     if (!json_str || !value) return -1;
 
-    // Look for "value" field
+
     const char* value_ptr = strstr(json_str, "\"value\"");
     if (!value_ptr) return -1;
 
-    // Parse the numeric value
+
     if (sscanf(value_ptr, "\"value\":%lf", value) != 1) {
         return -1;
     }
 
-    // Look for "source" field
+
     const char* source_ptr = strstr(json_str, "\"source\"");
     if (source_ptr && source) {
         sscanf(source_ptr, "\"source\":\"%63[^\"]\"", source);
@@ -32,11 +32,11 @@ static int parse_json_value(const char* json_str, double* value, char* source) {
 static int fetch_http_data(const char* endpoint, char* buffer, int buffer_size) {
     if (!endpoint || !buffer) return -1;
 
-    // In production, this would use libcurl to make HTTP requests
-    // For now, return a simulated response
+
+
     printf("[NET_ADAPTER] Fetching from: %s\n", endpoint);
 
-    // Simulate a JSON response
+
     snprintf(buffer, buffer_size,
              "{\"timestamp\":%lld,\"value\":0.9984,\"source\":\"http_endpoint\",\"confidence\":0.95}",
              (long long)time(NULL));
@@ -51,7 +51,7 @@ int net_adapter_convert(const char* endpoint, const char* response,
 
     memset(packet, 0, sizeof(ingest_packet_t));
 
-    // Parse JSON response
+
     double value = 0.0;
     char source[64] = {0};
 
@@ -59,7 +59,7 @@ int net_adapter_convert(const char* endpoint, const char* response,
         return -1;
     }
 
-    // Populate packet
+
     packet->timestamp = time(NULL);
     packet->type = INGEST_TYPE_TELEMETRY;
     packet->value = value;
@@ -78,17 +78,17 @@ int net_adapter_poll(ingest_manager_t* mgr, const char* endpoint,
     char buffer[INGEST_MAX_PACKET_SIZE];
     ingest_packet_t packet;
 
-    // Fetch data from endpoint
+
     if (fetch_http_data(endpoint, buffer, sizeof(buffer)) != 0) {
         return -1;
     }
 
-    // Convert to packet
+
     if (net_adapter_convert(endpoint, buffer, &packet) != 0) {
         return -1;
     }
 
-    // Push to ingestion manager
+
     if (ingest_push_packet(mgr, &packet) != 0) {
         return -1;
     }

@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-// Initialize governance state
+
 void govern_init(govern_state_t* gov) {
     if (!gov) return;
 
@@ -19,7 +19,7 @@ void govern_init(govern_state_t* gov) {
     gov->total_govern_time = 0.0;
 }
 
-// Evaluate current ethics score
+
 float govern_evaluate_ethics(qallow_state_t* state, ethics_monitor_t* ethics) {
     if (!state || !ethics) return 0.0f;
 
@@ -31,12 +31,12 @@ float govern_evaluate_ethics(qallow_state_t* state, ethics_monitor_t* ethics) {
     return total;
 }
 
-// Check if ethics score meets safety threshold
+
 bool govern_check_safety_threshold(float ethics_score) {
     return ethics_score >= GOVERN_ETHICS_THRESHOLD;
 }
 
-// Log audit result
+
 void govern_log_audit_result(const govern_state_t* gov, float ethics_score) {
     printf("[GOVERN] Audit #%d: Ethics Score = %.4f\n", gov->audit_count, ethics_score);
 
@@ -48,11 +48,11 @@ void govern_log_audit_result(const govern_state_t* gov, float ethics_score) {
     }
 }
 
-// Adapt parameters based on governance state
+
 void govern_adapt_parameters(adaptive_state_t* adaptive, const govern_state_t* gov) {
     if (!adaptive || !gov) return;
 
-    // Adjust learning rate based on stability
+
     if (gov->system_stable) {
         adaptive->learning_rate *= 1.05;  // Increase learning when stable
         if (adaptive->learning_rate > 0.1) {
@@ -65,7 +65,7 @@ void govern_adapt_parameters(adaptive_state_t* adaptive, const govern_state_t* g
         }
     }
 
-    // Adjust thread count based on ethics score
+
     if (gov->current_ethics_score > 3.0f) {
         adaptive->threads = (adaptive->threads < 16) ? adaptive->threads + 1 : 16;
     } else if (gov->current_ethics_score < 2.5f) {
@@ -73,11 +73,11 @@ void govern_adapt_parameters(adaptive_state_t* adaptive, const govern_state_t* g
     }
 }
 
-// Reinforce learning based on performance
+
 void govern_reinforce_learning(adaptive_state_t* adaptive, float performance_delta) {
     if (!adaptive) return;
 
-    // Positive delta: increase human score
+
     if (performance_delta > 0.0f) {
         adaptive->human_score += performance_delta * 0.1;
         if (adaptive->human_score > 1.0) {
@@ -91,15 +91,15 @@ void govern_reinforce_learning(adaptive_state_t* adaptive, float performance_del
     }
 }
 
-// Verify sandbox integrity
+
 bool govern_verify_sandbox_integrity(sandbox_manager_t* sandbox, qallow_state_t* state) {
     if (!sandbox || !state) return false;
 
-    // Check if we can create a snapshot (basic integrity test)
+
     return sandbox_is_state_safe(state);
 }
 
-// Create safety checkpoint
+
 void govern_create_safety_checkpoint(sandbox_manager_t* sandbox, qallow_state_t* state) {
     if (!sandbox || !state) return;
 
@@ -113,7 +113,7 @@ void govern_create_safety_checkpoint(sandbox_manager_t* sandbox, qallow_state_t*
     }
 }
 
-// Halt on violation
+
 void govern_halt_on_violation(qallow_state_t* state, const char* reason) {
     if (!state || !reason) return;
 
@@ -124,7 +124,7 @@ void govern_halt_on_violation(qallow_state_t* state, const char* reason) {
     printf("[GOVERN] System halted at tick %lu\n", (unsigned long)state->tick_count);
 }
 
-// Emergency rollback
+
 void govern_emergency_rollback(sandbox_manager_t* sandbox, qallow_state_t* state) {
     if (!sandbox || !state) return;
 
@@ -133,27 +133,27 @@ void govern_emergency_rollback(sandbox_manager_t* sandbox, qallow_state_t* state
     printf("[GOVERN] Emergency rollback completed\n");
 }
 
-// Persist governance state
+
 void govern_persist_state(const govern_state_t* gov, const adaptive_state_t* adaptive) {
     if (!gov || !adaptive) return;
 
-    // Save adaptive state (which includes learning parameters)
+
     adaptive_save(adaptive);
 
     printf("[GOVERN] Governance state persisted\n");
 }
 
-// Load governance state
+
 void govern_load_state(govern_state_t* gov, adaptive_state_t* adaptive) {
     if (!gov || !adaptive) return;
 
-    // Load adaptive state
+
     adaptive_load(adaptive);
 
     printf("[GOVERN] Governance state loaded\n");
 }
 
-// Print audit report
+
 void govern_print_audit_report(const govern_state_t* gov) {
     if (!gov) return;
 
@@ -166,7 +166,7 @@ void govern_print_audit_report(const govern_state_t* gov) {
     printf("[GOVERN] Total governance time: %.2f seconds\n", gov->total_govern_time);
 }
 
-// Print governance summary
+
 void govern_print_governance_summary(const govern_state_t* gov, float final_ethics_score) {
     if (!gov) return;
 
@@ -180,7 +180,7 @@ void govern_print_governance_summary(const govern_state_t* gov, float final_ethi
     printf("[GOVERN] Violations: %d\n", gov->violations_detected);
 }
 
-// Main autonomous governance loop
+
 void govern_run_audit_loop(govern_state_t* gov, qallow_state_t* state,
                            ethics_monitor_t* ethics, sandbox_manager_t* sandbox,
                            adaptive_state_t* adaptive) {
@@ -192,12 +192,12 @@ void govern_run_audit_loop(govern_state_t* gov, qallow_state_t* state,
 
     double start_time = (double)time(NULL);
 
-    // Perform initial audit
+
     gov->current_ethics_score = govern_evaluate_ethics(state, ethics);
     gov->audit_count++;
     govern_log_audit_result(gov, gov->current_ethics_score);
 
-    // Check safety threshold
+
     if (!govern_check_safety_threshold(gov->current_ethics_score)) {
         gov->violations_detected++;
         govern_halt_on_violation(state, "Initial ethics score below threshold");
@@ -206,31 +206,31 @@ void govern_run_audit_loop(govern_state_t* gov, qallow_state_t* state,
         return;
     }
 
-    // Create initial safety checkpoint
+
     govern_create_safety_checkpoint(sandbox, state);
 
-    // Verify sandbox integrity
+
     if (!govern_verify_sandbox_integrity(sandbox, state)) {
         printf("[GOVERN] ⚠️  Sandbox integrity check failed\n");
         gov->violations_detected++;
     }
 
-    // Adapt system parameters
+
     gov->adaptation_active = true;
     govern_adapt_parameters(adaptive, gov);
 
-    // Reinforce learning
+
     float performance_delta = gov->current_ethics_score - GOVERN_ETHICS_THRESHOLD;
     govern_reinforce_learning(adaptive, performance_delta);
 
-    // Persist state
+
     govern_persist_state(gov, adaptive);
 
-    // Calculate total governance time
+
     double end_time = (double)time(NULL);
     gov->total_govern_time = end_time - start_time;
 
-    // Print final report
+
     govern_print_audit_report(gov);
     govern_print_governance_summary(gov, gov->current_ethics_score);
 

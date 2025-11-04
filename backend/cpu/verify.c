@@ -18,28 +18,28 @@ int verify_system(verify_report_t* report) {
     report->timestamp = time(NULL);
     report->status = VERIFY_OK;
 
-    // Set thresholds
+
     report->coherence_min = 0.995;
     report->decoherence_max = 0.001;
     report->ethics_min = 2.99;
 
-    // Initialize kernel to get measurements
+
     qallow_state_t state;
     qallow_kernel_init(&state);
 
-    // Get coherence measurement
+
     report->coherence = 0.9992; // From kernel state
     if (report->coherence < report->coherence_min) {
         report->status |= VERIFY_COHERENCE_LOW;
     }
 
-    // Get decoherence measurement
+
     report->decoherence = 0.000010; // From kernel state
     if (report->decoherence > report->decoherence_max) {
         report->status |= VERIFY_DECOHERENCE_HIGH;
     }
 
-    // Get ethics score
+
     ethics_monitor_t ethics;
     ethics_init(&ethics);
     report->ethics_score = 2.9984; // Calculated from ethics module
@@ -47,18 +47,18 @@ int verify_system(verify_report_t* report) {
         report->status |= VERIFY_ETHICS_LOW;
     }
 
-    // Check sandbox
+
     sandbox_manager_t sandbox;
     sandbox_init(&sandbox);
     report->sandbox_active = 1;
 
-    // Check telemetry
+
     report->telemetry_active = 1;
 
-    // Check ethics enforcement
+
     report->ethics_enforced = 1;
 
-    // Generate message
+
     if (report->status == VERIFY_OK) {
         snprintf(report->message, sizeof(report->message),
                  "System healthy: Coherence=%.4f, Decoherence=%.6f, Ethics=%.4f",

@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <math.h>
 
-// Ethics and Safety module - E = S + C + H framework
+
 
 static float clampf(float v, float lo, float hi) {
     return v < lo ? lo : (v > hi ? hi : v);
@@ -96,17 +96,17 @@ CUDA_CALLABLE void ethics_init(ethics_monitor_t* ethics) {
     ensure_ethics_model_loaded();
 #endif
 
-    // Initialize safety scores
+
     for (int i = 0; i < SAFETY_COUNT; i++) {
         ethics->safety_scores[i] = 0.8f;
     }
 
-    // Initialize clarity metrics
+
     for (int i = 0; i < 4; i++) {
         ethics->clarity_metrics[i] = 0.7f;
     }
 
-    // Initialize human benefit factors
+
     for (int i = 0; i < 3; i++) {
         ethics->human_benefit_factors[i] = 0.6f;
     }
@@ -125,7 +125,7 @@ CUDA_CALLABLE void ethics_init(ethics_monitor_t* ethics) {
 CUDA_CALLABLE bool ethics_evaluate_state(const qallow_state_t* state, ethics_monitor_t* ethics) {
     if (!state || !ethics) return false;
 
-    // Calculate component scores
+
     float safety = ethics_calculate_safety_score(state, ethics);
     float clarity = ethics_calculate_clarity_score(state, ethics);
     float human_benefit = ethics_calculate_human_benefit_score(state, ethics);
@@ -149,20 +149,20 @@ CUDA_CALLABLE bool ethics_evaluate_state(const qallow_state_t* state, ethics_mon
     double total = ethics_score_core(&g_ethics_model, &metrics, &details);
     ethics->total_ethics_score = (float)total;
 #else
-    // E = S + C + H (human term already scaled)
+
     ethics->total_ethics_score = safety + clarity + human_benefit;
 #endif
 
-    // Check decoherence limit
+
     if (!ethics_check_decoherence_limit(state, ethics)) {
         ethics->ethics_violations_count++;
         return false;
     }
 
-    // Update trends
+
     ethics_update_trends(ethics, state);
 
-    // Check minimum thresholds
+
 #ifndef __CUDA_ARCH__
     bool passed = ethics_score_pass(&g_ethics_model, &metrics, &details) != 0;
 #else
@@ -183,7 +183,7 @@ CUDA_CALLABLE bool ethics_evaluate_state(const qallow_state_t* state, ethics_mon
 CUDA_CALLABLE float ethics_calculate_safety_score(const qallow_state_t* state, ethics_monitor_t* ethics) {
     if (!state || !ethics) return 0.0f;
 
-    // Safety based on coherence and stability
+
     float coherence_safety = state->global_coherence;
     float stability_safety = 0.0f;
 
@@ -192,10 +192,10 @@ CUDA_CALLABLE float ethics_calculate_safety_score(const qallow_state_t* state, e
     }
     stability_safety /= NUM_OVERLAYS;
 
-    // Average the two components
+
     float safety = (coherence_safety + stability_safety) / 2.0f;
 
-    // Update safety scores
+
     for (int i = 0; i < SAFETY_COUNT; i++) {
         ethics->safety_scores[i] = safety;
     }
@@ -206,10 +206,10 @@ CUDA_CALLABLE float ethics_calculate_safety_score(const qallow_state_t* state, e
 CUDA_CALLABLE float ethics_calculate_clarity_score(const qallow_state_t* state, ethics_monitor_t* ethics) {
     if (!state || !ethics) return 0.0f;
 
-    // Clarity based on low decoherence
+
     float clarity = 1.0f - state->decoherence_level;
 
-    // Update clarity metrics
+
     for (int i = 0; i < 4; i++) {
         ethics->clarity_metrics[i] = clarity;
     }
@@ -220,7 +220,7 @@ CUDA_CALLABLE float ethics_calculate_clarity_score(const qallow_state_t* state, 
 CUDA_CALLABLE float ethics_calculate_human_benefit_score(const qallow_state_t* state, ethics_monitor_t* ethics) {
     if (!state || !ethics) return 0.0f;
 
-    // Human benefit based on system stability
+
     float benefit = 0.6f + state->global_coherence * 0.4f;
 
 #ifndef __CUDA_ARCH__
@@ -230,7 +230,7 @@ CUDA_CALLABLE float ethics_calculate_human_benefit_score(const qallow_state_t* s
 #endif
     float scaled = clampf(benefit * (weight / 0.8f), 0.0f, 1.0f);
 
-    // Update human benefit factors
+
     for (int i = 0; i < 3; i++) {
         ethics->human_benefit_factors[i] = scaled;
     }
@@ -247,14 +247,14 @@ CUDA_CALLABLE bool ethics_check_decoherence_limit(const qallow_state_t* state, e
 CUDA_CALLABLE void ethics_update_trends(ethics_monitor_t* ethics, const qallow_state_t* state) {
     if (!ethics || !state) return;
 
-    // Shift trend arrays
+
     for (int i = 9; i > 0; i--) {
         ethics->decoherence_trend[i] = ethics->decoherence_trend[i - 1];
         ethics->stability_trend[i] = ethics->stability_trend[i - 1];
         ethics->reality_drift_trend[i] = ethics->reality_drift_trend[i - 1];
     }
 
-    // Add new measurements
+
     ethics->decoherence_trend[0] = state->decoherence_level;
     ethics->stability_trend[0] = state->global_coherence;
     ethics->reality_drift_trend[0] = ethics->reality_drift_score;
@@ -264,7 +264,7 @@ CUDA_CALLABLE void ethics_enforce_no_replication(ethics_monitor_t* ethics, qallo
     if (!ethics || !state) return;
 
     if (ethics->no_replication_rule_active) {
-        // Prevent state duplication
+
         state->global_coherence *= 0.99f;
     }
 }
@@ -274,7 +274,7 @@ CUDA_CALLABLE bool ethics_trigger_safety_override(ethics_monitor_t* ethics, qall
 
     ethics->safety_override_engaged = true;
 
-    // Reduce system activity
+
     state->global_coherence *= 0.5f;
 
     return true;
@@ -284,7 +284,7 @@ CUDA_CALLABLE void ethics_emergency_shutdown(qallow_state_t* state, const char* 
     if (!state) return;
     (void)reason;
 
-    // Graceful shutdown
+
     state->global_coherence = 0.0f;
     state->decoherence_level = 1.0f;
 }

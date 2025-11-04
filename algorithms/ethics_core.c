@@ -173,9 +173,9 @@ int ethics_score_pass(const ethics_model_t* model,
     return 1;
 }
 
-// ============================================================================
-// Sequential Ethics Decision Logging (Phase 8-10 Enhancement)
-// ============================================================================
+
+
+
 
 static long get_timestamp_ms(void) {
     struct timeval tv;
@@ -190,13 +190,13 @@ int ethics_log_sequential_step(const ethics_sequential_step_t* step,
     FILE* f = fopen(log_path, "a");
     if (!f) return -1;
 
-    // Write CSV header if file is empty
+
     fseek(f, 0, SEEK_END);
     if (ftell(f) == 0) {
         fprintf(f, "step_id,timestamp_ms,rule_name,input_value,threshold,verdict,intervention_type\n");
     }
 
-    // Write step data
+
     fprintf(f, "%d,%ld,%s,%.6f,%.6f,%d,%s\n",
             step->step_id,
             step->timestamp_ms,
@@ -218,7 +218,7 @@ int ethics_trace_decision_sequence(const ethics_model_t* model,
     long ts = get_timestamp_ms();
     int step_id = 0;
 
-    // Step 1: Safety check
+
     ethics_sequential_step_t step = {
         .step_id = step_id++,
         .timestamp_ms = ts,
@@ -230,7 +230,7 @@ int ethics_trace_decision_sequence(const ethics_model_t* model,
     };
     ethics_log_sequential_step(&step, log_path);
 
-    // Step 2: Clarity check
+
     step.step_id = step_id++;
     step.rule_name = "clarity_check";
     step.input_value = metrics->clarity;
@@ -239,7 +239,7 @@ int ethics_trace_decision_sequence(const ethics_model_t* model,
     step.intervention_type = metrics->clarity < model->thresholds.min_clarity ? "clarity_intervention" : "none";
     ethics_log_sequential_step(&step, log_path);
 
-    // Step 3: Human check
+
     step.step_id = step_id++;
     step.rule_name = "human_check";
     step.input_value = metrics->human;
@@ -248,7 +248,7 @@ int ethics_trace_decision_sequence(const ethics_model_t* model,
     step.intervention_type = metrics->human < model->thresholds.min_human ? "human_intervention" : "none";
     ethics_log_sequential_step(&step, log_path);
 
-    // Step 4: Reality drift check
+
     step.step_id = step_id++;
     step.rule_name = "reality_drift_check";
     step.input_value = metrics->reality_drift;
@@ -257,7 +257,7 @@ int ethics_trace_decision_sequence(const ethics_model_t* model,
     step.intervention_type = metrics->reality_drift > model->thresholds.max_reality_drift ? "reality_correction" : "none";
     ethics_log_sequential_step(&step, log_path);
 
-    // Step 5: Total score check
+
     ethics_score_details_t details;
     double total = ethics_score_core(model, metrics, &details);
     step.step_id = step_id++;

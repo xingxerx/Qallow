@@ -50,18 +50,18 @@ void test_invalid_inference_parameters(void) {
     printf("Test 5: Invalid inference parameters\n");
     float output[5] = {0.0f};
 
-    // Test with NULL input
+
     int result = dl_model_infer(NULL, 10, output, 5);
     printf("  NULL input result: %d (expected negative)\n", result);
     assert(result < 0);
 
-    // Test with zero input length
+
     float input[10] = {1.0f};
     result = dl_model_infer(input, 0, output, 5);
     printf("  Zero input length result: %d (expected negative)\n", result);
     assert(result < 0);
 
-    // Test with NULL output
+
     result = dl_model_infer(input, 10, NULL, 5);
     printf("  NULL output result: %d (expected negative)\n", result);
     assert(result < 0);

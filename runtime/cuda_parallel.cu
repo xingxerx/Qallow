@@ -277,15 +277,15 @@ void cuda_parallel_calculate_grid_block(int total_elements, int threads_per_bloc
  * ============================================================================ */
 
 int cuda_parallel_get_utilization(int device_id) {
-    // Note: Actual utilization requires NVIDIA Management Library (NVML)
-    // This is a placeholder that returns -1 (not available)
+
+
     (void)device_id;
     return -1;
 }
 
 int cuda_parallel_get_temperature(int device_id) {
-    // Note: Temperature requires NVIDIA Management Library (NVML)
-    // This is a placeholder that returns -1 (not available)
+
+
     (void)device_id;
     return -1;
 }

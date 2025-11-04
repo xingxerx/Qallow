@@ -1,6 +1,6 @@
 """Unit tests for sparse encoder."""
 
-import pytest
+
     ClusteringConfig,
     SparseDataset,
     SparseEncoder,

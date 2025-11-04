@@ -23,7 +23,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import NvRules
+
 
 requested_metrics = [
     MetricRequest("smsp__maximum_warps_avg_per_active_cycle", "theoretical_warps", Importance.OPTIONAL, None, False),

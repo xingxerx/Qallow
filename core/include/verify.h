@@ -13,7 +13,7 @@
 
 #include <stdint.h>
 
-// Verification result codes
+
 typedef enum {
     VERIFY_OK = 0,
     VERIFY_COHERENCE_LOW = 1,
@@ -23,34 +23,34 @@ typedef enum {
     VERIFY_TELEMETRY_FAIL = 16
 } verify_result_t;
 
-// Verification report
+
 typedef struct {
     verify_result_t status;
     
-    // Measurements
+
     double coherence;
     double decoherence;
     double ethics_score;
     double stability;
     
-    // Thresholds
+
     double coherence_min;
     double decoherence_max;
     double ethics_min;
     
-    // Flags
+
     int sandbox_active;
     int telemetry_active;
     int ethics_enforced;
     
-    // Timestamp
+
     uint64_t timestamp;
     
-    // Message
+
     char message[256];
 } verify_report_t;
 
-// Core API
+
 int verify_system(verify_report_t* report);
 void verify_print_report(const verify_report_t* report);
 int verify_is_healthy(const verify_report_t* report);

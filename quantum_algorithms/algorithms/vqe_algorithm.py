@@ -4,7 +4,7 @@ VQE (Variational Quantum Eigensolver) - Hybrid Quantum-Classical Algorithm
 Finds ground state energy of quantum systems
 """
 
-import cirq
+
 
 
 def ansatz_circuit(qubits: List[cirq.Qid], params: np.ndarray) -> cirq.Circuit:

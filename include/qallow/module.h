@@ -22,6 +22,6 @@ typedef struct {
   ql_mod_fn   fn;
 } ql_module;
 
-// registry
+
 const ql_module *ql_get_mind_modules(size_t *count);
 

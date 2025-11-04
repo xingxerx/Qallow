@@ -4,7 +4,7 @@ Quantum Optimization Algorithms
 QAOA (Quantum Approximate Optimization Algorithm) for solving optimization problems
 """
 
-import cirq
+
 from datetime import datetime
 
 

@@ -12,7 +12,7 @@
 void test_cuda_init_shutdown(void) {
     printf("Test 1: CUDA initialization and shutdown\n");
 
-    // Check if CUDA is available first
+
     cudaError_t err = cudaGetDeviceCount(NULL);
     if (err != cudaSuccess) {
         printf("  CUDA not available (expected in CPU-only builds)\n");
@@ -136,21 +136,21 @@ void test_memory_copy(void) {
     float* gpu_data = (float*)cuda_parallel_malloc(data_size);
     
     if (host_data && gpu_data) {
-        // Initialize host data
+
         for (int i = 0; i < 256; i++) {
             host_data[i] = (float)i * 0.1f;
         }
         
-        // Copy to GPU
+
         int result = cuda_parallel_memcpy_h2d(gpu_data, host_data, data_size);
         printf("  Host to Device copy: %d\n", result);
         
-        // Copy back to host
+
         float* host_result = (float*)malloc(data_size);
         result = cuda_parallel_memcpy_d2h(host_result, gpu_data, data_size);
         printf("  Device to Host copy: %d\n", result);
         
-        // Verify data
+
         int matches = 1;
         for (int i = 0; i < 256; i++) {
             if (host_data[i] != host_result[i]) {
@@ -202,7 +202,7 @@ void test_stream_creation(void) {
 void test_error_handling(void) {
     printf("Test 7: Error handling\n");
     
-    // Try to set invalid device
+
     int result = cuda_parallel_set_device(9999);
     printf("  Set invalid device: %d (expected negative)\n", result);
     

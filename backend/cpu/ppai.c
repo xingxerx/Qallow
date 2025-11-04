@@ -5,22 +5,22 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-// Photonic-Probabilistic AI module - CPU implementation
+
 
 CUDA_CALLABLE void ppai_init(ppai_state_t* ppai) {
     if (!ppai) return;
 
-    // Initialize photon intensities
+
     for (int i = 0; i < PPAI_MAX_PHOTONS; i++) {
         ppai->photon_intensity[i] = 0.5f + ((float)rand() / RAND_MAX) * 0.5f;
     }
 
-    // Initialize wavelengths (visible spectrum simulation)
+
     for (int i = 0; i < PPAI_WAVELENGTH_COUNT; i++) {
         ppai->wavelengths[i] = 380.0f + (float)i * (780.0f - 380.0f) / PPAI_WAVELENGTH_COUNT;
     }
 
-    // Initialize coherence matrix
+
     for (int i = 0; i < PPAI_WAVELENGTH_COUNT; i++) {
         for (int j = 0; j < PPAI_WAVELENGTH_COUNT; j++) {
             if (i == j) {
@@ -45,7 +45,7 @@ CUDA_CALLABLE void ppai_process_photonic_layer(ppai_state_t* ppai, overlay_t* ov
         float interference = ppai_calculate_interference(ppai, node % PPAI_WAVELENGTH_COUNT);
         overlay->values[node] *= (1.0f + interference * 0.1f);
 
-        // Clamp to valid range
+
         if (overlay->values[node] < 0.0f) overlay->values[node] = 0.0f;
         if (overlay->values[node] > 1.0f) overlay->values[node] = 1.0f;
     }
@@ -73,7 +73,7 @@ CUDA_CALLABLE void ppai_apply_quantum_noise(ppai_state_t* ppai, float noise_fact
     ppai->quantum_noise_level = noise_factor;
 }
 
-// CPU fallback implementation
+
 void ppai_cpu_process_photons(ppai_state_t* ppai, overlay_t* overlays, int num_overlays) {
     if (!ppai || !overlays) return;
 
@@ -81,22 +81,22 @@ void ppai_cpu_process_photons(ppai_state_t* ppai, overlay_t* overlays, int num_o
         overlay_t* overlay = &overlays[overlay_idx];
 
         for (int node = 0; node < overlay->node_count; node++) {
-            // Simulate photonic interference
+
             float photon_intensity = ppai->photon_intensity[node % PPAI_MAX_PHOTONS];
             float interference_factor = sinf(photon_intensity * 2.0f * 3.14159f) * 0.1f;
 
-            // Add quantum noise
+
             float quantum_noise = ((float)rand() / RAND_MAX - 0.5f) * ppai->quantum_noise_level;
 
-            // Apply effects
+
             overlay->values[node] += interference_factor + quantum_noise;
 
-            // Clamp to valid range
+
             if (overlay->values[node] < 0.0f) overlay->values[node] = 0.0f;
             if (overlay->values[node] > 1.0f) overlay->values[node] = 1.0f;
         }
 
-        // Update stability
+
         overlay->stability = qallow_calculate_stability(overlay);
     }
 }

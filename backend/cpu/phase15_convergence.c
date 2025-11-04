@@ -107,7 +107,7 @@ static bool phase15_load_quantum_seed(float* score_out,
         ok = ok && phase15_parse_json_double(buffer, "score", &score);
         ok = ok && phase15_parse_json_double(buffer, "stability", &stability);
         if (phase15_parse_json_double(buffer, "convergence_tick", &convergence_tick)) {
-            // optional field; ignore failure
+
         }
 
         if (ok) {

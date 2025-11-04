@@ -42,7 +42,7 @@ typedef struct {
     double total;
 } ethics_score_details_t;
 
-// Sequential ethics decision logging structure
+
 typedef struct {
     int step_id;
     long timestamp_ms;
@@ -64,7 +64,7 @@ int ethics_score_pass(const ethics_model_t* model,
                       const ethics_metrics_t* metrics,
                       const ethics_score_details_t* details);
 
-// Sequential ethics logging functions
+
 int ethics_log_sequential_step(const ethics_sequential_step_t* step,
                                const char* log_path);
 int ethics_trace_decision_sequence(const ethics_model_t* model,

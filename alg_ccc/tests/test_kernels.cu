@@ -7,7 +7,7 @@
 
 using namespace qallow::ccc;
 
-// Helper: allocate GPU memory
+
 template<typename T>
 T* gpu_alloc(size_t n) {
   T* ptr;
@@ -15,23 +15,23 @@ T* gpu_alloc(size_t n) {
   return ptr;
 }
 
-// Helper: copy to GPU
+
 template<typename T>
 void to_gpu(T* dst, const T* src, size_t n) {
   cudaMemcpy(dst, src, n * sizeof(T), cudaMemcpyHostToDevice);
 }
 
-// Helper: copy from GPU
+
 template<typename T>
 void from_gpu(T* dst, const T* src, size_t n) {
   cudaMemcpy(dst, src, n * sizeof(T), cudaMemcpyDeviceToHost);
 }
 
-// Test 1: Gray code decoding
+
 void test_gray_codes() {
   std::cout << "Testing Gray code decoder..." << std::endl;
   
-  // Host tests
+
   assert(gray2int(0b000) == 0);
   assert(gray2int(0b001) == 1);
   assert(gray2int(0b011) == 2);
@@ -43,7 +43,7 @@ void test_gray_codes() {
   
   std::cout << "  ✓ Host gray2int tests passed" << std::endl;
   
-  // GPU batch test
+
   int B = 4, b = 3;
   std::vector<uint8_t> bits_h(B * b);
   bits_h = {0,0,0, 1,0,0, 1,1,0, 0,1,0};  // Gray codes for 0,1,2,3
@@ -68,7 +68,7 @@ void test_gray_codes() {
   std::cout << "  ✓ GPU gray2int_batch tests passed" << std::endl;
 }
 
-// Test 2: Cost coefficient builder
+
 void test_cost_coeffs() {
   std::cout << "Testing cost coefficient builder..." << std::endl;
   
@@ -92,7 +92,7 @@ void test_cost_coeffs() {
   from_gpu(hz_mode_h.data(), hz_mode_d, B * M);
   from_gpu(hz_ctrl_h.data(), hz_ctrl_d, B * b);
   
-  // Check values
+
   for(int i = 0; i < B * M; i++) {
     assert(std::abs(hz_mode_h[i] - alpha * 0.5f) < 1e-5f);
   }
@@ -108,26 +108,26 @@ void test_cost_coeffs() {
   std::cout << "  ✓ Cost coefficient builder tests passed" << std::endl;
 }
 
-// Test 3: Temporal chain penalty
+
 void test_temporal_chain() {
   std::cout << "Testing temporal chain penalty..." << std::endl;
 
   int B = 2, b = 4;
   float eta = 1.0f;  // Use 1.0 for simpler testing
   
-  // mem_t: [0,0,0,0], [1,1,1,1]
-  // mem_tp: [0,0,0,0], [1,0,1,0]
-  // Hamming distances: 0, 2
+
+
+
   std::vector<uint8_t> mem_t_h(B * b);
   std::vector<uint8_t> mem_tp_h(B * b);
 
-  // Batch 0: all zeros
+
   for(int i = 0; i < b; i++) {
     mem_t_h[i] = 0;
     mem_tp_h[i] = 0;
   }
 
-  // Batch 1: [1,1,1,1] -> [1,0,1,0]
+
   mem_t_h[b] = 1; mem_t_h[b+1] = 1; mem_t_h[b+2] = 1; mem_t_h[b+3] = 1;
   mem_tp_h[b] = 1; mem_tp_h[b+1] = 0; mem_tp_h[b+2] = 1; mem_tp_h[b+3] = 0;
   
@@ -156,7 +156,7 @@ void test_temporal_chain() {
   std::cout << "  ✓ Temporal chain penalty tests passed" << std::endl;
 }
 
-// Test 4: Reward gradient
+
 void test_reward_grad() {
   std::cout << "Testing reward gradient..." << std::endl;
   
@@ -172,7 +172,7 @@ void test_reward_grad() {
   std::vector<float> cj_h(B * b);
   from_gpu(cj_h.data(), cj_d, B * b);
   
-  // val=7 (center) should give ~0, val=15 (max) should give ~1
+
   float center_val = cj_h[0];
   float max_val = cj_h[b];
   

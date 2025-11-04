@@ -10,7 +10,7 @@ extern "C" {
 #include "qallow_entanglement.h"
 }
 
-// CUDA error checking macro
+
 #define CUDA_OK(call) do { \
     cudaError_t e = (call); \
     if(e != cudaSuccess) { \
@@ -19,7 +19,7 @@ extern "C" {
     } \
 } while(0)
 
-// Global state
+
 static double *d_orb = nullptr, *d_riv = nullptr, *d_myc = nullptr;
 static double *d_orb_mean = nullptr, *d_riv_mean = nullptr, *d_myc_mean = nullptr;
 static int G_P = 0, G_N = 0;
@@ -102,7 +102,7 @@ __global__ void k_update(double* O, double* R, double* M, int P, int N, double j
         double r = R[idx] - 0.0002 + j*0.1;
         double m = M[idx] - 0.00001 + j*0.05;
         
-        // clamp
+
         o = fmin(fmax(o, 0.90), 0.95);
         r = fmin(fmax(r, 0.995), 1.000);
         m = fmin(fmax(m, 0.9995), 1.0000);
@@ -113,7 +113,7 @@ __global__ void k_update(double* O, double* R, double* M, int P, int N, double j
     }
 }
 
-// reduction: mean over pockets for each node
+
 __global__ void k_mean_over_pockets(const double* __restrict__ X, double* __restrict__ OUT, int P, int N){
     int i = blockIdx.x * blockDim.x + threadIdx.x;
     if(i >= N) return;
@@ -159,15 +159,15 @@ extern "C" int pocket_spawn_and_run(const pocket_cfg_t* cfg){
     free(ent_seed);
   }
 
-  // stream per pocket (optional; kernel already 2D). Example multi-stream loop:
-  // Here we keep single kernel per tick for simplicity and good occupancy.
+
+
   for(int t=0;t<cfg->steps;++t){
     k_update<<<grid, block>>>(d_orb, d_riv, d_myc, G_P, G_N, cfg->jitter, t);
     CUDA_OK(cudaGetLastError());
   }
   CUDA_OK(cudaDeviceSynchronize());
 
-  // means per node
+
   dim3 block1(256);
   dim3 grid1((G_N+block1.x-1)/block1.x);
   k_mean_over_pockets<<<grid1, block1>>>(d_orb, d_orb_mean, G_P, G_N);

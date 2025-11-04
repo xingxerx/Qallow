@@ -5,7 +5,7 @@
 #include <cstring>
 
 extern "C" {
-// Host entry: read CSV (i,j,w) -> CSR, launch kernel, return mean gain.
+
 int phase14_gain_from_csr(const char* csv_path, int N, double* out_alpha_eff,
                           double gain_base, double gain_span);
 }
@@ -14,7 +14,7 @@ struct Edge { int i,j; float w; };
 
 static void die(const char* m){ std::fprintf(stderr,"%s\n",m); std::exit(1); }
 
-// ---- CSV (i,j,w) -> CSR (undirected) ----
+
 static void load_csv_undirected(const char* path, int N,
     std::vector<int>& row_ptr, std::vector<int>& col_idx, std::vector<float>& w)
 {
@@ -48,7 +48,7 @@ static void load_csv_undirected(const char* path, int N,
     }
 }
 
-// ---- CUDA kernel: per-node alignment -> gain in [base, base+span] ----
+
 __global__ void k_compute_gains(int N, const int* __restrict__ row_ptr,
                                 const int* __restrict__ col_idx,
                                 const float* __restrict__ w,
@@ -77,15 +77,15 @@ int phase14_gain_from_csr(const char* csv_path, int N, double* out_alpha_eff,
 {
     if(!csv_path || !out_alpha_eff) return -1;
 
-    // Build CSR on host
+
     std::vector<int> h_row_ptr, h_col_idx; std::vector<float> h_w;
     load_csv_undirected(csv_path, N, h_row_ptr, h_col_idx, h_w);
     int M = (int)h_col_idx.size();
 
-    // Default state: +1 for all nodes (can be replaced later)
+
     std::vector<float> h_state(N, +1.0f);
 
-    // Device alloc
+
     int *d_row_ptr=nullptr,*d_col_idx=nullptr; float *d_w=nullptr,*d_state=nullptr,*d_gains=nullptr;
     cudaMalloc(&d_row_ptr,(N+1)*sizeof(int));
     cudaMalloc(&d_col_idx,M*sizeof(int));
@@ -97,13 +97,13 @@ int phase14_gain_from_csr(const char* csv_path, int N, double* out_alpha_eff,
     cudaMemcpy(d_w,h_w.data(),M*sizeof(float),cudaMemcpyHostToDevice);
     cudaMemcpy(d_state,h_state.data(),N*sizeof(float),cudaMemcpyHostToDevice);
 
-    // Launch
+
     dim3 blk(256), grd((N+255)/256);
     k_compute_gains<<<grd,blk>>>(N,d_row_ptr,d_col_idx,d_w,d_state,
                                  (float)gain_base,(float)gain_span,d_gains);
     cudaDeviceSynchronize();
 
-    // Collect and average
+
     std::vector<float> h_gains(N);
     cudaMemcpy(h_gains.data(), d_gains, N*sizeof(float), cudaMemcpyDeviceToHost);
     double sum=0.0; for (int i=0;i<N;i++) sum += (double)h_gains[i];

@@ -2,8 +2,8 @@
 """
 Comprehensive test of the quantum workload implementation
 """
-import json
-import sys
+
+
 
 def test_quantum_implementation():
     """Test all quantum components"""

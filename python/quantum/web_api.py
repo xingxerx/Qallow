@@ -7,7 +7,7 @@ used by the native runtime, ensuring feature parity for the web tier.
 """
 
 
-import json
+
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 

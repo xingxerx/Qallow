@@ -47,7 +47,7 @@ static void test_trigger_logging(void) {
     int rc = meta_introspect_log_trigger(&trigger, TEST_LOG_PATH);
     assert(rc == 0);
 
-    // Verify file was created and has header + 1 data line
+
     int lines = count_csv_lines(TEST_LOG_PATH);
     assert(lines == 2);  // header + 1 trigger
 
@@ -72,7 +72,7 @@ static void test_sequential_reasoning_coherence(void) {
     int rc = meta_introspect_sequential_reasoning(&trigger, &result, TEST_LOG_PATH);
     assert(rc == 0);
 
-    // Verify result
+
     assert(result.trigger_id == 1);
     assert(result.introspection_score > 0.0f && result.introspection_score <= 1.0f);
     assert(result.confidence > 0);
@@ -101,7 +101,7 @@ static void test_sequential_reasoning_ethics(void) {
     int rc = meta_introspect_sequential_reasoning(&trigger, &result, TEST_LOG_PATH);
     assert(rc == 0);
 
-    // Verify result
+
     assert(result.trigger_id == 2);
     assert(result.introspection_score < 0.5f);  // Should be low for ethics violation
     assert(result.confidence >= 80);  // High confidence for ethics
@@ -130,7 +130,7 @@ static void test_sequential_reasoning_latency(void) {
     int rc = meta_introspect_sequential_reasoning(&trigger, &result, TEST_LOG_PATH);
     assert(rc == 0);
 
-    // Verify result
+
     assert(result.trigger_id == 3);
     assert(result.introspection_score >= 0.0f && result.introspection_score <= 1.0f);
     assert(result.confidence > 0);
@@ -145,7 +145,7 @@ static void test_severity_adjustment(void) {
     printf("Test: Severity-based score adjustment...\n");
     cleanup_test_log();
 
-    // Test low severity
+
     introspection_trigger_t trigger_low = {
         .trigger_id = 1,
         .timestamp_ms = 1000,
@@ -158,7 +158,7 @@ static void test_severity_adjustment(void) {
     introspection_result_t result_low;
     meta_introspect_sequential_reasoning(&trigger_low, &result_low, TEST_LOG_PATH);
 
-    // Test high severity (same metric)
+
     introspection_trigger_t trigger_high = {
         .trigger_id = 2,
         .timestamp_ms = 2000,
@@ -171,7 +171,7 @@ static void test_severity_adjustment(void) {
     introspection_result_t result_high;
     meta_introspect_sequential_reasoning(&trigger_high, &result_high, TEST_LOG_PATH);
 
-    // High severity should have lower score
+
     assert(result_high.introspection_score < result_low.introspection_score);
 
     printf("  ✓ Severity adjustment: low=%.3f, high=%.3f\n",
@@ -184,7 +184,7 @@ static void test_multiple_triggers_audit_trail(void) {
     printf("Test: Multiple triggers audit trail...\n");
     cleanup_test_log();
 
-    // Simulate multiple triggers
+
     for (int i = 0; i < 5; i++) {
         introspection_trigger_t trigger = {
             .trigger_id = i,
@@ -200,7 +200,7 @@ static void test_multiple_triggers_audit_trail(void) {
         meta_introspect_sequential_reasoning(&trigger, &result, TEST_LOG_PATH);
     }
 
-    // Verify all triggers were logged
+
     int lines = count_csv_lines(TEST_LOG_PATH);
     assert(lines >= 6);  // header + 5 triggers + results
 

@@ -1,6 +1,6 @@
 """Configuration management for quantum clustering."""
 
-import logging
+
 
 logger = logging.getLogger(__name__)
 

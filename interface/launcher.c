@@ -495,7 +495,7 @@ static int qallow_build_and_maybe_restart(int argc, char** argv) {
     return qallow_restart_self(argc, argv);
 }
 
-// Include all core headers
+
 #include "qallow_kernel.h"
 #include "ppai.h"
 #include "qcp.h"
@@ -522,9 +522,9 @@ static int qallow_build_and_maybe_restart(int argc, char** argv) {
 #include "qallow/module.h"
 #include "qallow/neuro.h"
 // TODO: Add these when modules are implemented
-// #include "adaptive.h"
-// #include "verify.h"
-// #include "ingest.h"
+
+
+
 
 typedef enum {
     RUN_PROFILE_STANDARD = 0,
@@ -532,7 +532,7 @@ typedef enum {
     RUN_PROFILE_LIVE
 } run_profile_t;
 
-// Forward declarations
+
 static int qallow_build_mode(void);
 static void qallow_verify_mode(void);
 static void qallow_print_help(void);
@@ -721,7 +721,7 @@ static int remove_recursive(const char* path) {
 }
 #endif
 
-// Print banner
+
 static void print_banner(void) {
     printf("╔════════════════════════════════════════╗\n");
     printf("║          QALLOW - Unified VM           ║\n");
@@ -729,7 +729,7 @@ static void print_banner(void) {
     printf("╚════════════════════════════════════════╝\n\n");
 }
 
-// BUILD mode: Compile CPU + CUDA backends
+
 static int qallow_build_mode(void) {
     printf("[BUILD] Preparing latest Qallow binaries...\n");
     int rc = qallow_run_build_scripts(0);
@@ -1691,21 +1691,21 @@ static int qallow_handle_mind_group(int argc, char** argv, int arg_offset) {
     return 1;
 }
 
-// VERIFY mode: System checkpoint
+
 static void qallow_verify_mode(void) {
     printf("[VERIFY] Starting system verification...\n");
     printf("[VERIFY] Running comprehensive health checks\n\n");
 
-    // Initialize state
+
     qallow_state_t state;
     memset(&state, 0, sizeof(qallow_state_t));
     qallow_kernel_init(&state);
 
-    // Run verification checks
+
     int checks_passed = 0;
     int checks_total = 0;
 
-    // Check 1: Memory integrity
+
     checks_total++;
     if (state.tick_count == 0) {
         printf("[✓] Memory integrity check passed\n");
@@ -1714,7 +1714,7 @@ static void qallow_verify_mode(void) {
         printf("[✗] Memory integrity check failed\n");
     }
 
-    // Check 2: Kernel initialization
+
     checks_total++;
     if (state.global_coherence >= 0.0f && state.global_coherence <= 1.0f) {
         printf("[✓] Kernel initialization check passed\n");
@@ -1723,7 +1723,7 @@ static void qallow_verify_mode(void) {
         printf("[✗] Kernel initialization check failed\n");
     }
 
-    // Check 3: Ethics scoring
+
     checks_total++;
     float ethics_total = state.ethics_S + state.ethics_C + state.ethics_H;
     if (ethics_total >= 0.0f && ethics_total <= 3.0f) {
@@ -1733,7 +1733,7 @@ static void qallow_verify_mode(void) {
         printf("[✗] Ethics scoring check failed\n");
     }
 
-    // Check 4: Overlay stability
+
     checks_total++;
     float stability = qallow_global_stability(&state);
     if (stability >= 0.0f && stability <= 1.0f) {
@@ -1743,7 +1743,7 @@ static void qallow_verify_mode(void) {
         printf("[✗] Overlay stability check failed\n");
     }
 
-    // Check 5: Decoherence tracking
+
     checks_total++;
     qallow_update_decoherence(&state);
     if (state.decoherence_level >= 0.0f && state.decoherence_level <= 1.0f) {
@@ -1753,7 +1753,7 @@ static void qallow_verify_mode(void) {
         printf("[✗] Decoherence tracking check failed\n");
     }
 
-    // Check 6: Tick execution
+
     checks_total++;
     int initial_ticks = state.tick_count;
     qallow_kernel_tick(&state);
@@ -1764,7 +1764,7 @@ static void qallow_verify_mode(void) {
         printf("[✗] Tick execution check failed\n");
     }
 
-    // Check 7: Configuration
+
     checks_total++;
     if (NUM_OVERLAYS == 3 && MAX_NODES == 256) {
         printf("[✓] Configuration check passed (3 overlays, 256 nodes)\n");
@@ -1773,7 +1773,7 @@ static void qallow_verify_mode(void) {
         printf("[✗] Configuration check failed\n");
     }
 
-    // Print summary
+
     printf("\n");
     printf("═══════════════════════════════════════\n");
     printf("VERIFICATION SUMMARY\n");
@@ -1783,7 +1783,7 @@ static void qallow_verify_mode(void) {
     printf("═══════════════════════════════════════\n\n");
 }
 
-// Print help message
+
 static void qallow_print_run_help(void) {
     printf("Run command group:\n");
     printf("  qallow run [subcommand] [options]\n\n");
@@ -1923,7 +1923,7 @@ static void qallow_print_help(void) {
     printf("  qallow phase13      -> qallow phase 13\n");
 }
 
-// Input validation helper
+
 static int validate_command(const char* cmd) {
     if (cmd == NULL || strlen(cmd) == 0) {
         fprintf(stderr, "[ERROR] Command cannot be empty\n");
@@ -1933,7 +1933,7 @@ static int validate_command(const char* cmd) {
         fprintf(stderr, "[ERROR] Command too long (max 64 chars)\n");
         return 0;
     }
-    // Check for invalid characters
+
     for (int i = 0; cmd[i]; i++) {
         if (!((cmd[i] >= 'a' && cmd[i] <= 'z') ||
               (cmd[i] >= 'A' && cmd[i] <= 'Z') ||
@@ -1946,15 +1946,15 @@ static int validate_command(const char* cmd) {
     return 1;
 }
 
-// Main entry point
+
 int main(int argc, char** argv) {
-    // Validate argc
+
     if (argc < 1 || argv == NULL) {
         fprintf(stderr, "[ERROR] Invalid arguments\n");
         return 1;
     }
 
-    // Validate argv[0] (program name)
+
     if (argv[0] == NULL || strlen(argv[0]) == 0) {
         fprintf(stderr, "[ERROR] Invalid program name\n");
         return 1;

@@ -11,7 +11,7 @@
 #include <stdio.h>
 #include <time.h>
 
-// Error severity levels
+
 typedef enum {
     ERROR_LEVEL_DEBUG = 0,
     ERROR_LEVEL_INFO = 1,
@@ -20,7 +20,7 @@ typedef enum {
     ERROR_LEVEL_CRITICAL = 4
 } error_level_t;
 
-// Error codes
+
 typedef enum {
     ERROR_OK = 0,
     ERROR_MEMORY_ALLOC = 1,
@@ -34,7 +34,7 @@ typedef enum {
     ERROR_UNKNOWN = 99
 } error_code_t;
 
-// Error context structure
+
 typedef struct {
     error_code_t code;
     error_level_t level;
@@ -45,9 +45,9 @@ typedef struct {
     time_t timestamp;
 } error_context_t;
 
-// ============================================================================
-// ERROR LOGGING
-// ============================================================================
+
+
+
 
 /**
  * Log an error with full context
@@ -73,9 +73,9 @@ const char* error_get_message(error_code_t code);
  */
 const char* error_get_level_name(error_level_t level);
 
-// ============================================================================
-// ERROR RECOVERY
-// ============================================================================
+
+
+
 
 /**
  * Attempt to recover from error
@@ -97,9 +97,9 @@ error_context_t* error_get_last(void);
  */
 void error_clear(void);
 
-// ============================================================================
-// CONVENIENCE MACROS
-// ============================================================================
+
+
+
 
 #define ERROR_LOG(code, level, msg) \
     error_log(code, level, msg, __FILE__, __LINE__, __func__)

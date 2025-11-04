@@ -2,8 +2,8 @@
 """CI guard ensuring a human has explicitly approved the latest changes."""
 
 
-import json
-import sys
+
+
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import NoReturn

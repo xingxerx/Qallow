@@ -4,7 +4,7 @@ Shor's Algorithm - Quantum Factoring Algorithm
 Factors large numbers exponentially faster than classical algorithms
 """
 
-import cirq
+
 
 
 def quantum_phase_estimation(n_qubits: int, phase: float) -> cirq.Circuit:

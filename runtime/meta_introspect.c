@@ -746,9 +746,9 @@ int qallow_meta_introspect_gpu(const float* durations,
     return 0;
 }
 
-// ============================================================================
-// Sequential Meta-Introspection (Phase 16 Stabilization)
-// ============================================================================
+
+
+
 
 static long get_introspect_timestamp_ms(void) {
     struct timeval tv;
@@ -763,13 +763,13 @@ int meta_introspect_log_trigger(const introspection_trigger_t* trigger,
     FILE* f = fopen(log_path, "a");
     if (!f) return -1;
 
-    // Write CSV header if file is empty
+
     fseek(f, 0, SEEK_END);
     if (ftell(f) == 0) {
         fprintf(f, "trigger_id,timestamp_ms,trigger_type,metric_value,threshold,severity\n");
     }
 
-    // Write trigger data
+
     fprintf(f, "%d,%ld,%s,%.6f,%.6f,%d\n",
             trigger->trigger_id,
             trigger->timestamp_ms,
@@ -787,18 +787,18 @@ int meta_introspect_sequential_reasoning(const introspection_trigger_t* trigger,
                                          const char* log_path) {
     if (!trigger || !result || !log_path) return -1;
 
-    // Log the trigger
+
     meta_introspect_log_trigger(trigger, log_path);
 
-    // Sequential reasoning steps:
-    // Step 1: Analyze trigger type
+
+
     float base_score = 0.5f;
     const char* recommendation = "monitor";
     int confidence = 50;
 
     if (trigger->trigger_type) {
         if (strcmp(trigger->trigger_type, "coherence_drop") == 0) {
-            // Step 2: Coherence analysis
+
             float coherence_ratio = trigger->metric_value / trigger->threshold;
             base_score = coherence_ratio * 0.8f;
 
@@ -813,12 +813,12 @@ int meta_introspect_sequential_reasoning(const introspection_trigger_t* trigger,
                 confidence = 60;
             }
         } else if (strcmp(trigger->trigger_type, "ethics_violation") == 0) {
-            // Step 3: Ethics analysis
+
             base_score = 0.3f;
             recommendation = "apply_ethics_intervention";
             confidence = 90;
         } else if (strcmp(trigger->trigger_type, "latency_spike") == 0) {
-            // Step 4: Latency analysis
+
             float latency_ratio = trigger->metric_value / trigger->threshold;
             base_score = 1.0f - (latency_ratio * 0.5f);
 
@@ -832,7 +832,7 @@ int meta_introspect_sequential_reasoning(const introspection_trigger_t* trigger,
         }
     }
 
-    // Step 5: Adjust score based on severity
+
     if (trigger->severity == 2) {  // high
         base_score *= 0.7f;
         confidence = (confidence * 9) / 10;
@@ -840,17 +840,17 @@ int meta_introspect_sequential_reasoning(const introspection_trigger_t* trigger,
         base_score *= 0.85f;
     }
 
-    // Clamp score to [0, 1]
+
     if (base_score < 0.0f) base_score = 0.0f;
     if (base_score > 1.0f) base_score = 1.0f;
 
-    // Populate result
+
     result->trigger_id = trigger->trigger_id;
     result->introspection_score = base_score;
     result->recommendation = recommendation;
     result->confidence = confidence;
 
-    // Log result
+
     FILE* f = fopen(log_path, "a");
     if (f) {
         fprintf(f, "# Result: trigger_id=%d, score=%.3f, recommendation=%s, confidence=%d\n",

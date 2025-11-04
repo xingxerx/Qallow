@@ -40,14 +40,14 @@ float score_decision_ethics(Decision *decision, float *baseline) {
 
 
 void generate_audit_glyph(Decision *decision, char *glyph_buffer) {
-    // Create a signature based on decision characteristics
+
     float magnitude = 0.0;
     for (int i = 0; i < EMBEDDING_DIM; i++) {
         magnitude += decision->decision_vector[i] * decision->decision_vector[i];
     }
     magnitude = sqrt(magnitude);
 
-    // Generate glyph string
+
     sprintf(glyph_buffer, "GLYPH_%d_%.2f_%.2f",
             decision->phase_id,
             decision->ethics_score,
@@ -56,12 +56,12 @@ void generate_audit_glyph(Decision *decision, char *glyph_buffer) {
 
 
 void compute_ethics_trajectory(AuditState *state) {
-    // Initialize trajectory
+
     for (int i = 0; i < NUM_PHASES; i++) {
         state->ethics_trajectory[i] = 0.0;
     }
 
-    // Aggregate ethics scores by phase
+
     int phase_counts[NUM_PHASES] = {0};
     for (int i = 0; i < state->num_decisions; i++) {
         int phase = state->decisions[i].phase_id;
@@ -71,7 +71,7 @@ void compute_ethics_trajectory(AuditState *state) {
         }
     }
 
-    // Average by phase
+
     for (int i = 0; i < NUM_PHASES; i++) {
         if (phase_counts[i] > 0) {
             state->ethics_trajectory[i] /= phase_counts[i];
@@ -81,7 +81,7 @@ void compute_ethics_trajectory(AuditState *state) {
 
 
 float calculate_self_awareness(AuditState *state) {
-    // Self-awareness = consistency of ethical reflection
+
     float variance = 0.0;
     float mean = state->overall_ethics_score;
 
@@ -94,7 +94,7 @@ float calculate_self_awareness(AuditState *state) {
         variance /= state->num_decisions;
     }
 
-    // Lower variance = higher self-awareness
+
     float awareness = 1.0 / (1.0 + sqrt(variance));
     return awareness;
 }
@@ -109,13 +109,13 @@ int main(int argc, char *argv[]) {
 
     AuditState state = {0};
 
-    // Initialize ethical baseline
+
     printf("📋 Initializing ethical baseline...\n");
     for (int i = 0; i < EMBEDDING_DIM; i++) {
         state.ethical_baseline[i] = 0.5;
     }
 
-    // Load decision history
+
     printf("📚 Loading decision history from all phases...\n");
     int num_decisions = 100 + (rand() % 200);
     state.num_decisions = num_decisions;
@@ -125,12 +125,12 @@ int main(int argc, char *argv[]) {
         state.decisions[i].timestamp = time(NULL) - (rand() % 3600);
         state.decisions[i].confidence = 0.6 + (rand() / (float)RAND_MAX) * 0.4;
 
-        // Initialize decision vector
+
         for (int j = 0; j < EMBEDDING_DIM; j++) {
             state.decisions[i].decision_vector[j] = (rand() / (float)RAND_MAX);
         }
 
-        // Score against ethical baseline
+
         state.decisions[i].ethics_score = score_decision_ethics(&state.decisions[i], state.ethical_baseline);
         state.overall_ethics_score += state.decisions[i].ethics_score;
 
@@ -138,21 +138,21 @@ int main(int argc, char *argv[]) {
     }
     state.overall_ethics_score /= num_decisions;
 
-    // Generate audit glyphs
+
     printf("✨ Generating audit glyphs...\n");
     for (int i = 0; i < num_decisions; i++) {
         char glyph[64];
         generate_audit_glyph(&state.decisions[i], glyph);
     }
 
-    // Compute ethics trajectory
+
     printf("📈 Computing ethical evolution trajectory...\n");
     compute_ethics_trajectory(&state);
 
-    // Calculate self-awareness
+
     state.self_awareness_level = calculate_self_awareness(&state);
 
-    // Report results
+
     printf("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
     printf("📈 Recursive Self-Audit Results:\n");
     printf("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");

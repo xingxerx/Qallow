@@ -19,10 +19,10 @@ extern int multi_pocket_cuda_run(const pocket_params_t* params,
                                  double* total_elapsed_ms);
 #endif
 
-// Multi-Pocket Simulation Scheduler Implementation
-// Runs N parallel probabilistic worldlines
 
-// Initialize the multi-pocket scheduler
+
+
+
 void multi_pocket_init(multi_pocket_scheduler_t* scheduler, int num_pockets) {
     if (!scheduler) return;
 
@@ -30,7 +30,7 @@ void multi_pocket_init(multi_pocket_scheduler_t* scheduler, int num_pockets) {
 
     scheduler->num_pockets = (num_pockets > MAX_POCKETS) ? MAX_POCKETS : num_pockets;
 
-    // Initialize CUDA streams if available
+
 #if CUDA_ENABLED
     int device_count = 0;
     cudaGetDeviceCount(&device_count);
@@ -49,7 +49,7 @@ void multi_pocket_init(multi_pocket_scheduler_t* scheduler, int num_pockets) {
     printf("[MULTI-POCKET] CPU-only build\n");
 #endif
 
-    // Initialize master telemetry
+
     sprintf(scheduler->master_telemetry_file, "qallow_multi_pocket.csv");
     scheduler->master_telemetry = fopen(scheduler->master_telemetry_file, "w");
 
@@ -61,7 +61,7 @@ void multi_pocket_init(multi_pocket_scheduler_t* scheduler, int num_pockets) {
     printf("[MULTI-POCKET] Scheduler initialized with %d pockets\n", scheduler->num_pockets);
 }
 
-// Cleanup scheduler resources
+
 void multi_pocket_cleanup(multi_pocket_scheduler_t* scheduler) {
     if (!scheduler) return;
 
@@ -80,7 +80,7 @@ void multi_pocket_cleanup(multi_pocket_scheduler_t* scheduler) {
     printf("[MULTI-POCKET] Scheduler cleaned up\n");
 }
 
-// Set parameters for a specific pocket
+
 void multi_pocket_set_params(multi_pocket_scheduler_t* scheduler,
                              int pocket_id,
                              const pocket_params_t* params) {
@@ -89,12 +89,12 @@ void multi_pocket_set_params(multi_pocket_scheduler_t* scheduler,
     memcpy(&scheduler->params[pocket_id], params, sizeof(pocket_params_t));
     scheduler->params[pocket_id].pocket_id = pocket_id;
 
-    // Generate telemetry filename
+
     sprintf(scheduler->params[pocket_id].telemetry_file,
             "pocket_%d.csv", pocket_id);
 }
 
-// Generate random parameters for all pockets
+
 void multi_pocket_generate_random_params(multi_pocket_scheduler_t* scheduler) {
     if (!scheduler) return;
 
@@ -114,32 +114,32 @@ void multi_pocket_generate_random_params(multi_pocket_scheduler_t* scheduler) {
     }
 }
 
-// Execute a single pocket simulation (CPU version)
+
 static void execute_single_pocket_cpu(const pocket_params_t* params,
                                      const qallow_state_t* initial_state,
                                      int num_ticks,
                                      pocket_result_t* result) {
     clock_t start = clock();
 
-    // Copy initial state
+
     qallow_state_t pocket_state;
     memcpy(&pocket_state, initial_state, sizeof(qallow_state_t));
 
-    // Open pocket telemetry file
+
     FILE* telemetry = fopen(params->telemetry_file, "w");
     if (telemetry) {
         fprintf(telemetry, "tick,coherence,decoherence,orbital,river,mycelial\n");
     }
 
-    // Accumulate metrics
+
     float total_coherence = 0.0f;
     float total_decoherence = 0.0f;
 
-    // Run simulation
+
     for (int tick = 0; tick < num_ticks; tick++) {
         qallow_kernel_tick(&pocket_state);
 
-        // Apply pocket-specific noise
+
         for (int i = 0; i < NUM_OVERLAYS; i++) {
             for (int j = 0; j < pocket_state.overlays[i].node_count; j++) {
                 float noise = ((float)rand() / RAND_MAX - 0.5f) * params->noise_level;
@@ -149,14 +149,14 @@ static void execute_single_pocket_cpu(const pocket_params_t* params,
             }
         }
 
-        // Apply stability bias
+
         pocket_state.global_coherence = pocket_state.global_coherence * params->stability_bias +
                                        (1.0f - params->stability_bias) * 0.5f;
 
         total_coherence += pocket_state.global_coherence;
         total_decoherence += pocket_state.decoherence_level;
 
-        // Write telemetry
+
         if (telemetry && tick % POCKET_TELEMETRY_INTERVAL == 0) {
             fprintf(telemetry, "%d,%.4f,%.6f,%.4f,%.4f,%.4f\n",
                    tick, pocket_state.global_coherence, pocket_state.decoherence_level,
@@ -170,7 +170,7 @@ static void execute_single_pocket_cpu(const pocket_params_t* params,
 
     clock_t end = clock();
 
-    // Store results
+
     result->pocket_id = params->pocket_id;
     memcpy(&result->final_state, &pocket_state, sizeof(qallow_state_t));
     result->avg_coherence = total_coherence / num_ticks;
@@ -178,14 +178,14 @@ static void execute_single_pocket_cpu(const pocket_params_t* params,
     result->ticks_executed = num_ticks;
     result->elapsed_time_ms = (double)(end - start) / CLOCKS_PER_SEC * 1000.0;
 
-    // Calculate ethics score and confidence
+
     ethics_state_t ethics;
     qallow_ethics_check(&pocket_state, &ethics);
     result->ethics_score = ethics.total_ethics_score;
     result->confidence = 1.0f - result->avg_decoherence;
 }
 
-// Execute all pockets (CPU version)
+
 void multi_pocket_execute_cpu(multi_pocket_scheduler_t* scheduler,
                               const qallow_state_t* initial_state,
                               int num_ticks) {
@@ -205,7 +205,7 @@ void multi_pocket_execute_cpu(multi_pocket_scheduler_t* scheduler,
                                  num_ticks,
                                  &scheduler->results[i]);
 
-        // Update timing statistics
+
         if (scheduler->results[i].elapsed_time_ms > scheduler->max_pocket_time_ms) {
             scheduler->max_pocket_time_ms = scheduler->results[i].elapsed_time_ms;
         }
@@ -226,7 +226,7 @@ void multi_pocket_execute_cpu(multi_pocket_scheduler_t* scheduler,
 }
 
 #if CUDA_ENABLED
-// Execute all pockets (CUDA version)
+
 void multi_pocket_execute_cuda(multi_pocket_scheduler_t* scheduler,
                                const qallow_state_t* initial_state,
                                int num_ticks) {
@@ -341,7 +341,7 @@ void multi_pocket_execute_cuda(multi_pocket_scheduler_t* scheduler,
 }
 #endif
 
-// Execute all pockets (auto-detect best method)
+
 void multi_pocket_execute_all(multi_pocket_scheduler_t* scheduler,
                               const qallow_state_t* initial_state,
                               int num_ticks) {
@@ -354,25 +354,25 @@ void multi_pocket_execute_all(multi_pocket_scheduler_t* scheduler,
 #endif
 }
 
-// Merge pocket results into a single state
+
 void multi_pocket_merge(multi_pocket_scheduler_t* scheduler,
                        qallow_state_t* merged_state,
                        const pocket_merge_config_t* config) {
     if (!scheduler || !merged_state || scheduler->num_pockets == 0) return;
 
-    // Find outliers if requested
+
     bool is_outlier[MAX_POCKETS] = {false};
     if (config && config->filter_outliers) {
         multi_pocket_find_outliers(scheduler, is_outlier, config->outlier_threshold);
     }
 
-    // Initialize merged state to zero
+
     memset(merged_state, 0, sizeof(qallow_state_t));
 
     float total_weight = 0.0f;
     int valid_pockets = 0;
 
-    // Weighted merge based on confidence
+
     for (int i = 0; i < scheduler->num_pockets; i++) {
         if (is_outlier[i]) continue;
 
@@ -387,7 +387,7 @@ void multi_pocket_merge(multi_pocket_scheduler_t* scheduler,
         total_weight += weight;
         valid_pockets++;
 
-        // Merge overlays
+
         for (int j = 0; j < NUM_OVERLAYS; j++) {
             for (int k = 0; k < MAX_NODES; k++) {
                 merged_state->overlays[j].values[k] +=
@@ -395,12 +395,12 @@ void multi_pocket_merge(multi_pocket_scheduler_t* scheduler,
             }
         }
 
-        // Merge global metrics
+
         merged_state->global_coherence += scheduler->results[i].avg_coherence * weight;
         merged_state->decoherence_level += scheduler->results[i].avg_decoherence * weight;
     }
 
-    // Normalize by total weight
+
     if (total_weight > 0.0f) {
         for (int j = 0; j < NUM_OVERLAYS; j++) {
             for (int k = 0; k < MAX_NODES; k++) {
@@ -415,11 +415,11 @@ void multi_pocket_merge(multi_pocket_scheduler_t* scheduler,
            valid_pockets, scheduler->num_pockets, total_weight);
 }
 
-// Calculate consensus metric across all pockets
+
 float multi_pocket_calculate_consensus(const multi_pocket_scheduler_t* scheduler) {
     if (!scheduler || scheduler->num_pockets == 0) return 0.0f;
 
-    // Calculate standard deviation of coherence values
+
     float mean = 0.0f;
     for (int i = 0; i < scheduler->num_pockets; i++) {
         mean += scheduler->results[i].avg_coherence;
@@ -433,27 +433,27 @@ float multi_pocket_calculate_consensus(const multi_pocket_scheduler_t* scheduler
     }
     variance /= scheduler->num_pockets;
 
-    // Consensus = 1 - normalized_std_dev
+
     float std_dev = sqrtf(variance);
     float consensus = 1.0f - fminf(std_dev * 5.0f, 1.0f);  // Scale std_dev
 
     return consensus;
 }
 
-// Find outlier pockets
+
 void multi_pocket_find_outliers(const multi_pocket_scheduler_t* scheduler,
                                 bool* is_outlier,
                                 float threshold) {
     if (!scheduler || !is_outlier) return;
 
-    // Calculate mean coherence
+
     float mean = 0.0f;
     for (int i = 0; i < scheduler->num_pockets; i++) {
         mean += scheduler->results[i].avg_coherence;
     }
     mean /= scheduler->num_pockets;
 
-    // Mark outliers
+
     for (int i = 0; i < scheduler->num_pockets; i++) {
         float deviation = fabsf(scheduler->results[i].avg_coherence - mean);
         is_outlier[i] = (deviation > threshold);
@@ -465,7 +465,7 @@ void multi_pocket_find_outliers(const multi_pocket_scheduler_t* scheduler,
     }
 }
 
-// Print results from all pockets
+
 void multi_pocket_print_results(const multi_pocket_scheduler_t* scheduler) {
     if (!scheduler) return;
 
@@ -483,7 +483,7 @@ void multi_pocket_print_results(const multi_pocket_scheduler_t* scheduler) {
     printf("\n");
 }
 
-// Print statistics
+
 void multi_pocket_print_statistics(const multi_pocket_scheduler_t* scheduler) {
     if (!scheduler) return;
 
@@ -500,7 +500,7 @@ void multi_pocket_print_statistics(const multi_pocket_scheduler_t* scheduler) {
     printf("\n");
 }
 
-// Write summary telemetry
+
 void multi_pocket_write_summary(const multi_pocket_scheduler_t* scheduler) {
     if (!scheduler) return;
 

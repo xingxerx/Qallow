@@ -23,7 +23,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import NvRules
+
 
 requested_metrics = [
     MetricRequest("memory_l1_wavefronts_shared", "shared_wavefronts", Importance.OPTIONAL, None, False),

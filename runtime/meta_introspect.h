@@ -15,7 +15,7 @@ typedef struct learn_event_s {
     float ethics;
 } learn_event_t;
 
-// Sequential introspection trigger (Phase 16 enhancement)
+
 typedef struct {
     int trigger_id;
     long timestamp_ms;
@@ -25,7 +25,7 @@ typedef struct {
     int severity;  // 0=low, 1=medium, 2=high
 } introspection_trigger_t;
 
-// Sequential introspection result
+
 typedef struct {
     int trigger_id;
     float introspection_score;
@@ -43,7 +43,7 @@ void meta_introspect_apply_environment_defaults(void);
 const char* meta_introspect_log_dir(void);
 int meta_introspect_export_pocket_map(const char* output_path);
 
-// Sequential introspection functions (Phase 16 stabilization)
+
 int meta_introspect_log_trigger(const introspection_trigger_t* trigger,
                                 const char* log_path);
 int meta_introspect_sequential_reasoning(const introspection_trigger_t* trigger,

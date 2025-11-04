@@ -16,10 +16,10 @@ int pocket_spawn(pocket_dimension_t* pd, int n) {
     printf("[POCKET] Spawning %d parallel simulations...\n", n);
 
     for (int i = 0; i < n; i++) {
-        // Initialize each pocket with slightly different seed
+
         qallow_kernel_init(&pd->pockets[i].state);
 
-        // Vary initial conditions slightly
+
         for (int j = 0; j < NUM_OVERLAYS; j++) {
             overlay_t* overlay = &pd->pockets[i].state.overlays[j];
             float variance = 0.01f * (i + 1);
@@ -47,10 +47,10 @@ void pocket_tick_all(pocket_dimension_t* pd) {
     for (int i = 0; i < pd->count; i++) {
         if (!pd->pockets[i].active) continue;
 
-        // Run one tick in this pocket
+
         qallow_kernel_tick(&pd->pockets[i].state);
 
-        // Calculate score for this pocket
+
         double score = pd->pockets[i].state.global_coherence *
                        (1.0 - pd->pockets[i].state.decoherence_level);
         pd->pockets[i].result_score = score;

@@ -153,7 +153,7 @@ float tm_check_coherence(TemporalMemory *tm, const float *vec, size_t dim) {
 
     float current_coherence = (count > 0) ? total_sim / count : 1.0f;
 
-    // Update average coherence
+
     if (tm->coherence_checks == 0) {
         tm->avg_coherence = current_coherence;
     } else {

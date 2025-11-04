@@ -1,4 +1,4 @@
-import base64, zlib, textwrap
+
 s = open('.github/workflows/internal-ci.yml', 'rb').read()
 b = base64.b64encode(zlib.compress(s)).decode('ascii')
 print("'''")

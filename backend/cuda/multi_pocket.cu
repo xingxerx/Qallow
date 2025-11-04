@@ -68,14 +68,14 @@ __global__ void pocket_tick_kernel(float* values,
     const int idx = ((pocket * kOverlays) + overlay) * kMaxNodes + node;
     float value = values[idx];
 
-    // Target equilibrium shifts a little per overlay for diversity
+
     const float base_targets[kOverlays] = {0.72f, 0.68f, 0.75f};
     float target = base_targets[overlay];
 
-    // Gradient-style relaxation towards target
+
     value += cfg.learning_rate * (target - value);
 
-    // Deterministic hash-based noise
+
     unsigned long long noise_seed = seed;
     noise_seed ^= static_cast<unsigned long long>(pocket) << 40;
     noise_seed ^= static_cast<unsigned long long>(overlay) << 32;
@@ -118,7 +118,7 @@ __global__ void finalize_tick_kernel(float* tick_sum,
     sum_coherence[pocket] += updated;
     sum_decoherence[pocket] += avg_deco;
 
-    // Reset tick buffers for the next iteration when kernel is reused
+
     tick_sum[pocket] = 0.0f;
     tick_deco[pocket] = 0.0f;
 }

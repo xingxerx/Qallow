@@ -1,4 +1,4 @@
-// Self-Reflection Core - Monitor, critique, and improve plans
+
 
 #include "phase7.h"
 #include <stdlib.h>
@@ -26,24 +26,24 @@ int src_review(self_reflection_t* src, const char* run_id, const plan_t* plan,
     memset(out, 0, sizeof(reflection_result_t));
     snprintf(out->run_id, sizeof(out->run_id), "%s", run_id);
 
-    // Analyze plan execution
+
     out->confidence = plan->expected_success_prob;
     out->drift = 0.05;  // Placeholder - would compare predicted vs actual
     out->outcome_score = plan->expected_benefit * 0.85;  // Simulated outcome
     out->review_ts = (uint64_t)time(NULL);
 
-    // Detect flaws
+
     out->flaw_count = src_detect_flaws(plan, outcome, out->flaws, SRC_MAX_FLAWS);
 
-    // Check if resimulation needed
+
     out->needs_resimulation = src_should_resimulate(src, out);
 
-    // Generate notes
+
     snprintf(out->notes, sizeof(out->notes),
             "Review completed. Confidence: %.2f, Drift: %.2f, Flaws: %d",
             out->confidence, out->drift, out->flaw_count);
 
-    // Store result
+
     if (src->result_count < 256) {
         memcpy(&src->results[src->result_count++], out, sizeof(reflection_result_t));
     }
@@ -55,7 +55,7 @@ double src_score(const self_reflection_t* src, const char* run_id,
                  double* confidence_out, double* drift_out) {
     if (!src || !run_id) return 0.0;
 
-    // Find result
+
     for (int i = 0; i < src->result_count; i++) {
         if (strcmp(src->results[i].run_id, run_id) == 0) {
             if (confidence_out) *confidence_out = src->results[i].confidence;
@@ -74,7 +74,7 @@ int src_detect_flaws(const plan_t* plan, const void* outcome,
 
     int flaw_count = 0;
 
-    // Check plan quality
+
     if (plan->expected_utility < 0.1) {
         if (flaw_count < max_flaws) {
             reflection_flaw_t* flaw = &out_flaws[flaw_count++];
@@ -90,7 +90,7 @@ int src_detect_flaws(const plan_t* plan, const void* outcome,
         }
     }
 
-    // Check step count
+
     if (plan->step_count > 50) {
         if (flaw_count < max_flaws) {
             reflection_flaw_t* flaw = &out_flaws[flaw_count++];
@@ -103,7 +103,7 @@ int src_detect_flaws(const plan_t* plan, const void* outcome,
         }
     }
 
-    // Check risk
+
     if (plan->risk_cost > 0.7) {
         if (flaw_count < max_flaws) {
             reflection_flaw_t* flaw = &out_flaws[flaw_count++];
@@ -122,10 +122,10 @@ int src_detect_flaws(const plan_t* plan, const void* outcome,
 bool src_should_resimulate(const self_reflection_t* src, const reflection_result_t* result) {
     if (!src || !result) return false;
 
-    // Resimulate if drift exceeds threshold
+
     if (result->drift > src->resimulation_threshold) return true;
 
-    // Resimulate if critical flaws found
+
     for (int i = 0; i < result->flaw_count; i++) {
         if (result->flaws[i].severity > 0.75) return true;
     }
@@ -136,9 +136,9 @@ bool src_should_resimulate(const self_reflection_t* src, const reflection_result
 int src_update_smg(const reflection_result_t* result) {
     if (!result) return -1;
 
-    // Update Semantic Memory Grid with reflection insights
-    // This would link outcomes to goals/plans in SMG
-    // For now, return success placeholder
+
+
+
 
     return 0;
 }
@@ -147,29 +147,29 @@ int src_improve_plan(const plan_t* original, const reflection_result_t* reflecti
                      plan_t* improved) {
     if (!original || !reflection || !improved) return -1;
 
-    // Copy original
+
     memcpy(improved, original, sizeof(plan_t));
 
-    // Apply improvements based on flaws
+
     for (int i = 0; i < reflection->flaw_count; i++) {
         const reflection_flaw_t* flaw = &reflection->flaws[i];
 
         if (strstr(flaw->flaw_description, "Low expected utility")) {
-            // Increase expected benefit
+
             improved->expected_benefit *= 1.1;
             improved->expected_utility = improved->expected_success_prob * improved->expected_benefit
                                        - improved->risk_cost - improved->compute_cost;
         }
 
         if (strstr(flaw->flaw_description, "High risk")) {
-            // Reduce risk
+
             improved->risk_cost *= 0.8;
             improved->expected_utility = improved->expected_success_prob * improved->expected_benefit
                                        - improved->risk_cost - improved->compute_cost;
         }
     }
 
-    // Update plan ID
+
     size_t max_base = sizeof(improved->plan_id);
     if (max_base > 4) {
         max_base -= 4; // Reserve for "_v2" and terminator

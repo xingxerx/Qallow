@@ -3,7 +3,7 @@
 /* TODO: Refactor complex functions - consider breaking into smaller functions */
 /* TODO: Refactor complex functions - consider breaking into smaller functions */
 
-// Phase 7 Unified Integration - Proactive AGI Layer
+
 
 #include "phase7.h"
 #include "ethics.h"
@@ -13,9 +13,9 @@
 #include <time.h>
 #include <stdio.h>
 
-// ============================================================================
-// PHASE 7 LIFECYCLE
-// ============================================================================
+
+
+
 
 #define OBJ_PHASE7_GOAL "phase7.goal_commit"
 #define OBJ_PHASE7_PLAN "phase7.plan_eval"
@@ -32,7 +32,7 @@ int phase7_init(phase7_state_t* state, const char* data_dir) {
 
     memset(state, 0, sizeof(phase7_state_t));
 
-    // Initialize SMG
+
     char smg_path[512];
     snprintf(smg_path, sizeof(smg_path), "%s/smg.db", data_dir ? data_dir : "data");
     if (smg_init(smg_path) != 0) {
@@ -40,20 +40,20 @@ int phase7_init(phase7_state_t* state, const char* data_dir) {
     }
     state->smg_initialized = true;
 
-    // Initialize Goal Synthesizer
+
     if (gs_init(&state->gs) != 0) {
         smg_shutdown();
         return -1;
     }
 
-    // Initialize Transfer Engine
+
     if (te_init(&state->te) != 0) {
         gs_shutdown(&state->gs);
         smg_shutdown();
         return -1;
     }
 
-    // Initialize Self-Reflection Core
+
     if (src_init(&state->src) != 0) {
         te_shutdown(&state->te);
         gs_shutdown(&state->gs);
@@ -61,14 +61,14 @@ int phase7_init(phase7_state_t* state, const char* data_dir) {
         return -1;
     }
 
-    // Open telemetry stream
+
     state->telemetry_phase7 = fopen("phase7_stream.csv", "w");
     if (state->telemetry_phase7) {
         fprintf(state->telemetry_phase7,
                 "timestamp,goal_id,priority,risk,E,plan_len,pocket_n,outcome_score,reflection_score\n");
     }
 
-    // Set snapshot directory
+
     if (data_dir) {
         snprintf(state->snapshot_dir, sizeof(state->snapshot_dir), "%s/snapshots", data_dir);
     } else {
@@ -90,16 +90,16 @@ void phase7_shutdown(phase7_state_t* state) {
 
     printf("[PHASE7] Shutting down...\n");
 
-    // Checkpoint before shutdown
+
     phase7_checkpoint(state);
 
-    // Close telemetry
+
     if (state->telemetry_phase7) {
         fclose(state->telemetry_phase7);
         state->telemetry_phase7 = NULL;
     }
 
-    // Shutdown modules
+
     src_shutdown(&state->src);
     te_shutdown(&state->te);
     gs_shutdown(&state->gs);
@@ -117,7 +117,7 @@ void phase7_shutdown(phase7_state_t* state) {
 int phase7_checkpoint(phase7_state_t* state) {
     if (!state || !state->smg_initialized) return -1;
 
-    // Generate snapshot filename
+
     time_t now = time(NULL);
     struct tm* t = localtime(&now);
     char snapshot_path[512];
@@ -127,7 +127,7 @@ int phase7_checkpoint(phase7_state_t* state) {
             t->tm_year + 1900, t->tm_mon + 1, t->tm_mday,
             t->tm_hour, t->tm_min);
 
-    // Checkpoint SMG
+
     if (smg_checkpoint(snapshot_path) != 0) {
         return -1;
     }
@@ -136,22 +136,22 @@ int phase7_checkpoint(phase7_state_t* state) {
     return 0;
 }
 
-// ============================================================================
-// MAIN EXECUTION LOOP INTEGRATION
-// ============================================================================
+
+
+
 
 int phase7_tick(phase7_state_t* state, const void* telemetry_data, const void* ethics_state) {
     if (!state || !state->phase7_active) return -1;
 
-    // 1. Goal Synthesis from telemetry
+
     goal_t proposed_goals[8];
     int goal_count = gs_propose_from_telemetry(&state->gs, telemetry_data, proposed_goals, 8);
 
     if (goal_count > 0) {
-        // Rank goals by priority
+
         gs_rank_goals(&state->gs);
 
-        // Auto-commit top goal if safe
+
         for (int i = 0; i < goal_count; i++) {
             if (proposed_goals[i].risk < 0.3 && proposed_goals[i].priority > 0.6) {
                 int result = gs_commit(&state->gs, proposed_goals[i].id, ethics_state);
@@ -159,13 +159,13 @@ int phase7_tick(phase7_state_t* state, const void* telemetry_data, const void* e
                     printf("[PHASE7] Auto-committed goal: %s\n", proposed_goals[i].description);
                     phase7_log_goal(state, &proposed_goals[i]);
 
-                    // 2. Transfer Engine: Generate plans
+
                     plan_t plans[TE_MAX_PLAN_VARIANTS];
                     int plan_count = te_plan(&state->te, proposed_goals[i].id, &proposed_goals[i],
                                             plans, TE_MAX_PLAN_VARIANTS);
 
                     if (plan_count > 0) {
-                        // Select best plan
+
                         int best_idx = te_select_best_plan(&state->te, plans, plan_count);
                         plan_t* best_plan = &plans[best_idx];
 
@@ -173,10 +173,10 @@ int phase7_tick(phase7_state_t* state, const void* telemetry_data, const void* e
                                best_plan->plan_id, best_plan->expected_utility);
                         phase7_log_plan(state, best_plan);
 
-                        // 3. Execute in pockets (would integrate with multi_pocket here)
-                        // For now, simulate execution
 
-                        // 4. Self-Reflection
+
+
+
                         reflection_result_t reflection;
                         char run_id[32];
                         snprintf(run_id, sizeof(run_id), "RUN_%lld", (long long)time(NULL));
@@ -186,10 +186,10 @@ int phase7_tick(phase7_state_t* state, const void* telemetry_data, const void* e
                                    reflection.confidence, reflection.drift, reflection.flaw_count);
                             phase7_log_reflection(state, &reflection);
 
-                            // 5. Update SMG with learnings
+
                             src_update_smg(&reflection);
 
-                            // 6. Complete goal
+
                             gs_complete(&state->gs, proposed_goals[i].id, reflection.outcome_score);
                         }
                     }
@@ -203,9 +203,9 @@ int phase7_tick(phase7_state_t* state, const void* telemetry_data, const void* e
     return 0;
 }
 
-// ============================================================================
-// TELEMETRY
-// ============================================================================
+
+
+
 
 int phase7_log_goal(phase7_state_t* state, const goal_t* goal) {
     if (!state || !goal || !state->telemetry_phase7) return -1;
@@ -282,9 +282,9 @@ int phase7_log_reflection(phase7_state_t* state, const reflection_result_t* resu
     return 0;
 }
 
-// ============================================================================
-// GOVERNANCE
-// ============================================================================
+
+
+
 
 int phase7_audit(const phase7_state_t* state) {
     if (!state) return -1;
@@ -295,7 +295,7 @@ int phase7_audit(const phase7_state_t* state) {
     printf("═══════════════════════════════════════════\n");
     printf("\n");
 
-    // Audit goals
+
     printf("Goals:\n");
     int orphan_goals = 0;
     for (int i = 0; i < state->gs.goal_count; i++) {
@@ -307,11 +307,11 @@ int phase7_audit(const phase7_state_t* state) {
     printf("  Total: %d\n", state->gs.goal_count);
     printf("  Orphans (no SMG link): %d\n", orphan_goals);
 
-    // Audit plans
+
     printf("\nPlans:\n");
     printf("  Total variants: %d\n", state->te.plan_count);
 
-    // Audit reflections
+
     printf("\nReflections:\n");
     printf("  Total reviews: %d\n", state->src.result_count);
     int needs_resim = 0;
@@ -320,7 +320,7 @@ int phase7_audit(const phase7_state_t* state) {
     }
     printf("  Needs re-simulation: %d\n", needs_resim);
 
-    // SMG integrity
+
     printf("\nSMG Integrity:\n");
     int integrity = smg_verify_integrity();
     printf("  Status: %s\n", integrity == 0 ? "PASS" : "FAIL");
@@ -337,7 +337,7 @@ bool phase7_check_hard_stops(const phase7_state_t* state, const void* ethics_sta
 
     double E = eth->total_ethics_score;
 
-    // Hard stop: E < 2.95
+
     if (E < 2.95) {
         printf("[PHASE7] HARD STOP: Ethics score E=%.3f < 2.95\n", E);
         return true;
@@ -349,7 +349,7 @@ bool phase7_check_hard_stops(const phase7_state_t* state, const void* ethics_sta
         return true;
     }
 
-    // Check for high-risk goals
+
     for (int i = 0; i < state->gs.goal_count; i++) {
         const goal_t* g = &state->gs.goals[i];
         if (g->status == GOAL_STATUS_ACTIVE && g->risk > 0.8) {

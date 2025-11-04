@@ -10,7 +10,7 @@ extern "C" {
 __global__ void quantumOptimize(double* data, int n, double step, double target_center){
     int i = blockIdx.x * blockDim.x + threadIdx.x;
     if (i < n){
-        // simple energy-reduction shaping around 0.5
+
         double x = data[i];
         double grad = (target_center - x);
         data[i] = x + step * grad; // adaptive step toward logical midline

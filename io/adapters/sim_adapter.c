@@ -7,7 +7,7 @@
 #include <math.h>
 #include "ingest.h"
 
-// Simulation state
+
 typedef struct {
     double coherence;
     double decoherence;
@@ -26,7 +26,7 @@ static sim_state_t sim_state = {
 
 /* Multi-block comment removed */
 static double sim_generate_coherence(void) {
-    // Oscillate around 0.9984 with small noise
+
     double noise = (rand() % 1000) / 1000000.0 - 0.0005;
     double value = 0.9984 + noise;
     return (value < 0.0) ? 0.0 : (value > 1.0) ? 1.0 : value;
@@ -34,7 +34,7 @@ static double sim_generate_coherence(void) {
 
 
 static double sim_generate_decoherence(void) {
-    // Very small value with noise
+
     double noise = (rand() % 100) / 10000000.0;
     double value = 0.000010 + noise;
     return (value < 0.0) ? 0.0 : value;
@@ -42,7 +42,7 @@ static double sim_generate_decoherence(void) {
 
 
 static double sim_generate_stability(void) {
-    // Oscillate around 0.9984
+
     double noise = (rand() % 1000) / 1000000.0 - 0.0005;
     double value = 0.9984 + noise;
     return (value < 0.0) ? 0.0 : (value > 1.0) ? 1.0 : value;
@@ -50,7 +50,7 @@ static double sim_generate_stability(void) {
 
 
 static double sim_generate_feedback(void) {
-    // Human feedback score (0.0-1.0)
+
     return 0.75 + (rand() % 200) / 1000.0 - 0.1;
 }
 
@@ -102,12 +102,12 @@ int sim_adapter_poll(ingest_manager_t* mgr, ingest_packet_type_t type) {
 
     ingest_packet_t packet;
 
-    // Generate synthetic packet
+
     if (sim_adapter_generate_packet(type, &packet) != 0) {
         return -1;
     }
 
-    // Push to ingestion manager
+
     if (ingest_push_packet(mgr, &packet) != 0) {
         return -1;
     }
@@ -122,7 +122,7 @@ int sim_adapter_poll(ingest_manager_t* mgr, ingest_packet_type_t type) {
 int sim_adapter_run_cycle(ingest_manager_t* mgr) {
     if (!mgr) return -1;
 
-    // Generate packets for each type
+
     sim_adapter_poll(mgr, INGEST_TYPE_TELEMETRY);
     sim_adapter_poll(mgr, INGEST_TYPE_SENSOR);
     sim_adapter_poll(mgr, INGEST_TYPE_FEEDBACK);

@@ -11,7 +11,7 @@
 #include <sys/wait.h>
 
 static int execute_phase_binary(int phase_num, int argc, char** argv) {
-    // Map phase number to binary path
+
     const char* phase_paths[] = {
         NULL,  // 0
         NULL,  // 1-15 handled by other runners
@@ -43,13 +43,13 @@ static int execute_phase_binary(int phase_num, int argc, char** argv) {
 
     const char* phase_path = phase_paths[phase_num];
 
-    // Check if the phase binary exists
+
     if (access(phase_path, X_OK) != 0) {
         fprintf(stderr, "[PHASE%d] ERROR: Phase binary not found at %s\n", phase_num, phase_path);
         return 1;
     }
 
-    // Fork and execute phase
+
     pid_t pid = fork();
     if (pid < 0) {
         fprintf(stderr, "[PHASE%d] ERROR: Failed to fork process\n", phase_num);
@@ -57,8 +57,8 @@ static int execute_phase_binary(int phase_num, int argc, char** argv) {
     }
 
     if (pid == 0) {
-        // Child process - execute phase
-        char** phase_argv = malloc((argc + 1) * sizeof(char*));
+
+// REVIEWED:         char** phase_argv = malloc((argc + 1) * sizeof(char*));
         phase_argv[0] = (char*)phase_path;
         for (int i = 1; i < argc; i++) {
             phase_argv[i] = argv[i];
@@ -67,11 +67,11 @@ static int execute_phase_binary(int phase_num, int argc, char** argv) {
 
         execv(phase_path, phase_argv);
 
-        // If execv returns, there was an error
+
         fprintf(stderr, "[PHASE%d] ERROR: Failed to execute phase\n", phase_num);
         exit(1);
     } else {
-        // Parent process - wait for child
+
         int status;
         waitpid(pid, &status, 0);
 

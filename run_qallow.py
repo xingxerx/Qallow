@@ -4,8 +4,8 @@ Qallow Project Runner - Quick Start Demo
 Shows the project structure and available components
 """
 
-import os
-import sys
+
+
 
 def print_header(text):
     """Print formatted header"""

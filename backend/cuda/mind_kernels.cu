@@ -2,7 +2,7 @@
 #include <math.h>
 #include <stdio.h>
 
-// CUDA kernel for parallel sigmoid prediction
+
 __global__ void cuda_predict_kernel(double *energy, double *risk, double *reward, int n) {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx < n) {
@@ -11,7 +11,7 @@ __global__ void cuda_predict_kernel(double *energy, double *risk, double *reward
     }
 }
 
-// CUDA kernel for parallel learning updates
+
 __global__ void cuda_learn_kernel(double *energy, double *risk, double *reward, int n) {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx < n) {
@@ -22,7 +22,7 @@ __global__ void cuda_learn_kernel(double *energy, double *risk, double *reward, 
     }
 }
 
-// CUDA kernel for parallel emotion regulation
+
 __global__ void cuda_emotion_kernel(double *energy, double *risk, double *reward, int n) {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx < n) {
@@ -32,7 +32,7 @@ __global__ void cuda_emotion_kernel(double *energy, double *risk, double *reward
     }
 }
 
-// Wrapper: Parallel prediction on GPU
+
 int cuda_predict_batch(double *h_energy, double *h_risk, double *h_reward, int batch_size) {
     double *d_energy, *d_risk, *d_reward;
     size_t bytes = batch_size * sizeof(double);
@@ -57,7 +57,7 @@ int cuda_predict_batch(double *h_energy, double *h_risk, double *h_reward, int b
     return 0;
 }
 
-// Wrapper: Parallel learning on GPU
+
 int cuda_learn_batch(double *h_energy, double *h_risk, double *h_reward, int batch_size) {
     double *d_energy, *d_risk, *d_reward;
     size_t bytes = batch_size * sizeof(double);
@@ -84,7 +84,7 @@ int cuda_learn_batch(double *h_energy, double *h_risk, double *h_reward, int bat
     return 0;
 }
 
-// Wrapper: Parallel emotion regulation on GPU
+
 int cuda_emotion_batch(double *h_energy, double *h_risk, double *h_reward, int batch_size) {
     double *d_energy, *d_risk, *d_reward;
     size_t bytes = batch_size * sizeof(double);

@@ -4,7 +4,7 @@ Hello Quantum - Basic Cirq Example
 Demonstrates fundamental quantum operations with Cirq
 """
 
-import cirq
+
 
 
 def hello_quantum():

@@ -7,7 +7,7 @@
 #include <time.h>
 #include "ethics_core.h"
 
-// Forward declaration for feed function
+
 int ethics_ingest_signal(const char *path, ethics_metrics_t *metrics);
 
 /* Multi-block comment removed */
@@ -40,7 +40,7 @@ int qallow_ethics_refresh_signals(void) {
 
 int qallow_ethics_check(ethics_model_t *model, const char *signal_path,
                         ethics_score_details_t *details_out) {
-    // Ingest current signals
+
     ethics_metrics_t metrics;
     if (!ethics_ingest_signal(signal_path, &metrics)) {
         fprintf(stderr, "[ethics] ERROR: Failed to ingest signals\n");
@@ -51,12 +51,12 @@ int qallow_ethics_check(ethics_model_t *model, const char *signal_path,
         metrics.reality_drift = fabs(metrics.safety - metrics.clarity);
     }
 
-    // Compute score
+
     ethics_score_details_t details;
     double score = ethics_score_core(model, &metrics, &details);
     int pass = ethics_score_pass(model, &metrics, &details);
 
-    // Log decision
+
     char timestamp[64];
     time_t now = time(NULL);
     strftime(timestamp, sizeof(timestamp), "%Y-%m-%d %H:%M:%S", localtime(&now));
@@ -70,12 +70,12 @@ int qallow_ethics_check(ethics_model_t *model, const char *signal_path,
         fclose(audit);
     }
 
-    // Optional: copy details for caller
+
     if (details_out) {
         *details_out = details;
     }
 
-    // Apply adaptive learning
+
     ethics_learn_apply_feedback(model, pass ? 0.05 : -0.1, 0.2);
 
     return pass;
@@ -87,24 +87,24 @@ int main(void) {
     printf("Qallow Ethics Integration Example\n");
     printf("========================================\n\n");
 
-    // Initialize ethics system
+
     ethics_model_t model;
     qallow_ethics_init(&model, "/root/Qallow/config");
 
-    // Simulation loop (replace with actual Qallow main loop)
+
     const int NUM_ITERATIONS = 5;
     const char *signal_path = "/root/Qallow/data/telemetry/current_signals.txt";
 
     for (int i = 0; i < NUM_ITERATIONS; i++) {
         printf("\n[Loop %d/%d]\n", i+1, NUM_ITERATIONS);
 
-        // Refresh hardware signals
+
         printf("  [1] Refreshing hardware signals...\n");
         if (qallow_ethics_refresh_signals() != 0) {
             fprintf(stderr, "  [!] Warning: Signal refresh failed\n");
         }
 
-        // Check ethics constraints
+
         printf("  [2] Checking ethics constraints...\n");
         ethics_score_details_t details;
         int ethics_ok = qallow_ethics_check(&model, signal_path, &details);
@@ -115,7 +115,7 @@ int main(void) {
              details.weighted_safety, details.weighted_clarity,
              details.weighted_human, details.weighted_reality_penalty);
 
-            // ... proceed with normal Qallow operations ...
+
             printf("  [3] Proceeding with operations...\n");
 
         } else if (ethics_ok == 0) {
@@ -124,18 +124,18 @@ int main(void) {
              details.weighted_safety, details.weighted_clarity,
              details.weighted_human, details.weighted_reality_penalty);
 
-            // Handle ethics violation
+
             printf("  [!] HALTING: Ethics threshold not met\n");
             printf("  [!] Recommend: Review system state and operator feedback\n");
 
-            // In production: trigger alert, enter safe mode, etc.
-            // break;  // Uncomment to stop on violation
+
+
 
         } else {
             fprintf(stderr, "  [!] ERROR: Ethics check failed\n");
         }
 
-        // Simulate work delay
+
         sleep(2);
     }
 

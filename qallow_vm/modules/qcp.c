@@ -5,19 +5,19 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-// Quantum Co-Processor module - CPU implementation
+
 
 CUDA_CALLABLE void qcp_init(qcp_state_t* qcp) {
     if (!qcp) return;
 
-    // Initialize qubits in superposition state
+
     for (int i = 0; i < QCP_MAX_QUBITS; i++) {
         float angle = (float)i * 2.0f * 3.14159f / QCP_MAX_QUBITS;
         qcp->qubit_states[i * 2] = cosf(angle) / sqrtf(2.0f);     // Real part
         qcp->qubit_states[i * 2 + 1] = sinf(angle) / sqrtf(2.0f); // Imaginary part
     }
 
-    // Initialize entanglement matrix
+
     for (int i = 0; i < QCP_MAX_QUBITS; i++) {
         for (int j = 0; j < QCP_MAX_QUBITS; j++) {
             if (i == j) {
@@ -67,18 +67,18 @@ CUDA_CALLABLE void qcp_apply_optimization_nudge(qcp_state_t* qcp, overlay_t* ove
     if (!qcp || !overlay) return;
 
     for (int node = 0; node < overlay->node_count && node < qcp->active_qubits; node++) {
-        // Calculate optimization direction
+
         float target_value = qcp->optimization_target;
         float current_value = overlay->values[node];
         float nudge = (target_value - current_value) * 0.01f;
 
-        // Apply clamped nudge
+
         if (nudge < -0.05f) nudge = -0.05f;
         if (nudge > 0.05f) nudge = 0.05f;
 
         overlay->values[node] += nudge;
 
-        // Clamp to valid range
+
         if (overlay->values[node] < 0.0f) overlay->values[node] = 0.0f;
         if (overlay->values[node] > 1.0f) overlay->values[node] = 1.0f;
     }
@@ -89,7 +89,7 @@ CUDA_CALLABLE void qcp_update_entanglement(qcp_state_t* qcp) {
 
     for (int i = 0; i < qcp->active_qubits; i++) {
         for (int j = i + 1; j < qcp->active_qubits; j++) {
-            // Calculate entanglement based on qubit state correlation
+
             float corr_real = qcp->qubit_states[i * 2] * qcp->qubit_states[j * 2];
             float corr_imag = qcp->qubit_states[i * 2 + 1] * qcp->qubit_states[j * 2 + 1];
             float correlation = sqrtf(corr_real * corr_real + corr_imag * corr_imag);
@@ -100,34 +100,34 @@ CUDA_CALLABLE void qcp_update_entanglement(qcp_state_t* qcp) {
     }
 }
 
-// CPU fallback implementation
+
 void qcp_cpu_process_qubits(qcp_state_t* qcp, overlay_t* overlays, int num_overlays) {
     if (!qcp || !overlays) return;
 
-    // Update entanglement matrix
+
     qcp_update_entanglement(qcp);
 
     for (int overlay_idx = 0; overlay_idx < num_overlays; overlay_idx++) {
         overlay_t* overlay = &overlays[overlay_idx];
 
         for (int node = 0; node < overlay->node_count && node < QCP_MAX_QUBITS; node++) {
-            // Get qubit state
+
             float real_part = qcp->qubit_states[node * 2];
             float imag_part = qcp->qubit_states[node * 2 + 1];
 
-            // Calculate probability
+
             float probability = real_part * real_part + imag_part * imag_part;
 
-            // Apply quantum optimization
+
             float optimization_factor = 0.02f * (probability - 0.5f);
             overlay->values[node] += optimization_factor;
 
-            // Ensure valid range
+
             if (overlay->values[node] < 0.0f) overlay->values[node] = 0.0f;
             if (overlay->values[node] > 1.0f) overlay->values[node] = 1.0f;
         }
 
-        // Update stability
+
         overlay->stability = qallow_calculate_stability(overlay);
     }
 }

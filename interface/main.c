@@ -35,8 +35,8 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-// Main application entry point for Qallow VM
-// Supports both CUDA and CPU execution with unified telemetry and adaptive learning
+
+
 
 static void print_banner(void) {
     printf("╔════════════════════════════════════════╗\n");
@@ -252,7 +252,7 @@ static int qallow_vm_run_hardware(void) {
     return rc;
 }
 
-// VM execution function (called from launcher)
+
 int qallow_phase12_runner(int argc, char** argv) {
     int ticks = 1000;
     float eps = 0.0001f;
@@ -339,7 +339,7 @@ int qallow_phase14_runner(int argc, char** argv) {
     int qaoa_n = 16;
     int qaoa_p = 2;
 
-    // Parse args
+
     for (int i = 2; i < argc; ++i) {
         const char* arg = argv[i];
         if (strncmp(arg, "--ticks=", 8) == 0) {
@@ -391,11 +391,11 @@ int qallow_phase14_runner(int argc, char** argv) {
         printf("[PHASE14] tune_qaoa enabled (N=%d, p=%d)\n", qaoa_n, qaoa_p);
     }
 
-    // Determine base alpha (closed-form) or from sources
+
     double fidelity = 0.95; // f0
     double alpha_base = -1.0;
 
-    // Prefer CUDA-learned alpha from J graph if provided
+
     if (jcsv) {
         double alpha_eff = 0.0;
         if (phase14_gain_from_csr(jcsv, nodes, &alpha_eff, gain_base, gain_span) == 0 && alpha_eff > 0) {
@@ -405,17 +405,17 @@ int qallow_phase14_runner(int argc, char** argv) {
         }
     }
 
-    // Next prefer explicit CLI alpha
+
     if (alpha_base <= 0.0 && alpha_cli > 0.0) {
         alpha_base = alpha_cli;
         printf("[PHASE14] alpha from CLI = %.8f\n", alpha_base);
     }
 
-    // Fallback to closed-form deterministic alpha
+
     if (alpha_base <= 0.0) {
         double f0 = fidelity;
         if (ticks <= 0) ticks = 1;
-        // avoid zero division
+
         double tf = target_fidelity;
         if (tf >= 1.0) tf = 0.999999;
         if (f0 >= 1.0) f0 = 0.999999;
@@ -426,7 +426,7 @@ int qallow_phase14_runner(int argc, char** argv) {
         printf("[PHASE14] alpha closed-form = %.8f\n", alpha_base);
     }
 
-    // Optional override from QAOA tuner (highest priority), then JSON
+
     double alpha_used = alpha_base;
     if (tune_qaoa) {
         const char* py = detect_python_binary();
@@ -480,9 +480,9 @@ int qallow_phase14_runner(int argc, char** argv) {
         }
     }
 
-    // Run the loop with chosen alpha
+
     for (int t /* TODO: Use more descriptive name */= 0; t < ticks; ++t) {
-        // Drive towards perfect coherence; target acts as threshold for success
+
         fidelity += alpha_used * (1.0 - fidelity);
         if (fidelity > 1.0) fidelity = 1.0;
         if ((t % 50) == 0) {
@@ -492,7 +492,7 @@ int qallow_phase14_runner(int argc, char** argv) {
 
     printf("[PHASE14] COMPLETE fidelity=%.6f %s\n", fidelity, (fidelity >= target_fidelity ? "[OK]" : "[WARN]"));
 
-    // Optional export
+
     if (export_path && *export_path) {
         FILE* ef = fopen(export_path, "wb");
         if (ef) {
@@ -512,7 +512,7 @@ int qallow_phase15_runner(int argc, char** argv) {
     double eps = 1e-5;
     const char* export_path = NULL;
 
-    // Parse args
+
     for (int i = 2; i < argc; ++i) {
         const char* arg = argv[i];
         if (strncmp(arg, "--ticks=", 8) == 0) {
@@ -532,7 +532,7 @@ int qallow_phase15_runner(int argc, char** argv) {
         printf("[PHASE15] export=%s\n", export_path);
     }
 
-    // Simulate convergence
+
     double f14 = 0.95;
     double stability = 0.5;
     double decoh = 1e-5;
@@ -554,7 +554,7 @@ int qallow_phase15_runner(int argc, char** argv) {
     }
 
     printf("[PHASE15] COMPLETE score=%.6f stability=%.6f\n", score, stability);
-    // Optional export
+
     if (export_path && *export_path) {
         FILE* ef = fopen(export_path, "wb");
         if (ef) {
@@ -576,7 +576,7 @@ int qallow_vm_main(void) {
         return qallow_vm_run_hardware();
     }
 
-    // Initialize state
+
     qallow_state_t state;
     qallow_kernel_init(&state);
     print_system_info(&state);
@@ -608,14 +608,14 @@ int qallow_vm_main(void) {
     mkdir("data", 0755);
     mkdir("data/telemetry", 0755);
 
-    // Initialize CSV logging from environment
+
     const char* csv_log_path = getenv("QALLOW_LOG");
     if (csv_log_path) {
         qallow_csv_log_init(csv_log_path);
         printf("[CSV] Logging enabled: %s\n\n", csv_log_path);
     }
 
-    // Main execution loop
+
     int dashboard_interval = 50;
     const char* dashboard_env = getenv("QALLOW_DASHBOARD_INTERVAL");
     if (dashboard_env && *dashboard_env) {
@@ -629,13 +629,13 @@ int qallow_vm_main(void) {
     int max_ticks = 1000;
     bool dashboard_muted = false;
     for (int tick = 0; tick < max_ticks; tick++) {
-        // Run kernel tick
+
         QALLOW_PROFILE_SCOPE("kernel_tick") {
             qallow_kernel_tick(&state);
         }
         qallow_metrics_update_tick(state.tick_count, state.global_coherence, state.decoherence_level, state.cuda_enabled ? 1 : 0);
 
-        // Update pocket dimension telemetry every 5 ticks
+
         if (tick % 5 == 0) {
             QALLOW_PROFILE_SCOPE("pocket_update") {
                 pocket_tick_all(&pocket_dim);
@@ -644,19 +644,19 @@ int qallow_vm_main(void) {
             }
         }
 
-        // Compute ethics
+
         ethics_state_t ethics_state;
         QALLOW_PROFILE_SCOPE("ethics_check") {
             qallow_ethics_check(&state, &ethics_state);
         }
 
-        // Log to CSV every tick (if enabled)
+
         if (csv_log_path) {
             qallow_csv_log_tick(&state, &ethics_state);
             qallow_log_info("vm.tick", "tick=%d decoherence=%.6f", tick, state.decoherence_level);
         }
 
-        // Dashboard at configured interval (disabled when interval is zero)
+
         if (!dashboard_muted && dashboard_interval > 0 && tick % dashboard_interval == 0) {
             qallow_print_dashboard(&state, &ethics_state);
             if (!ethics_state.safety_check_passed) {
@@ -665,7 +665,7 @@ int qallow_vm_main(void) {
             }
         }
 
-        // Check for equilibrium
+
         if (state.decoherence_level < 0.0001f && tick > 200) {
             printf("\n[KERNEL] System reached stable equilibrium at tick %d\n", tick);
             qallow_metrics_mark_equilibrium(tick);
@@ -676,7 +676,7 @@ int qallow_vm_main(void) {
         nanosleep(&ts, NULL);
     }
 
-    // Cleanup
+
     pocket_cleanup(&pocket_dim);
     if (csv_log_path) {
         qallow_csv_log_close();

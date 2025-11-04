@@ -23,22 +23,22 @@ typedef struct {
     double memory_peak_mb;
 } pocket_dimension_t;
 
-// Spawn N parallel pocket simulations
+
 int pocket_spawn(pocket_dimension_t* pd, int n);
 
-// Run one tick in all active pockets
+
 void pocket_tick_all(pocket_dimension_t* pd);
 
-// Merge results from all pockets
+
 double pocket_merge(pocket_dimension_t* pd);
 
-// Get average score across pockets
+
 double pocket_get_average_score(const pocket_dimension_t* pd);
 
-// Capture metrics for telemetry
+
 void pocket_capture_metrics(pocket_dimension_t* pd, int tick);
 
-// Cleanup pockets
+
 void pocket_cleanup(pocket_dimension_t* pd);
 
 #endif

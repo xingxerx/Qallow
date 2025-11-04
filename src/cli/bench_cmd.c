@@ -17,7 +17,7 @@ typedef struct {
 static benchmark_result_t results[MAX_BENCHMARKS];
 static int result_count = 0;
 
-// Benchmark: CPU vs CUDA comparison
+
 static void benchmark_predict(int iterations) {
     printf("[BENCH] Predict module: %d iterations\n", iterations);
 
@@ -38,7 +38,7 @@ static void benchmark_predict(int iterations) {
     result_count++;
 }
 
-// Benchmark: Learning module
+
 static void benchmark_learn(int iterations) {
     printf("[BENCH] Learn module: %d iterations\n", iterations);
 
@@ -64,7 +64,7 @@ static void benchmark_learn(int iterations) {
     result_count++;
 }
 
-// Benchmark: Ethics overhead
+
 static void benchmark_ethics_overhead(int iterations) {
     printf("[BENCH] Ethics overhead: %d iterations\n", iterations);
 
@@ -87,7 +87,7 @@ static void benchmark_ethics_overhead(int iterations) {
     result_count++;
 }
 
-// Benchmark: Memory operations
+
 static void benchmark_memory(int iterations) {
     printf("[BENCH] Memory operations: %d iterations\n", iterations);
 
@@ -112,7 +112,7 @@ static void benchmark_memory(int iterations) {
     free(buffer);
 }
 
-// Benchmark: Full pipeline
+
 static void benchmark_full_pipeline(int steps) {
     printf("[BENCH] Full pipeline: %d steps\n", steps);
 
@@ -144,7 +144,7 @@ static void benchmark_full_pipeline(int steps) {
     result_count++;
 }
 
-// Print benchmark report
+
 static void print_report() {
     printf("\n");
     printf("╔════════════════════════════════════════════════════════════╗\n");
@@ -171,14 +171,14 @@ int qallow_cmd_bench(int argc, char **argv) {
 
     printf("[BENCH] Starting Qallow Benchmarking Suite\n\n");
 
-    // Run benchmarks
+
     benchmark_predict(1000000);
     benchmark_learn(1000000);
     benchmark_ethics_overhead(1000000);
     benchmark_memory(10000);
     benchmark_full_pipeline(100);
 
-    // Print report
+
     print_report();
 
     return 0;

@@ -5,10 +5,10 @@ Converts real system metrics into normalized [0,1] signals
 Part of Phase 13: Closed-loop ethics monitoring
 """
 
-import json
-import sys
-import time
-import subprocess
+
+
+
+
 
 # Configuration
 OUTPUT_DIR = Path("/root/Qallow/data/telemetry")

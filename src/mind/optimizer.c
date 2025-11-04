@@ -1,7 +1,7 @@
 #include "qallow/module.h"
 #include <math.h>
 
-// Multi-objective optimizer balances reward, risk, and energy stability.
+
 ql_status mod_multi_objective_opt(ql_state *S) {
     static double momentum_reward = 0.0;
     static double momentum_risk = 0.0;
@@ -42,7 +42,7 @@ ql_status mod_multi_objective_opt(ql_state *S) {
     return (ql_status){0, "multi-objective optimizer ok"};
 }
 
-// Safety projection nudges state back inside acceptable envelope.
+
 ql_status mod_safety_projection(ql_state *S) {
     const double min_energy = 0.15;
     const double max_energy = 0.85;

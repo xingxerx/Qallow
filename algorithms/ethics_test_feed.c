@@ -7,7 +7,7 @@
 #include <math.h>
 #include <stdio.h>
 
-// Forward declaration for feed function
+
 int ethics_ingest_signal(const char *path, ethics_metrics_t *metrics);
 
 static void print_model(const ethics_model_t* model) {
@@ -29,14 +29,14 @@ int main(void) {
     printf("Qallow Ethics Test - Closed-Loop Mode\n");
     printf("========================================\n\n");
 
-    // Load model
+
     ethics_model_t model;
     int rc = ethics_model_load(&model, "../config/weights.json", "../config/thresholds.json");
     printf("[1] Model load: %s\n", rc == 0 ? "config" : "defaults");
     print_model(&model);
     printf("\n");
 
-    // Ingest hardware signals
+
     printf("[2] Ingesting hardware signals...\n");
     ethics_metrics_t metrics;
     const char *signal_path = "../data/telemetry/current_signals.txt";
@@ -55,7 +55,7 @@ int main(void) {
                metrics.safety, metrics.clarity, metrics.human, metrics.reality_drift);
     }
 
-    // Compute ethics score
+
     printf("[3] Computing ethics score...\n");
     ethics_score_details_t details;
     double total = ethics_score_core(&model, &metrics, &details);
@@ -75,7 +75,7 @@ int main(void) {
     printf("  Max drift:   %.3f\n", model.thresholds.max_reality_drift);
     printf("  Result:      %s\n\n", pass ? "✓ PASS" : "✗ FAIL");
 
-    // Apply adaptive learning
+
     printf("[4] Applying adaptive feedback...\n");
     ethics_learn_apply_feedback(&model, pass ? 0.05 : -0.1, 0.2);
     double posterior = ethics_bayes_trust_update(0.6, pass ? 0.9 : 0.3, 2.0);

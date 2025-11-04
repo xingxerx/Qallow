@@ -1,6 +1,6 @@
 """Sparse amplitude encoding for quantum state preparation."""
 
-import logging
+
 from .config import ClusteringConfig
 from .dataset import SparseVector
 

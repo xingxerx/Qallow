@@ -22,10 +22,10 @@ int ethics_ingest_signal(const char *path, ethics_metrics_t *metrics) {
         return 0;
     }
 
-    // Read all 10 values
+
     double vals[10];
 
-    // Skip comment line if present
+
     char line[512];
     if (!fgets(line, sizeof(line), f)) {
         fclose(f);
@@ -33,14 +33,14 @@ int ethics_ingest_signal(const char *path, ethics_metrics_t *metrics) {
     }
 
     if (line[0] == '#') {
-        // Timestamp line, read next
+
         if (!fgets(line, sizeof(line), f)) {
             fclose(f);
             return 0;
         }
     }
 
-    // Parse 10 values from line
+
     int count = sscanf(line, "%lf %lf %lf %lf %lf %lf %lf %lf %lf %lf",
                       &vals[0], &vals[1], &vals[2], &vals[3], &vals[4],
                       &vals[5], &vals[6], &vals[7], &vals[8], &vals[9]);
@@ -52,12 +52,12 @@ int ethics_ingest_signal(const char *path, ethics_metrics_t *metrics) {
         return 0;
     }
 
-    // Average by category: safety[0-2], clarity[3-6], human[7-9]
+
     metrics->safety = (vals[0] + vals[1] + vals[2]) / 3.0;
     metrics->clarity = (vals[3] + vals[4] + vals[5] + vals[6]) / 4.0;
     metrics->human = (vals[7] + vals[8] + vals[9]) / 3.0;
 
-    // Validate range [0,1]
+
     double *metric_ptrs[] = {&metrics->safety, &metrics->clarity, &metrics->human};
     const char *names[] = {"safety", "clarity", "human"};
 
@@ -110,7 +110,7 @@ int ethics_verify_freshness(const char *path, int max_age_sec) {
     FILE *f = fopen(path, "r");
     if (!f) return 0;
 
-    // Read timestamp from first line comment if present
+
     char line[MAX_LINE];
     if (fgets(line, sizeof(line), f)) {
         if (line[0] == '#') {

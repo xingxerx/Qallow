@@ -26,12 +26,12 @@ typedef struct {
     MemoryVector *semantics;     // long-term semantic embeddings
     size_t semantic_count;
     
-    // coherence tracking
+
     float drift_threshold;
     float avg_coherence;
     uint64_t coherence_checks;
     
-    // temporal gradients
+
     float *gradient_history;
     size_t gradient_window;
     size_t gradient_index;

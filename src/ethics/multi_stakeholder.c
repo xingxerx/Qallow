@@ -5,7 +5,7 @@
 #include <math.h>
 #include <time.h>
 
-// Stakeholder types
+
 typedef enum {
     STAKEHOLDER_USER,
     STAKEHOLDER_SOCIETY,
@@ -14,7 +14,7 @@ typedef enum {
     STAKEHOLDER_COUNT
 } stakeholder_type_t;
 
-// Stakeholder preferences
+
 typedef struct {
     const char *name;
     double safety_weight;
@@ -30,7 +30,7 @@ static const stakeholder_t stakeholders[STAKEHOLDER_COUNT] = {
     {"Developer",   0.6, 0.9, 0.7, 0.9},
 };
 
-// Decision audit trail
+
 typedef struct {
     double timestamp;
     double reward;
@@ -45,12 +45,12 @@ typedef struct {
 static audit_entry_t audit_trail[MAX_AUDIT_ENTRIES];
 static int audit_count = 0;
 
-// Multi-stakeholder ethics evaluation
+
 ql_status mod_multi_stakeholder_ethics(ql_state *S) {
     double weighted_score = 0.0;
     double total_weight = 0.0;
 
-    // Compute weighted ethics score across stakeholders
+
     for (int i = 0; i < STAKEHOLDER_COUNT; i++) {
         double stakeholder_score =
             stakeholders[i].safety_weight * 0.99 +
@@ -65,7 +65,7 @@ ql_status mod_multi_stakeholder_ethics(ql_state *S) {
 
     double final_ethics = weighted_score / total_weight;
 
-    // Apply ethics constraint
+
     if (final_ethics < 0.8) {
         S->reward *= 0.5;  // Penalize low ethics
     }
@@ -73,11 +73,11 @@ ql_status mod_multi_stakeholder_ethics(ql_state *S) {
     return (ql_status){0, "multi-stakeholder ethics ok"};
 }
 
-// Explainability layer
+
 ql_status mod_explainability(ql_state *S) {
     static int decision_count = 0;
 
-    // Generate explanation for current decision
+
     const char *explanation = "Unknown";
 
     if (S->reward > 0.7) {
@@ -90,7 +90,7 @@ ql_status mod_explainability(ql_state *S) {
         explanation = "Negative reward: Risk mitigation";
     }
 
-    // Log decision
+
     if (audit_count < MAX_AUDIT_ENTRIES) {
         audit_trail[audit_count].timestamp = S->t;
         audit_trail[audit_count].reward = S->reward;
@@ -107,9 +107,9 @@ ql_status mod_explainability(ql_state *S) {
     return (ql_status){0, "explainability ok"};
 }
 
-// Audit trail management
+
 ql_status mod_audit_trail(ql_state *S) {
-    // Periodically print audit summary
+
     static int audit_print_count = 0;
 
     if (audit_print_count % 50 == 0 && audit_count > 0) {
@@ -125,9 +125,9 @@ ql_status mod_audit_trail(ql_state *S) {
     return (ql_status){0, "audit trail ok"};
 }
 
-// Conflict resolution mechanism
+
 ql_status mod_conflict_resolution(ql_state *S) {
-    // Detect conflicts between stakeholder preferences
+
     double user_preference = 0.9;      // Users want high reward
     double society_preference = 0.7;   // Society wants safety
     double env_preference = 0.6;       // Environment wants low energy
@@ -136,7 +136,7 @@ ql_status mod_conflict_resolution(ql_state *S) {
                            fabs(society_preference - env_preference);
 
     if (conflict_score > 0.3) {
-        // High conflict: apply compromise
+
         S->reward = 0.5 * S->reward + 0.3 * user_preference + 0.2 * society_preference;
         S->energy = 0.7 * S->energy + 0.3 * env_preference;
     }
@@ -144,18 +144,18 @@ ql_status mod_conflict_resolution(ql_state *S) {
     return (ql_status){0, "conflict resolution ok"};
 }
 
-// Fairness monitoring
+
 ql_status mod_fairness_monitor(ql_state *S) {
     static double fairness_history[100] = {0};
     static int fairness_idx = 0;
 
-    // Compute fairness metric
+
     double fairness = 1.0 - fabs(S->reward - 0.5);
 
     fairness_history[fairness_idx % 100] = fairness;
     fairness_idx++;
 
-    // Check for fairness violations
+
     double avg_fairness = 0.0;
     for (int i = 0; i < 100; i++) {
         avg_fairness += fairness_history[i];
@@ -163,14 +163,14 @@ ql_status mod_fairness_monitor(ql_state *S) {
     avg_fairness /= 100.0;
 
     if (avg_fairness < 0.7) {
-        // Fairness violation: adjust reward distribution
+
         S->reward = 0.5 + (S->reward - 0.5) * 0.8;
     }
 
     return (ql_status){0, "fairness monitor ok"};
 }
 
-// Transparency report
+
 void print_ethics_report(void) {
     printf("\n");
     printf("╔════════════════════════════════════════════════════════════╗\n");

@@ -7,9 +7,9 @@ then writes the results back to config/*.json for the C runtime.
 """
 
 
-import json
-import math
-import random
+
+
+
 
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG_DIR = ROOT / "config"

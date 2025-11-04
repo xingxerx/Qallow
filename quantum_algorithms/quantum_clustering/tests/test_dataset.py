@@ -1,6 +1,6 @@
 """Unit tests for dataset generation and sparse vectors."""
 
-import pytest
+
     ClusteringConfig,
     SparseDataset,
     SparseVector,

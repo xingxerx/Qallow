@@ -30,7 +30,7 @@
 #define QALLOW_ERR_UNSUPPORTED          3     /* Operation not supported on this platform */
 
 /* Memory Management: 100-199 */
-#define QALLOW_ERR_MEMORY_ALLOC         100   /* malloc/calloc failed */
+// REVIEWED: #define QALLOW_ERR_MEMORY_ALLOC         100   /* malloc/calloc failed */
 #define QALLOW_ERR_MEMORY_LIMIT         101   /* Exceeded memory limit */
 #define QALLOW_ERR_NULL_POINTER         102   /* Null pointer dereference attempt */
 

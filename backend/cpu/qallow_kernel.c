@@ -235,7 +235,7 @@ static void qallow_apply_cirq_feedback(qallow_state_t* state) {
 
 #endif  // _WIN32
 
-// Qallow Kernel - Core VM implementation
+
 
 void qallow_kernel_init(qallow_state_t* state) {
     if (!state) return;
@@ -248,17 +248,17 @@ void qallow_kernel_init(qallow_state_t* state) {
     state->cuda_enabled = false;
     state->gpu_device_id = 0;
 
-    // Phase 8-10: Initialize ethics components
+
     state->ethics_S = 0.5f;  // Safety
     state->ethics_C = 0.5f;  // Clarity
     state->ethics_H = 0.5f;  // Human benefit
 
-    // Initialize overlays
+
     for (int i = 0; i < NUM_OVERLAYS; i++) {
         state->overlays[i].node_count = MAX_NODES;
         state->overlays[i].stability = 0.5f;
 
-        // Initialize node values
+
         for (int j = 0; j < MAX_NODES; j++) {
             state->overlays[i].values[j] = 0.5f + (float)rand() / RAND_MAX * 0.1f;
             state->overlays[i].history[j] = state->overlays[i].values[j];
@@ -266,7 +266,7 @@ void qallow_kernel_init(qallow_state_t* state) {
     }
 
 #if CUDA_ENABLED
-    // Try to initialize CUDA
+
     int device_count = 0;
     cudaError_t get_count_err = cudaGetDeviceCount(&device_count);
     if (get_count_err != cudaSuccess) {
@@ -301,10 +301,10 @@ void qallow_kernel_tick(qallow_state_t* state) {
 
     qallow_apply_cirq_feedback(state);
 
-    // Update decoherence
+
     qallow_update_decoherence(state);
 
-    // Update global coherence
+
     float total_stability = 0.0f;
     for (int i = 0; i < NUM_OVERLAYS; i++) {
         state->overlays[i].stability = qallow_calculate_stability(&state->overlays[i]);
@@ -312,9 +312,9 @@ void qallow_kernel_tick(qallow_state_t* state) {
     }
     state->global_coherence = total_stability / NUM_OVERLAYS;
 
-    // ====================================================================
-    // Phase 8-10: Adaptive-Predictive-Temporal Loop
-    // ====================================================================
+
+
+
     double pred = foresight_predict(qallow_global_stability(state));
     predictive_control(state);
     adaptive_governance(state);
@@ -324,20 +324,20 @@ void qallow_kernel_tick(qallow_state_t* state) {
     phase15_tick(state);
 }
 
-// qallow_calculate_stability moved to header as inline function
+
 
 CUDA_CALLABLE void qallow_update_decoherence(qallow_state_t* state) {
     if (!state) return;
 
-    // Decoherence increases slightly each tick
+
     state->decoherence_level += 0.00001f;
 
-    // Cap at maximum
+
     if (state->decoherence_level > 0.1f) {
         state->decoherence_level = 0.1f;
     }
 
-    // Decoherence reduces coherence
+
     state->global_coherence *= (1.0f - state->decoherence_level * 0.001f);
 }
 
@@ -356,7 +356,7 @@ void qallow_print_status(const qallow_state_t* state, int tick) {
 bool qallow_ethics_check(const qallow_state_t* state, ethics_state_t* ethics) {
     if (!state || !ethics) return false;
 
-    // Use the full ethics module for proper evaluation
+
     static ethics_monitor_t ethics_monitor;
     static bool ethics_initialized = false;
 
@@ -365,10 +365,10 @@ bool qallow_ethics_check(const qallow_state_t* state, ethics_state_t* ethics) {
         ethics_initialized = true;
     }
 
-    // Evaluate using the full ethics module
+
     bool passed = ethics_evaluate_state(state, &ethics_monitor);
 
-    // Copy results to the simple ethics_state_t structure
+
     ethics->safety_score = ethics_calculate_safety_score(state, &ethics_monitor);
     ethics->clarity_score = ethics_calculate_clarity_score(state, &ethics_monitor);
     ethics->human_benefit_score = ethics_calculate_human_benefit_score(state, &ethics_monitor);
@@ -383,18 +383,18 @@ bool qallow_ethics_check(const qallow_state_t* state, ethics_state_t* ethics) {
 void qallow_cpu_process_overlays(qallow_state_t* state) {
     if (!state) return;
 
-    // CPU-based overlay processing
+
     for (int overlay_idx = 0; overlay_idx < NUM_OVERLAYS; overlay_idx++) {
         overlay_t* overlay = &state->overlays[overlay_idx];
 
-        // Simple diffusion-like update
+
         for (int i = 0; i < overlay->node_count; i++) {
             float new_val = overlay->values[i];
 
-            // Add small random perturbation
+
             new_val += (float)rand() / RAND_MAX * 0.01f - 0.005f;
 
-            // Clamp to [0, 1]
+
             if (new_val < 0.0f) new_val = 0.0f;
             if (new_val > 1.0f) new_val = 1.0f;
 
@@ -462,9 +462,9 @@ void qallow_cuda_process_overlays(qallow_state_t* state) {
 }
 #endif
 
-// ============================================================================
-// ASCII DASHBOARD FUNCTIONS
-// ============================================================================
+
+
+
 
 void qallow_print_bar(const char* label, double value, int width) {
     if (value < 0.0) value = 0.0;
@@ -485,7 +485,7 @@ void qallow_print_dashboard(const qallow_state_t* state, const ethics_state_t* e
     printf("║           Qallow VM Dashboard - Tick %-6d             ║\n", state->tick_count);
     printf("╚════════════════════════════════════════════════════════════╝\n\n");
 
-    // Overlay stability bars
+
     printf("OVERLAY STABILITY:\n");
     qallow_print_bar("Orbital", state->overlays[OVERLAY_ORBITAL].stability, 40);
     qallow_print_bar("River", state->overlays[OVERLAY_RIVER_DELTA].stability, 40);
@@ -493,7 +493,7 @@ void qallow_print_dashboard(const qallow_state_t* state, const ethics_state_t* e
     qallow_print_bar("Global", state->global_coherence, 40);
     printf("\n");
 
-    // Ethics components
+
     if (ethics) {
         printf("ETHICS MONITORING:\n");
         qallow_print_bar("Safety (S)", ethics->safety_score, 40);
@@ -514,7 +514,7 @@ void qallow_print_dashboard(const qallow_state_t* state, const ethics_state_t* e
                ethics->reality_drift_guard_passed ? "OK" : "ALERT");
     }
 
-    // Decoherence (inverted bar for coherence visualization)
+
     printf("COHERENCE:\n");
     double coherence_bar = 1.0 - fmin(fmax(state->decoherence_level / 0.1, 0.0), 1.0);
     qallow_print_bar("Coherence", coherence_bar, 40);
@@ -543,9 +543,9 @@ void qallow_print_dashboard(const qallow_state_t* state, const ethics_state_t* e
     }
 }
 
-// ============================================================================
-// CSV LOGGING FUNCTIONS
-// ============================================================================
+
+
+
 
 static FILE* csv_log_file = NULL;
 
@@ -558,7 +558,7 @@ void qallow_csv_log_init(const char* filepath) {
         return;
     }
 
-    // Write CSV header
+
     fprintf(csv_log_file, "tick,orbital,river,mycelial,global,decoherence,ethics_S,ethics_C,ethics_H,ethics_total,ethics_reality_drift,ethics_pass,reality_guard_pass\n");
     fflush(csv_log_file);
 
@@ -601,9 +601,9 @@ void qallow_csv_log_close(void) {
     }
 }
 
-// ========================================================================
-// Phase 8-10: Adaptive-Predictive-Temporal Loop
-// ========================================================================
+
+
+
 
 /* Multi-block comment removed */
 float qallow_global_stability(const qallow_state_t* state) {
@@ -626,7 +626,7 @@ void adaptive_governance(qallow_state_t* state) {
     state->ethics_C += 0.05f * (float)err;
     state->ethics_H += 0.05f * (float)err;
 
-    // keep within [0,1]
+
     if (state->ethics_S < 0.0f) state->ethics_S = 0.0f;
     if (state->ethics_S > 1.0f) state->ethics_S = 1.0f;
     if (state->ethics_C < 0.0f) state->ethics_C = 0.0f;
@@ -634,7 +634,7 @@ void adaptive_governance(qallow_state_t* state) {
     if (state->ethics_H < 0.0f) state->ethics_H = 0.0f;
     if (state->ethics_H > 1.0f) state->ethics_H = 1.0f;
 
-    // damp decoherence when unstable
+
     if (g < 0.990f) {
         state->decoherence_level *= 0.98f;
     }
@@ -668,7 +668,7 @@ void predictive_control(qallow_state_t* state) {
         state->ethics_H += 0.01f * (float)err;
     }
 
-    // clamp
+
     if (state->ethics_S < 0.0f) state->ethics_S = 0.0f;
     if (state->ethics_S > 1.0f) state->ethics_S = 1.0f;
     if (state->ethics_C < 0.0f) state->ethics_C = 0.0f;
@@ -692,7 +692,7 @@ void temporal_alignment(qallow_state_t* state, double predicted, double actual) 
     temporal_state.n++;
     temporal_state.mae = temporal_state.total_err / temporal_state.n;
 
-    // if drift too high, tighten decoherence and ethics weights
+
     if (temporal_state.mae > 0.003) {
         double adj = 1.0 - fmin(temporal_state.mae * 50.0, 0.1);
         state->decoherence_level *= (float)adj;

@@ -48,7 +48,7 @@ static void test_sequential_step_logging(void) {
     int rc = ethics_log_sequential_step(&step, TEST_LOG_PATH);
     assert(rc == 0);
 
-    // Verify file was created and has header + 1 data line
+
     int lines = count_csv_lines(TEST_LOG_PATH);
     assert(lines == 2);  // header + 1 data line
 
@@ -73,7 +73,7 @@ static void test_decision_sequence_trace(void) {
     int rc = ethics_trace_decision_sequence(&model, &metrics, TEST_LOG_PATH);
     assert(rc == 0);
 
-    // Verify all 5 steps were logged (header + 5 steps)
+
     int lines = count_csv_lines(TEST_LOG_PATH);
     assert(lines == 6);  // header + 5 decision steps
 
@@ -88,7 +88,7 @@ static void test_sequential_consistency(void) {
     ethics_model_t model;
     ethics_model_default(&model);
 
-    // Test case 1: All metrics pass
+
     ethics_metrics_t metrics_pass = {
         .safety = 0.85,
         .clarity = 0.80,
@@ -100,7 +100,7 @@ static void test_sequential_consistency(void) {
     int pass_lines = count_csv_lines(TEST_LOG_PATH);
     assert(pass_lines == 6);
 
-    // Test case 2: Some metrics fail
+
     cleanup_test_log();
     ethics_metrics_t metrics_fail = {
         .safety = 0.50,  // Below threshold
@@ -131,12 +131,12 @@ static void test_multiple_sequential_traces(void) {
         .reality_drift = 0.10
     };
 
-    // Simulate multiple decision sequences
+
     for (int i = 0; i < 3; i++) {
         ethics_trace_decision_sequence(&model, &metrics, TEST_LOG_PATH);
     }
 
-    // Verify all traces were appended (header + 3*5 steps)
+
     int lines = count_csv_lines(TEST_LOG_PATH);
     assert(lines == 16);  // header + 15 steps (3 traces × 5 steps)
 
@@ -151,7 +151,7 @@ static void test_intervention_logging(void) {
     ethics_model_t model;
     ethics_model_default(&model);
 
-    // Test with failing metrics to trigger interventions
+
     ethics_metrics_t metrics = {
         .safety = 0.50,      // Below threshold -> safety_intervention
         .clarity = 0.50,     // Below threshold -> clarity_intervention
@@ -162,7 +162,7 @@ static void test_intervention_logging(void) {
     int rc = ethics_trace_decision_sequence(&model, &metrics, TEST_LOG_PATH);
     assert(rc == 0);
 
-    // Verify interventions were logged
+
     FILE* f = fopen(TEST_LOG_PATH, "r");
     assert(f != NULL);
 
@@ -175,7 +175,7 @@ static void test_intervention_logging(void) {
     }
     fclose(f);
 
-    // Should have at least 4 interventions (safety, clarity, human, reality)
+
     assert(intervention_count >= 4);
 
     printf("  ✓ Interventions logged correctly\n");

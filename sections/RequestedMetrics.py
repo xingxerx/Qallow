@@ -1,5 +1,5 @@
 
-import NvRules
+
 
 
 # TODO: switch to enum.Enum once this is available in static interpreter

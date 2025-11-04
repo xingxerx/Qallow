@@ -10,14 +10,14 @@ void telemetry_init(telemetry_t* tel) {
     mkdir("data", 0755);
     mkdir("data/logs", 0755);
 
-    // Open streaming CSV file
+
     tel->stream_file = fopen("data/logs/telemetry_stream.csv", "w");
     if (tel->stream_file) {
         fprintf(tel->stream_file, "tick,orbital,river,mycelial,global,deco,mode\n");
         fflush(tel->stream_file);
     }
 
-    // Open benchmark log file
+
     tel->bench_file = fopen("data/logs/qallow_bench.log", "a");
     if (tel->bench_file) {
         fprintf(tel->bench_file, "timestamp,compile_ms,run_ms,deco,global,mode\n");
@@ -43,7 +43,7 @@ void telemetry_stream_tick(telemetry_t* tel, double orbital, double river, doubl
             orbital, river, mycelial, global, decoherence,
             mode == 1 ? "CUDA" : "CPU");
 
-    // Flush every 10 ticks for real-time visibility
+
     if (tel->tick_count % 10 == 0) {
         fflush(tel->stream_file);
     }

@@ -1,8 +1,8 @@
 #ifndef PHASE12_H
 #define PHASE12_H
 
-// Phase 12 Elasticity Module
-// Provides elastic simulation with configurable parameters
+
+
 
 /**
  * Run Phase 12 elasticity simulation

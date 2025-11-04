@@ -4,9 +4,9 @@ Qallow AGI Self-Learning Module
 Provides a reinforcement-style feedback loop for Qallow's AGI system without external dependencies.
 """
 
-import json
-import logging
-import random
+
+
+
 from datetime import datetime
 
 # Agent Lightning integration removed; keep flag for compatibility.
