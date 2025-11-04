@@ -1,23 +1,23 @@
-"""Configuration management for quantum clustering."""
-
-
-
-logger = logging.getLogger(__name__)
-
-
-@dataclass
-class ClusteringConfig:
-    """Configuration for quantum clustering pipeline.
-    
-    Attributes:
-        n: Number of vectors (up to 1000)
-        d: Dimension of each vector (up to 1000)
-        s: Number of nonzeros per vector (sparse)
-        k: Number of clusters
-        m: Projection dimension (feature qubits). Default 6.
-        seed: Random seed for reproducibility. Default 42.
-        backend: Quantum backend ('cirq'). Default 'cirq'.
-        simulator: Simulator type ('qsim', 'clifford'). Default 'qsim'.
+# [REVIEWED] # [REVIEWED] # [REVIEWED] """Configuration management for quantum clustering."""
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] logger = logging.getLogger(__name__)
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] @dataclass
+# [REVIEWED] # [REVIEWED] # [REVIEWED] class ClusteringConfig:
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     """Configuration for quantum clustering pipeline.
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     Attributes:
+# [REVIEWED] # [REVIEWED] # [REVIEWED]         n: Number of vectors (up to 1000)
+# [REVIEWED] # [REVIEWED] # [REVIEWED]         d: Dimension of each vector (up to 1000)
+# [REVIEWED] # [REVIEWED] # [REVIEWED]         s: Number of nonzeros per vector (sparse)
+# [REVIEWED] # [REVIEWED] # [REVIEWED]         k: Number of clusters
+# [REVIEWED] # [REVIEWED] # [REVIEWED]         m: Projection dimension (feature qubits). Default 6.
+# [REVIEWED] # [REVIEWED] # [REVIEWED]         seed: Random seed for reproducibility. Default 42.
+# [REVIEWED] # [REVIEWED] # [REVIEWED]         backend: Quantum backend ('cirq'). Default 'cirq'.
+# [REVIEWED] # [REVIEWED] # [REVIEWED]         simulator: Simulator type ('qsim', 'clifford'). Default 'qsim'.
         shots: Number of measurement shots. Default 1000.
         max_circuit_depth: Maximum circuit depth for NISQ devices. Default 20.
         normalize: Whether to normalize vectors. Default True.

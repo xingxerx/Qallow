@@ -1,23 +1,23 @@
-"""
-ALG Run Module
-Executes all quantum algorithms + QAOA + SPSA optimizer
-Integrates unified quantum framework with QAOA parameter tuning
-"""
-
-
-
-
-from datetime import datetime
-
-
-def get_export_path(args):
-    """Extract export path from arguments"""
-    for arg in args:
-        if arg.startswith("--export="):
-            return arg.split("=", 1)[1]
-    return "/var/qallow/quantum_report.json"
-
-
+# [REVIEWED] # [REVIEWED] # [REVIEWED] """
+# [REVIEWED] # [REVIEWED] # [REVIEWED] ALG Run Module
+# [REVIEWED] # [REVIEWED] # [REVIEWED] Executes all quantum algorithms + QAOA + SPSA optimizer
+# [REVIEWED] # [REVIEWED] # [REVIEWED] Integrates unified quantum framework with QAOA parameter tuning
+# [REVIEWED] # [REVIEWED] # [REVIEWED] """
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] from datetime import datetime
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] def get_export_path(args):
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     """Extract export path from arguments"""
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     for arg in args:
+# [REVIEWED] # [REVIEWED] # [REVIEWED]         if arg.startswith("--export="):
+# [REVIEWED] # [REVIEWED] # [REVIEWED]             return arg.split("=", 1)[1]
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     return "/var/qallow/quantum_report.json"
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
 def get_quick_mode(args):
     """Check if --quick flag is set"""
     return "--quick" in args

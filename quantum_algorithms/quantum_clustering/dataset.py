@@ -1,23 +1,23 @@
-"""Sparse vector dataset generation and management."""
-
-
-from scipy.sparse import csr_matrix, coo_matrix
-from .config import ClusteringConfig
-
-logger = logging.getLogger(__name__)
-
-
-@dataclass
-class SparseVector:
-    """Sparse vector representation.
-    
-    Attributes:
-        indices: Indices of nonzero elements
-        values: Values of nonzero elements
-        dimension: Total dimension
-        cluster_id: Ground truth cluster assignment (if known)
-    """
-    indices: np.ndarray  # Shape (s,)
+# [REVIEWED] # [REVIEWED] # [REVIEWED] """Sparse vector dataset generation and management."""
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] from scipy.sparse import csr_matrix, coo_matrix
+# [REVIEWED] # [REVIEWED] # [REVIEWED] from .config import ClusteringConfig
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] logger = logging.getLogger(__name__)
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] @dataclass
+# [REVIEWED] # [REVIEWED] # [REVIEWED] class SparseVector:
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     """Sparse vector representation.
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     Attributes:
+# [REVIEWED] # [REVIEWED] # [REVIEWED]         indices: Indices of nonzero elements
+# [REVIEWED] # [REVIEWED] # [REVIEWED]         values: Values of nonzero elements
+# [REVIEWED] # [REVIEWED] # [REVIEWED]         dimension: Total dimension
+# [REVIEWED] # [REVIEWED] # [REVIEWED]         cluster_id: Ground truth cluster assignment (if known)
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     """
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     indices: np.ndarray  # Shape (s,)
     values: np.ndarray   # Shape (s,)
     dimension: int
     cluster_id: Optional[int] = None

@@ -1,23 +1,23 @@
-"""Sparse amplitude encoding for quantum state preparation."""
-
-
-from .config import ClusteringConfig
-from .dataset import SparseVector
-
-logger = logging.getLogger(__name__)
-
-
-class SparseEncoder:
-    """Quantum state preparation via sparse amplitude encoding.
-
-    Encodes a sparse vector into a quantum state using selective rotation chains.
-    For a sparse vector with s nonzeros in dimension d:
-    - Uses log2(d) qubits for address register
-    - Uses m qubits for feature register
-    - Estimated depth: ~2*s rotation layers
-
-    Attributes:
-        config: ClusteringConfig
+# [REVIEWED] # [REVIEWED] # [REVIEWED] """Sparse amplitude encoding for quantum state preparation."""
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] from .config import ClusteringConfig
+# [REVIEWED] # [REVIEWED] # [REVIEWED] from .dataset import SparseVector
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] logger = logging.getLogger(__name__)
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] class SparseEncoder:
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     """Quantum state preparation via sparse amplitude encoding.
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     Encodes a sparse vector into a quantum state using selective rotation chains.
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     For a sparse vector with s nonzeros in dimension d:
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     - Uses log2(d) qubits for address register
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     - Uses m qubits for feature register
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     - Estimated depth: ~2*s rotation layers
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     Attributes:
+# [REVIEWED] # [REVIEWED] # [REVIEWED]         config: ClusteringConfig
         backend: Quantum backend (Cirq only)
     """
 

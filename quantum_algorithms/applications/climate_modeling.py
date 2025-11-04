@@ -1,23 +1,23 @@
-
-from .ethics import CoherenceAuditor, CoherenceReport
-
-try:
-    from quantum_algorithms.algorithms.quantum_simulation import QuantumHarmonicOscillator  # type: ignore
-except ImportError:  # pragma: no cover
-    QuantumHarmonicOscillator = None  # type: ignore
-
-
-@dataclass
-class ClimateModelingConfig:
-    """Configuration for quantum climate chemistry probes."""
-
-    n_qubits: int = 3
-    omega: float = 1.0
-    n_states: int = 4
-    target_coherence: float = 0.97
-
-
-class ClimateModelingPipeline:
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] from .ethics import CoherenceAuditor, CoherenceReport
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] try:
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     from quantum_algorithms.algorithms.quantum_simulation import QuantumHarmonicOscillator  # type: ignore
+# [REVIEWED] # [REVIEWED] # [REVIEWED] except ImportError:  # pragma: no cover
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     QuantumHarmonicOscillator = None  # type: ignore
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] @dataclass
+# [REVIEWED] # [REVIEWED] # [REVIEWED] class ClimateModelingConfig:
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     """Configuration for quantum climate chemistry probes."""
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     n_qubits: int = 3
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     omega: float = 1.0
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     n_states: int = 4
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     target_coherence: float = 0.97
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] class ClimateModelingPipeline:
     """Runs harmonic oscillator simulations as a stand-in for carbon capture models."""
 
     def __init__(

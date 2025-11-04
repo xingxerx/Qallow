@@ -1,23 +1,23 @@
-"""Evaluation metrics and profiling for quantum clustering."""
-
-
-
-from .dataset import SparseDataset
-
-logger = logging.getLogger(__name__)
-
-
-def compute_ari(true_labels: np.ndarray, pred_labels: np.ndarray) -> float:
-    """Compute Adjusted Rand Index.
-    
-    Args:
-        true_labels: Ground truth cluster assignments (n,)
-        pred_labels: Predicted cluster assignments (n,)
-        
-    Returns:
-        ARI score in [-1, 1]. 1 = perfect agreement, 0 = random, -1 = disagreement
-    """
-    if len(true_labels) != len(pred_labels):
+# [REVIEWED] # [REVIEWED] # [REVIEWED] """Evaluation metrics and profiling for quantum clustering."""
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] from .dataset import SparseDataset
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] logger = logging.getLogger(__name__)
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] def compute_ari(true_labels: np.ndarray, pred_labels: np.ndarray) -> float:
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     """Compute Adjusted Rand Index.
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     Args:
+# [REVIEWED] # [REVIEWED] # [REVIEWED]         true_labels: Ground truth cluster assignments (n,)
+# [REVIEWED] # [REVIEWED] # [REVIEWED]         pred_labels: Predicted cluster assignments (n,)
+# [REVIEWED] # [REVIEWED] # [REVIEWED]         
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     Returns:
+# [REVIEWED] # [REVIEWED] # [REVIEWED]         ARI score in [-1, 1]. 1 = perfect agreement, 0 = random, -1 = disagreement
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     """
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     if len(true_labels) != len(pred_labels):
         raise ValueError("Label arrays must have same length")
     
     ari = adjusted_rand_score(true_labels, pred_labels)

@@ -1,23 +1,23 @@
-#!/usr/bin/env python3
-"""Ensure critical C sources are included in Makefile builds."""
-
-
-
-
-from pathlib import Path
-
-REPO_ROOT = Path(__file__).resolve().parent.parent
-
-# Source files that are intentionally excluded from the unified build.
-SKIP_SOURCES: set[Path] = set()
-
-
-def expand_make_variable(var_name: str) -> list[str]:
-    make_stub = f"include Makefile\nprint::\n\t@printf '%s\\n' \"$({var_name})\"\n"
-    try:
-        result = subprocess.run(
-            ["make", "-s", "-f", "-", "ACCELERATOR=CPU", "print"],
-            input=make_stub,
+# [REVIEWED] # [REVIEWED] # [REVIEWED] #!/usr/bin/env python3
+# [REVIEWED] # [REVIEWED] # [REVIEWED] """Ensure critical C sources are included in Makefile builds."""
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] from pathlib import Path
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] REPO_ROOT = Path(__file__).resolve().parent.parent
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # Source files that are intentionally excluded from the unified build.
+# [REVIEWED] # [REVIEWED] # [REVIEWED] SKIP_SOURCES: set[Path] = set()
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] def expand_make_variable(var_name: str) -> list[str]:
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     make_stub = f"include Makefile\nprint::\n\t@printf '%s\\n' \"$({var_name})\"\n"
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     try:
+# [REVIEWED] # [REVIEWED] # [REVIEWED]         result = subprocess.run(
+# [REVIEWED] # [REVIEWED] # [REVIEWED]             ["make", "-s", "-f", "-", "ACCELERATOR=CPU", "print"],
+# [REVIEWED] # [REVIEWED] # [REVIEWED]             input=make_stub,
             cwd=REPO_ROOT,
             text=True,
             capture_output=True,

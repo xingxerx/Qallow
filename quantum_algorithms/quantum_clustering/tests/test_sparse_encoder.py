@@ -1,23 +1,23 @@
-"""Unit tests for sparse encoder."""
-
-
-    ClusteringConfig,
-    SparseDataset,
-    SparseEncoder,
-    SparseVector,
-)
-
-
-class TestSparseEncoderCirq:
-    """Test sparse encoder with Cirq backend."""
-    
-    @pytest.fixture
-    def config(self):
-        """Create test configuration."""
-        return ClusteringConfig(
-            n=10, d=64, s=4, k=2, m=4, backend="cirq", seed=42
-        )
-    
+# [REVIEWED] # [REVIEWED] # [REVIEWED] """Unit tests for sparse encoder."""
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     ClusteringConfig,
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     SparseDataset,
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     SparseEncoder,
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     SparseVector,
+# [REVIEWED] # [REVIEWED] # [REVIEWED] )
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] class TestSparseEncoderCirq:
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     """Test sparse encoder with Cirq backend."""
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     @pytest.fixture
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     def config(self):
+# [REVIEWED] # [REVIEWED] # [REVIEWED]         """Create test configuration."""
+# [REVIEWED] # [REVIEWED] # [REVIEWED]         return ClusteringConfig(
+# [REVIEWED] # [REVIEWED] # [REVIEWED]             n=10, d=64, s=4, k=2, m=4, backend="cirq", seed=42
+# [REVIEWED] # [REVIEWED] # [REVIEWED]         )
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     
     @pytest.fixture
     def encoder(self, config):
         """Create encoder instance."""

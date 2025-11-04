@@ -1,23 +1,23 @@
-#!/usr/bin/env python3
-"""Bridge script between Qallow CPU kernel and Cirq execution layer."""
-
-
-
-
-
-
-
-def _parse_states(raw: str) -> List[int]:
-    tokens = []
-    for chunk in raw.split(","):
-        token = chunk.strip()
-        if not token:
-            continue
-        if token.upper() == "N":
-            tokens.append(0)
-            continue
-        try:
-            tokens.append(int(token))
+# [REVIEWED] # [REVIEWED] # [REVIEWED] #!/usr/bin/env python3
+# [REVIEWED] # [REVIEWED] # [REVIEWED] """Bridge script between Qallow CPU kernel and Cirq execution layer."""
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] def _parse_states(raw: str) -> List[int]:
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     tokens = []
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     for chunk in raw.split(","):
+# [REVIEWED] # [REVIEWED] # [REVIEWED]         token = chunk.strip()
+# [REVIEWED] # [REVIEWED] # [REVIEWED]         if not token:
+# [REVIEWED] # [REVIEWED] # [REVIEWED]             continue
+# [REVIEWED] # [REVIEWED] # [REVIEWED]         if token.upper() == "N":
+# [REVIEWED] # [REVIEWED] # [REVIEWED]             tokens.append(0)
+# [REVIEWED] # [REVIEWED] # [REVIEWED]             continue
+# [REVIEWED] # [REVIEWED] # [REVIEWED]         try:
+# [REVIEWED] # [REVIEWED] # [REVIEWED]             tokens.append(int(token))
         except ValueError:
             raise ValueError(f"Invalid state token: {token}") from None
     if not tokens:

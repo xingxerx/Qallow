@@ -1,23 +1,23 @@
-#!/usr/bin/env python3
-"""
-Shor's Algorithm - Quantum Factoring Algorithm
-Factors large numbers exponentially faster than classical algorithms
-"""
-
-
-
-
-def quantum_phase_estimation(n_qubits: int, phase: float) -> cirq.Circuit:
-    """
-    Simplified Quantum Phase Estimation circuit
-    
-    Args:
-        n_qubits: Number of counting qubits
-        phase: The phase to estimate
-    
-    Returns:
-        Circuit for phase estimation
-    """
+# [REVIEWED] # [REVIEWED] # [REVIEWED] #!/usr/bin/env python3
+# [REVIEWED] # [REVIEWED] # [REVIEWED] """
+# [REVIEWED] # [REVIEWED] # [REVIEWED] Shor's Algorithm - Quantum Factoring Algorithm
+# [REVIEWED] # [REVIEWED] # [REVIEWED] Factors large numbers exponentially faster than classical algorithms
+# [REVIEWED] # [REVIEWED] # [REVIEWED] """
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] def quantum_phase_estimation(n_qubits: int, phase: float) -> cirq.Circuit:
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     """
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     Simplified Quantum Phase Estimation circuit
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     Args:
+# [REVIEWED] # [REVIEWED] # [REVIEWED]         n_qubits: Number of counting qubits
+# [REVIEWED] # [REVIEWED] # [REVIEWED]         phase: The phase to estimate
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     Returns:
+# [REVIEWED] # [REVIEWED] # [REVIEWED]         Circuit for phase estimation
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     """
     qubits = cirq.LineQubit.range(n_qubits)
     circuit = cirq.Circuit()
     

@@ -1,23 +1,23 @@
-
-
-
-
-@dataclass(frozen=True)
-class MetricAggregate:
-    """A dataclass to store aggregated metric values.
-
-    Attributes:
-        name: The name of the metric.
-        value: The aggregated value of the metric.
-    """
-
-    name: str
-    value: float
-
-
-class MetricAggregator(ABC):
-    """Interface to aggregate metric values.
-
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] @dataclass(frozen=True)
+# [REVIEWED] # [REVIEWED] # [REVIEWED] class MetricAggregate:
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     """A dataclass to store aggregated metric values.
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     Attributes:
+# [REVIEWED] # [REVIEWED] # [REVIEWED]         name: The name of the metric.
+# [REVIEWED] # [REVIEWED] # [REVIEWED]         value: The aggregated value of the metric.
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     """
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     name: str
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     value: float
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] class MetricAggregator(ABC):
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     """Interface to aggregate metric values.
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
     Args:
         workload: The NvRules.IAction associated with the metric.
         metric: The metric to be aggregated.

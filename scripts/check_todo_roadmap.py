@@ -1,23 +1,23 @@
-#!/usr/bin/env python3
-"""
-# [REVIEWED] # [REVIEWED] # [REVIEWED] Verify that newly introduced TODO-style comments are tracked in docs/TODO_ROADMAP.md.
-
-By default the script looks at the staged diff (like a pre-commit hook).  In CI you
-can point it at a base reference with `--base-ref origin/main` so that only additions
-since the merge base are considered.
-"""
-
-from __future__ import annotations
-
-
-
-
-
-
-from dataclasses import dataclass
-from pathlib import Path
-from typing import Iterable, List, Sequence
-
+# [REVIEWED] # [REVIEWED] # [REVIEWED] #!/usr/bin/env python3
+# [REVIEWED] # [REVIEWED] # [REVIEWED] """
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] Verify that newly introduced TODO-style comments are tracked in docs/TODO_ROADMAP.md.
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] By default the script looks at the staged diff (like a pre-commit hook).  In CI you
+# [REVIEWED] # [REVIEWED] # [REVIEWED] can point it at a base reference with `--base-ref origin/main` so that only additions
+# [REVIEWED] # [REVIEWED] # [REVIEWED] since the merge base are considered.
+# [REVIEWED] # [REVIEWED] # [REVIEWED] """
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] from __future__ import annotations
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] from dataclasses import dataclass
+# [REVIEWED] # [REVIEWED] # [REVIEWED] from pathlib import Path
+# [REVIEWED] # [REVIEWED] # [REVIEWED] from typing import Iterable, List, Sequence
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 # [REVIEWED] # [REVIEWED] # [REVIEWED] DEFAULT_ROADMAP = REPO_ROOT / "docs" / "TODO_ROADMAP.md"
 # [REVIEWED] # [REVIEWED] # [REVIEWED] MARKER_PATTERN = re.compile(r"\b(TODO|FIXME|XXX|HACK)\b")

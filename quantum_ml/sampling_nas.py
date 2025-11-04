@@ -1,23 +1,23 @@
-# quantum_ml/sampling_nas.py
-
-
-
-
-class QuantumNASExplorer:
-    def __init__(self, qallow_binary="/root/Qallow/build/qallow"):
-        self.binary = qallow_binary
-        print(f"Using binary: {self.binary}") 
-        print(f"Checking binary exists: {os.path.exists(self.binary)}")
-        if not os.path.exists(self.binary):
-            raise FileNotFoundError(f"Qallow binary not found at {self.binary}")
-        print("Binary exists: OK")
-        print("QuantumNASExplorer initialized")
-        print("=========================================")
-        
-    def generate_architectures(self, n_samples=100):
-        print(f"Running Phase 11 with {n_samples} samples...")
-
-        # Call Phase 11 to get quantum states
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # quantum_ml/sampling_nas.py
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] class QuantumNASExplorer:
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     def __init__(self, qallow_binary="/root/Qallow/build/qallow"):
+# [REVIEWED] # [REVIEWED] # [REVIEWED]         self.binary = qallow_binary
+# [REVIEWED] # [REVIEWED] # [REVIEWED]         print(f"Using binary: {self.binary}") 
+# [REVIEWED] # [REVIEWED] # [REVIEWED]         print(f"Checking binary exists: {os.path.exists(self.binary)}")
+# [REVIEWED] # [REVIEWED] # [REVIEWED]         if not os.path.exists(self.binary):
+# [REVIEWED] # [REVIEWED] # [REVIEWED]             raise FileNotFoundError(f"Qallow binary not found at {self.binary}")
+# [REVIEWED] # [REVIEWED] # [REVIEWED]         print("Binary exists: OK")
+# [REVIEWED] # [REVIEWED] # [REVIEWED]         print("QuantumNASExplorer initialized")
+# [REVIEWED] # [REVIEWED] # [REVIEWED]         print("=========================================")
+# [REVIEWED] # [REVIEWED] # [REVIEWED]         
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     def generate_architectures(self, n_samples=100):
+# [REVIEWED] # [REVIEWED] # [REVIEWED]         print(f"Running Phase 11 with {n_samples} samples...")
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED]         # Call Phase 11 to get quantum states
         cmd = [self.binary, "phase", "11", "--ticks", str(n_samples)]
         print(f"Command: {' '.join(cmd)}")
 

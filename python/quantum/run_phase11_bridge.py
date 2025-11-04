@@ -1,23 +1,23 @@
-#!/usr/bin/env python3
-"""CLI entry point to execute Phase 11 ternary coherence checks via Cirq bridge."""
-
-
-
-
-from typing import List
-
-from . import run_ternary_sim
-
-
-def parse_states(raw: str) -> List[int]:
-    values = []
-    for chunk in raw.split(","):
-        chunk = chunk.strip()
-        if not chunk:
-            continue
-        values.append(int(chunk))
-    if not values:
-        values = [-1, 0, 1]
+# [REVIEWED] # [REVIEWED] # [REVIEWED] #!/usr/bin/env python3
+# [REVIEWED] # [REVIEWED] # [REVIEWED] """CLI entry point to execute Phase 11 ternary coherence checks via Cirq bridge."""
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] from typing import List
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] from . import run_ternary_sim
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] def parse_states(raw: str) -> List[int]:
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     values = []
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     for chunk in raw.split(","):
+# [REVIEWED] # [REVIEWED] # [REVIEWED]         chunk = chunk.strip()
+# [REVIEWED] # [REVIEWED] # [REVIEWED]         if not chunk:
+# [REVIEWED] # [REVIEWED] # [REVIEWED]             continue
+# [REVIEWED] # [REVIEWED] # [REVIEWED]         values.append(int(chunk))
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     if not values:
+# [REVIEWED] # [REVIEWED] # [REVIEWED]         values = [-1, 0, 1]
     return values
 
 
