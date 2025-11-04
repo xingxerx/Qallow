@@ -1,7 +1,7 @@
 # Self-Improving Agents - Quick Start
 
 **Status**: ✅ RUNNING NOW  
-**Agent**: Lightning Agent (Ultra-Fast)  
+**Agent**: AgentLightning Runner (Ultra-Fast)  
 **PID**: 25970  
 **Version**: 2.2
 
@@ -9,7 +9,7 @@
 
 ## 🚀 Currently Running
 
-Your Lightning Agent is **LIVE and IMPROVING** the codebase right now!
+Your AgentLightning Runner is **LIVE and IMPROVING** the codebase right now!
 
 ```
 ✅ SCANNING     Python, C, CUDA code for issues
@@ -46,7 +46,7 @@ Phase 4: TESTING 🔄
 
 ### Monitor Live
 ```bash
-tail -f /tmp/lightning_agent.log
+tail -f /tmp/agentlightning_runner.log
 ```
 
 ### Check Status
@@ -77,7 +77,7 @@ pkill -f "agentlightning_runner"
 
 | Agent | Command | Speed | Best For |
 |-------|---------|-------|----------|
-| Lightning Fast | `python agentlightning_runner.py` | Ultra-fast (0.05s) | General use |
+| AgentLightning Runner | `python agentlightning_runner.py` | Ultra-fast (0.05s) | General use |
 | Advanced Fixer | `python advanced_error_fixer.py` | Fast (0.1s) | Deep analysis |
 | Recursive Engine | `python recursive_improvement_engine.py` | Balanced (1s) | Long-term learning |
 
@@ -90,7 +90,7 @@ pkill -f "agentlightning_runner"
 /specify "Improve code quality by fixing all issues"
 
 # Plan approach
-/plan "Use lightning agent with parallel processing"
+/plan "Use AgentLightning Runner with parallel processing"
 
 # Get tasks
 /tasks
@@ -126,7 +126,7 @@ Agent will automatically help implement your spec!
 - **Build**: SUCCESSFUL (21/21 targets)
 - **Tests**: RUNNING
 - **Memory**: 196 MB (efficient)
-- **Log**: `/tmp/lightning_agent.log`
+- **Log**: `/tmp/agentlightning_runner.log`
 
 ---
 
@@ -134,16 +134,16 @@ Agent will automatically help implement your spec!
 
 ```bash
 # Live tail
-tail -f /tmp/lightning_agent.log
+tail -f /tmp/agentlightning_runner.log
 
 # Watch improvements
-watch -n 5 'tail -20 /tmp/lightning_agent.log'
+watch -n 5 'tail -20 /tmp/agentlightning_runner.log'
 
 # Count improvements
-grep -c "✏️" /tmp/lightning_agent.log
+grep -c "✏️" /tmp/agentlightning_runner.log
 
 # See latest fixes
-tail -100 /tmp/lightning_agent.log | grep "✏️"
+tail -100 /tmp/agentlightning_runner.log | grep "✏️"
 ```
 
 ---
@@ -151,4 +151,4 @@ tail -100 /tmp/lightning_agent.log | grep "✏️"
 **You're all set! The agent is self-improving your codebase continuously.**
 
 To stop: `pkill -f "agentlightning_runner"`  
-To monitor: `tail -f /tmp/lightning_agent.log`
+To monitor: `tail -f /tmp/agentlightning_runner.log`

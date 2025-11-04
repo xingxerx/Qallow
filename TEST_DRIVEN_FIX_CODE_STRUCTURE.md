@@ -9,7 +9,7 @@
 import pathlib  # ← ADDED for Path operations
 ```
 
-**New Classes (After FastBuilder, before LightningAgentFast):**
+**New Classes (After FastBuilder, before QallowCodeFixer):**
 
 ### TestRunner Class (Lines 388-430)
 ```python
@@ -62,7 +62,7 @@ class WarningFixer:
         # Return: total fixes applied
 ```
 
-### LightningAgentFast Changes
+### QallowCodeFixer Changes
 
 **__init__ method (Line ~600):**
 ```python
@@ -106,7 +106,7 @@ def run_tests(self):
 ## Class Structure
 
 ```
-LightningAgentFast (Main Agent)
+QallowCodeFixer (Main Agent)
 │
 ├── self.builder (FastBuilder)
 │   └── build() → (success: bool, output: str)

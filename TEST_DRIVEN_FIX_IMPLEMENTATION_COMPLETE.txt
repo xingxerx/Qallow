@@ -20,7 +20,7 @@ WHAT WAS ADDED:
      • Unused variables → analyze/log
    - Extensible: Easy to add new fix types
 
-3. Integration with LightningAgentFast
+3. Integration with QallowCodeFixer
    - Added test_runner instance
    - Added warning_fixer instance
    - Updated run_tests() method
@@ -185,7 +185,7 @@ FILES MODIFIED
 ├─ Import: Added pathlib
 ├─ Class: TestRunner (43 lines)
 ├─ Class: WarningFixer (155 lines)
-├─ Update: LightningAgentFast.__init__()
+├─ Update: QallowCodeFixer.__init__()
 └─ Update: run_tests() method
 
 DOCUMENTATION CREATED
@@ -278,7 +278,7 @@ BENEFITS
 ARCHITECTURE DIAGRAM
 ====================
 
-LightningAgentFast
+QallowCodeFixer
 ├─ Phase 1-3: Compile & Fix Errors
 │  ├─ FastBuilder
 │  ├─ ErrorParser

@@ -17,7 +17,7 @@
 - **After**: Only checks `QALLOW_CIRQ` - cleaner, simpler
 
 ### 3. **Git Commit Integration** ✅
-- Added `commit_improvements()` method to LightningAgentFast class
+- Added `commit_improvements()` method to QallowCodeFixer class
 - Agent now automatically commits after applying fixes
 - Commits happen:
   - After code quality improvements are applied

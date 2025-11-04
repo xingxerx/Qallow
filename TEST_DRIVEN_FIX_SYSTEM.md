@@ -36,7 +36,7 @@ Applies targeted fixes based on compiler warnings:
 # Result: Warnings eliminated
 ```
 
-#### 3. **Integration with LightningAgentFast**
+#### 3. **Integration with QallowCodeFixer**
 
 Updated `__init__`:
 ```python
@@ -129,7 +129,7 @@ Runs all phases continuously with 60s countdown between iterations.
 ## Architecture
 
 ```
-LightningAgentFast
+QallowCodeFixer
 ├─ self.builder (FastBuilder)
 │  └─ build() → compile errors
 ├─ self.fixer (CodeFixer)
@@ -189,7 +189,7 @@ Fix written to file... (4s, press Enter to skip)...
 - Added `import pathlib` to imports
 - Added `TestRunner` class (43 lines)
 - Added `WarningFixer` class (155 lines)
-- Updated `LightningAgentFast.__init__()` - added test_runner + warning_fixer
+- Updated `QallowCodeFixer.__init__()` - added test_runner + warning_fixer
 - Updated `run_tests()` method - added Phase 4 & 5 with warning fixes
 - Total additions: ~200 lines
 

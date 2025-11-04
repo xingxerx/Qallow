@@ -262,12 +262,12 @@ The Virtual Computer System is designed as a target for Lightning Agent optimiza
 Integration Example:
 
     from virtual_computer import VirtualComputer, AgentOptimizationTasks
-    from agentlightning_runner import LightningAgentFast
+    from agentlightning_runner import QallowCodeFixer
     
     # Create systems
     vc = VirtualComputer()
     tasks = AgentOptimizationTasks()
-    agent = LightningAgentFast(max_iterations=10)
+    agent = QallowCodeFixer(max_iterations=10)
     
     # Agent optimization loop
     for iteration in range(10):
