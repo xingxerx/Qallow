@@ -1279,7 +1279,8 @@ class CodeAnalyzer:
         pause_for_reading("Starting code quality checks...", 2)
 
         total = 0
-        total += self.analyze_unused_imports()
+        # DISABLED: analyze_unused_imports() removes necessary imports even with protection
+        # total += self.analyze_unused_imports()
         total += self.analyze_code_style()
         # DISABLED: analyze_dead_code() is too aggressive and removes valid imports/code
         # total += self.analyze_dead_code()
