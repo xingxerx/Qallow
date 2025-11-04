@@ -12,6 +12,8 @@ import base64
 import difflib
 import sys
 import zlib
+from pathlib import Path
+from typing import List, Sequence, Tuple
 
 WORKFLOW_PATH = Path(".github/workflows/internal-ci.yml")
 
