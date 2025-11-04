@@ -272,7 +272,7 @@ if [[ "$RUN_AGENT" == true ]]; then
     echo -e "${CYAN}Next Steps:${NC}"
     echo -e "  1. Monitor agent: ${YELLOW}tail -f agent_daemon.log${NC}"
     echo -e "  2. Check iterations: ${YELLOW}grep 'Iteration' agent_daemon.log | wc -l${NC}"
-    echo -e "  3. View commits: ${YELLOW}git log --oneline --author='Lightning Agent' | head -5${NC}"
+    echo -e "  3. View commits: ${YELLOW}git log --oneline --author='AgentLightning Runner' | head -5${NC}"
     echo -e "  4. Stop when done: ${YELLOW}pkill -f 'agentlightning_runner.py'${NC}"
 else
     echo -e "${CYAN}Next Steps:${NC}"

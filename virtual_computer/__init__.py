@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Virtual Computer Package - Integration for Lightning Agent
+Virtual Computer Package - Integration for AgentLightning Runner
 """
 
 from .cuda_simulator import VirtualGPU, CUDAKernel, KernelStatus

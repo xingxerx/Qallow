@@ -2,7 +2,7 @@
 
 ## What Was Added
 
-Your requested test runner and automated warning fixes have been integrated into the Lightning Agent.
+Your requested test runner and automated warning fixes have been integrated into the AgentLightning Runner.
 
 ### New Components
 

@@ -164,7 +164,7 @@ qallow run vm --self-audit --export-pocket-map /tmp/pockets.json
 
 ---
 
-## 🔗 Integration with Lightning Agent
+## 🔗 Integration with AgentLightning Runner
 
 ### Auto-Improvement Loop
 ```bash

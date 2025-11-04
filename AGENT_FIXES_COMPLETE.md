@@ -1,4 +1,4 @@
-# Lightning Agent - Build & Daemon Fixed ✅
+# AgentLightning Runner - Build & Daemon Fixed ✅
 
 ## Status
 - ✅ **Build**: Successful (CUDA enabled)
@@ -104,7 +104,7 @@ git log --oneline | head -20
 - `core/include/qallow_phase13.h` - Added extern "C" guards
 - `core/include/pocket.h` - Added extern "C" guards
 
-### Lightning Agent
+### AgentLightning Runner
 - Verified `analyze_dead_code()` writes files ✅
 - Verified `analyze_performance()` writes files ✅
 - Verified `commit_improvements()` creates git commits ✅

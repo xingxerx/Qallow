@@ -1,4 +1,4 @@
-# Lightning Agent - Final Improvements Complete ✅
+# AgentLightning Runner - Final Improvements Complete ✅
 
 ## Changes Made
 
@@ -55,7 +55,7 @@ Environment: QALLOW_CIRQ=1 QALLOW_ENABLE_CUDA=ON
 ```
 7590a28 Refactor: Code quality improvements - 24 fixes applied
 504ecc9 Refactor: Remove unused imports across multiple modules
-bc7b67d feat: Add logging configuration and daemon sleep option to Lightning Agent
+bc7b67d feat: Add logging configuration and daemon sleep option to AgentLightning Runner
 ```
 
 ## Next Steps

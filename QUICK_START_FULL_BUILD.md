@@ -158,7 +158,7 @@ Results saved to: data/logs/
 
 ## Run Fast Agent (Continuous Improvement - Background)
 
-The lightning agent automatically improves code quality by detecting and fixing issues.
+The agentlightning runner automatically improves code quality by detecting and fixing issues.
 
 ### Start Fast Agent (Non-Blocking)
 
@@ -176,7 +176,7 @@ tail -f agent_daemon.log
 
 **Output:**
 ```
-[2025-01-15 10:23:45] INFO: Lightning Agent starting (fast mode)...
+[2025-01-15 10:23:45] INFO: AgentLightning Runner starting (fast mode)...
 [2025-01-15 10:23:46] INFO: Build successful (4.2s)
 [2025-01-15 10:23:50] INFO: Found 3 issues to fix
 [2025-01-15 10:23:52] INFO: Iteration 1/500 complete
@@ -194,7 +194,7 @@ tail -f agent_daemon.log
 grep "Iteration" agent_daemon.log | wc -l
 
 # Check commits made by agent
-git log --oneline --author="Lightning Agent" | head -5
+git log --oneline --author="AgentLightning Runner" | head -5
 
 # Check for improvements
 grep "IMPROVED" agent_daemon.log | wc -l

@@ -2,7 +2,7 @@
 
 ## What's New
 
-Your Lightning Agent now has **Phase 4 & 5** after tests fail:
+Your AgentLightning Runner now has **Phase 4 & 5** after tests fail:
 - **Phase 4:** Run ctest → Capture output
 - **Phase 5:** Analyze output → Apply warning fixes
 

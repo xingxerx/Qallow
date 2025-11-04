@@ -360,7 +360,7 @@ def main():
     vc.photonic.print_status()
     
     print("="*70)
-    print("Virtual computer ready for Lightning Agent optimization!")
+    print("Virtual computer ready for AgentLightning Runner optimization!")
     print("="*70 + "\n")
 
 

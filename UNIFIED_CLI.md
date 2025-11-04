@@ -17,7 +17,7 @@ qallow system build
 # Run the unified VM
 qallow run
 
-# Run with automatic Lightning Agent improvement loop
+# Run with automatic AgentLightning Runner improvement loop
 python3 recursive_improvement_engine.py
 
 # Run a specific phase
@@ -369,12 +369,12 @@ export QALLOW_SKIP_BUILD_ONCE=1         # Skip one rebuild cycle
 
 ---
 
-## Lightning Agent Loop (Automatic Improvement)
+## AgentLightning Runner Loop (Automatic Improvement)
 
 For continuous automatic codebase improvement:
 
 ```bash
-# Run Lightning Agent auto-improvement loop
+# Run AgentLightning Runner auto-improvement loop
 python3 recursive_improvement_engine.py
 ```
 

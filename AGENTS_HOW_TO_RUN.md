@@ -10,7 +10,7 @@
 
 The Qallow project includes multiple self-improving agents that analyze, fix, and improve the codebase:
 
-### 1. **Lightning Agent (Fast)** - `agentlightning_runner.py`
+### 1. **AgentLightning Runner (Fast)** - `agentlightning_runner.py`
 - **Purpose**: Ultra-fast code improvement and self-fixing
 - **Speed**: ULTRA-FAST mode (0.05s pauses)
 - **Focus**: Rapid iteration with parallel processing
@@ -34,7 +34,7 @@ The Qallow project includes multiple self-improving agents that analyze, fix, an
 
 ## 🚀 Quick Start - Run an Agent Now
 
-### Option 1: Run Lightning Agent (Recommended - Fastest)
+### Option 1: Run AgentLightning Runner (Recommended - Fastest)
 
 ```bash
 cd /home/xing/Qallow
@@ -78,7 +78,7 @@ cd /home/xing/Qallow
 
 ## 🎯 How These Agents Work
 
-### Lightning Agent Workflow
+### AgentLightning Runner Workflow
 
 ```
 ┌─────────────────────────────────────────┐
@@ -280,7 +280,7 @@ You can also use the agents with Spec-Kit for structured improvement:
 /specify The agent should improve code quality by fixing all syntax errors and optimizing performance
 
 # Plan the improvement
-/plan Use the lightning agent to scan, analyze, and fix issues in parallel
+/plan Use the agentlightning runner to scan, analyze, and fix issues in parallel
 
 # Break down tasks
 /tasks
@@ -299,7 +299,7 @@ The agents integrate with:
 
 ## 🔍 Common Commands
 
-### Start Lightning Agent (Fast, Recommended)
+### Start AgentLightning Runner (Fast, Recommended)
 ```bash
 /home/xing/Qallow/.venv/bin/python agentlightning_runner.py
 ```
@@ -353,7 +353,7 @@ cat /tmp/lightning_agent_*.log | grep -E "Fixed|Improved|Error"
 
 ### Continuous Improvement (Always Running)
 ```bash
-# Terminal 1: Run lightning agent continuously
+# Terminal 1: Run agentlightning runner continuously
 /home/xing/Qallow/.venv/bin/python agentlightning_runner.py
 
 # Terminal 2: Monitor improvements
@@ -385,7 +385,7 @@ tail -f /tmp/recursive_agent.log
 
 ## 🚀 Next Steps
 
-1. **Start Lightning Agent Now**
+1. **Start AgentLightning Runner Now**
    ```bash
    /home/xing/Qallow/.venv/bin/python agentlightning_runner.py
    ```

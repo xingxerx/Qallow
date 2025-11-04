@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Virtual Computer Demo - Full System Integration
-Shows how Lightning Agent can optimize the virtual computer system
+Shows how AgentLightning Runner can optimize the virtual computer system
 """
 
 
@@ -144,13 +144,13 @@ def demo_optimization_tasks():
 
 
 def demo_agent_optimization_loop():
-    """Demonstrate how Lightning Agent could optimize the system"""
-    print_banner("LIGHTNING AGENT OPTIMIZATION LOOP")
+    """Demonstrate how AgentLightning Runner could optimize the system"""
+    print_banner("AGENTLIGHTNING RUNNER OPTIMIZATION LOOP")
     
     vc = VirtualComputer()
     tasks = AgentOptimizationTasks()
     
-    print("Scenario: Lightning Agent automatically optimizes virtual computer\n")
+    print("Scenario: AgentLightning Runner automatically optimizes virtual computer\n")
     
     # Show baseline
     print("BASELINE PERFORMANCE:")
@@ -197,7 +197,7 @@ def main():
     print("\n" + "="*70)
     print("  QALLOW VIRTUAL COMPUTER SYSTEM")
     print("  CUDA + Neuromorphic + Photonic Processors")
-    print("  Lightning Agent Optimization Platform")
+    print("  AgentLightning Runner Optimization Platform")
     print("="*70)
     
     # Run demonstrations
@@ -206,8 +206,8 @@ def main():
     demo_agent_optimization_loop()
     
     print_banner("DEMONSTRATION COMPLETE")
-    print("✅ Virtual computer system ready for Lightning Agent optimization!")
-    print("\nTo integrate with Lightning Agent:")
+    print("✅ Virtual computer system ready for AgentLightning Runner optimization!")
+    print("\nTo integrate with AgentLightning Runner:")
     print("  1. Import: from virtual_computer import VirtualComputer, AgentOptimizationTasks")
     print("  2. Create: vc = VirtualComputer()")
     print("  3. Optimize: tasks = AgentOptimizationTasks()")

@@ -95,7 +95,7 @@ ctest -V --output-on-failure
 
 ---
 
-## Run Continuous Improvement Daemon (Lightning Agent)
+## Run Continuous Improvement Daemon (AgentLightning Runner)
 
 The daemon automatically improves code quality in the background.
 
@@ -268,7 +268,7 @@ cat build/Testing/Temporary/LastTest.log
 ```bash
 # Configure git (one-time)
 git config user.email "agent@qallow.local"
-git config user.name "Lightning Agent"
+git config user.name "AgentLightning Runner"
 
 # Restart daemon
 pkill -f lightning_agent

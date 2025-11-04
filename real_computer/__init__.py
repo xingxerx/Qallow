@@ -5,7 +5,7 @@ Backends:
  - Quantum: uses Cirq
  - Neuromorphic: reuses existing Python neuromorphic simulator in virtual_computer
 
-This package provides a small, high-level API the Lightning Agent can call to run
+This package provides a small, high-level API the AgentLightning Runner can call to run
 real workloads when available and fall back or skip when not.
 """
 

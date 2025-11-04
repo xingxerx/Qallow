@@ -164,7 +164,7 @@ qallow run unified
 
 ### Advanced Workflows
 ```bash
-# With Lightning Agent auto-improvement
+# With AgentLightning Runner auto-improvement
 python3 recursive_improvement_engine.py
 qallow run unified
 
@@ -239,7 +239,7 @@ if (strcmp(command, "phase12") == 0) {
 - Smooth migration path
 
 ✅ **Unified Development Experience**
-- Lightning Agent integration seamless
+- AgentLightning Runner integration seamless
 - All operations accessible through one interface
 - Consistent parameter style
 

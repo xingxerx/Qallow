@@ -1,4 +1,4 @@
-# Lightning Agent - Fixed to Actually Apply Improvements ✅
+# AgentLightning Runner - Fixed to Actually Apply Improvements ✅
 
 ## The Problem (Now Fixed)
 

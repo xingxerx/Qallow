@@ -2,7 +2,7 @@
 
 ## Summary
 
-The Lightning Agent has been completely reconfigured for **human-controlled operation**:
+The AgentLightning Runner has been completely reconfigured for **human-controlled operation**:
 
 ### What Changed
 
@@ -103,7 +103,7 @@ git checkout .
 
 | Hash | Message |
 |------|---------|
-| `2e7a8f3` | docs: Add Lightning Agent safe operation guide |
+| `2e7a8f3` | docs: Add AgentLightning Runner safe operation guide |
 | `de7ebb1` | fix(agent): Change from auto-commit to staging for review |
 | `f5830b9` | docs: Add comprehensive CI fix documentation |
 | `629a69b` | fix(agent): Disable analyze_unused_imports |

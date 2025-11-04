@@ -136,7 +136,7 @@
 - [x] Phase options quick reference
 - [x] Before/after examples
 - [x] Common workflows
-- [x] Integration with Lightning Agent
+- [x] Integration with AgentLightning Runner
 - [x] Environment variables
 - [x] Deprecated commands
 - [x] Quick examples
@@ -255,7 +255,7 @@ qallow run help                      # Should show run help
 ✅ **Easier Maintenance** - Centralized dispatcher
 ✅ **Extensible** - Clear patterns for new commands
 ✅ **Well Documented** - Four comprehensive guides
-✅ **Development Friendly** - Lightning Agent integration seamless
+✅ **Development Friendly** - AgentLightning Runner integration seamless
 
 ---
 
@@ -280,7 +280,7 @@ All code is already implemented in `interface/launcher.c` and working. The docum
    qallow phase 13 --ticks=100
    ```
 
-3. ✅ **Integrate with Lightning Agent**
+3. ✅ **Integrate with AgentLightning Runner**
    ```bash
    python3 recursive_improvement_engine.py
    qallow run unified

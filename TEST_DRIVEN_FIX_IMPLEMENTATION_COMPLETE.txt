@@ -141,7 +141,7 @@ EXPECTED OUTPUT
 ===============
 
 ======================================================================
-🐢 SLOW Lightning Agent - Readable Code Fixer
+🐢 SLOW AgentLightning Runner - Readable Code Fixer
 ======================================================================
    Mode: SINGLE RUN
    Max iterations: 1

@@ -8,7 +8,7 @@
 
 ## 🚀 Quick Start (Copy & Paste)
 
-### Run Lightning Agent (Recommended - Fastest)
+### Run AgentLightning Runner (Recommended - Fastest)
 ```bash
 cd /home/xing/Qallow
 /home/xing/Qallow/.venv/bin/python agentlightning_runner.py
@@ -30,7 +30,7 @@ cd /home/xing/Qallow
 
 ## 🎯 What Each Agent Does
 
-### Lightning Agent (`agentlightning_runner.py`)
+### AgentLightning Runner (`agentlightning_runner.py`)
 - **Speed**: ULTRA-FAST (0.05s pauses)
 - **Focus**: Rapid continuous improvement
 - **Best For**: Quick fixes and ongoing optimization
@@ -139,7 +139,7 @@ pkill -f "agentlightning_runner.py"
 
 ## 📁 Output Files
 
-### Lightning Agent Outputs
+### AgentLightning Runner Outputs
 - `lightning_agent_output.log` - Detailed execution log
 - `LIGHTNING_AGENT_*.md` - Implementation reports
 - `LIGHTNING_AGENT_*_TEST_REPORT.md` - Test results
@@ -200,7 +200,7 @@ Repeat or Complete
 
 ## 💡 Pro Tips
 
-1. **Start Lightning Agent first** - it's fastest and good for initial cleanup
+1. **Start AgentLightning Runner first** - it's fastest and good for initial cleanup
 2. **Use GPU if available** - `export QALLOW_ENABLE_CUDA=ON`
 3. **Monitor with tail** - `tail -f /tmp/lightning_agent_run.log`
 4. **Let it run** - more iterations = better improvements
@@ -256,7 +256,7 @@ export MAX_WORKERS=4
 **Your agent is now configured and ready to improve your codebase!**
 
 Choose an agent and run it:
-1. Lightning Agent (fastest)
+1. AgentLightning Runner (fastest)
 2. Advanced Error Fixer (most thorough)
 3. Recursive Engine (most intelligent)
 

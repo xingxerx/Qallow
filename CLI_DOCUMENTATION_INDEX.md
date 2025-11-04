@@ -238,8 +238,8 @@ A: Read `UNIFIED_CLI.md` - it's comprehensive with all options and examples.
 **Q: How do I run phases?**
 A: See `CLI_QUICK_REFERENCE.md` "Phase Options Quick Ref" section.
 
-**Q: How do I use Lightning Agent?**
-A: See `UNIFIED_CLI_SUMMARY.md` "Integration with Lightning Agent" section.
+**Q: How do I use AgentLightning Runner?**
+A: See `UNIFIED_CLI_SUMMARY.md` "Integration with AgentLightning Runner" section.
 
 **Q: What changed from old commands?**
 A: See `CLI_CONSOLIDATION_SUMMARY.md` "The Transformation" section.
@@ -310,7 +310,7 @@ You have:
 - ✅ One unified command (`qallow`)
 - ✅ Four logical command groups
 - ✅ Complete documentation (5 guides + this index)
-- ✅ Lightning Agent integration ready
+- ✅ AgentLightning Runner integration ready
 - ✅ Backward compatibility
 - ✅ Production-ready implementation
 

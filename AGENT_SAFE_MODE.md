@@ -1,4 +1,4 @@
-# Lightning Agent - Safe Operation Guide
+# AgentLightning Runner - Safe Operation Guide
 
 **Status:** ✅ SAFE MODE ENABLED - NO AUTO-PUSH
 

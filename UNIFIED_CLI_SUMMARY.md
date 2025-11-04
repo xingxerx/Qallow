@@ -118,7 +118,7 @@ qallow phase12        # Still works ⚠️ "Deprecated, use qallow phase 12"
 qallow build          # Still works ⚠️ "Deprecated, use qallow system build"
 ```
 
-### ✅ Lightning Agent Integration
+### ✅ AgentLightning Runner Integration
 Seamless integration with auto-improvement loop:
 ```bash
 python3 recursive_improvement_engine.py
@@ -259,7 +259,7 @@ qallow run vm --integrate phase11
 
 ## Environment Integration
 
-**With Lightning Agent:**
+**With AgentLightning Runner:**
 ```bash
 # Auto-improvement loop detects and fixes issues
 python3 recursive_improvement_engine.py
@@ -326,7 +326,7 @@ qallow run unified
 
 ### 4. Use It
 ```bash
-# Integrate with Lightning Agent
+# Integrate with AgentLightning Runner
 python3 recursive_improvement_engine.py
 
 # Run phases
@@ -346,7 +346,7 @@ You now have:
 ✅ **Better help** accessible everywhere
 ✅ **Full backward compatibility** (old commands still work)
 ✅ **Complete documentation** (4 comprehensive guides)
-✅ **Lightning Agent ready** (seamless integration)
+✅ **AgentLightning Runner ready** (seamless integration)
 ✅ **Production ready** (already implemented and working)
 
 ---

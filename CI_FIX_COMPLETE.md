@@ -8,7 +8,7 @@ GitHub Actions CI was repeatedly failing with:
 NameError: name 'Path' is not defined
 ```
 
-The Lightning Agent daemon was automatically removing necessary imports from `scripts/check_internal_ci_pipeline.py`, causing CI to fail every time.
+The AgentLightning Runner daemon was automatically removing necessary imports from `scripts/check_internal_ci_pipeline.py`, causing CI to fail every time.
 
 ## Root Cause
 The agent's `analyze_unused_imports()` method was:

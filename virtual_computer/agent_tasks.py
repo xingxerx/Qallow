@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Agent Optimization Tasks
-Test workloads for Lightning Agent to discover, analyze, and optimize
+Test workloads for AgentLightning Runner to discover, analyze, and optimize
 """
 
 
@@ -27,7 +27,7 @@ class OptimizationTask:
 
 
 class AgentOptimizationTasks:
-    """Collection of optimization tasks for the Lightning Agent"""
+    """Collection of optimization tasks for the AgentLightning Runner"""
     
     def __init__(self):
         self.tasks: List[OptimizationTask] = []
@@ -367,7 +367,7 @@ def main():
     tasks = AgentOptimizationTasks()
     
     print("\n" + "="*70)
-    print("  LIGHTNING AGENT OPTIMIZATION TASKS")
+    print("  AGENTLIGHTNING RUNNER OPTIMIZATION TASKS")
     print("  Virtual Computer Performance Tuning")
     print("="*70 + "\n")
     
@@ -384,7 +384,7 @@ def main():
         print()
     
     print("="*70)
-    print("Tasks ready for Lightning Agent exploration and optimization!")
+    print("Tasks ready for AgentLightning Runner exploration and optimization!")
     print("="*70 + "\n")
 
 

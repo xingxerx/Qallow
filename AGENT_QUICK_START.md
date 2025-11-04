@@ -10,7 +10,7 @@
 
 Your project has three powerful self-improving agents:
 
-1. **Lightning Agent** - Fast, readable code fixer
+1. **AgentLightning Runner** - Fast, readable code fixer
 2. **Recursive Improvement Engine** - Continuous optimization loop
 3. **Advanced Error Fixer** - Deep analysis and fixing
 
@@ -25,7 +25,7 @@ Together, they form a system that can:
 
 ## 🚀 Quick Start (Choose One)
 
-### ⚡ Option 1: Lightning Agent (Recommended for First Run)
+### ⚡ Option 1: AgentLightning Runner (Recommended for First Run)
 
 **What**: Fast error fixer with visible output  
 **Time**: 5-15 minutes  
@@ -119,7 +119,7 @@ cd /home/xing/Qallow
 Pre-configured shell scripts:
 
 ```bash
-# Run Lightning Agent with improvement
+# Run AgentLightning Runner with improvement
 ./scripts/run_with_improvement.sh
 
 # Run recursive improvement loop
@@ -139,7 +139,7 @@ Since you have spec-kit installed, you can use the modern approach:
 In Copilot Chat (Ctrl+Shift+I):
 
 /specify Improve code quality and fix all compilation errors
-/plan Use Lightning Agent for error fixing, recursive improvement for optimization
+/plan Use AgentLightning Runner for error fixing, recursive improvement for optimization
 /tasks
 /implement
 ```
@@ -154,7 +154,7 @@ Benefits:
 
 ## 📊 Understanding Agent Output
 
-### Lightning Agent Output
+### AgentLightning Runner Output
 
 ```
 [13:45:22] INFO: Building Qallow project...
@@ -192,7 +192,7 @@ Iteration 2 (with fixes):
 
 ### For First-Time Use:
 
-1. **Start with Lightning Agent**
+1. **Start with AgentLightning Runner**
    ```bash
    /home/xing/Qallow/.venv/bin/python agentlightning_runner.py
    ```
@@ -325,7 +325,7 @@ iteration_pause: 30
 
 ## 💡 Pro Tips
 
-1. **Start with Lightning Agent**: Quick way to understand what's broken
+1. **Start with AgentLightning Runner**: Quick way to understand what's broken
 2. **Use Recursive for Overnight Runs**: Let it improve while you sleep
 3. **Monitor Status File**: Live updates to Windows (Z:\status.txt)
 4. **Review Git Commits**: See exactly what changed
@@ -387,7 +387,7 @@ nohup /home/xing/Qallow/.venv/bin/python recursive_improvement_engine.py &
 
 ## 📚 Next Steps
 
-1. **Run Lightning Agent First**: See what it can fix
+1. **Run AgentLightning Runner First**: See what it can fix
 2. **Review Changes**: Look at git log and diffs
 3. **Run Recursive Loop**: Let it optimize overnight
 4. **Monitor Metrics**: Check improvement_reports/

@@ -6,7 +6,7 @@ VIRTUAL COMPUTER SYSTEM
 ======================
 
 An integrated platform for simulating CUDA GPU, Neuromorphic, and Photonic processors
-designed specifically for Lightning Agent optimization tasks.
+designed specifically for AgentLightning Runner optimization tasks.
 
 ARCHITECTURE
 ============
@@ -234,10 +234,10 @@ Example Usage:
     result = tasks.simulate_optimization(task_id=1, 0.5)
 
 
-LIGHTNING AGENT INTEGRATION
+AGENTLIGHTNING RUNNER INTEGRATION
 ============================
 
-The Virtual Computer System is designed as a target for Lightning Agent optimization:
+The Virtual Computer System is designed as a target for AgentLightning Runner optimization:
 
 1. DISCOVERY PHASE:
    Agent analyzes virtual computer structure
@@ -467,7 +467,7 @@ Photonic Computing:
 CONTACT & SUPPORT
 =================
 
-Lightning Agent: github.com/xingxerx/Qallow
+AgentLightning Runner: github.com/xingxerx/Qallow
 Virtual Computer: Part of Qallow project
 Documentation: See docs/ directory
 

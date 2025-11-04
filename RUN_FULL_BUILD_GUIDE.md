@@ -247,7 +247,7 @@ python3 agentlightning_runner.py --fast --use-cuda --daemon &
 Agent runs continuously, automatically improving code. You can:
 - **Monitor:** `tail -f agent_daemon.log`
 - **Check progress:** `grep "Iteration" agent_daemon.log | wc -l`
-- **See commits:** `git log --oneline --author="Lightning Agent" | head -5`
+- **See commits:** `git log --oneline --author="AgentLightning Runner" | head -5`
 - **Stop:** `pkill -f "agentlightning_runner.py"`
 
 ---
