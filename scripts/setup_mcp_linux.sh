@@ -16,10 +16,11 @@ YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 # Configuration
-MCP_SERVICE_DIR="/root/Qallow/mcp-memory-service"
-MCP_VENV="$MCP_SERVICE_DIR/.venv/bin/python"
-MCP_DB_PATH="$HOME/.local/share/mcp-memory"
-VSCODE_CONFIG_DIR="/root/Qallow/.vscode"
+MCP_SERVICE_DIR="${MCP_SERVICE_DIR:-/root/Qallow/mcp-memory-service}"
+# Python executable inside the MCP service virtualenv (derived from MCP_SERVICE_DIR by default)
+MCP_VENV="${MCP_VENV:-$MCP_SERVICE_DIR/.venv/bin/python}"
+MCP_DB_PATH="${MCP_DB_PATH:-$HOME/.local/share/mcp-memory}"
+VSCODE_CONFIG_DIR="${VSCODE_CONFIG_DIR:-/root/Qallow/.vscode}"
 LOG_FILE="/tmp/mcp_memory_service.log"
 
 # Function to print colored output
@@ -80,24 +81,25 @@ mkdir -p "$VSCODE_CONFIG_DIR"
 
 if [ ! -f "$VSCODE_CONFIG_DIR/mcp.json" ]; then
     print_warning "MCP configuration not found, creating..."
-    cat > "$VSCODE_CONFIG_DIR/mcp.json" << 'EOF'
+        # Use variable expansion so the generated config matches the chosen paths
+        cat > "$VSCODE_CONFIG_DIR/mcp.json" <<EOF
 {
-  "mcpServers": {
-    "memory": {
-      "command": "python",
-      "args": [
-        "-m",
-        "src.mcp_memory_service.server"
-      ],
-      "cwd": "/root/Qallow/mcp-memory-service",
-      "env": {
-        "MCP_MEMORY_STORAGE_BACKEND": "sqlite_vec",
-        "MCP_MEMORY_SQLITE_VEC_PATH": "/root/.local/share/mcp-memory",
-        "PYTHONPATH": "/root/Qallow/mcp-memory-service/src",
-        "LOG_LEVEL": "INFO"
-      }
+    "mcpServers": {
+        "memory": {
+            "command": "python",
+            "args": [
+                "-m",
+                "src.mcp_memory_service.server"
+            ],
+            "cwd": "${MCP_SERVICE_DIR}",
+            "env": {
+                "MCP_MEMORY_STORAGE_BACKEND": "sqlite_vec",
+                "MCP_MEMORY_SQLITE_VEC_PATH": "${MCP_DB_PATH}",
+                "PYTHONPATH": "${MCP_SERVICE_DIR}/src",
+                "LOG_LEVEL": "INFO"
+            }
+        }
     }
-  }
 }
 EOF
     print_status "MCP configuration created"
@@ -171,6 +173,6 @@ echo "Or use the system Python with proper environment:"
 echo "  export PYTHONPATH=$MCP_SERVICE_DIR/src"
 echo "  python -m src.mcp_memory_service.server"
 echo ""
-echo "For more information, see: /root/Qallow/MCP_FIX_GUIDE.md"
+echo "For more information, see: $MCP_SERVICE_DIR/../MCP_FIX_GUIDE.md"
 echo ""
 
