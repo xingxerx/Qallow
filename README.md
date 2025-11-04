@@ -57,7 +57,34 @@ The platform currently ships with **13 active execution phases** (v0.1) orchestr
 
 ## 🚀 Quick Start (5 Minutes)
 
-### Prerequisites
+### One-Command Setup
+
+```bash
+git clone https://github.com/xingxerx/Qallow.git
+cd Qallow
+./bootstrap.sh
+```
+
+That's it! The bootstrap script automatically:
+- Initializes git submodules
+- Creates Python virtual environment
+- Installs all dependencies
+- Downloads optional assets
+- Builds C/CUDA binaries
+- Runs verification tests
+
+**See [docs/BOOTSTRAP_GUIDE.md](docs/BOOTSTRAP_GUIDE.md) for advanced options.**
+
+### Then Run
+
+```bash
+source .venv/bin/activate
+./build/qallow run unified
+```
+
+---
+
+## Prerequisites
 
 ```bash
 # Required
