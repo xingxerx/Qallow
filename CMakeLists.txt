@@ -133,6 +133,11 @@ target_link_libraries(qallow_backend_neuro
 )
 target_include_directories(qallow_backend_neuro PUBLIC ${QALLOW_INCLUDE_DIRS})
 
+add_library(qallow_temporal_memory STATIC src/temporal_memory.c)
+target_link_libraries(qallow_temporal_memory PUBLIC qallow_core m)
+target_include_directories(qallow_temporal_memory PUBLIC ${QALLOW_INCLUDE_DIRS})
+
+
 if(QALLOW_ENABLE_CUDA)
     target_compile_definitions(qallow_backend_cpu PUBLIC QALLOW_ENABLE_CUDA)
     target_include_directories(qallow_backend_cpu PUBLIC
@@ -209,6 +214,7 @@ target_include_directories(qallow_interface_base PUBLIC ${QALLOW_INCLUDE_DIRS})
 #         -Wl,--whole-archive
 #         qallow_backend_cpu
 #         qallow_backend_neuro
+#         qallow_temporal_memory
 #         qallow_algorithms
 #         qallow_runtime
 #         -Wl,--no-whole-archive
@@ -347,6 +353,11 @@ if(QALLOW_ENABLE_CUDA)
     target_link_libraries(qallow_unit_cuda_parallel PRIVATE qallow_backend_cuda CUDA::cudart m)
     add_test(NAME unit_cuda_parallel COMMAND qallow_unit_cuda_parallel)
 endif()
+
+add_executable(qallow_test_temporal_memory tests/test_temporal_memory.c src/runtime/temporal_memory.c)
+target_include_directories(qallow_test_temporal_memory PRIVATE ${QALLOW_INCLUDE_DIRS})
+target_link_libraries(qallow_test_temporal_memory PRIVATE m)
+add_test(NAME test_temporal_memory COMMAND qallow_test_temporal_memory)
 
 # TODO: Fix integration_smoke linker errors
 # add_executable(qallow_integration_smoke

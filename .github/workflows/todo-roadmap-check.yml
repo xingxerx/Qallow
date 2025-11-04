@@ -1,0 +1,26 @@
+name: TODO Roadmap Check
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '**/*.py'
+      - '**/*.c'
+      - '**/*.h'
+      - 'docs/TODO_ROADMAP.md'
+      - 'scripts/check_todo_roadmap.py'
+      - '.github/workflows/todo-roadmap-check.yml'
+
+jobs:
+  check-todos:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify roadmap coverage
+        run: |
+          python3 scripts/check_todo_roadmap.py --base-ref origin/${{ github.base_ref }}
