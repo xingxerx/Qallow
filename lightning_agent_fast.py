@@ -1278,7 +1278,8 @@ class CodeAnalyzer:
         total = 0
         total += self.analyze_unused_imports()
         total += self.analyze_code_style()
-        total += self.analyze_dead_code()
+        # DISABLED: analyze_dead_code() is too aggressive and removes valid imports/code
+        # total += self.analyze_dead_code()
         total += self.analyze_performance()
         total += self.analyze_variable_naming()
         total += self.analyze_excessive_blank_lines()  # NEW: Remove excessive blank lines
