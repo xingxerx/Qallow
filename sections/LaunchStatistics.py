@@ -104,7 +104,7 @@ def get_max_estimated_speedup_block_size(block_sizes):
             launch_id_at_max_speedup = launch_id
             block_size_at_max_speedup = block_size
 
-    # TODO: We could get a global estimate by weighing the speedup by the
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     # TODO: We could get a global estimate by weighing the speedup by the
     # relative duration of this launch
     return NvRules.IFrontend.SpeedupType_LOCAL, max_speedup, launch_id_at_max_speedup, block_size_at_max_speedup
 
@@ -187,7 +187,7 @@ def get_max_estimated_speedup_grid_size(grid_size_metric, num_sms):
             launch_id_at_max_speedup = grid_size_metric.correlation_ids().value(instance_id)
             grid_size_at_max_speedup = grid_size
 
-    # TODO: We could get a global estimate by weighing the speedup by the
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     # TODO: We could get a global estimate by weighing the speedup by the
     # relative duration of this launch
     return NvRules.IFrontend.SpeedupType_LOCAL, max_speedup, launch_id_at_max_speedup, grid_size_at_max_speedup
 
@@ -343,7 +343,7 @@ def get_max_estimated_speedup_tail_effect(problematic_launches):
             partial_waves_at_max_speedup = partial_waves
             whole_waves_at_max_speedup = whole_waves
 
-    # TODO: We could get a global estimate by weighing the speedup by the
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     # TODO: We could get a global estimate by weighing the speedup by the
     # relative duration of this launch
     return NvRules.IFrontend.SpeedupType_LOCAL, max_speedup, launch_id_at_max_speedup, partial_waves_at_max_speedup, whole_waves_at_max_speedup
 

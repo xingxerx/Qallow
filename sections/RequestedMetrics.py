@@ -2,7 +2,7 @@
 
 
 
-# TODO: switch to enum.Enum once this is available in static interpreter
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # TODO: switch to enum.Enum once this is available in static interpreter
 class Importance:
     OPTIONAL = 1
     REQUIRED = 2

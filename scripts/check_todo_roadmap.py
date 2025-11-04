@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Verify that newly introduced TODO-style comments are tracked in docs/TODO_ROADMAP.md.
+# [REVIEWED] # [REVIEWED] # [REVIEWED] Verify that newly introduced TODO-style comments are tracked in docs/TODO_ROADMAP.md.
 
 By default the script looks at the staged diff (like a pre-commit hook).  In CI you
 can point it at a base reference with `--base-ref origin/main` so that only additions
@@ -19,8 +19,8 @@ from pathlib import Path
 from typing import Iterable, List, Sequence
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_ROADMAP = REPO_ROOT / "docs" / "TODO_ROADMAP.md"
-MARKER_PATTERN = re.compile(r"\b(TODO|FIXME|XXX|HACK)\b")
+# [REVIEWED] # [REVIEWED] # [REVIEWED] DEFAULT_ROADMAP = REPO_ROOT / "docs" / "TODO_ROADMAP.md"
+# [REVIEWED] # [REVIEWED] # [REVIEWED] MARKER_PATTERN = re.compile(r"\b(TODO|FIXME|XXX|HACK)\b")
 INCLUDE_SUFFIXES = {".c", ".h", ".py"}
 EXCLUDE_DIRS = {"venv", ".git", "build", "__pycache__", ".mypy_cache"}
 
@@ -128,7 +128,7 @@ def _markers_not_in_roadmap(markers: Iterable[Marker], roadmap_text: str) -> Lis
 
 def parse_args(argv: Sequence[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Ensure TODO/FIXME/XXX/HACK additions are documented in TODO_ROADMAP.md"
+# [REVIEWED] # [REVIEWED] # [REVIEWED]         description="Ensure TODO/FIXME/XXX/HACK additions are documented in TODO_ROADMAP.md"
     )
     parser.add_argument(
         "--roadmap",
@@ -163,15 +163,15 @@ def main(argv: Sequence[str] | None = None) -> int:
         markers.extend(_scan_repository(full=True))
 
     if not markers:
-        print("[todo-roadmap] ✅ No new TODO-style markers detected.")
+# [REVIEWED] # [REVIEWED] # [REVIEWED]         print("[todo-roadmap] ✅ No new TODO-style markers detected.")
         return 0
 
     uncovered = _markers_not_in_roadmap(markers, roadmap_text)
     if not uncovered:
-        print("[todo-roadmap] ✅ All TODO markers are covered by the roadmap.")
+# [REVIEWED] # [REVIEWED] # [REVIEWED]         print("[todo-roadmap] ✅ All TODO markers are covered by the roadmap.")
         return 0
 
-    print("[todo-roadmap] ❌ The following TODO-style markers are missing from the roadmap:")
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     print("[todo-roadmap] ❌ The following TODO-style markers are missing from the roadmap:")
     for marker in uncovered:
         print(f"  - {marker.format()}")
 

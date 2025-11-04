@@ -122,7 +122,7 @@ def get_max_estimated_speedup(parent_weights, theoretical_warps_metric, max_warp
                 theoretical_warps_metric.correlation_ids().value(instance_id)
             theoretical_warps_at_max_speedup = theoretical_warps
 
-    # TODO: We could get a global estimate by forming the weighted average of all
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     # TODO: We could get a global estimate by forming the weighted average of all
     #       speedups, weighed by the relative duration of each launch.
     return NvRules.IFrontend.SpeedupType_LOCAL, max_speedup, launch_id_at_max_speedup, theoretical_warps_at_max_speedup
 

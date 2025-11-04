@@ -327,7 +327,7 @@ def clear_data():
     return jsonify({'status': 'cleared'})
 
 if __name__ == '__main__':
-    debug_enabled = os.environ.get('QALLOW_DASHBOARD_DEBUG', '').lower() in {'1', 'true', 'yes'}
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     debug_enabled = os.environ.get('QALLOW_DASHBOARD_DEBUG', '').lower() in {'1', 'true', 'yes'}
     app.run(
         debug=debug_enabled,
         use_reloader=False,

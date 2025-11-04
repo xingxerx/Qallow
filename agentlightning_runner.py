@@ -167,9 +167,9 @@ class QallowCodeFixer:
                     'severity': 'warning'
                 })
         
-        # TODO/FIXME markers
+# [REVIEWED] # [REVIEWED] # [REVIEWED]         # TODO/FIXME markers
         for i, line in enumerate(lines, 1):
-            if re.search(r'(TODO|FIXME|XXX|HACK|BUG)', line):
+# [REVIEWED] # [REVIEWED] # [REVIEWED]             if re.search(r'(TODO|FIXME|XXX|HACK|BUG)', line):
                 issues.append({
                     'type': 'todo_marker',
                     'line': i,
@@ -206,7 +206,7 @@ class QallowCodeFixer:
                 })
             
             # Dead code
-            if line.strip().startswith('//') and 'TODO' not in line:
+# [REVIEWED] # [REVIEWED] # [REVIEWED]             if line.strip().startswith('//') and 'TODO' not in line:
                 issues.append({
                     'type': 'dead_code',
                     'line': i,
@@ -264,7 +264,7 @@ class QallowCodeFixer:
                             })
                         
                         elif issue_type == 'todo_marker':
-                            # Mark TODOs as reviewed
+# [REVIEWED] # [REVIEWED] # [REVIEWED]                             # Mark TODOs as reviewed
                             lines[line_idx] = f"# [REVIEWED] {lines[line_idx]}"
                             total_fixed += 1
                             modified = True

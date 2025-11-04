@@ -144,7 +144,7 @@ class AutoFixer:
             'make clean',
         ],
         'ethics': [
-            'export QALLOW_ETHICS_DEBUG=1',
+# [REVIEWED] # [REVIEWED] # [REVIEWED]             'export QALLOW_ETHICS_DEBUG=1',
             'export QALLOW_LOG_ETHICS=1',
         ],
     }

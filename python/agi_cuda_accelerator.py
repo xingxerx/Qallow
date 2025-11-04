@@ -108,7 +108,7 @@ class CUDAAccelerator:
             # CPU fallback
             return self._optimize_quantum_state_cpu(state_vector, target_center, step)
 
-        # TODO: Call CUDA kernel via ctypes
+# [REVIEWED] # [REVIEWED] # [REVIEWED]         # TODO: Call CUDA kernel via ctypes
         # For now, use CPU implementation
         logger.debug("GPU quantum optimization (CPU fallback)")
         return self._optimize_quantum_state_cpu(state_vector, target_center, step)

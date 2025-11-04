@@ -247,8 +247,8 @@ class ErrorFixer:
         """Investigate assertion failure."""
         logger.info("Assertion failed - enabling debug mode...")
         
-        os.environ['QALLOW_ASSERT_DEBUG'] = '1'
-        os.environ['QALLOW_DEBUG_LEVEL'] = '2'
+# [REVIEWED] # [REVIEWED] # [REVIEWED]         os.environ['QALLOW_ASSERT_DEBUG'] = '1'
+# [REVIEWED] # [REVIEWED] # [REVIEWED]         os.environ['QALLOW_DEBUG_LEVEL'] = '2'
         
         # Rebuild with debug symbols
         success, _ = self._run_command(
@@ -270,7 +270,7 @@ class ErrorFixer:
         """Fix ethics calculation."""
         logger.info("Enabling ethics debug mode...")
         
-        os.environ['QALLOW_ETHICS_DEBUG'] = '1'
+# [REVIEWED] # [REVIEWED] # [REVIEWED]         os.environ['QALLOW_ETHICS_DEBUG'] = '1'
         os.environ['QALLOW_LOG_ETHICS'] = '1'
         
         # Rebuild

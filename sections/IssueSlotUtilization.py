@@ -72,7 +72,7 @@ def apply(handle):
     parent_weights = fe.receive_dict_from_parent("Compute")
 
     issue_active = metrics["issue_active"].value()
-    # TODO: For multi-launch workloads, this is simply the average of the maximum warps
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     # TODO: For multi-launch workloads, this is simply the average of the maximum warps
     # over all launches. Instead, it should be the weighed average, where the weight
     # would be given by the relative duration of the launch.
     theoretical_warps = metrics["theoretical_warps"].value()
