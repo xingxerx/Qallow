@@ -4,8 +4,9 @@
 
 **Experimental Quantum-Photonic Computing Platform**
 
-[![Status](https://img.shields.io/badge/Status-No%20(v0.1)-lightgrey)]()
-[![Phases](https://img.shields.io/badge/Phases-20%20Execution%20Phases-blue)]()
+[![Build](https://github.com/xingxerx/Qallow/actions/workflows/internal-ci.yml/badge.svg)](https://github.com/xingxerx/Qallow/actions/workflows/internal-ci.yml)
+[![Docs](https://img.shields.io/badge/Docs-Quickstart-blue)](docs/QUICKSTART.md)
+[![Phases](https://img.shields.io/badge/Phases-13%20active%20%E2%86%92%2020%20planned-blue)]()
 [![Hardware](https://img.shields.io/badge/Hardware-CPU%20%26%20CUDA-green)]()
 [![License](https://img.shields.io/badge/License-MIT-blue)]()
 
@@ -23,14 +24,14 @@
 - **Hardware Acceleration** – CPU fallback with CUDA optimization
 - **Structured Telemetry** – performance metrics, validation logs, and reproducible analysis
 
-The platform provides **20 execution phases** that can be orchestrated from a single entry point, with deterministic output for reproducible results.
+The platform currently ships with **13 active execution phases** (v0.1) orchestrated from a single entry point, with a roadmap to **20 phases** and deterministic output for reproducible results.
 
 ---
 
 ## Key Features
 
 **Unified Quantum Computing Framework**
-- 20 execution phases (initialization, optimization, validation, synthesis, etc.)
+- 13 execution phases available today (initialization, optimization, validation) with a roadmap to 20
 - Single entry point for complete workflows
 - Modular architecture with clean boundaries
 
@@ -82,6 +83,9 @@ cp .env.example .env   # customize runtime options
 
 # 3. Build everything
 ./scripts/build_all.sh
+
+# 4. 30-second smoke test (Phase 11 bridge)
+./build/qallow run --phase=11 --ticks=32 --states=-1,0,1
 ```
 
 ### Run Your First Simulation
@@ -110,13 +114,44 @@ cmake --build build --target qallow_examples
 python examples/quantum_adaptive_demo.py --episodes 5 --simulate
 ```
 
+### Examples Index
+
+| Example | Purpose | Command |
+|---------|---------|---------|
+| Phase 7 harmonic governance | Inspect baseline photonic control loop | `./build/phase07_demo --ticks=100` |
+| Phase 11 hardware bridge | Validate coherence bridge with Qiskit | `./build/qallow run --phase=11 --ticks=64 --states=-1,0,1` |
+| Throughput benchmark | Profile CPU/CUDA runtime | `cmake --build build --target qallow_throughput_bench && ./build/qallow_throughput_bench` |
+| Quantum adaptive demo | Run hybrid adaptive policy search | `python examples/quantum_adaptive_demo.py --episodes 5 --simulate` |
+| Unified AGI pipeline | Execute end-to-end integration | `./scripts/run_unified_agi.sh` |
+
 📖 **Need help?** See `docs/QUICKSTART.md` for detailed setup, CUDA installation, and troubleshooting.
+
+## 📈 Deterministic Telemetry Snapshot
+
+Every phase emits deterministic CSV and JSON artifacts so runs can be reproduced end-to-end. A typical Phase 14 export looks like:
+
+```csv
+# data/logs/phase14.csv
+tick,fidelity,alpha,target
+0,0.812340,0.004211,0.981000
+50,0.941225,0.004211,0.981000
+100,0.977318,0.004211,0.981000
+150,0.981043,0.004211,0.981000
+```
+
+```json
+// data/logs/phase14.jsonl
+{"phase":14,"tick":150,"fidelity":0.981043,"alpha_used":0.004211,"status":"OK"}
+{"phase":14,"export_path":"data/logs/phase14.json","checksum":"8b77c8e9"}
+```
+
+Use `QALLOW_LOG_FORMAT=jsonl` or the default CSV exporters to integrate the telemetry directly into your dashboards.
 
 ## 🏗️ System Architecture
 
 ### How Qallow Works as One Unit
 
-Qallow is designed as an **integrated quantum-photonic AGI system** with 20 research phases working together:
+Qallow is designed as an **integrated quantum-photonic AGI system** with up to 20 research phases (13 active in v0.1) working together:
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -372,7 +407,14 @@ qallow_quantum pipeline \
 
 The next `qallow_unified run --integrate phase14 phase15` will ingest the refreshed JSON when those environment variables point to the exported files (set automatically by the helper script).
 
-📖 **Contributing:** See `CONTRIBUTING.md` for coding standards, branching model, and CI expectations.
+## 🤝 Contributing at a Glance
+
+- **Branching:** start from `main`, push feature work as `feature/<slug>` and rebase before opening a PR.
+- **Style:** run `clang-format` for C/C++ (`make format`), `black` + `ruff` for Python helpers, and keep headers ASCII.
+- **Tests:** `./scripts/build_all.sh` must complete (build + ctest); add unit coverage for new behaviours.
+- **Ethics:** include updates to the ethics fixtures when touching governance-sensitive code.
+
+See `CONTRIBUTING.md` for the full checklist, templates, and review expectations.
 
 ## 🧠 Quantum-AI Hyperparameter Optimizer
 
@@ -462,6 +504,14 @@ See `docs/unified_agi_pipeline.md` for detailed documentation.
 
 ---
 
+## 🗺️ Next Milestones
+
+- **v0.2** – extend runtime coverage to Phases 16–18 and stabilize the CUDA bridge.
+- **v0.3** – integrate hardware backends for Phase 19 audit trail and Phase 20 synthesis.
+- **v1.0** – graduate unified pipeline to production readiness with signed telemetry schemas.
+
+---
+
 ## 📚 Documentation
 
 - **Architecture:** `docs/ARCHITECTURE_SPEC.md`
@@ -475,6 +525,7 @@ See `docs/unified_agi_pipeline.md` for detailed documentation.
 ## 📄 License & Governance
 
 This repository is available under the **MIT license** (`LICENSE`).
+In practice that means every PR must pass the ethics validation tests and comply with the charter before merge.
 
 **Contributions must respect:**
 - The ethics charter (`docs/ETHICS_CHARTER.md`)
@@ -497,7 +548,7 @@ This repository is available under the **MIT license** (`LICENSE`).
 | Aspect | Status |
 |--------|--------|
 | **Version** | v0.1 |
-| **Phases** | 13 Research Phases |
+| **Phases** | 13 Active (20 Planned) |
 | **Hardware** | CPU & CUDA |
 | **Ethics** | Integrated |
 | **Telemetry** | Full Coverage |
