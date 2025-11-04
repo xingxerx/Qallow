@@ -32,7 +32,6 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-
 # Import the low-level C/C++ module
 if __package__ or "." in __name__:
     from . import _NvRules
@@ -1094,7 +1093,6 @@ def require_rules(handle, rules):
     ev = get_evaluator(handle)
     for rule in rules:
         ev.require_rule(rule)
-
 
 
 class _ConfigParser(ABC):
@@ -3265,6 +3263,4 @@ class MsgType(enum.IntEnum):
     OPTIMIZATION = MsgType_OPTIMIZATION
     WARNING = MsgType_WARNING
     ERROR = MsgType_ERR
-
-
 

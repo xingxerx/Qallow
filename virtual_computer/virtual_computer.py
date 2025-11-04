@@ -9,7 +9,6 @@ import time
 import random
 
 
-
 class WorkloadType(Enum):
     GPU_COMPUTE = "gpu_compute"
     GPU_MEMORY_INTENSIVE = "gpu_memory"

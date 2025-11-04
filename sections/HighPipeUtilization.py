@@ -179,8 +179,6 @@ class SharedPipeline(CompositePipeline):
         return description
 
 
-
-
 def apply(handle):
     ctx = NvRules.get_context(handle)
     action = ctx.range_by_idx(0).action_by_idx(0)

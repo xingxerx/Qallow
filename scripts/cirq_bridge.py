@@ -7,7 +7,6 @@ import json
 import sys
 
 
-
 def _parse_states(raw: str) -> List[int]:
     tokens = []
     for chunk in raw.split(","):

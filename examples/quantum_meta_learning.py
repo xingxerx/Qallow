@@ -13,7 +13,6 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 
-
 def generate_ring_dataset(
     samples: int,
     noise: float = 0.05,

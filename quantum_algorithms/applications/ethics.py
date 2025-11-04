@@ -6,7 +6,6 @@ downstream services can persist or forward to trust dashboards.
 """
 
 
-
 @dataclass
 class CoherenceReport:
     """Result of an ethical compliance check."""

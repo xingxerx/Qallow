@@ -1,8 +1,6 @@
 # run_phase11_bridge_agent.py
 
 
-
-
 class QuantumBridgeAgent:
     def on_message(self, message: Any) -> Optional[Any]:
         """Handle bridge messages (legacy Agent Lightning shim)."""
