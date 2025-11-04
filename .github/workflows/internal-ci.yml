@@ -148,11 +148,11 @@ jobs:
           echo "{}" > /tmp/accelerator_input.json
           ./build/CPU/qallow_unified_cpu run --accelerator --file=/tmp/accelerator_input.json --no-watch --threads=2 --quiet
 
-#       - name: Clean up build artifacts
-#         if: always()
-#         run: |
-#           rm -rf build/
-#           df -h
+      - name: Clean up build artifacts
+        if: always()
+        run: |
+          rm -rf build/
+          df -h
 
       - name: Install FLTK dependencies
         run: |
