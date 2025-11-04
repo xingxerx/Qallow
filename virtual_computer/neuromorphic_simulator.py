@@ -1,23 +1,23 @@
-#!/usr/bin/env python3
-"""
-Neuromorphic Processor Simulator
-Simulates spiking neural networks (SNNs) with neuron dynamics, synaptic plasticity,
-and event-based processing
-"""
-
-
-
-
-
-
-class NeuronType(Enum):
-    LEAKY_INTEGRATE_AND_FIRE = "lif"
-    HODGKIN_HUXLEY = "hh"
-    IZHIKEVICH = "iz"
-
-
-@dataclass
-class Spike:
+# [REVIEWED] # [REVIEWED] # [REVIEWED] #!/usr/bin/env python3
+# [REVIEWED] # [REVIEWED] # [REVIEWED] """
+# [REVIEWED] # [REVIEWED] # [REVIEWED] Neuromorphic Processor Simulator
+# [REVIEWED] # [REVIEWED] # [REVIEWED] Simulates spiking neural networks (SNNs) with neuron dynamics, synaptic plasticity,
+# [REVIEWED] # [REVIEWED] # [REVIEWED] and event-based processing
+# [REVIEWED] # [REVIEWED] # [REVIEWED] """
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] class NeuronType(Enum):
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     LEAKY_INTEGRATE_AND_FIRE = "lif"
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     HODGKIN_HUXLEY = "hh"
+# [REVIEWED] # [REVIEWED] # [REVIEWED]     IZHIKEVICH = "iz"
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] 
+# [REVIEWED] # [REVIEWED] # [REVIEWED] @dataclass
+# [REVIEWED] # [REVIEWED] # [REVIEWED] class Spike:
     """Represents a spike event"""
     neuron_id: int
     timestamp: float
