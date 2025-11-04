@@ -145,6 +145,7 @@ if(QALLOW_ENABLE_CUDA)
     set(QALLOW_CUDA_SOURCES
         backend/cuda/photonic.cu
         backend/cuda/pocket.cu
+        backend/cuda/multi_pocket.cu
         backend/cuda/ppai_kernels.cu
         backend/cuda/qcp_kernels.cu
         backend/cuda/quantum.cu

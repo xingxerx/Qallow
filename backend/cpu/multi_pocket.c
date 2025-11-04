@@ -5,6 +5,20 @@
 #include <math.h>
 #include <time.h>
 
+#if CUDA_ENABLED
+#include <cuda_runtime.h>
+extern int multi_pocket_cuda_run(const pocket_params_t* params,
+                                 const qallow_state_t* initial_state,
+                                 int num_pockets,
+                                 int num_ticks,
+                                 int node_count,
+                                 float* host_values_out,
+                                 float* avg_coherence_out,
+                                 float* avg_deco_out,
+                                 float* final_coherence_out,
+                                 double* total_elapsed_ms);
+#endif
+
 // Multi-Pocket Simulation Scheduler Implementation
 // Runs N parallel probabilistic worldlines
 
@@ -218,13 +232,112 @@ void multi_pocket_execute_cuda(multi_pocket_scheduler_t* scheduler,
                                int num_ticks) {
     if (!scheduler || !initial_state) return;
 
-    printf("[MULTI-POCKET] Executing %d pockets on CUDA (parallel streams)...\n",
+    if (scheduler->num_pockets <= 0) {
+        return;
+    }
+
+    printf("[MULTI-POCKET] Executing %d pockets on CUDA (parallel kernels)...\n",
            scheduler->num_pockets);
 
-    // TODO: Implement CUDA parallel execution
-    // For now, fall back to CPU
-    printf("[MULTI-POCKET] CUDA parallel execution not yet implemented, using CPU\n");
-    multi_pocket_execute_cpu(scheduler, initial_state, num_ticks);
+    int node_count = initial_state->overlays[0].node_count;
+    if (node_count <= 0 || node_count > MAX_NODES) {
+        node_count = MAX_NODES;
+    }
+
+    const size_t state_elements =
+        (size_t)scheduler->num_pockets * NUM_OVERLAYS * MAX_NODES;
+    float* final_values = (float*)malloc(state_elements * sizeof(float));
+    float* avg_coherence = (float*)malloc(sizeof(float) * scheduler->num_pockets);
+    float* avg_deco = (float*)malloc(sizeof(float) * scheduler->num_pockets);
+    float* final_coherence = (float*)malloc(sizeof(float) * scheduler->num_pockets);
+
+    if (!final_values || !avg_coherence || !avg_deco || !final_coherence) {
+        fprintf(stderr, "[MULTI-POCKET][CUDA] Allocation failure, falling back to CPU path.\n");
+        free(final_values);
+        free(avg_coherence);
+        free(avg_deco);
+        free(final_coherence);
+        multi_pocket_execute_cpu(scheduler, initial_state, num_ticks);
+        return;
+    }
+
+    double total_elapsed_ms = 0.0;
+    int rc = multi_pocket_cuda_run(scheduler->params,
+                                   initial_state,
+                                   scheduler->num_pockets,
+                                   num_ticks,
+                                   node_count,
+                                   final_values,
+                                   avg_coherence,
+                                   avg_deco,
+                                   final_coherence,
+                                   &total_elapsed_ms);
+    if (rc != 0) {
+        fprintf(stderr, "[MULTI-POCKET][CUDA] Device execution failed, using CPU fallback.\n");
+        free(final_values);
+        free(avg_coherence);
+        free(avg_deco);
+        free(final_coherence);
+        multi_pocket_execute_cpu(scheduler, initial_state, num_ticks);
+        return;
+    }
+
+    scheduler->total_scheduler_time_ms = total_elapsed_ms;
+    scheduler->max_pocket_time_ms = 0.0;
+    scheduler->min_pocket_time_ms = total_elapsed_ms;
+
+    for (int pocket = 0; pocket < scheduler->num_pockets; ++pocket) {
+        qallow_state_t pocket_state;
+        memcpy(&pocket_state, initial_state, sizeof(qallow_state_t));
+        pocket_state.tick_count = num_ticks;
+        pocket_state.global_coherence = final_coherence[pocket];
+        pocket_state.decoherence_level = avg_deco[pocket];
+
+        for (int overlay = 0; overlay < NUM_OVERLAYS; ++overlay) {
+            const size_t base =
+                ((size_t)pocket * NUM_OVERLAYS + (size_t)overlay) * MAX_NODES;
+            memcpy(pocket_state.overlays[overlay].values,
+                   final_values + base,
+                   node_count * sizeof(float));
+            pocket_state.overlays[overlay].node_count = node_count;
+            pocket_state.overlays[overlay].stability =
+                qallow_calculate_stability(&pocket_state.overlays[overlay]);
+        }
+
+        ethics_state_t ethics;
+        qallow_ethics_check(&pocket_state, &ethics);
+
+        pocket_result_t* result = &scheduler->results[pocket];
+        result->pocket_id = scheduler->params[pocket].pocket_id;
+        memcpy(&result->final_state, &pocket_state, sizeof(qallow_state_t));
+        result->avg_coherence = avg_coherence[pocket];
+        result->avg_decoherence = avg_deco[pocket];
+        result->ethics_score = ethics.total_ethics_score;
+        result->confidence = fmaxf(0.0f, 1.0f - result->avg_decoherence);
+        result->ticks_executed = num_ticks;
+        result->elapsed_time_ms = total_elapsed_ms;
+
+        if (result->elapsed_time_ms > scheduler->max_pocket_time_ms) {
+            scheduler->max_pocket_time_ms = result->elapsed_time_ms;
+        }
+        if (result->elapsed_time_ms < scheduler->min_pocket_time_ms) {
+            scheduler->min_pocket_time_ms = result->elapsed_time_ms;
+        }
+
+        printf("[POCKET %d][CUDA] Avg coherence=%.4f | Avg deco=%.6f | Ethics=%.3f\n",
+               pocket,
+               result->avg_coherence,
+               result->avg_decoherence,
+               result->ethics_score);
+    }
+
+    printf("[MULTI-POCKET][CUDA] All pockets complete - GPU time: %.2f ms\n",
+           scheduler->total_scheduler_time_ms);
+
+    free(final_values);
+    free(avg_coherence);
+    free(avg_deco);
+    free(final_coherence);
 }
 #endif
 
