@@ -13,6 +13,7 @@
 				"packageManager": "ms-python.python:pip"
 			}
 		],
-		"git.ignoreLimitWarning": true
+		"git.ignoreLimitWarning": true,
+		"remote.autoForwardPortsFallback": 0
 	}
 }

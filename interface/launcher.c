@@ -1,6 +1,7 @@
 /* TODO: Refactor complex functions - consider breaking into smaller functions */
+/* TODO: Refactor complex functions - consider breaking into smaller functions */
 /* Multi-block comment removed */
-/* Multi-block comment removed */
+
 
 
 
@@ -643,16 +644,25 @@ static int qallow_dispatch_phase(int argc, char** argv, int start_index, const c
                                  int (*runner)(int, char**)) {
     int trailing = argc - (start_index + 1);
     int phase_argc = 2 + (trailing > 0 ? trailing : 0);
-    const char* phase_argv_const[phase_argc];
+    char* phase_argv[phase_argc];
     int pos = 0;
 
-    phase_argv_const[pos++] = argv[0];
-    phase_argv_const[pos++] = phase_name;
+    phase_argv[pos++] = argv[0];
+    size_t phase_len = strlen(phase_name) + 1;
+    char* phase_name_copy = (char*)malloc(phase_len);
+    if (!phase_name_copy) {
+        fprintf(stderr, "[ERROR] Out of memory dispatching %s\n", phase_name);
+        return 1;
+    }
+    memcpy(phase_name_copy, phase_name, phase_len);
+    phase_argv[pos++] = phase_name_copy;
     for (int i = start_index + 1; i < argc; ++i) {
-        phase_argv_const[pos++] = argv[i];
+        phase_argv[pos++] = argv[i];
     }
 
-    return runner(phase_argc, (char**)phase_argv_const);
+    int rc = runner(phase_argc, phase_argv);
+    free(phase_name_copy);
+    return rc;
 }
 
 static int qallow_handle_run(int argc, char** argv, int arg_offset, run_profile_t default_profile) {
@@ -990,15 +1000,15 @@ run_parse_done:
 
     if (accelerator_requested) {
         int accel_argc = 1 + (argc - (accelerator_arg_index + 1));
-        const char* accel_argv_const[accel_argc];
+        char* accel_argv[accel_argc];
         int pos = 0;
 
-        accel_argv_const[pos++] = argv[0];
+        accel_argv[pos++] = argv[0];
         for (int k = accelerator_arg_index + 1; k < argc; ++k) {
-            accel_argv_const[pos++] = argv[k];
+            accel_argv[pos++] = argv[k];
         }
 
-        return qallow_phase13_main(accel_argc, (char**)accel_argv_const);
+        return qallow_phase13_main(accel_argc, accel_argv);
     }
 
     if (phase_runner) {
@@ -1131,10 +1141,12 @@ run_parse_done:
 
         if (integrate_phase11) {
             printf("[INTEGRATE] Running Phase 11 coherence bridge...\n");
-            const char* phase11_args[8];
+            char* phase11_args[8];
             int argc11 = 0;
+            char phase11_literal[] = "phase11";
+            char hardware_flag[] = "--hardware-only";
             phase11_args[argc11++] = argv[0];
-            phase11_args[argc11++] = "phase11";
+            phase11_args[argc11++] = phase11_literal;
             char ticks_buf[32];
             if (phase11_ticks_override > 0) {
                 snprintf(ticks_buf, sizeof(ticks_buf), "--ticks=%d", phase11_ticks_override);
@@ -1146,9 +1158,9 @@ run_parse_done:
                 phase11_args[argc11++] = states_buf;
             }
             if (phase11_force_hardware) {
-                phase11_args[argc11++] = "--hardware-only";
+                phase11_args[argc11++] = hardware_flag;
             }
-            int rc = qallow_phase11_runner(argc11, (char**)phase11_args);
+            int rc = qallow_phase11_runner(argc11, phase11_args);
             if (rc != 0) {
                 fprintf(stderr, "[ERROR] Phase 11 integration failed (code=%d)\n", rc);
                 return rc;
@@ -1157,10 +1169,11 @@ run_parse_done:
 
         if (integrate_phase12) {
             printf("[INTEGRATE] Running Phase 12 elasticity...\n");
-            const char* phase12_args[8];
+            char* phase12_args[8];
             int argc12 = 0;
+            char phase12_literal[] = "phase12";
             phase12_args[argc12++] = argv[0];
-            phase12_args[argc12++] = "phase12";
+            phase12_args[argc12++] = phase12_literal;
             char ticks_buf[32];
             if (phase12_ticks_override > 0) {
                 snprintf(ticks_buf, sizeof(ticks_buf), "--ticks=%d", phase12_ticks_override);
@@ -1187,7 +1200,7 @@ run_parse_done:
                 }
                 phase12_args[argc12++] = audit_buf;
             }
-            int rc = qallow_phase12_runner(argc12, (char**)phase12_args);
+            int rc = qallow_phase12_runner(argc12, phase12_args);
             if (rc != 0) {
                 fprintf(stderr, "[ERROR] Phase 12 integration failed (code=%d)\n", rc);
                 return rc;
@@ -1196,10 +1209,11 @@ run_parse_done:
 
         if (integrate_phase13) {
             printf("[INTEGRATE] Running Phase 13 harmonic propagation...\n");
-            const char* phase13_args[10];
+            char* phase13_args[10];
             int argc13 = 0;
+            char phase13_literal[] = "phase13";
             phase13_args[argc13++] = argv[0];
-            phase13_args[argc13++] = "phase13";
+            phase13_args[argc13++] = phase13_literal;
             char nodes_buf[32];
             if (phase13_nodes_override > 0) {
                 snprintf(nodes_buf, sizeof(nodes_buf), "--nodes=%d", phase13_nodes_override);
@@ -1231,7 +1245,7 @@ run_parse_done:
                 }
                 phase13_args[argc13++] = audit_buf;
             }
-            int rc = qallow_phase13_runner(argc13, (char**)phase13_args);
+            int rc = qallow_phase13_runner(argc13, phase13_args);
             if (rc != 0) {
                 fprintf(stderr, "[ERROR] Phase 13 integration failed (code=%d)\n", rc);
                 return rc;
@@ -1319,21 +1333,23 @@ static int qallow_handle_run_group(int argc, char** argv, int arg_offset) {
     if (strcmp(sub, "unified") == 0 || strcmp(sub, "pipeline") == 0) {
         int trailing = argc - (arg_offset + 1);
         int new_argc = 3 + trailing;
-        const char* run_argv[3 + trailing + 1];
+        char* run_argv[3 + trailing + 1];
         int pos = 0;
+        char run_literal[] = "run";
+        char integrate_literal[] = "--integrate";
         run_argv[pos++] = argv[0];
-        run_argv[pos++] = "run";
-        run_argv[pos++] = "--integrate";
+        run_argv[pos++] = run_literal;
+        run_argv[pos++] = integrate_literal;
         for (int i = 0; i < trailing; ++i) {
             run_argv[pos++] = argv[arg_offset + 1 + i];
         }
         run_argv[pos] = NULL;
-        return qallow_handle_run(new_argc, (char**)run_argv, 2, RUN_PROFILE_STANDARD);
+        return qallow_handle_run(new_argc, run_argv, 2, RUN_PROFILE_STANDARD);
     }
 
     if (strcmp(sub, "accelerator") == 0) {
         int accel_argc = 1 + (argc - (arg_offset + 1));
-        const char* accel_argv_const[accel_argc];
+        char* accel_argv_const[accel_argc];
         int pos = 0;
 
         accel_argv_const[pos++] = argv[0];
@@ -1341,7 +1357,7 @@ static int qallow_handle_run_group(int argc, char** argv, int arg_offset) {
             accel_argv_const[pos++] = argv[i];
         }
 
-        return qallow_phase13_main(accel_argc, (char**)accel_argv_const);
+        return qallow_phase13_main(accel_argc, accel_argv_const);
     }
 
     if (strcmp(sub, "entangle") == 0) {
@@ -1867,7 +1883,7 @@ int main(int argc, char** argv) {
     if (strcmp(command, "accelerator") == 0) {
         printf("[INFO] `qallow accelerator` now routes to `qallow run accelerator`.\n");
         int accel_argc = 1 + (argc - arg_offset);
-        const char* accel_argv_const[accel_argc];
+        char* accel_argv_const[accel_argc];
         int pos = 0;
 
         accel_argv_const[pos++] = argv[0];
@@ -1879,7 +1895,7 @@ int main(int argc, char** argv) {
             accel_argv_const[pos++] = argv[i];
         }
 
-        return qallow_phase13_main(accel_argc, (char**)accel_argv_const);
+        return qallow_phase13_main(accel_argc, accel_argv_const);
     }
 
     if (strcmp(command, "phase11") == 0) {

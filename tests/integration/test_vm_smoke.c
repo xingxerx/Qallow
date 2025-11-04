@@ -18,14 +18,23 @@ int main(int argc, char** argv) {
 
     ensure_log_dirs();
 
-    const char* phase12_args[] = {"qallow_tests", "phase12", "--ticks=20", "--eps=0.001"};
-    if (qallow_phase12_runner(4, (char**)phase12_args) != 0) {
+    char phase12_prog[] = "qallow_tests";
+    char phase12_cmd[] = "phase12";
+    char phase12_ticks[] = "--ticks=20";
+    char phase12_eps[] = "--eps=0.001";
+    char* phase12_args[] = {phase12_prog, phase12_cmd, phase12_ticks, phase12_eps};
+    if (qallow_phase12_runner(4, phase12_args) != 0) {
         fprintf(stderr, "[integration] phase12 runner failed\n");
         return EXIT_FAILURE;
     }
 
-    const char* phase13_args[] = {"qallow_tests", "phase13", "--nodes=8", "--ticks=50", "--k=0.001"};
-    if (qallow_phase13_runner(5, (char**)phase13_args) != 0) {
+    char phase13_prog[] = "qallow_tests";
+    char phase13_cmd[] = "phase13";
+    char phase13_nodes[] = "--nodes=8";
+    char phase13_ticks[] = "--ticks=50";
+    char phase13_k[] = "--k=0.001";
+    char* phase13_args[] = {phase13_prog, phase13_cmd, phase13_nodes, phase13_ticks, phase13_k};
+    if (qallow_phase13_runner(5, phase13_args) != 0) {
         fprintf(stderr, "[integration] phase13 runner failed\n");
         return EXIT_FAILURE;
     }

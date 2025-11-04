@@ -32,14 +32,23 @@ int main(int argc, char** argv) {
 
     qallow_logging_init();
 
-    const char* phase12_args[] = {"qallow_examples", "phase12", "--ticks=200", "--eps=0.0005"};
-    if (run_phase("phase12", qallow_phase12_runner, 4, (char**)phase12_args) != 0) {
+    char phase12_prog[] = "qallow_examples";
+    char phase12_cmd[] = "phase12";
+    char phase12_ticks[] = "--ticks=200";
+    char phase12_eps[] = "--eps=0.0005";
+    char* phase12_args[] = {phase12_prog, phase12_cmd, phase12_ticks, phase12_eps};
+    if (run_phase("phase12", qallow_phase12_runner, 4, phase12_args) != 0) {
         qallow_log_error("benchmark.phase12.failed", "ticks=%d", 200);
         return EXIT_FAILURE;
     }
 
-    const char* phase13_args[] = {"qallow_examples", "phase13", "--nodes=16", "--ticks=400", "--k=0.001"};
-    if (run_phase("phase13", qallow_phase13_runner, 5, (char**)phase13_args) != 0) {
+    char phase13_prog[] = "qallow_examples";
+    char phase13_cmd[] = "phase13";
+    char phase13_nodes[] = "--nodes=16";
+    char phase13_ticks[] = "--ticks=400";
+    char phase13_k[] = "--k=0.001";
+    char* phase13_args[] = {phase13_prog, phase13_cmd, phase13_nodes, phase13_ticks, phase13_k};
+    if (run_phase("phase13", qallow_phase13_runner, 5, phase13_args) != 0) {
         qallow_log_error("benchmark.phase13.failed", "nodes=%d ticks=%d", 16, 400);
         return EXIT_FAILURE;
     }

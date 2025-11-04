@@ -91,7 +91,7 @@ static void benchmark_ethics_overhead(int iterations) {
 static void benchmark_memory(int iterations) {
     printf("[BENCH] Memory operations: %d iterations\n", iterations);
 
-    float *buffer = malloc(1000 * sizeof(float));
+    float *buffer = (float *)malloc(1000 * sizeof(float));
 
     clock_t start = clock();
     for (int i = 0; i < iterations; i++) {

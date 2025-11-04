@@ -229,12 +229,15 @@ static int qallow_vm_run_hardware(void) {
     char states_arg[160];
     snprintf(states_arg, sizeof(states_arg), "--states=%s", states_clean);
 
+    char program_arg[] = "qallow";
+    char phase_arg[] = "phase11";
+    char hardware_only_arg[] = "--hardware-only";
     char* args[] = {
-        "qallow",
-        "phase11",
+        program_arg,
+        phase_arg,
         shots_arg,
         states_arg,
-        "--hardware-only",
+        hardware_only_arg,
         NULL,
     };
 
