@@ -1190,6 +1190,44 @@ class CodeAnalyzer:
 
         return fixes
 
+    def analyze_excessive_blank_lines(self) -> int:
+        """Remove excessive consecutive blank lines from Python files."""
+        fixes = 0
+        print("\n   🔍 Scanning for excessive blank lines...")
+        pause_for_reading("Analyzing blank lines...", 1)
+
+        try:
+            for py_file in self._iter_python_files():
+                content = py_file.read_text()
+                original_lines = content.split('\n')
+                
+                # Remove more than 2 consecutive blank lines (keep max 2)
+                new_lines = []
+                blank_count = 0
+                for line in original_lines:
+                    if line.strip() == '':
+                        blank_count += 1
+                        if blank_count <= 2:
+                            new_lines.append(line)
+                    else:
+                        blank_count = 0
+                        new_lines.append(line)
+                
+                new_content = '\n'.join(new_lines)
+                
+                if new_content != content:
+                    py_file.write_text(new_content)
+                    removed = len(original_lines) - len(new_lines)
+                    if removed > 0:
+                        rel = py_file.relative_to(self.project_root)
+                        print(f"      ✏️  Removed {removed} excessive blank line(s) in {rel}")
+                        fixes += 1
+                        
+        except Exception as e:
+            logger.debug(f"Error analyzing blank lines: {e}")
+
+        return fixes
+
     def analyze_function_complexity(self) -> int:
         """Find overly complex functions."""
         fixes = 0
@@ -1243,6 +1281,7 @@ class CodeAnalyzer:
         total += self.analyze_dead_code()
         total += self.analyze_performance()
         total += self.analyze_variable_naming()
+        total += self.analyze_excessive_blank_lines()  # NEW: Remove excessive blank lines
         # DISABLED: analyze_function_complexity() was adding duplicate TODO comments
         # without actually fixing code - not providing real value
         # total += self.analyze_function_complexity()
