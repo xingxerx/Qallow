@@ -5,12 +5,12 @@
 ### 1. **Daemon Sleep Updated to 10 Seconds** ✅
 - Changed `PAUSE_BETWEEN_ITERATIONS` from 1 second to 10 seconds
 - Gives more visibility between iterations
-- File: `lightning_agent_fast.py` line 52
+- File: `agentlightning_runner.py` line 52
 
 ### 2. **Switched from Qiskit to Cirq** ✅
 - Changed `QALLOW_QISKIT` environment variable to `QALLOW_CIRQ`
 - Updated files:
-  - `lightning_agent_fast.py` line 57: Now uses `QALLOW_CIRQ` env var
+  - `agentlightning_runner.py` line 57: Now uses `QALLOW_CIRQ` env var
   - `backend/cpu/qallow_kernel.c`: Removed Qiskit fallback, now Cirq-only
 
 - **Before**: Checked `QALLOW_QISKIT` with fallback
@@ -31,7 +31,7 @@
 PID: 64119
 Status: Running
 Iterations: 81/500 completed
-Command: python3 lightning_agent_fast.py --fast --use-cuda --daemon --max-iterations=500
+Command: python3 agentlightning_runner.py --fast --use-cuda --daemon --max-iterations=500
 Environment: QALLOW_CIRQ=1 QALLOW_ENABLE_CUDA=ON
 ```
 
@@ -79,7 +79,7 @@ ps aux | grep lightning_agent
 
 To stop:
 ```bash
-pkill -f "lightning_agent_fast.py"
+pkill -f "agentlightning_runner.py"
 ```
 
 ---

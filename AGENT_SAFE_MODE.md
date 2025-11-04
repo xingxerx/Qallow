@@ -13,7 +13,7 @@
 
 1. **Start the daemon:**
    ```bash
-   QALLOW_CIRQ=1 QALLOW_ENABLE_CUDA=ON python3 lightning_agent_fast.py \
+   QALLOW_CIRQ=1 QALLOW_ENABLE_CUDA=ON python3 agentlightning_runner.py \
      --fast --use-cuda --daemon --max-iterations=500
    ```
 
@@ -132,14 +132,14 @@ git push origin main
 git log --oneline -10
 
 # Stop daemon
-pkill -f "lightning_agent_fast.py"
+pkill -f "agentlightning_runner.py"
 ```
 
 ## Example Session
 
 ```bash
 # 1. Start daemon
-$ QALLOW_CIRQ=1 QALLOW_ENABLE_CUDA=ON python3 lightning_agent_fast.py --daemon
+$ QALLOW_CIRQ=1 QALLOW_ENABLE_CUDA=ON python3 agentlightning_runner.py --daemon
 
 # 2. Wait for improvements (check logs)
 $ tail -f agent_daemon.log
@@ -199,7 +199,7 @@ git commit -m "Refactor: Code quality improvements - 2 fixes"
 
 **Q: How do I stop the agent?**
 ```bash
-pkill -f "lightning_agent_fast.py"
+pkill -f "agentlightning_runner.py"
 ```
 
 **Q: How do I see what the agent did?**

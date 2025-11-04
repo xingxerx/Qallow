@@ -78,7 +78,7 @@ Iteration 1/10:
 
 ### Single Run with Tests
 ```bash
-python3 lightning_agent_fast.py --max-iterations=3
+python3 agentlightning_runner.py --max-iterations=3
 ```
 
 You'll see:
@@ -121,7 +121,7 @@ PHASE 5: Applying warning fixes...
 
 ### Daemon Mode (Continuous)
 ```bash
-python3 lightning_agent_fast.py --daemon --max-iterations=10
+python3 agentlightning_runner.py --daemon --max-iterations=10
 ```
 
 Runs all phases continuously with 60s countdown between iterations.
@@ -185,7 +185,7 @@ Fix written to file... (4s, press Enter to skip)...
 
 ## Files Modified
 
-**`lightning_agent_fast.py`**
+**`agentlightning_runner.py`**
 - Added `import pathlib` to imports
 - Added `TestRunner` class (43 lines)
 - Added `WarningFixer` class (155 lines)
@@ -199,7 +199,7 @@ Fix written to file... (4s, press Enter to skip)...
 The next build will detect snprintf truncation warnings and auto-fix them:
 
 ```bash
-python3 lightning_agent_fast.py --max-iterations=1
+python3 agentlightning_runner.py --max-iterations=1
 ```
 
 Expected:
@@ -255,7 +255,7 @@ Edit timeout/patterns in `WarningFixer`:
 ## Files
 
 Modified:
-- `/home/xing/Qallow/lightning_agent_fast.py` (804 lines, was 602)
+- `/home/xing/Qallow/agentlightning_runner.py` (804 lines, was 602)
 
 Created:
 - `/home/xing/Qallow/TEST_DRIVEN_FIX_SYSTEM.md` (this file)
@@ -263,7 +263,7 @@ Created:
 ## Next Run
 
 ```bash
-python3 lightning_agent_fast.py --max-iterations=3
+python3 agentlightning_runner.py --max-iterations=3
 ```
 
 This will:

@@ -9,7 +9,7 @@
 ## Run It Now
 
 ```bash
-python3 lightning_agent_fast.py --max-iterations=3
+python3 agentlightning_runner.py --max-iterations=3
 ```
 
 You'll see:
@@ -26,7 +26,7 @@ You'll see:
 ## What Changed
 
 ### File Modified
-- **`lightning_agent_fast.py`** - Converted from 463 → 601 lines
+- **`agentlightning_runner.py`** - Converted from 463 → 601 lines
   - Added display helpers (headers, error boxes, code context)
   - Added pause constants (2-5 seconds)
   - Updated CodeFixer to show before/after
@@ -57,8 +57,8 @@ You'll see:
 
 | Command | Effect |
 |---------|--------|
-| `python3 lightning_agent_fast.py --max-iterations=3` | Single run, 3 iterations |
-| `python3 lightning_agent_fast.py --daemon` | Continuous with 60s countdown |
+| `python3 agentlightning_runner.py --max-iterations=3` | Single run, 3 iterations |
+| `python3 agentlightning_runner.py --daemon` | Continuous with 60s countdown |
 | Press **Enter** during pause | Skip the pause, continue |
 | Press **Ctrl+C** anytime | Stop the agent |
 
@@ -124,7 +124,7 @@ You'll see:
 
 ## Adjust Speed
 
-Edit `/home/xing/Qallow/lightning_agent_fast.py` lines 37-40:
+Edit `/home/xing/Qallow/agentlightning_runner.py` lines 37-40:
 
 ```python
 PAUSE_BEFORE_FIX = 2          # ← Increase for slower
@@ -142,7 +142,7 @@ PAUSE_BETWEEN_ITERATIONS = 5
 ✅ Documentation written  
 ⏳ Ready to test!  
 
-Run it: `python3 lightning_agent_fast.py --max-iterations=3`
+Run it: `python3 agentlightning_runner.py --max-iterations=3`
 
 ---
 

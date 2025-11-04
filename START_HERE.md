@@ -55,7 +55,7 @@ cd /home/xing/Qallow && ./run_full_build.sh
 source .venv/bin/activate
 export QALLOW_ENABLE_CUDA=ON QALLOW_CIRQ=1
 ./build/qallow run unified --integrate-phase11
-python3 lightning_agent_fast.py --fast --daemon &
+python3 agentlightning_runner.py --fast --daemon &
 ```
 - ✅ See what's happening
 - ✅ Can customize

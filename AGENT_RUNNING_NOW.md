@@ -51,7 +51,7 @@ tail -f /tmp/lightning_agent.log
 
 ### Check Status
 ```bash
-ps aux | grep "lightning_agent_fast"
+ps aux | grep "agentlightning_runner"
 cat /home/xing/share/status.txt
 ```
 
@@ -63,12 +63,12 @@ git diff --stat
 
 ### Stop Agent
 ```bash
-pkill -f "lightning_agent_fast"
+pkill -f "agentlightning_runner"
 ```
 
 ### Start Again
 ```bash
-/home/xing/Qallow/.venv/bin/python lightning_agent_fast.py &
+/home/xing/Qallow/.venv/bin/python agentlightning_runner.py &
 ```
 
 ---
@@ -77,7 +77,7 @@ pkill -f "lightning_agent_fast"
 
 | Agent | Command | Speed | Best For |
 |-------|---------|-------|----------|
-| Lightning Fast | `python lightning_agent_fast.py` | Ultra-fast (0.05s) | General use |
+| Lightning Fast | `python agentlightning_runner.py` | Ultra-fast (0.05s) | General use |
 | Advanced Fixer | `python advanced_error_fixer.py` | Fast (0.1s) | Deep analysis |
 | Recursive Engine | `python recursive_improvement_engine.py` | Balanced (1s) | Long-term learning |
 
@@ -150,5 +150,5 @@ tail -100 /tmp/lightning_agent.log | grep "✏️"
 
 **You're all set! The agent is self-improving your codebase continuously.**
 
-To stop: `pkill -f "lightning_agent_fast"`  
+To stop: `pkill -f "agentlightning_runner"`  
 To monitor: `tail -f /tmp/lightning_agent.log`

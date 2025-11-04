@@ -181,7 +181,7 @@ The daemon automatically improves code in the background!
 
 ### Start Daemon
 ```bash
-QALLOW_CIRQ=1 QALLOW_ENABLE_CUDA=ON python3 lightning_agent_fast.py \
+QALLOW_CIRQ=1 QALLOW_ENABLE_CUDA=ON python3 agentlightning_runner.py \
   --fast --use-cuda --daemon --max-iterations=500
 ```
 
@@ -199,7 +199,7 @@ git log --oneline | head -10
 
 ### Stop
 ```bash
-pkill -f "lightning_agent_fast.py"
+pkill -f "agentlightning_runner.py"
 ```
 
 ---
@@ -254,7 +254,7 @@ ctest --test-dir build --output-on-failure && \
 ### One-Liner: Build + Start Daemon
 ```bash
 ./scripts/build_all.sh && \
-QALLOW_CIRQ=1 QALLOW_ENABLE_CUDA=ON python3 lightning_agent_fast.py --daemon
+QALLOW_CIRQ=1 QALLOW_ENABLE_CUDA=ON python3 agentlightning_runner.py --daemon
 ```
 
 ### Build Only
@@ -353,7 +353,7 @@ QALLOW_LOG_LEVEL=DEBUG ./build/qallow run unified
 1. **Build**: `./scripts/build_all.sh`
 2. **Run**: `./build/qallow run unified`
 3. **Explore**: Check `docs/` for detailed documentation
-4. **Improve**: Start daemon with `python3 lightning_agent_fast.py --daemon`
+4. **Improve**: Start daemon with `python3 agentlightning_runner.py --daemon`
 5. **Deploy**: Follow `docs/DEPLOYMENT.md` for production setup
 
 ---

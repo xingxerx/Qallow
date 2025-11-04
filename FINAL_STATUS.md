@@ -87,7 +87,7 @@ git show 0bd3144:interface/qallow_ui.c > interface/qallow_ui.c
 ## Live Daemon Activity
 
 ```
-Process: python3 lightning_agent_fast.py
+Process: python3 agentlightning_runner.py
 PID: 63154
 Status: Running ✅
 CPU: 26.4%
@@ -133,13 +133,13 @@ git status --short
 
 ### Stop Daemon (if needed)
 ```bash
-pkill -f "lightning_agent_fast.py"
+pkill -f "agentlightning_runner.py"
 ```
 
 ### Restart Daemon
 ```bash
 cd /home/xing/Qallow
-QALLOW_CIRQ=1 QALLOW_ENABLE_CUDA=ON python3 lightning_agent_fast.py \
+QALLOW_CIRQ=1 QALLOW_ENABLE_CUDA=ON python3 agentlightning_runner.py \
   --fast --use-cuda --daemon --max-iterations=500
 ```
 
@@ -153,7 +153,7 @@ QALLOW_CIRQ=1 QALLOW_ENABLE_CUDA=ON python3 lightning_agent_fast.py \
 
 ## Key Files Modified
 
-- `lightning_agent_fast.py` - Fixed `analyze_dead_code()` method
+- `agentlightning_runner.py` - Fixed `analyze_dead_code()` method
   - Line 1038-1105: Rewrote with line-by-line parsing
   - Added UI file skip protection
   - Added multiple safety thresholds

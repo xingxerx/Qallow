@@ -25,7 +25,7 @@ The agent's `analyze_unused_imports()` method was:
   - `from typing import Sequence, List, Tuple`
 
 ### 2. Disabled Agent's Problematic Features
-**Permanently disabled in `lightning_agent_fast.py`:**
+**Permanently disabled in `agentlightning_runner.py`:**
 - ✅ `analyze_unused_imports()` - Too aggressive, removes necessary imports
 - ✅ `analyze_dead_code()` - Removes valid code patterns
 - ✅ `analyze_function_complexity()` - Adds useless TODO comments
@@ -81,7 +81,7 @@ The agent is now in a **safe configuration**:
 
 1. **Start the agent daemon** (if desired):
    ```bash
-   QALLOW_CIRQ=1 QALLOW_ENABLE_CUDA=ON python3 lightning_agent_fast.py \
+   QALLOW_CIRQ=1 QALLOW_ENABLE_CUDA=ON python3 agentlightning_runner.py \
      --fast --use-cuda --daemon --max-iterations=500
    ```
 

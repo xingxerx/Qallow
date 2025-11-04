@@ -4,7 +4,7 @@
 
 IMPLEMENTATION DATE: Current Session
 STATUS: ✅ COMPLETE & TESTED
-FILE: /home/xing/Qallow/lightning_agent_fast.py
+FILE: /home/xing/Qallow/agentlightning_runner.py
 LINES: 1263 (was 1096, +167 this session)
 
 ================================================================================
@@ -38,7 +38,7 @@ SOLUTIONS IMPLEMENTED
 TEST RESULTS
 ================================================================================
 
-Command: python3 lightning_agent_fast.py --demo --max-iterations=2
+Command: python3 agentlightning_runner.py --demo --max-iterations=2
 
 ✅ Demo mode initialization: PASS
 ✅ Bug injection (3 bugs): PASS
@@ -138,16 +138,16 @@ QUICK START COMMANDS
 ================================================================================
 
 # Run demo to see all 4 solutions working together
-python3 lightning_agent_fast.py --demo --max-iterations=3
+python3 agentlightning_runner.py --demo --max-iterations=3
 
 # Run normal mode with continuous improvement
-python3 lightning_agent_fast.py --max-iterations=5
+python3 agentlightning_runner.py --max-iterations=5
 
 # Run daemon mode (continuous improvement every 60s)
-python3 lightning_agent_fast.py --daemon
+python3 agentlightning_runner.py --daemon
 
 # Get help
-python3 lightning_agent_fast.py --help
+python3 agentlightning_runner.py --help
 
 ================================================================================
 NEXT STEPS
@@ -162,7 +162,7 @@ RECOMMENDED ACTIONS:
 
 Immediate:
   [ ] Review FINAL_IMPLEMENTATION_SUMMARY.md
-  [ ] Run demo: python3 lightning_agent_fast.py --demo --max-iterations=3
+  [ ] Run demo: python3 agentlightning_runner.py --demo --max-iterations=3
   [ ] Observe all 4 solutions working
 
 Short-term:

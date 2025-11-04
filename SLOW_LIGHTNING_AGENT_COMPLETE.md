@@ -12,7 +12,7 @@ The Lightning Agent is now **SLOW, READABLE, and PAUSABLE**. Every step is visib
 
 ## File Modified
 
-**`/home/xing/Qallow/lightning_agent_fast.py`** (574 lines)
+**`/home/xing/Qallow/agentlightning_runner.py`** (574 lines)
 
 ### Changes Made
 
@@ -80,7 +80,7 @@ Each phase has pauses and visual separation.
 
 ### Single Run
 ```bash
-python3 lightning_agent_fast.py --max-iterations=3
+python3 agentlightning_runner.py --max-iterations=3
 ```
 Takes ~2-3 minutes. You'll see:
 - Build output streaming
@@ -90,7 +90,7 @@ Takes ~2-3 minutes. You'll see:
 
 ### Daemon Mode
 ```bash
-python3 lightning_agent_fast.py --daemon --max-iterations=10
+python3 agentlightning_runner.py --daemon --max-iterations=10
 ```
 Runs continuously with 60-second countdown between iterations.
 Press **Ctrl+C** to stop.
@@ -233,7 +233,7 @@ AFTER:  int x = 5;
 ### Quick Test (Should complete in 2 minutes)
 ```bash
 cd /home/xing/Qallow
-python3 lightning_agent_fast.py --max-iterations=3
+python3 agentlightning_runner.py --max-iterations=3
 ```
 
 **Expected:**
@@ -246,14 +246,14 @@ python3 lightning_agent_fast.py --max-iterations=3
 
 ### Verify Syntax
 ```bash
-python3 -m py_compile lightning_agent_fast.py
+python3 -m py_compile agentlightning_runner.py
 echo "✅ No syntax errors"
 ```
 
 ### Full Test with Build Errors
 ```bash
 # Introduce a build error, then run:
-python3 lightning_agent_fast.py --max-iterations=5
+python3 agentlightning_runner.py --max-iterations=5
 ```
 
 ---
@@ -261,7 +261,7 @@ python3 lightning_agent_fast.py --max-iterations=5
 ## Customization
 
 ### Adjust Pause Timing
-Edit lines 37-40 in `lightning_agent_fast.py`:
+Edit lines 37-40 in `agentlightning_runner.py`:
 ```python
 PAUSE_BEFORE_FIX = 2          # Increase for slower
 PAUSE_SHOW_CODE = 3           # Decrease for faster
@@ -312,7 +312,7 @@ No more wondering what the agent did. No more blazing-fast changes you can't tra
 
 ## Next Steps
 
-1. **Run it:** `python3 lightning_agent_fast.py --max-iterations=3`
+1. **Run it:** `python3 agentlightning_runner.py --max-iterations=3`
 2. **Watch it work** - You'll see each step clearly
 3. **Adjust timing** if needed (edit pause constants)
 4. **Add to daemon** if you want continuous auto-fixing
@@ -322,7 +322,7 @@ No more wondering what the agent did. No more blazing-fast changes you can't tra
 
 ## Files
 
-- ✅ Modified: `/home/xing/Qallow/lightning_agent_fast.py` (574 lines, syntax checked)
+- ✅ Modified: `/home/xing/Qallow/agentlightning_runner.py` (574 lines, syntax checked)
 - ✅ Created: `/home/xing/Qallow/SLOW_LIGHTNING_AGENT_SUMMARY.md` (Detailed guide)
 - ✅ Created: `/home/xing/Qallow/SLOW_LIGHTNING_AGENT_QUICK_REF.md` (Quick reference)
 - ✅ Status: Ready to use!

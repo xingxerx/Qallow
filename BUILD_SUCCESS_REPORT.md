@@ -137,7 +137,7 @@ cat /home/xing/Qallow/data/logs/phase_summary.json
 
 ### Stop Agent
 ```bash
-pkill -f "lightning_agent_fast.py"
+pkill -f "agentlightning_runner.py"
 ```
 
 ---

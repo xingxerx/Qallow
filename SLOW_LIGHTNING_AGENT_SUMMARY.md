@@ -1,7 +1,7 @@
 # 🐢 SLOW Lightning Agent - Complete Implementation
 
 ## Overview
-Converted `lightning_agent_fast.py` from a high-speed automated code fixer to a **SLOW, READABLE** version where every step is visible and pausable. Users can now read and understand each fix being applied.
+Converted `agentlightning_runner.py` from a high-speed automated code fixer to a **SLOW, READABLE** version where every step is visible and pausable. Users can now read and understand each fix being applied.
 
 **Status:** ✅ **COMPLETE** - Ready for testing
 
@@ -110,12 +110,12 @@ Each iteration ends with 5-second pause before next.
 
 ### Single Run (3 iterations)
 ```bash
-python3 lightning_agent_fast.py --max-iterations=3
+python3 agentlightning_runner.py --max-iterations=3
 ```
 
 ### Daemon Mode (continuous)
 ```bash
-python3 lightning_agent_fast.py --daemon --max-iterations=10
+python3 agentlightning_runner.py --daemon --max-iterations=10
 ```
 
 ### Expected Output
@@ -279,7 +279,7 @@ Each helper uses consistent formatting:
 ### Quick Test (3 iterations, should take ~2 minutes)
 ```bash
 cd /home/xing/Qallow
-python3 lightning_agent_fast.py --max-iterations=3
+python3 agentlightning_runner.py --max-iterations=3
 ```
 
 ### Expected Results
@@ -293,7 +293,7 @@ python3 lightning_agent_fast.py --max-iterations=3
 
 ### Daemon Test (20s quick test)
 ```bash
-timeout 20 python3 lightning_agent_fast.py --daemon --max-iterations=1
+timeout 20 python3 agentlightning_runner.py --daemon --max-iterations=1
 ```
 
 ---
@@ -325,7 +325,7 @@ Adjust these to suit your reading speed.
 
 ## Files Modified
 
-- ✅ `/home/xing/Qallow/lightning_agent_fast.py` - Complete rewrite with readable output
+- ✅ `/home/xing/Qallow/agentlightning_runner.py` - Complete rewrite with readable output
 
 ---
 

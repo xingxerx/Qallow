@@ -222,12 +222,12 @@ Since no issues were found, the agent can:
 ```bash
 # Start agent with debug output
 /usr/bin/env /home/xing/Qallow/.venv/bin/python \
-  /home/xing/Qallow/lightning_agent_fast.py
+  /home/xing/Qallow/agentlightning_runner.py
 
 # Or with specific options
 QALLOW_ENABLE_CUDA=ON \
 QALLOW_CIRQ=1 \
-python3 lightning_agent_fast.py --fast --use-cuda --daemon --max-iterations=500
+python3 agentlightning_runner.py --fast --use-cuda --daemon --max-iterations=500
 ```
 
 ---

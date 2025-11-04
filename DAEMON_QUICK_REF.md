@@ -29,15 +29,15 @@ git diff HEAD~1
 
 ```bash
 # Stop
-pkill -f "lightning_agent_fast.py"
+pkill -f "agentlightning_runner.py"
 
 # Start
 cd /home/xing/Qallow
-QALLOW_CIRQ=1 QALLOW_ENABLE_CUDA=ON python3 lightning_agent_fast.py \
+QALLOW_CIRQ=1 QALLOW_ENABLE_CUDA=ON python3 agentlightning_runner.py \
   --fast --use-cuda --daemon --max-iterations=500
 
 # Check it's running
-ps aux | grep lightning_agent_fast
+ps aux | grep agentlightning_runner
 ```
 
 ## Recent Commits

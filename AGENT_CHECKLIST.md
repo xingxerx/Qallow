@@ -38,7 +38,7 @@
 - [x] Agent process confirmed running
   ```
   xing 25970 16.5% CPU, 196MB memory
-  /home/xing/Qallow/.venv/bin/python lightning_agent_fast.py
+  /home/xing/Qallow/.venv/bin/python agentlightning_runner.py
   ```
 - [x] Log file actively being written
 - [x] Build metrics captured (21/21 successful)
@@ -137,10 +137,10 @@ tail -f /tmp/lightning_agent.log
 **2. CONTROL IT**
 ```bash
 # Stop:
-pkill -f "lightning_agent_fast"
+pkill -f "agentlightning_runner"
 
 # Restart:
-nohup python lightning_agent_fast.py > /tmp/lightning_agent.log 2>&1 &
+nohup python agentlightning_runner.py > /tmp/lightning_agent.log 2>&1 &
 ```
 
 **3. USE WITH SPEC-KIT**

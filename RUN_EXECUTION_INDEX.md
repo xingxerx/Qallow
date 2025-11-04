@@ -95,7 +95,7 @@ cd /home/xing/Qallow && ./run_full_build.sh
 
 ### Goal: Run All Phases + Start Agent
 ```bash
-cd /home/xing/Qallow && source .venv/bin/activate && export QALLOW_ENABLE_CUDA=ON QALLOW_CIRQ=1 && ./build/qallow run unified --integrate-phase11 && python3 lightning_agent_fast.py --fast --use-cuda --daemon &
+cd /home/xing/Qallow && source .venv/bin/activate && export QALLOW_ENABLE_CUDA=ON QALLOW_CIRQ=1 && ./build/qallow run unified --integrate-phase11 && python3 agentlightning_runner.py --fast --use-cuda --daemon &
 ```
 📖 See: `COMMAND_CHEAT_SHEET.md` → "ONE-COMMAND SOLUTIONS"
 
@@ -125,7 +125,7 @@ tail -f /home/xing/Qallow/agent_daemon.log
 
 ### Goal: Stop Agent When Done
 ```bash
-pkill -f "lightning_agent_fast.py"
+pkill -f "agentlightning_runner.py"
 ```
 📖 See: `RUN_FULL_BUILD_GUIDE.md` → "Stop Agent"
 
@@ -139,7 +139,7 @@ pkill -f "lightning_agent_fast.py"
 2. Run:  ./run_full_build.sh
 3. Wait for completion
 4. Monitor: tail -f agent_daemon.log
-5. Stop: pkill -f "lightning_agent_fast.py"
+5. Stop: pkill -f "agentlightning_runner.py"
 6. Review: ls -lh data/logs/
 ```
 
@@ -171,7 +171,7 @@ pkill -f "lightning_agent_fast.py"
 ### Scenario 5: Continuous Improvement
 ```
 1. Run phases once: ./run_full_build.sh --phases-only
-2. Start agent: python3 lightning_agent_fast.py --fast --daemon &
+2. Start agent: python3 agentlightning_runner.py --fast --daemon &
 3. Monitor: tail -f agent_daemon.log
 4. Let run overnight/batch job
 5. Review: git log --oneline --author="Lightning"

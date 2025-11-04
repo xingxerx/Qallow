@@ -43,7 +43,7 @@
 ### Start
 ```bash
 cd /home/xing/Qallow
-QALLOW_CIRQ=1 QALLOW_ENABLE_CUDA=ON python3 lightning_agent_fast.py \
+QALLOW_CIRQ=1 QALLOW_ENABLE_CUDA=ON python3 agentlightning_runner.py \
   --fast --use-cuda --daemon --max-iterations=500
 ```
 
@@ -54,7 +54,7 @@ tail -f agent_daemon.log
 
 ### Stop
 ```bash
-pkill -f "lightning_agent_fast.py"
+pkill -f "agentlightning_runner.py"
 ```
 
 ### Check Git commits

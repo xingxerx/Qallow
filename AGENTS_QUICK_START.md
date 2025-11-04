@@ -11,7 +11,7 @@
 ### Run Lightning Agent (Recommended - Fastest)
 ```bash
 cd /home/xing/Qallow
-/home/xing/Qallow/.venv/bin/python lightning_agent_fast.py
+/home/xing/Qallow/.venv/bin/python agentlightning_runner.py
 ```
 
 ### Run Advanced Error Fixer (Most Thorough)
@@ -30,7 +30,7 @@ cd /home/xing/Qallow
 
 ## 🎯 What Each Agent Does
 
-### Lightning Agent (`lightning_agent_fast.py`)
+### Lightning Agent (`agentlightning_runner.py`)
 - **Speed**: ULTRA-FAST (0.05s pauses)
 - **Focus**: Rapid continuous improvement
 - **Best For**: Quick fixes and ongoing optimization
@@ -95,25 +95,25 @@ cd /home/xing/Qallow
 ### Enable GPU (CUDA)
 ```bash
 export QALLOW_ENABLE_CUDA=ON
-/home/xing/Qallow/.venv/bin/python lightning_agent_fast.py
+/home/xing/Qallow/.venv/bin/python agentlightning_runner.py
 ```
 
 ### Enable Quantum Support
 ```bash
 export QALLOW_CIRQ=1
-/home/xing/Qallow/.venv/bin/python lightning_agent_fast.py
+/home/xing/Qallow/.venv/bin/python agentlightning_runner.py
 ```
 
 ### Set Worker Threads
 ```bash
 export MAX_WORKERS=32
-/home/xing/Qallow/.venv/bin/python lightning_agent_fast.py
+/home/xing/Qallow/.venv/bin/python agentlightning_runner.py
 ```
 
 ### Combine Options
 ```bash
 export QALLOW_ENABLE_CUDA=ON QALLOW_CIRQ=1 MAX_WORKERS=16
-/home/xing/Qallow/.venv/bin/python lightning_agent_fast.py
+/home/xing/Qallow/.venv/bin/python agentlightning_runner.py
 ```
 
 ---
@@ -127,12 +127,12 @@ tail -f /tmp/lightning_agent_run.log
 
 ### Check Process
 ```bash
-ps aux | grep lightning_agent_fast.py
+ps aux | grep agentlightning_runner.py
 ```
 
 ### Stop Agent
 ```bash
-pkill -f "lightning_agent_fast.py"
+pkill -f "agentlightning_runner.py"
 ```
 
 ---
@@ -216,7 +216,7 @@ Repeat or Complete
 /home/xing/Qallow/.venv/bin/python --version
 
 # Run with full output
-/home/xing/Qallow/.venv/bin/python lightning_agent_fast.py
+/home/xing/Qallow/.venv/bin/python agentlightning_runner.py
 ```
 
 ### CMake Build Fails
@@ -234,7 +234,7 @@ cmake --build . --parallel 16
 ```bash
 # Reduce worker threads
 export MAX_WORKERS=4
-/home/xing/Qallow/.venv/bin/python lightning_agent_fast.py
+/home/xing/Qallow/.venv/bin/python agentlightning_runner.py
 ```
 
 ---
@@ -264,5 +264,5 @@ Each will continuously scan, analyze, fix, and validate your code.
 
 **Command to start now**:
 ```bash
-/home/xing/Qallow/.venv/bin/python /home/xing/Qallow/lightning_agent_fast.py
+/home/xing/Qallow/.venv/bin/python /home/xing/Qallow/agentlightning_runner.py
 ```

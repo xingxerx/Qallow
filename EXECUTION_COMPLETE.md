@@ -374,7 +374,7 @@ A: `data/logs/` directory; see `RUN_FULL_BUILD_GUIDE.md` → "Check Results"
 | Just agent | `./run_full_build.sh --agent-only` |
 | Quick test | `./run_full_build.sh --quick --phases-only` |
 | Monitor | `tail -f agent_daemon.log` |
-| Stop agent | `pkill -f "lightning_agent_fast.py"` |
+| Stop agent | `pkill -f "agentlightning_runner.py"` |
 | View results | `ls -lh data/logs/` |
 | Run Phase 13 | `./build/qallow phase 13 --ticks=400` |
 | Rebuild | `cmake --build build --parallel` |
@@ -414,7 +414,7 @@ START
   └→ Review metrics: cat data/logs/unified_run.csv
   ↓
 [Complete]
-  └→ Stop agent: pkill -f "lightning_agent_fast.py"
+  └→ Stop agent: pkill -f "agentlightning_runner.py"
 ```
 
 ---

@@ -5,9 +5,9 @@ Simulates spiking neural networks (SNNs) with neuron dynamics, synaptic plastici
 and event-based processing
 """
 
-import random
-import time
-import math
+
+
+
 
 
 class NeuronType(Enum):

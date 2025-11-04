@@ -171,7 +171,7 @@ def inject_demo_bugs(self):
 ```
 
 **How It Works:**
-1. User runs: `python3 lightning_agent_fast.py --demo --max-iterations=3`
+1. User runs: `python3 agentlightning_runner.py --demo --max-iterations=3`
 2. Agent injects 2-3 intentional bugs
 3. Builds (succeeds - bugs are style-only)
 4. CodeAnalyzer detects them
@@ -272,25 +272,25 @@ for each iteration:
 
 **Test 1: Normal mode (3 iterations)**
 ```bash
-python3 lightning_agent_fast.py --max-iterations=3
+python3 agentlightning_runner.py --max-iterations=3
 ```
 Expected: Runs 3 full iterations, applies improvements
 
 **Test 2: Demo mode (show capabilities)**
 ```bash
-python3 lightning_agent_fast.py --demo --max-iterations=3
+python3 agentlightning_runner.py --demo --max-iterations=3
 ```
 Expected: Injects bugs → finds them → fixes them → completes
 
 **Test 3: Daemon mode (continuous)**
 ```bash
-python3 lightning_agent_fast.py --daemon
+python3 agentlightning_runner.py --daemon
 ```
 Expected: Runs every 60 seconds indefinitely
 
 **Test 4: All features combined**
 ```bash
-python3 lightning_agent_fast.py --daemon --demo --max-iterations=5
+python3 agentlightning_runner.py --daemon --demo --max-iterations=5
 ```
 Expected: Daemon with demo bugs injected
 
@@ -308,7 +308,7 @@ Expected: Daemon with demo bugs injected
 
 ### Syntax Check
 ```
-✅ File: /home/xing/Qallow/lightning_agent_fast.py
+✅ File: /home/xing/Qallow/agentlightning_runner.py
 ✅ Size: 1263 lines
 ✅ Errors: None
 ✅ Warnings: None
@@ -368,7 +368,7 @@ Expected: Daemon with demo bugs injected
 
 ### Test Run Results
 
-**Command:** `python3 lightning_agent_fast.py --demo --max-iterations=2`
+**Command:** `python3 agentlightning_runner.py --demo --max-iterations=2`
 
 **Observations:**
 1. ✅ Initialization: Agent started in DEMO MODE
@@ -403,7 +403,7 @@ Expected: Daemon with demo bugs injected
 ## What's Next (Optional)
 
 ### Short-term (Ready to use)
-- Run full test: `python3 lightning_agent_fast.py --demo --max-iterations=5`
+- Run full test: `python3 agentlightning_runner.py --demo --max-iterations=5`
 - Verify all iterations complete with fixes applied
 - Monitor performance: measure time per iteration
 - Deploy in CI/CD: use as pre-commit or PR check
@@ -425,7 +425,7 @@ Expected: Daemon with demo bugs injected
 
 ## Summary of Changes
 
-### File: `/home/xing/Qallow/lightning_agent_fast.py`
+### File: `/home/xing/Qallow/agentlightning_runner.py`
 
 **Lines Changed:**
 - Line 407: `build()` - Added `strict_warnings` parameter (Solution 3)

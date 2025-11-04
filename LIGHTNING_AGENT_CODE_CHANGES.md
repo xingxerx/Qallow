@@ -1,7 +1,7 @@
 # Code Changes Summary - Lightning Agent All 4 Solutions
 
 ## Overview
-- **File:** `/home/xing/Qallow/lightning_agent_fast.py`
+- **File:** `/home/xing/Qallow/agentlightning_runner.py`
 - **Total Lines:** 1263 (was 1096, +167 lines)
 - **Solutions:** 4/4 implemented
 - **Status:** ✅ Complete & Validated
@@ -377,7 +377,7 @@ main() & CLI:            50 lines
 
 ## Testing Evidence
 
-### Test: `python3 lightning_agent_fast.py --demo --max-iterations=2`
+### Test: `python3 agentlightning_runner.py --demo --max-iterations=2`
 
 **Output Observations:**
 1. ✅ "🎭 DEMO MODE: Injecting intentional bugs..."
@@ -402,7 +402,7 @@ main() & CLI:            50 lines
 
 **Recommended:** Run full 5-iteration demo to see continuous improvement: 
 ```bash
-python3 lightning_agent_fast.py --demo --max-iterations=5
+python3 agentlightning_runner.py --demo --max-iterations=5
 ```
 
 ---

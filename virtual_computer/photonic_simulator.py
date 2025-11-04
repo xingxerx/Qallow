@@ -4,8 +4,8 @@ Photonic Processor Simulator
 Simulates optical computing with photonic gates, light propagation, and optical circuits
 """
 
-import random
-import math
+
+
 
 
 class PhotonicGateType(Enum):

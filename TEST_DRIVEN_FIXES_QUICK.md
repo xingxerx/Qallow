@@ -9,7 +9,7 @@ Your Lightning Agent now has **Phase 4 & 5** after tests fail:
 ## Try It Now
 
 ```bash
-python3 lightning_agent_fast.py --max-iterations=1
+python3 agentlightning_runner.py --max-iterations=1
 ```
 
 You'll see snprintf truncation warnings detected and fixed automatically.
@@ -94,13 +94,13 @@ def fix_my_warning(self, output: str) -> int:
 
 ```bash
 # Single iteration with tests & fixes
-python3 lightning_agent_fast.py --max-iterations=1
+python3 agentlightning_runner.py --max-iterations=1
 
 # 3 iterations with all phases
-python3 lightning_agent_fast.py --max-iterations=3
+python3 agentlightning_runner.py --max-iterations=3
 
 # Daemon mode (continuous)
-python3 lightning_agent_fast.py --daemon
+python3 agentlightning_runner.py --daemon
 ```
 
 ## Workflow Diagram
@@ -125,4 +125,4 @@ Iteration Loop:
 
 ---
 
-**Run it:** `python3 lightning_agent_fast.py --max-iterations=3`
+**Run it:** `python3 agentlightning_runner.py --max-iterations=3`

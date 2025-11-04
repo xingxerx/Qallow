@@ -99,7 +99,7 @@ if len(content) > 500:
 
 ## Key Changes Made
 
-### File: `lightning_agent_fast.py`
+### File: `agentlightning_runner.py`
 
 **Method: `analyze_dead_code()` (Lines 1038-1105)**
 
@@ -148,12 +148,12 @@ Changes:
 ### Quick Test
 ```bash
 cd /home/xing/Qallow
-timeout 60 python3 lightning_agent_fast.py --fast --use-cuda --max-iterations=2
+timeout 60 python3 agentlightning_runner.py --fast --use-cuda --max-iterations=2
 ```
 
 ### Start Daemon (Safe Now)
 ```bash
-QALLOW_CIRQ=1 QALLOW_ENABLE_CUDA=ON python3 lightning_agent_fast.py \
+QALLOW_CIRQ=1 QALLOW_ENABLE_CUDA=ON python3 agentlightning_runner.py \
   --fast --use-cuda --daemon --max-iterations=500
 ```
 

@@ -151,14 +151,14 @@
 tail -f /tmp/lightning_agent.log
 
 # Stop when done:
-pkill -f "lightning_agent_fast"
+pkill -f "agentlightning_runner"
 ```
 
 ### Option 2: Run Manually
 ```bash
 # Start Lightning Agent
 cd /home/xing/Qallow
-nohup /home/xing/Qallow/.venv/bin/python lightning_agent_fast.py > /tmp/lightning_agent.log 2>&1 &
+nohup /home/xing/Qallow/.venv/bin/python agentlightning_runner.py > /tmp/lightning_agent.log 2>&1 &
 
 # Start Advanced Error Fixer
 python advanced_error_fixer.py
@@ -329,7 +329,7 @@ grep "✏️" /tmp/lightning_agent.log                  # See all fixes
 grep -c "✏️" /tmp/lightning_agent.log               # Count fixes
 
 # MANAGEMENT
-pkill -f "lightning_agent_fast"                     # Stop agent
+pkill -f "agentlightning_runner"                     # Stop agent
 ps aux | grep lightning_agent                       # Check status
 cat /home/xing/share/status.txt                     # Network status
 
@@ -339,7 +339,7 @@ git diff --stat HEAD~5                              # Changes summary
 git show <commit>                                   # View specific change
 
 # RESTART
-nohup python lightning_agent_fast.py > /tmp/lightning_agent.log 2>&1 & 
+nohup python agentlightning_runner.py > /tmp/lightning_agent.log 2>&1 & 
 
 # TEST
 ctest --test-dir build --output-on-failure          # Run all tests

@@ -58,7 +58,7 @@ static int execute_phase_binary(int phase_num, int argc, char** argv) {
 
     if (pid == 0) {
 
-// REVIEWED:         char** phase_argv = malloc((argc + 1) * sizeof(char*));
+
         phase_argv[0] = (char*)phase_path;
         for (int i = 1; i < argc; i++) {
             phase_argv[i] = argv[i];

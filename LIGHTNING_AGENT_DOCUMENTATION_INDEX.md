@@ -33,7 +33,7 @@ Implemented **all 4 solutions** to make it **proactive**:
 
 ## 📊 Implementation Stats
 
-- **File Modified:** `/home/xing/Qallow/lightning_agent_fast.py`
+- **File Modified:** `/home/xing/Qallow/agentlightning_runner.py`
 - **Lines Before:** 1096
 - **Lines After:** 1263
 - **Lines Added:** +167
@@ -50,7 +50,7 @@ Implemented **all 4 solutions** to make it **proactive**:
 
 ### Run Demo Mode
 ```bash
-python3 lightning_agent_fast.py --demo --max-iterations=3
+python3 agentlightning_runner.py --demo --max-iterations=3
 ```
 
 ### Expected Output
@@ -64,7 +64,7 @@ python3 lightning_agent_fast.py --demo --max-iterations=3
 
 ### Run Normal Mode
 ```bash
-python3 lightning_agent_fast.py --max-iterations=5
+python3 agentlightning_runner.py --max-iterations=5
 ```
 
 ---
@@ -118,7 +118,7 @@ python3 lightning_agent_fast.py --max-iterations=5
   - Injects unused variables
   - Adds trailing whitespace
   - Creates test scenarios
-- **Command:** `python3 lightning_agent_fast.py --demo`
+- **Command:** `python3 agentlightning_runner.py --demo`
 - **Impact:** Demonstrable capabilities
 
 ---
@@ -127,7 +127,7 @@ python3 lightning_agent_fast.py --max-iterations=5
 
 ### Syntax Check
 ```
-✅ File: /home/xing/Qallow/lightning_agent_fast.py
+✅ File: /home/xing/Qallow/agentlightning_runner.py
 ✅ Size: 1263 lines
 ✅ Errors: 0
 ✅ Warnings: 0
@@ -158,7 +158,7 @@ python3 lightning_agent_fast.py --max-iterations=5
 
 ### For Managers/Stakeholders
 1. Read: **FINAL_IMPLEMENTATION_SUMMARY.md** (2 min)
-2. Run: `python3 lightning_agent_fast.py --demo --max-iterations=3`
+2. Run: `python3 agentlightning_runner.py --demo --max-iterations=3`
 3. Observe: Demo bug injection and fixing
 
 ### For Developers
@@ -183,31 +183,31 @@ python3 lightning_agent_fast.py --max-iterations=5
 ### Basic Commands
 ```bash
 # Normal mode - 3 iterations
-python3 lightning_agent_fast.py --max-iterations=3
+python3 agentlightning_runner.py --max-iterations=3
 
 # Demo mode - show capabilities
-python3 lightning_agent_fast.py --demo --max-iterations=3
+python3 agentlightning_runner.py --demo --max-iterations=3
 
 # Daemon mode - run continuously
-python3 lightning_agent_fast.py --daemon
+python3 agentlightning_runner.py --daemon
 
 # Daemon + demo
-python3 lightning_agent_fast.py --daemon --demo
+python3 agentlightning_runner.py --daemon --demo
 
 # Help
-python3 lightning_agent_fast.py --help
+python3 agentlightning_runner.py --help
 ```
 
 ### Advanced Usage
 ```bash
 # 5 iterations with demo
-python3 lightning_agent_fast.py --demo --max-iterations=5
+python3 agentlightning_runner.py --demo --max-iterations=5
 
 # Daemon with timeout
-timeout 120 python3 lightning_agent_fast.py --daemon --demo
+timeout 120 python3 agentlightning_runner.py --daemon --demo
 
 # Quiet mode (redirect output)
-python3 lightning_agent_fast.py --max-iterations=3 > agent.log 2>&1
+python3 agentlightning_runner.py --max-iterations=3 > agent.log 2>&1
 ```
 
 ---
@@ -287,7 +287,7 @@ Iteration 2/2:
 
 ### Understand the Architecture
 1. Read: `LIGHTNING_AGENT_ALL_SOLUTIONS_COMPLETE.md` → Architecture section
-2. Review: `lightning_agent_fast.py` → CodeAnalyzer class (lines 710-932)
+2. Review: `agentlightning_runner.py` → CodeAnalyzer class (lines 710-932)
 3. Trace: Main loop logic (lines 1018-1080)
 
 ### Extend the Code
@@ -375,10 +375,10 @@ Backward compatibility: 100% ✅
 ### Deployment
 ```bash
 # Copy file
-cp lightning_agent_fast.py /production/location/
+cp agentlightning_runner.py /production/location/
 
 # Test
-python3 lightning_agent_fast.py --max-iterations=1
+python3 agentlightning_runner.py --max-iterations=1
 
 # Verify
 echo "All systems go! ✅"

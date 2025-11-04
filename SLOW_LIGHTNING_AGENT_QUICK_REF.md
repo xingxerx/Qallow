@@ -8,10 +8,10 @@ The Lightning Agent is now **SLOW and READABLE**. Every fix shows before/after. 
 
 ```bash
 # Single run: 3 iterations (takes ~2 min)
-python3 lightning_agent_fast.py --max-iterations=3
+python3 agentlightning_runner.py --max-iterations=3
 
 # Daemon: Continuous (30s per iteration + pauses)
-python3 lightning_agent_fast.py --daemon
+python3 agentlightning_runner.py --daemon
 ```
 
 ## What You'll See
@@ -87,7 +87,7 @@ Press **Ctrl+C** anytime to stop the daemon.
 
 ## Tweak Speed
 
-Edit `/home/xing/Qallow/lightning_agent_fast.py` lines 37-40:
+Edit `/home/xing/Qallow/agentlightning_runner.py` lines 37-40:
 
 ```python
 PAUSE_BEFORE_FIX = 2          # ← Change these numbers
@@ -191,7 +191,7 @@ Edit the pause constants and decrease numbers. Minimum 1 second recommended.
 ### "Nothing happens"
 1. Make sure CMake is installed: `cmake --version`
 2. Make sure build directory exists: `mkdir -p build`
-3. Try: `python3 lightning_agent_fast.py --max-iterations=1`
+3. Try: `python3 agentlightning_runner.py --max-iterations=1`
 
 ## Features
 
@@ -216,4 +216,4 @@ Edit the pause constants and decrease numbers. Minimum 1 second recommended.
 
 ---
 
-**Run it now:** `python3 lightning_agent_fast.py --max-iterations=3`
+**Run it now:** `python3 agentlightning_runner.py --max-iterations=3`

@@ -3,7 +3,7 @@
 ## One-Line Setup (Complete)
 
 ```bash
-cd /home/xing/Qallow && ./bootstrap.sh --cuda && source .venv/bin/activate && export QALLOW_CIRQ=1 QALLOW_ENABLE_CUDA=ON && ./build/qallow run unified --integrate-phase11 && python3 lightning_agent_fast.py --fast --use-cuda --daemon --max-iterations=500
+cd /home/xing/Qallow && ./bootstrap.sh --cuda && source .venv/bin/activate && export QALLOW_CIRQ=1 QALLOW_ENABLE_CUDA=ON && ./build/qallow run unified --integrate-phase11 && python3 agentlightning_runner.py --fast --use-cuda --daemon --max-iterations=500
 ```
 
 But if you want to understand each step, read below.
@@ -164,7 +164,7 @@ The lightning agent automatically improves code quality by detecting and fixing 
 
 ```bash
 # Start as background daemon (runs forever until stopped)
-QALLOW_CIRQ=1 QALLOW_ENABLE_CUDA=ON python3 lightning_agent_fast.py \
+QALLOW_CIRQ=1 QALLOW_ENABLE_CUDA=ON python3 agentlightning_runner.py \
   --fast \
   --use-cuda \
   --daemon \
@@ -203,7 +203,7 @@ grep "IMPROVED" agent_daemon.log | wc -l
 ### Stop Agent When Done
 
 ```bash
-pkill -f "lightning_agent_fast.py"
+pkill -f "agentlightning_runner.py"
 ```
 
 ---
@@ -235,7 +235,7 @@ echo "📊 [1/3] Running Unified Pipeline (All Phases)..."
 
 echo ""
 echo "🤖 [2/3] Starting Fast Agent (Background)..."
-QALLOW_CIRQ=1 QALLOW_ENABLE_CUDA=ON python3 lightning_agent_fast.py \
+QALLOW_CIRQ=1 QALLOW_ENABLE_CUDA=ON python3 agentlightning_runner.py \
   --fast --use-cuda --daemon --max-iterations=500 &
 AGENT_PID=$!
 
@@ -246,7 +246,7 @@ echo "Agent PID: $AGENT_PID"
 echo "Monitor with: tail -f agent_daemon.log"
 echo ""
 echo "✅ Full stack running! Press Ctrl+C to stop, or run:"
-echo "   pkill -f 'lightning_agent_fast.py'"
+echo "   pkill -f 'agentlightning_runner.py'"
 ```
 
 **Run it:**
@@ -333,17 +333,17 @@ echo $QALLOW_CIRQ  # Should be 1
 
 **Symptoms:**
 ```
-python3: can't open file 'lightning_agent_fast.py': [Errno 2] No such file or directory
+python3: can't open file 'agentlightning_runner.py': [Errno 2] No such file or directory
 ```
 
 **Solution:**
 ```bash
 # Make sure you're in correct directory
 cd /home/xing/Qallow
-ls lightning_agent_fast.py   # Should exist
+ls agentlightning_runner.py   # Should exist
 
 # Run with full path
-python3 $(pwd)/lightning_agent_fast.py --fast --use-cuda --daemon
+python3 $(pwd)/agentlightning_runner.py --fast --use-cuda --daemon
 ```
 
 ---
@@ -456,9 +456,9 @@ perf report
 | **Full setup** | `./bootstrap.sh --cuda && source .venv/bin/activate` |
 | **Run everything** | `export QALLOW_CIRQ=1 QALLOW_ENABLE_CUDA=ON && ./build/qallow run unified` |
 | **Run one phase** | `./build/qallow phase 13 --ticks=400` |
-| **Start agent** | `python3 lightning_agent_fast.py --fast --daemon` |
+| **Start agent** | `python3 agentlightning_runner.py --fast --daemon` |
 | **Monitor agent** | `tail -f agent_daemon.log` |
-| **Stop agent** | `pkill -f lightning_agent_fast.py` |
+| **Stop agent** | `pkill -f agentlightning_runner.py` |
 | **Rebuild only** | `cmake --build build --parallel` |
 | **Clean build** | `rm -rf build && ./bootstrap.sh --cuda` |
 | **Run tests** | `cd build && ctest --output-on-failure` |

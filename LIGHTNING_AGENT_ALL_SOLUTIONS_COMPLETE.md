@@ -1,7 +1,7 @@
 # Lightning Agent: All 4 Solutions Complete ✅
 
 **Status:** Implementation Complete | Validated | Ready for Testing
-**File:** `/home/xing/Qallow/lightning_agent_fast.py`
+**File:** `/home/xing/Qallow/agentlightning_runner.py`
 **Lines:** 1263 (was 1096, +167 lines total)
 **Syntax:** ✅ No errors
 **Date:** Current session
@@ -161,7 +161,7 @@ if self.iteration > 1:
 
 **Command to Enable:**
 ```bash
-python3 lightning_agent_fast.py --demo --max-iterations=3
+python3 agentlightning_runner.py --demo --max-iterations=3
 ```
 
 **Injected Bugs:**
@@ -203,7 +203,7 @@ python3 lightning_agent_fast.py --demo --max-iterations=3
 ### User Flow with Demo Mode
 
 ```
-1. User runs: python3 lightning_agent_fast.py --demo --max-iterations=3
+1. User runs: python3 agentlightning_runner.py --demo --max-iterations=3
 2. Agent starts, displays "DEMO MODE" banner
 3. Injects 2-3 intentional bugs into C files
 4. Builds project (will succeed if bugs aren't compile-time errors)
@@ -266,17 +266,17 @@ class LightningAgentFast:
 
 **Before:**
 ```
-python3 lightning_agent_fast.py --max-iterations=3
-python3 lightning_agent_fast.py --daemon
+python3 agentlightning_runner.py --max-iterations=3
+python3 agentlightning_runner.py --daemon
 ```
 
 **After:**
 ```
-python3 lightning_agent_fast.py --max-iterations=3
-python3 lightning_agent_fast.py --daemon
-python3 lightning_agent_fast.py --demo                    # ← NEW
-python3 lightning_agent_fast.py --demo --max-iterations=5  # ← NEW
-python3 lightning_agent_fast.py --daemon --demo           # ← NEW
+python3 agentlightning_runner.py --max-iterations=3
+python3 agentlightning_runner.py --daemon
+python3 agentlightning_runner.py --demo                    # ← NEW
+python3 agentlightning_runner.py --demo --max-iterations=5  # ← NEW
+python3 agentlightning_runner.py --daemon --demo           # ← NEW
 ```
 
 ---
@@ -286,7 +286,7 @@ python3 lightning_agent_fast.py --daemon --demo           # ← NEW
 ### Test 1: Normal Mode (3 iterations)
 ```bash
 cd /home/xing/Qallow
-python3 lightning_agent_fast.py --max-iterations=3
+python3 agentlightning_runner.py --max-iterations=3
 ```
 
 **Expected:**
@@ -298,7 +298,7 @@ python3 lightning_agent_fast.py --max-iterations=3
 ### Test 2: Demo Mode (show case)
 ```bash
 cd /home/xing/Qallow
-python3 lightning_agent_fast.py --demo --max-iterations=3
+python3 agentlightning_runner.py --demo --max-iterations=3
 ```
 
 **Expected:**
@@ -312,7 +312,7 @@ python3 lightning_agent_fast.py --demo --max-iterations=3
 ### Test 3: Daemon with Demo
 ```bash
 cd /home/xing/Qallow
-timeout 120 python3 lightning_agent_fast.py --daemon --demo --max-iterations=3
+timeout 120 python3 agentlightning_runner.py --daemon --demo --max-iterations=3
 ```
 
 **Expected:**
@@ -392,7 +392,7 @@ main()
 ## What's Next
 
 ### Immediate (Ready Now)
-1. Run: `python3 lightning_agent_fast.py --demo --max-iterations=3`
+1. Run: `python3 agentlightning_runner.py --demo --max-iterations=3`
 2. Verify: Agent detects and fixes demo bugs
 3. Validate: All 3 iterations complete successfully
 4. Observe: CodeAnalyzer output between iterations

@@ -33,7 +33,7 @@ Together, they form a system that can:
 
 ```bash
 cd /home/xing/Qallow
-/home/xing/Qallow/.venv/bin/python lightning_agent_fast.py
+/home/xing/Qallow/.venv/bin/python agentlightning_runner.py
 ```
 
 **What it does**:
@@ -194,7 +194,7 @@ Iteration 2 (with fixes):
 
 1. **Start with Lightning Agent**
    ```bash
-   /home/xing/Qallow/.venv/bin/python lightning_agent_fast.py
+   /home/xing/Qallow/.venv/bin/python agentlightning_runner.py
    ```
    - See what errors exist
    - Understand the fix patterns
@@ -282,7 +282,7 @@ tail -f /tmp/agent_improvement.log
 
 ### Stop Running Agent
 ```bash
-pkill -f lightning_agent_fast.py
+pkill -f agentlightning_runner.py
 pkill -f recursive_improvement_engine.py
 ```
 
@@ -368,13 +368,13 @@ iteration_pause: 30
 ### Quick Test (2 min)
 ```bash
 cd /home/xing/Qallow
-/home/xing/Qallow/.venv/bin/python lightning_agent_fast.py --iterations 1
+/home/xing/Qallow/.venv/bin/python agentlightning_runner.py --iterations 1
 ```
 
 ### Full Improvement (15 min)
 ```bash
 cd /home/xing/Qallow
-/home/xing/Qallow/.venv/bin/python lightning_agent_fast.py
+/home/xing/Qallow/.venv/bin/python agentlightning_runner.py
 ```
 
 ### Long-Running (continuous)

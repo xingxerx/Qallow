@@ -51,7 +51,7 @@ qallow_profiler_t qallow_profiler_init(void);
 /**
  * Record a timing mark with label
  * @param prof - profiler instance
-// REVIEWED:  * @param label - mark label (e.g., "phase13_start", "malloc_count")
+
  */
 void qallow_profiler_mark(qallow_profiler_t* prof, const char* label);
 

@@ -51,7 +51,7 @@ ss -tlnp 2>/dev/null | grep LISTEN | wc -l
 
 ### Live Daemon Status
 ```
-Process: python3 lightning_agent_fast.py
+Process: python3 agentlightning_runner.py
 PID: 24402
 CPU: 27.7%
 Memory: 20.5 MB
@@ -116,13 +116,13 @@ git diff HEAD~1
 
 ### Stop Daemon (if needed)
 ```bash
-pkill -f "lightning_agent_fast.py"
+pkill -f "agentlightning_runner.py"
 ```
 
 ### Restart Daemon
 ```bash
 cd /home/xing/Qallow
-QALLOW_CIRQ=1 QALLOW_ENABLE_CUDA=ON python3 lightning_agent_fast.py \
+QALLOW_CIRQ=1 QALLOW_ENABLE_CUDA=ON python3 agentlightning_runner.py \
   --fast --use-cuda --daemon --max-iterations=500
 ```
 
@@ -161,7 +161,7 @@ Start 6: More Tests ..................... PASSED
 - `core/include/phase12.h` - Added extern "C" guards
 - `core/include/qallow_phase13.h` - Added extern "C" guards
 - `core/include/pocket.h` - Added extern "C" guards
-- `lightning_agent_fast.py` - Verified fixes are working
+- `agentlightning_runner.py` - Verified fixes are working
 - `AGENT_FIXES_COMPLETE.md` - Documentation
 
 ## Ready for Production ✅

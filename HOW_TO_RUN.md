@@ -101,7 +101,7 @@ The daemon automatically improves code quality in the background.
 
 ### Start Daemon
 ```bash
-QALLOW_CIRQ=1 QALLOW_ENABLE_CUDA=ON python3 lightning_agent_fast.py \
+QALLOW_CIRQ=1 QALLOW_ENABLE_CUDA=ON python3 agentlightning_runner.py \
   --fast --use-cuda --daemon --max-iterations=500
 ```
 
@@ -119,7 +119,7 @@ git log --oneline | head -10
 
 ### Stop Daemon
 ```bash
-pkill -f "lightning_agent_fast.py"
+pkill -f "agentlightning_runner.py"
 ```
 
 ---
@@ -175,7 +175,7 @@ cmake --build build --parallel 16
 ctest --output-on-failure -R "related_test"
 
 # 4. Run daemon for automatic improvements
-python3 lightning_agent_fast.py --fast --daemon
+python3 agentlightning_runner.py --fast --daemon
 ```
 
 ### Clean Build
@@ -272,7 +272,7 @@ git config user.name "Lightning Agent"
 
 # Restart daemon
 pkill -f lightning_agent
-QALLOW_CIRQ=1 QALLOW_ENABLE_CUDA=ON python3 lightning_agent_fast.py --daemon
+QALLOW_CIRQ=1 QALLOW_ENABLE_CUDA=ON python3 agentlightning_runner.py --daemon
 ```
 
 ---
@@ -295,5 +295,5 @@ QALLOW_CIRQ=1 QALLOW_ENABLE_CUDA=ON python3 lightning_agent_fast.py --daemon
 ./scripts/build_all.sh && ctest --test-dir build && ./build/qallow run unified
 
 # One-liner: Build + Start Daemon
-./scripts/build_all.sh && QALLOW_CIRQ=1 QALLOW_ENABLE_CUDA=ON python3 lightning_agent_fast.py --daemon
+./scripts/build_all.sh && QALLOW_CIRQ=1 QALLOW_ENABLE_CUDA=ON python3 agentlightning_runner.py --daemon
 ```

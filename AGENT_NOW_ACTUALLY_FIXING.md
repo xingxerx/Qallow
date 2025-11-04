@@ -27,7 +27,7 @@ After each fix round, agent automatically commits:
 
 ## Code Changes Made
 
-### File: `lightning_agent_fast.py`
+### File: `agentlightning_runner.py`
 
 **analyze_dead_code() method (lines 1038-1071)**
 - Removes excessive comment blocks (>2 becomes 1)
@@ -69,7 +69,7 @@ bbc94b6 Refactor: Code quality improvements - 24 fixes applied
 ## Running the Agent Now
 
 ```bash
-QALLOW_CIRQ=1 QALLOW_ENABLE_CUDA=ON python3 lightning_agent_fast.py \
+QALLOW_CIRQ=1 QALLOW_ENABLE_CUDA=ON python3 agentlightning_runner.py \
   --fast --use-cuda --daemon --max-iterations=500
 ```
 

@@ -4,14 +4,14 @@
 The Lightning Agent was **analyzing code but not actually applying fixes or modifying files**. The agent would detect unused imports, code style issues, and dead code patterns but then stop without making changes.
 
 ## Root Cause
-The `run_loop()` method in `lightning_agent_fast.py` had flawed logic:
+The `run_loop()` method in `agentlightning_runner.py` had flawed logic:
 - When build succeeded, it ran code quality analysis but detected fixes were not being applied
 - The `quality_findings` counter was incremented, but then the agent would **break the loop** instead of continuing
 - This meant: analyze → stop (no iterations) instead of analyze → apply → rebuild → iterate
 
 ## Solution Implemented
 
-### 1. Fixed Logic Flow (Lines 1195-1202 in lightning_agent_fast.py)
+### 1. Fixed Logic Flow (Lines 1195-1202 in agentlightning_runner.py)
 **Before (Broken):**
 ```python
 if quality_findings > 0:
@@ -73,7 +73,7 @@ The agent is now successfully modifying:
 
 Start command:
 ```bash
-QALLOW_QISKIT=1 QALLOW_ENABLE_CUDA=ON python3 lightning_agent_fast.py \
+QALLOW_QISKIT=1 QALLOW_ENABLE_CUDA=ON python3 agentlightning_runner.py \
   --fast --use-cuda --daemon --max-iterations=500
 ```
 
@@ -117,8 +117,8 @@ Log file: `/home/xing/Qallow/agent_daemon.log`
 
 | File | Change | Status |
 |------|--------|--------|
-| `lightning_agent_fast.py` | Fixed logic to continue iterations when fixes found | ✅ Applied |
-| `lightning_agent_fast.py` | Improved import detection heuristic | ✅ Applied |
+| `agentlightning_runner.py` | Fixed logic to continue iterations when fixes found | ✅ Applied |
+| `agentlightning_runner.py` | Improved import detection heuristic | ✅ Applied |
 | `advanced_error_fixer.py` | Restored missing imports (Enum, typing, Path) | ✅ Applied |
 | `alg/main.py` | Removed unused core imports | ✅ Applied |
 | Multiple Python files | Cleaned up unused imports | ✅ Applied |

@@ -33,7 +33,7 @@ cd /home/xing/Qallow && source .venv/bin/activate && export QALLOW_ENABLE_CUDA=O
 
 ### 3. Start Fast Agent
 ```bash
-cd /home/xing/Qallow && source .venv/bin/activate && export QALLOW_ENABLE_CUDA=ON QALLOW_CIRQ=1 && python3 lightning_agent_fast.py --fast --use-cuda --daemon &
+cd /home/xing/Qallow && source .venv/bin/activate && export QALLOW_ENABLE_CUDA=ON QALLOW_CIRQ=1 && python3 agentlightning_runner.py --fast --use-cuda --daemon &
 ```
 
 ---
@@ -76,7 +76,7 @@ cd /home/xing/Qallow && source .venv/bin/activate && export QALLOW_ENABLE_CUDA=O
 
 ### Start Agent (Background)
 ```bash
-cd /home/xing/Qallow && source .venv/bin/activate && export QALLOW_ENABLE_CUDA=ON QALLOW_CIRQ=1 && python3 lightning_agent_fast.py --fast --use-cuda --daemon --max-iterations=500 &
+cd /home/xing/Qallow && source .venv/bin/activate && export QALLOW_ENABLE_CUDA=ON QALLOW_CIRQ=1 && python3 agentlightning_runner.py --fast --use-cuda --daemon --max-iterations=500 &
 ```
 
 ### Monitor Agent Real-Time
@@ -96,7 +96,7 @@ cd /home/xing/Qallow && git log --oneline --author="Lightning" | head -10
 
 ### Stop Agent
 ```bash
-pkill -f "lightning_agent_fast.py"
+pkill -f "agentlightning_runner.py"
 ```
 
 ---
@@ -244,7 +244,7 @@ time ./build/qallow run unified --integrate-phase11
 
 # Start agent
 echo "Starting agent..."
-python3 lightning_agent_fast.py --fast --use-cuda --daemon &
+python3 agentlightning_runner.py --fast --use-cuda --daemon &
 
 echo "✓ Done! Monitor with: tail -f agent_daemon.log"
 ```

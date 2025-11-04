@@ -197,13 +197,13 @@ if [[ "$RUN_AGENT" == true ]]; then
     echo ""
     
     # Check if agent script exists
-    if [[ ! -f "lightning_agent_fast.py" ]]; then
-        echo -e "${RED}✗ lightning_agent_fast.py not found${NC}"
+    if [[ ! -f "agentlightning_runner.py" ]]; then
+        echo -e "${RED}✗ agentlightning_runner.py not found${NC}"
         exit 1
     fi
     
     # Start agent in background
-    python3 lightning_agent_fast.py \
+    python3 agentlightning_runner.py \
         --fast \
         --use-cuda \
         --daemon \
@@ -225,7 +225,7 @@ if [[ "$RUN_AGENT" == true ]]; then
     echo ""
     echo -e "${YELLOW}Agent is running in background.${NC}"
     echo -e "${YELLOW}Monitor with:${NC} tail -f agent_daemon.log"
-    echo -e "${YELLOW}Stop with:${NC}   pkill -f 'lightning_agent_fast.py'"
+    echo -e "${YELLOW}Stop with:${NC}   pkill -f 'agentlightning_runner.py'"
     echo ""
 fi
 
@@ -273,7 +273,7 @@ if [[ "$RUN_AGENT" == true ]]; then
     echo -e "  1. Monitor agent: ${YELLOW}tail -f agent_daemon.log${NC}"
     echo -e "  2. Check iterations: ${YELLOW}grep 'Iteration' agent_daemon.log | wc -l${NC}"
     echo -e "  3. View commits: ${YELLOW}git log --oneline --author='Lightning Agent' | head -5${NC}"
-    echo -e "  4. Stop when done: ${YELLOW}pkill -f 'lightning_agent_fast.py'${NC}"
+    echo -e "  4. Stop when done: ${YELLOW}pkill -f 'agentlightning_runner.py'${NC}"
 else
     echo -e "${CYAN}Next Steps:${NC}"
     echo -e "  1. Review results: ${YELLOW}ls -lh data/logs/${NC}"

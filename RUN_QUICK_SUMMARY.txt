@@ -68,7 +68,7 @@ Agent Log:  agent_daemon.log (improvement progress)
 
 tail -f agent_daemon.log              # Monitor agent
 ps aux | grep lightning_agent         # Check agent running
-pkill -f "lightning_agent_fast.py"    # Stop agent
+pkill -f "agentlightning_runner.py"    # Stop agent
 
 ================================================================================
 

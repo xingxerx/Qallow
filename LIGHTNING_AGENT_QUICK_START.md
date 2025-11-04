@@ -12,22 +12,22 @@ The Lightning Agent now **actively improves code** instead of just fixing errors
 
 ### Normal Mode (3 iterations, continuous improvement)
 ```bash
-python3 lightning_agent_fast.py --max-iterations=3
+python3 agentlightning_runner.py --max-iterations=3
 ```
 
 ### Demo Mode (show what agent can fix)
 ```bash
-python3 lightning_agent_fast.py --demo --max-iterations=3
+python3 agentlightning_runner.py --demo --max-iterations=3
 ```
 
 ### Daemon Mode (runs continuously, every 60s)
 ```bash
-python3 lightning_agent_fast.py --daemon
+python3 agentlightning_runner.py --daemon
 ```
 
 ### Combination (demo + daemon)
 ```bash
-python3 lightning_agent_fast.py --daemon --demo
+python3 agentlightning_runner.py --daemon --demo
 ```
 
 ---
@@ -65,7 +65,7 @@ python3 lightning_agent_fast.py --daemon --demo
 
 ## File Changes
 
-**File:** `/home/xing/Qallow/lightning_agent_fast.py`
+**File:** `/home/xing/Qallow/agentlightning_runner.py`
 - **Size:** 1263 lines (was 1096, +167 lines)
 - **Syntax:** ✅ Valid Python
 - **Status:** Ready to use
@@ -130,17 +130,17 @@ python3 lightning_agent_fast.py --daemon --demo
 
 ## Testing
 
-1. **Test Normal:** `python3 lightning_agent_fast.py --max-iterations=2`
+1. **Test Normal:** `python3 agentlightning_runner.py --max-iterations=2`
    - Runs 2 full iterations
    - Analyzes code quality
    - Applies fixes
 
-2. **Test Demo:** `python3 lightning_agent_fast.py --demo --max-iterations=2`
+2. **Test Demo:** `python3 agentlightning_runner.py --demo --max-iterations=2`
    - Injects bugs first
    - Fixes them automatically
    - Shows agent's capability
 
-3. **Test Daemon:** `timeout 120 python3 lightning_agent_fast.py --daemon --demo`
+3. **Test Daemon:** `timeout 120 python3 agentlightning_runner.py --daemon --demo`
    - Runs with demo mode
    - Sleeps 60 seconds between runs
    - Stops after 2 minutes
@@ -207,10 +207,10 @@ main()
 
 ## Next Steps
 
-1. ✅ Run: `python3 lightning_agent_fast.py --demo --max-iterations=3`
+1. ✅ Run: `python3 agentlightning_runner.py --demo --max-iterations=3`
 2. ✅ Watch: Agent inject bugs, analyze, fix them
 3. ✅ Verify: Tests pass, improvements applied
-4. ✅ Try Normal: `python3 lightning_agent_fast.py --max-iterations=5`
+4. ✅ Try Normal: `python3 agentlightning_runner.py --max-iterations=5`
 5. ✅ Deploy: Use in CI/CD pipelines
 
 ---

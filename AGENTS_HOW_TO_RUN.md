@@ -10,7 +10,7 @@
 
 The Qallow project includes multiple self-improving agents that analyze, fix, and improve the codebase:
 
-### 1. **Lightning Agent (Fast)** - `lightning_agent_fast.py`
+### 1. **Lightning Agent (Fast)** - `agentlightning_runner.py`
 - **Purpose**: Ultra-fast code improvement and self-fixing
 - **Speed**: ULTRA-FAST mode (0.05s pauses)
 - **Focus**: Rapid iteration with parallel processing
@@ -38,7 +38,7 @@ The Qallow project includes multiple self-improving agents that analyze, fix, an
 
 ```bash
 cd /home/xing/Qallow
-/home/xing/Qallow/.venv/bin/python lightning_agent_fast.py
+/home/xing/Qallow/.venv/bin/python agentlightning_runner.py
 ```
 
 **What it does:**
@@ -130,19 +130,19 @@ cd /home/xing/Qallow
 ### Enable CUDA Acceleration
 ```bash
 export QALLOW_ENABLE_CUDA=ON
-/home/xing/Qallow/.venv/bin/python lightning_agent_fast.py
+/home/xing/Qallow/.venv/bin/python agentlightning_runner.py
 ```
 
 ### Enable Cirq (Quantum Support)
 ```bash
 export QALLOW_CIRQ=1
-/home/xing/Qallow/.venv/bin/python lightning_agent_fast.py
+/home/xing/Qallow/.venv/bin/python agentlightning_runner.py
 ```
 
 ### Set Number of Worker Threads
 ```bash
 export MAX_WORKERS=16
-/home/xing/Qallow/.venv/bin/python lightning_agent_fast.py
+/home/xing/Qallow/.venv/bin/python agentlightning_runner.py
 ```
 
 ### Custom Configuration
@@ -151,7 +151,7 @@ export MAX_WORKERS=16
 export QALLOW_ENABLE_CUDA=ON
 export QALLOW_CIRQ=1
 export MAX_WORKERS=8
-/home/xing/Qallow/.venv/bin/python lightning_agent_fast.py
+/home/xing/Qallow/.venv/bin/python agentlightning_runner.py
 ```
 
 ---
@@ -301,18 +301,18 @@ The agents integrate with:
 
 ### Start Lightning Agent (Fast, Recommended)
 ```bash
-/home/xing/Qallow/.venv/bin/python lightning_agent_fast.py
+/home/xing/Qallow/.venv/bin/python agentlightning_runner.py
 ```
 
 ### Start with CUDA
 ```bash
 export QALLOW_ENABLE_CUDA=ON
-/home/xing/Qallow/.venv/bin/python lightning_agent_fast.py
+/home/xing/Qallow/.venv/bin/python agentlightning_runner.py
 ```
 
 ### Run in Background
 ```bash
-nohup /home/xing/Qallow/.venv/bin/python lightning_agent_fast.py > /tmp/agent.log 2>&1 &
+nohup /home/xing/Qallow/.venv/bin/python agentlightning_runner.py > /tmp/agent.log 2>&1 &
 ```
 
 ### Monitor Running Agent
@@ -354,7 +354,7 @@ cat /tmp/lightning_agent_*.log | grep -E "Fixed|Improved|Error"
 ### Continuous Improvement (Always Running)
 ```bash
 # Terminal 1: Run lightning agent continuously
-/home/xing/Qallow/.venv/bin/python lightning_agent_fast.py
+/home/xing/Qallow/.venv/bin/python agentlightning_runner.py
 
 # Terminal 2: Monitor improvements
 watch -n 5 'ps aux | grep lightning && tail -5 /tmp/lightning_agent_*.log'
@@ -387,7 +387,7 @@ tail -f /tmp/recursive_agent.log
 
 1. **Start Lightning Agent Now**
    ```bash
-   /home/xing/Qallow/.venv/bin/python lightning_agent_fast.py
+   /home/xing/Qallow/.venv/bin/python agentlightning_runner.py
    ```
 
 2. **Monitor the Improvement**
@@ -415,7 +415,7 @@ tail -f /tmp/recursive_agent.log
 
 For more details, see:
 - `LIGHTNING_AGENT_QUICK_START.md` - Quick reference
-- `lightning_agent_fast.py` - Source code with comments
+- `agentlightning_runner.py` - Source code with comments
 - `advanced_error_fixer.py` - Advanced fixing strategies
 - `recursive_improvement_engine.py` - Recursive optimization
 

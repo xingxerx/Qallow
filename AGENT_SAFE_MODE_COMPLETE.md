@@ -21,7 +21,7 @@ The Lightning Agent has been completely reconfigured for **human-controlled oper
 ## Key Changes Made
 
 ### 1. Modified Agent Behavior
-**File:** `lightning_agent_fast.py`
+**File:** `agentlightning_runner.py`
 **Change:** `commit_improvements()` method now:
 - Stages changes with `git add -A`
 - Prints instructions for human review
@@ -29,7 +29,7 @@ The Lightning Agent has been completely reconfigured for **human-controlled oper
 - Does NOT automatically push
 
 ### 2. Disabled Dangerous Features
-**File:** `lightning_agent_fast.py`
+**File:** `agentlightning_runner.py`
 **Disabled:**
 - `analyze_unused_imports()` - Too aggressive
 - `analyze_dead_code()` - Removes valid code
@@ -50,7 +50,7 @@ The Lightning Agent has been completely reconfigured for **human-controlled oper
 
 ### Start Agent
 ```bash
-QALLOW_CIRQ=1 QALLOW_ENABLE_CUDA=ON python3 lightning_agent_fast.py \
+QALLOW_CIRQ=1 QALLOW_ENABLE_CUDA=ON python3 agentlightning_runner.py \
   --fast --use-cuda --daemon --max-iterations=500
 ```
 
@@ -94,7 +94,7 @@ git checkout .
 
 | File | Changes |
 |------|---------|
-| `lightning_agent_fast.py` | Staging instead of commits, disabled dangerous features |
+| `agentlightning_runner.py` | Staging instead of commits, disabled dangerous features |
 | `scripts/check_internal_ci_pipeline.py` | Restored missing imports |
 | `AGENT_SAFE_MODE.md` | Safe operation guide (NEW) |
 | `CI_FIX_COMPLETE.md` | CI fix documentation (NEW) |

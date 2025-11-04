@@ -36,14 +36,14 @@ export QALLOW_CIRQ=1
 ./build/qallow run unified --integrate-phase11
 
 # 5. Start fast agent (background)
-python3 lightning_agent_fast.py --fast --use-cuda --daemon &
+python3 agentlightning_runner.py --fast --use-cuda --daemon &
 ```
 
 ---
 
 ### 💻 **One-Liner (For Experienced Users)**
 ```bash
-cd /home/xing/Qallow && ./bootstrap.sh --cuda && source .venv/bin/activate && export QALLOW_ENABLE_CUDA=ON QALLOW_CIRQ=1 && ./build/qallow run unified --integrate-phase11 && python3 lightning_agent_fast.py --fast --use-cuda --daemon &
+cd /home/xing/Qallow && ./bootstrap.sh --cuda && source .venv/bin/activate && export QALLOW_ENABLE_CUDA=ON QALLOW_CIRQ=1 && ./build/qallow run unified --integrate-phase11 && python3 agentlightning_runner.py --fast --use-cuda --daemon &
 ```
 
 ---
@@ -234,21 +234,21 @@ Results:
 #### Step 5: Start Fast Agent (Background)
 ```bash
 # Start agent as background daemon
-QALLOW_CIRQ=1 QALLOW_ENABLE_CUDA=ON python3 lightning_agent_fast.py \
+QALLOW_CIRQ=1 QALLOW_ENABLE_CUDA=ON python3 agentlightning_runner.py \
   --fast \
   --use-cuda \
   --daemon \
   --max-iterations=500 &
 
 # Or simpler (variables already set):
-python3 lightning_agent_fast.py --fast --use-cuda --daemon &
+python3 agentlightning_runner.py --fast --use-cuda --daemon &
 ```
 
 Agent runs continuously, automatically improving code. You can:
 - **Monitor:** `tail -f agent_daemon.log`
 - **Check progress:** `grep "Iteration" agent_daemon.log | wc -l`
 - **See commits:** `git log --oneline --author="Lightning Agent" | head -5`
-- **Stop:** `pkill -f "lightning_agent_fast.py"`
+- **Stop:** `pkill -f "agentlightning_runner.py"`
 
 ---
 
@@ -392,7 +392,7 @@ tail -50 agent_daemon.log
 ps aux | grep lightning_agent
 
 # Restart
-python3 lightning_agent_fast.py --fast --daemon --max-iterations=500 &
+python3 agentlightning_runner.py --fast --daemon --max-iterations=500 &
 ```
 
 ---
@@ -460,13 +460,13 @@ time ./build/qallow run unified --integrate-phase11
 
 # 5. Start agent
 echo "5️⃣  Starting fast agent..."
-python3 lightning_agent_fast.py --fast --use-cuda --daemon --max-iterations=500 &
+python3 agentlightning_runner.py --fast --use-cuda --daemon --max-iterations=500 &
 AGENT_PID=$!
 
 echo "6️⃣  Done!"
 echo "   Agent running (PID: $AGENT_PID)"
 echo "   Monitor: tail -f agent_daemon.log"
-echo "   Stop: pkill -f 'lightning_agent_fast.py'"
+echo "   Stop: pkill -f 'agentlightning_runner.py'"
 ```
 
 Save as `workflow.sh` and run:
@@ -487,9 +487,9 @@ chmod +x workflow.sh
 | **Run all phases** | `./build/qallow run unified --integrate-phase11` |
 | **Run Phase 13** | `./build/qallow phase 13 --ticks=400` |
 | **Run Phase 15** | `./build/qallow phase 15 --ticks=800` |
-| **Start agent** | `python3 lightning_agent_fast.py --fast --daemon &` |
+| **Start agent** | `python3 agentlightning_runner.py --fast --daemon &` |
 | **Monitor agent** | `tail -f agent_daemon.log` |
-| **Stop agent** | `pkill -f "lightning_agent_fast.py"` |
+| **Stop agent** | `pkill -f "agentlightning_runner.py"` |
 | **Run tests** | `cd build && ctest --output-on-failure` |
 | **Profile GPU** | `ncu --set=detailed ./build/qallow phase 13` |
 | **Clean build** | `rm -rf build && ./bootstrap.sh --cuda` |
