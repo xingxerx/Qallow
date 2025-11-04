@@ -1,5 +1,6 @@
 /* TODO: Refactor complex functions - consider breaking into smaller functions */
 /* TODO: Refactor complex functions - consider breaking into smaller functions */
+/* TODO: Refactor complex functions - consider breaking into smaller functions */
 
 
 
@@ -611,7 +612,7 @@ static int command_thread(void *userdata) {
 
     while ((bytes = read(pipefd[0], buffer, sizeof(buffer))) > 0) {
         for (ssize_t i = 0; i < bytes; ++i) {
-            char c = buffer[i];
+            char c /* TODO: Use more descriptive name */= buffer[i];
             if (c == '\r') {
                 continue;
             }
@@ -743,8 +744,8 @@ static void draw_text(SDL_Renderer *renderer, TTF_Font *font, SDL_Color color, i
         return;
     }
     SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
-    int w = surface->w;
-    int h = surface->h;
+    int w /* TODO: Use more descriptive name */= surface->w;
+    int h /* TODO: Use more descriptive name */= surface->h;
     SDL_FreeSurface(surface);
     if (!texture) {
         return;
@@ -763,8 +764,8 @@ static void draw_text_centered(SDL_Renderer *renderer, TTF_Font *font, SDL_Color
         return;
     }
     SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
-    int w = surface->w;
-    int h = surface->h;
+    int w /* TODO: Use more descriptive name */= surface->w;
+    int h /* TODO: Use more descriptive name */= surface->h;
     SDL_FreeSurface(surface);
     if (!texture) {
         return;
@@ -780,7 +781,7 @@ static void draw_text_centered(SDL_Renderer *renderer, TTF_Font *font, SDL_Color
 }
 
 static int font_line_height(TTF_Font *font) {
-    int h = font ? TTF_FontLineSkip(font) : 18;
+    int h /* TODO: Use more descriptive name */= font ? TTF_FontLineSkip(font) : 18;
     if (h <= 0) {
         h = 18;
     }
@@ -829,7 +830,7 @@ static void render_telemetry(SDL_Renderer *renderer, TTF_Font *font, const telem
             clamped = 1.0;
         }
 
-        int y = base_y + (int)i * line_height;
+        int y /* TODO: Use more descriptive name */= base_y + (int)i * line_height;
         SDL_Rect bg_rect = {bar_x, y, bar_width, 20};
         SDL_SetRenderDrawColor(renderer, bar_bg.r, bar_bg.g, bar_bg.b, bar_bg.a);
         SDL_RenderFillRect(renderer, &bg_rect);
@@ -851,7 +852,7 @@ static void render_telemetry(SDL_Renderer *renderer, TTF_Font *font, const telem
 static void render_pocket_metrics(SDL_Renderer *renderer, TTF_Font *font, const pocket_metrics_t *metrics) {
     SDL_Color label_color = {240, 240, 250, 255};
     int x = 20;
-    int y = 450;
+    int y /* TODO: Use more descriptive name */= 450;
     int line_height = font_line_height(font) + 2;
 
     draw_text(renderer, font, label_color, x, y, "Pocket Dimension Metrics");

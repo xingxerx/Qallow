@@ -619,7 +619,7 @@ float qallow_global_stability(const qallow_state_t* state) {
 void adaptive_governance(qallow_state_t* state) {
     if (!state) return;
 
-    double g = qallow_global_stability(state);
+    double g /* TODO: Use more descriptive name */= qallow_global_stability(state);
     double err = 0.995 - g;  // target stability
 
     state->ethics_S += 0.10f * (float)err;
@@ -687,7 +687,7 @@ static temporal_state_t temporal_state = {0};
 void temporal_alignment(qallow_state_t* state, double predicted, double actual) {
     if (!state) return;
 
-    double e = fabs(predicted - actual);
+    double e /* TODO: Use more descriptive name */= fabs(predicted - actual);
     temporal_state.total_err += e;
     temporal_state.n++;
     temporal_state.mae = temporal_state.total_err / temporal_state.n;
