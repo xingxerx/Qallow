@@ -1541,7 +1541,7 @@ class LightningAgentFast:
         return False, warning_fixes, test_fixes, output
 
     def commit_improvements(self, improvements_count: int) -> bool:
-        """Commit applied improvements to git."""
+        """Stage improvements for human review (DO NOT AUTO-COMMIT)."""
         try:
             # Check if there are any changes
             result = subprocess.run(
@@ -1553,9 +1553,9 @@ class LightningAgentFast:
             )
             
             if not result.stdout.strip():
-                return False  # No changes to commit
+                return False  # No changes to stage
             
-            # Add all changes
+            # Stage all changes (git add)
             subprocess.run(
                 ["git", "add", "-A"],
                 cwd=str(self.project_root),
@@ -1563,24 +1563,17 @@ class LightningAgentFast:
                 timeout=5
             )
             
-            # Commit with descriptive message
-            commit_msg = f"Refactor: Code quality improvements - {improvements_count} fixes applied"
-            result = subprocess.run(
-                ["git", "commit", "-m", commit_msg],
-                cwd=str(self.project_root),
-                capture_output=True,
-                text=True,
-                timeout=5
-            )
+            # Print staged changes for human review
+            print(f"\n   📋 ✅ STAGED {improvements_count} improvement(s) for review")
+            print(f"   📋 To review: git diff --cached")
+            print(f"   📋 To commit: git commit -m 'Refactor: Code quality improvements - {improvements_count} fixes'")
+            print(f"   📋 To push: git push origin main")
+            print(f"   � To discard: git reset HEAD .")
             
-            if result.returncode == 0:
-                print(f"   📝 ✅ Committed: {commit_msg}")
-                return True
-            else:
-                return False
+            return True
                 
         except Exception as e:
-            logger.debug(f"Git commit failed: {e}")
+            logger.debug(f"Git staging failed: {e}")
             return False
 
 
