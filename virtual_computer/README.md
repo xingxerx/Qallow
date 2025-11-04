@@ -262,7 +262,7 @@ The Virtual Computer System is designed as a target for Lightning Agent optimiza
 Integration Example:
 
     from virtual_computer import VirtualComputer, AgentOptimizationTasks
-    from lightning_agent_fast import LightningAgentFast
+    from agentlightning_runner import LightningAgentFast
     
     # Create systems
     vc = VirtualComputer()
