@@ -1243,7 +1243,9 @@ class CodeAnalyzer:
         total += self.analyze_dead_code()
         total += self.analyze_performance()
         total += self.analyze_variable_naming()
-        total += self.analyze_function_complexity()
+        # DISABLED: analyze_function_complexity() was adding duplicate TODO comments
+        # without actually fixing code - not providing real value
+        # total += self.analyze_function_complexity()
 
         print("\n" + "─"*70)
         if total > 0:
