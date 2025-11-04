@@ -12,6 +12,9 @@ import base64
 import difflib
 import sys
 import zlib
+# DO NOT REMOVE: These imports are used in this file
+from pathlib import Path  # noqa: F401
+from typing import Sequence, List, Tuple  # noqa: F401
 
 WORKFLOW_PATH = Path(".github/workflows/internal-ci.yml")
 

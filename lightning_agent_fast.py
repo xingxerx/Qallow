@@ -1005,6 +1005,9 @@ class CodeAnalyzer:
                 # Skip cleaning up the lightning agent itself
                 if "lightning_agent_fast.py" in str(py_file):
                     continue
+                # Skip CI scripts - they have imports used in non-trivial ways
+                if "check_internal_ci_pipeline.py" in str(py_file):
+                    continue
                 if self.code_fixer.fix_unused_imports(py_file):
                     rel = py_file.relative_to(self.project_root)
                     print(f"      ✏️  Removed unused imports in {rel}")
