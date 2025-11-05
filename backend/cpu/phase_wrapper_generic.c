@@ -57,8 +57,8 @@ static int execute_phase_binary(int phase_num, int argc, char** argv) {
     }
 
     if (pid == 0) {
-
-
+        // Build argument array for execv
+        char* phase_argv[argc + 1];
         phase_argv[0] = (char*)phase_path;
         for (int i = 1; i < argc; i++) {
             phase_argv[i] = argv[i];
