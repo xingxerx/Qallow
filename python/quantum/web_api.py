@@ -1,23 +1,23 @@
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] #!/usr/bin/env python3
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] """Minimal HTTP API exposing entanglement simulation results.
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] The server exposes `/entangle?state=ghz&w=4&validate=1` style endpoints and
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] returns JSON describing the generated state. It leverages the same QuTiP bridge
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] used by the native runtime, ensuring feature parity for the web tier.
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] """
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] from http import HTTPStatus
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] from .ghz_w_sim import build_state, validate_with_cirq
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] def serialize_state(name: str, qubits: int, validate: bool) -> dict:
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     ket = build_state(name, qubits)
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     vector = ket.full().ravel()
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     probabilities = [float(p) for p in ket.probabilities()]
+#!/usr/bin/env python3
+"""Minimal HTTP API exposing entanglement simulation results.
+
+The server exposes `/entangle?state=ghz&w=4&validate=1` style endpoints and
+returns JSON describing the generated state. It leverages the same QuTiP bridge
+used by the native runtime, ensuring feature parity for the web tier.
+"""
+
+
+
+from http import HTTPStatus
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+
+from .ghz_w_sim import build_state, validate_with_cirq
+
+
+def serialize_state(name: str, qubits: int, validate: bool) -> dict:
+    ket = build_state(name, qubits)
+    vector = ket.full().ravel()
+    probabilities = [float(p) for p in ket.probabilities()]
 
     backend = "generated"
     fidelity = 1.0

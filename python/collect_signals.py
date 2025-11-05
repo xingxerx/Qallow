@@ -1,23 +1,23 @@
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] #!/usr/bin/env python3
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] """
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] collect_signals.py - Hardware telemetry collector for Qallow ethics system
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] Converts real system metrics into normalized [0,1] signals
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] Part of Phase 13: Closed-loop ethics monitoring
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] """
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # Configuration
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] OUTPUT_DIR = Path("/root/Qallow/data/telemetry")
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] OUTPUT_FILE = OUTPUT_DIR / "current_signals.txt"
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] LOG_FILE = OUTPUT_DIR / "collection.log"
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] HUMAN_FEEDBACK_FILE = Path("/root/Qallow/data/human_feedback.txt")
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # Ensure directories exist
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+#!/usr/bin/env python3
+"""
+collect_signals.py - Hardware telemetry collector for Qallow ethics system
+Converts real system metrics into normalized [0,1] signals
+Part of Phase 13: Closed-loop ethics monitoring
+"""
+
+
+
+
+
+
+# Configuration
+OUTPUT_DIR = Path("/root/Qallow/data/telemetry")
+OUTPUT_FILE = OUTPUT_DIR / "current_signals.txt"
+LOG_FILE = OUTPUT_DIR / "collection.log"
+HUMAN_FEEDBACK_FILE = Path("/root/Qallow/data/human_feedback.txt")
+
+# Ensure directories exist
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def log(msg):

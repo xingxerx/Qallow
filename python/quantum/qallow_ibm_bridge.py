@@ -1,23 +1,23 @@
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] """Utilities to bridge Qallow ternary state experiments with Cirq backends."""
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # REMOVED: from dataclasses import dataclass
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] from typing import Mapping, Optional, Tuple, Dict, Sequence
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] from collections import Counter, defaultdict
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] try:  # Cirq is optional to keep the bridge runnable in minimal environments.
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     import cirq  # type: ignore
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] except ImportError:  # pragma: no cover
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     cirq = None  # type: ignore
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] try:
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     import cirq_google  # type: ignore
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] except ImportError:  # pragma: no cover - optional dependency
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     cirq_google = None
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] @dataclass(slots=True)
+"""Utilities to bridge Qallow ternary state experiments with Cirq backends."""
+
+
+
+# REMOVED: from dataclasses import dataclass
+from typing import Mapping, Optional, Tuple, Dict, Sequence
+from collections import Counter, defaultdict
+
+try:  # Cirq is optional to keep the bridge runnable in minimal environments.
+    import cirq  # type: ignore
+except ImportError:  # pragma: no cover
+    cirq = None  # type: ignore
+
+try:
+    import cirq_google  # type: ignore
+except ImportError:  # pragma: no cover - optional dependency
+    cirq_google = None
+
+
+@dataclass(slots=True)
 class TernaryResult:
     """Container for quantum execution results consumed by Qallow telemetry."""
 

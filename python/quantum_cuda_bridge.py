@@ -1,23 +1,23 @@
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] #!/usr/bin/env python3
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] """
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] CUDA-Accelerated Quantum Simulator Bridge
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] Integrates CUDA kernels with Qiskit for high-performance quantum simulation
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] """
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] logger = logging.getLogger(__name__)
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] class CUDAQuantumSimulator:
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     """CUDA-accelerated quantum state simulator"""
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     def __init__(self, n_qubits: int, use_cuda: bool = True):
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]         self.n_qubits = n_qubits
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]         self.state_size = 2 ** n_qubits
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]         self.use_cuda = use_cuda
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]         self.state_vector = None
+#!/usr/bin/env python3
+"""
+CUDA-Accelerated Quantum Simulator Bridge
+Integrates CUDA kernels with Qiskit for high-performance quantum simulation
+"""
+
+
+
+
+logger = logging.getLogger(__name__)
+
+
+class CUDAQuantumSimulator:
+    """CUDA-accelerated quantum state simulator"""
+    
+    def __init__(self, n_qubits: int, use_cuda: bool = True):
+        self.n_qubits = n_qubits
+        self.state_size = 2 ** n_qubits
+        self.use_cuda = use_cuda
+        self.state_vector = None
         self.measurement_results = []
         
         logger.info(f"Initializing CUDA Quantum Simulator: {n_qubits} qubits, "
