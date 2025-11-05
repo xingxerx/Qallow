@@ -1,10 +1,10 @@
 """Utilities to bridge Qallow ternary state experiments with Cirq backends."""
 
 import os
-from dats import Counter, defaultdict
-aclasses import dataclass
+from dataclasses import dataclass
 from typing import Mapping, Optional, Tuple, Dict, Sequence
-from collection
+from collections import Counter, defaultdict
+
 try:  # Cirq is optional to keep the bridge runnable in minimal environments.
     import cirq  # type: ignore
 except ImportError:  # pragma: no cover
