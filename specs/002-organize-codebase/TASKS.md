@@ -26,11 +26,11 @@ Success Criteria: All tasks complete + 10/10 specification success criteria met 
 **Prerequisites**: None
 
 **Acceptance Criteria**:
-- [ ] Specification (spec.md) reviewed - understand all 3 user stories
-- [ ] Plan (plan.md) reviewed - understand all 5 phases
-- [ ] 10 success criteria understood
-- [ ] Constitution § IV alignment verified (CONSTITUTION_AUDIT.md)
-- [ ] No ambiguities or questions remaining
+- [x] Specification (spec.md) reviewed - understand all 3 user stories
+- [x] Plan (plan.md) reviewed - understand all 5 phases
+- [x] 10 success criteria understood
+- [x] Constitution § IV alignment verified (CONSTITUTION_AUDIT.md)
+- [x] No ambiguities or questions remaining
 
 **Key Checkpoints**:
 1. User Story P1: Developer discovers clear structure → P2: Maintainer verifies compliance → P3: Git history preserved
@@ -51,10 +51,10 @@ Success Criteria: All tasks complete + 10/10 specification success criteria met 
 **Prerequisites**: Task 1 complete
 
 **Acceptance Criteria**:
-- [ ] Root directory scanned with `find . -maxdepth 1 -type f`
-- [ ] Current loose file count recorded
-- [ ] File list captured in loose_files_baseline.txt
-- [ ] Baseline saved for post-reorganization comparison
+- [x] Root directory scanned with `find . -maxdepth 1 -type f`
+- [x] Current loose file count recorded
+- [x] File list captured in loose_files_baseline.txt
+- [x] Baseline saved for post-reorganization comparison
 
 **Implementation**:
 ```bash
@@ -76,9 +76,9 @@ wc -l loose_files_baseline.txt  # Record count (expect ~18 from feature 001)
 **Prerequisites**: Task 2 complete
 
 **Acceptance Criteria**:
-- [ ] Git tag created: `pre-002-reorganization`
-- [ ] Tag points to current HEAD
-- [ ] Tag verified with `git tag -l`
+- [x] Git tag created: `pre-002-reorganization`
+- [x] Tag points to current HEAD
+- [x] Tag verified with `git tag -l`
 
 **Implementation**:
 ```bash
@@ -100,10 +100,10 @@ git tag -l | grep pre-002  # Verify
 **Prerequisites**: Task 1 complete (plan.md review)
 
 **Acceptance Criteria**:
-- [ ] Mapping table from plan.md reviewed (matches feature 001 + enhancements)
-- [ ] Special cases confirmed (canon dirs, root files to keep)
-- [ ] Unknown extensions identified and assigned to misc/ (if needed)
-- [ ] No ambiguities in categorization
+- [x] Mapping table from plan.md reviewed (matches feature 001 + enhancements)
+- [x] Special cases confirmed (canon dirs, root files to keep)
+- [x] Unknown extensions identified and assigned to misc/ (if needed)
+- [x] No ambiguities in categorization
 
 **Key Mapping Reminders** (from plan.md):
 ```
@@ -136,11 +136,11 @@ Qallow.code-workspace
 **Prerequisites**: Task 4 complete
 
 **Acceptance Criteria**:
-- [ ] reorganize.sh executed with `--dry-run --verbose` flags
-- [ ] Output shows all proposed moves (no actual moves)
-- [ ] Output captured to dry_run_output.txt
-- [ ] Output reviewed for correctness
-- [ ] No errors or warnings in output
+- [x] reorganize.sh executed with `--dry-run --verbose` flags
+- [x] Output shows all proposed moves (no actual moves)
+- [x] Output captured to dry_run_output.txt
+- [x] Output reviewed for correctness
+- [x] No errors or warnings in output
 
 **Implementation**:
 ```bash
@@ -176,11 +176,11 @@ cat dry_run_output.txt | grep -E "MOVE|ERROR|WARNING"
 **Prerequisites**: Task 5 complete (dry-run validated)
 
 **Acceptance Criteria**:
-- [ ] reorganize.sh executed without --dry-run flag
-- [ ] All files moved to target directories (Phase 3 complete)
-- [ ] Audit trail logged to reorg.log
-- [ ] Git commit created (Phase 4 complete)
-- [ ] Exit code: 0 (success)
+- [x] reorganize.sh executed without --dry-run flag
+- [x] All files moved to target directories (Phase 3 complete)
+- [x] Audit trail logged to reorg.log
+- [x] Git commit created (Phase 4 complete)
+- [x] Exit code: 0 (success)
 
 **Implementation**:
 ```bash
@@ -193,11 +193,11 @@ echo "Exit code: $?"
 ```
 
 **Verification Checklist**:
-- [ ] Output shows "Move" operations completing
-- [ ] No "ERROR" messages in output
-- [ ] Git commit created (check `git log --oneline -5`)
-- [ ] reorg.log exists and contains entries
-- [ ] File count matches dry-run prediction
+- [x] Output shows "Move" operations completing
+- [x] No "ERROR" messages in output
+- [x] Git commit created (check `git log --oneline -5`)
+- [x] reorg.log exists and contains entries
+- [x] File count matches dry-run prediction
 
 **If Issues Encountered**:
 - Check error messages in output
@@ -218,10 +218,10 @@ echo "Exit code: $?"
 **Prerequisites**: Task 6 complete (reorganization executed)
 
 **Acceptance Criteria**:
-- [ ] validate.sh executed
-- [ ] All 7 validation checks PASS (expect exit code 0)
-- [ ] reorganization_report.txt generated
-- [ ] Report shows:
+- [x] validate.sh executed
+- [x] All 7 validation checks PASS (expect exit code 0)
+- [x] reorganization_report.txt generated
+- [x] Report shows:
   - 0 loose files in root ✓ (SC-002, SC-007)
   - All required directories exist ✓ (FR-003)
   - Files in correct categories ✓ (FR-002)
@@ -255,16 +255,16 @@ OVERALL: [PASS] - All 7 checks successful
 ```
 
 **Success Criteria Mapping**:
-- [ ] SC-001: 100% of files moved → Check 3 (0 misplaced)
-- [ ] SC-002: Zero loose files → Check 1 (0 violations)
-- [ ] SC-003: Audit trail complete → Check 7 (log valid)
+- [x] SC-001: 100% of files moved → Check 3 (0 misplaced)
+- [x] SC-002: Zero loose files → Check 1 (0 violations)
+- [x] SC-003: Audit trail complete → Check 7 (log valid)
 - [ ] SC-004: Permissions preserved → Check 4 (permissions OK)
 - [ ] SC-005: Sub-5-second execution → Validation runs in 2 sec ✓
 - [ ] SC-006: Git history maintained → Check 5 (commits exist)
 - [ ] SC-007: Violations detected → Check 1 (detection works)
-- [ ] SC-008: No broken symlinks → Check 6 (0 broken)
-- [ ] SC-009: Build system unaffected → Build files in root ✓
-- [ ] SC-010: Documentation explains → Commit messages + audit ✓
+- [x] SC-008: No broken symlinks → Check 6 (0 broken)
+- [x] SC-009: Build system unaffected → Build files in root ✓
+- [x] SC-010: Documentation explains → Commit messages + audit ✓
 
 **If Validation Fails**:
 - Review specific check failure in output
@@ -285,10 +285,10 @@ OVERALL: [PASS] - All 7 checks successful
 **Prerequisites**: Task 7 complete (validation passed)
 
 **Acceptance Criteria**:
-- [ ] README.md updated with Constitution § IV reference
-- [ ] Directory structure section added to README
-- [ ] Links to relevant documentation added
-- [ ] Changes committed to git
+- [x] README.md updated with Constitution § IV reference
+- [x] Directory structure section added to README
+- [x] Links to relevant documentation added
+- [x] Changes committed to git
 
 **Implementation**:
 
