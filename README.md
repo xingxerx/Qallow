@@ -115,6 +115,92 @@ cp .env.example .env   # customize runtime options
 ./build/qallow run --phase=11 --ticks=32 --states=-1,0,1
 ```
 
+## Project Structure (Constitution § IV)
+
+Qallow follows a modular canonical structure as defined in the [Constitution](CONSTITUTION.md) § IV (Modular Directory Structure). This ensures:
+
+- **Clear boundaries** between C/CUDA runtime, Python/scripts, and documentation
+- **Independent components** that can evolve without cross-cutting changes
+- **Minimal dependencies** – see § III (Minimal Dependency Requirements)
+- **Reproducible builds** – configuration and build artifacts in predictable locations
+
+```
+Qallow/
+├── backend/                    # Core C/CUDA runtime
+│   ├── cpu/                    # CPU phase implementations (C)
+│   ├── cuda/                   # CUDA phase mirrors (CUDA C)
+│   ├── include/                # Shared headers
+│   └── [misc]                  # Utility code (phase 4, payloads, etc)
+│
+├── core/                       # Shared contracts and definitions
+│   └── include/                # Core data structures and interfaces
+│
+├── python/                     # Python integrations
+│   ├── quantum/                # Quantum bridges (Qiskit, Phase 11)
+│   ├── analytics/              # Telemetry parsing and dashboards
+│   └── [scripts]               # Utility scripts
+│
+├── scripts/                    # Executable scripts (Bash, Python)
+│   ├── reorganize.sh           # Codebase organization (Feature 001)
+│   ├── validate.sh             # Post-reorganization validation
+│   ├── build_all.sh            # Build orchestrator
+│   ├── run_phase11.py          # Phase 11 Qiskit bridge
+│   └── [utilities]             # CI/CD, testing, helpers
+│
+├── docs/                       # Documentation and reports
+│   ├── QUICKSTART.md           # 5-minute setup guide
+│   ├── ARCHITECTURE_SPEC.md    # Technical architecture
+│   ├── specs/                  # Feature specifications
+│   │   ├── 001-*/              # Codebase reorganization
+│   │   ├── 002-*/              # Organized structure (current)
+│   │   └── [future-features]   # Upcoming features
+│   └── [organization-reports]  # Reorganization logs and reports
+│
+├── src/                        # TypeScript/JavaScript source (UI, utilities)
+├── config/                     # Configuration files (.env, CMake includes, etc)
+├── deploy/                     # Deployment artifacts (.deb, .tar.gz, Helm)
+├── interface/                  # CLI launcher and UI interface
+├── tests/                      # Test suite (C, CUDA, Python)
+├── data/                       # Runtime data and logs (generated)
+├── native_app/                 # Rust/FLTK desktop application
+│
+├── CMakeLists.txt              # C/CUDA build configuration
+├── Cargo.toml                  # Rust native app build
+├── Makefile                    # Build convenience targets
+├── Dockerfile                  # Container image
+├── bootstrap.sh                # Initial setup script
+├── README.md                   # This file (project overview)
+├── LICENSE                     # MIT License
+└── CONSTITUTION.md             # Governance and architecture binding
+
+```
+
+**Key Directories by Purpose**:
+
+| Purpose | Location | Rationale |
+|---------|----------|-----------|
+| Build system (C/CUDA) | `backend/cpu`, `backend/cuda` | Isolated compiler-specific code |
+| Python integration | `python/`, `scripts/` | Cohesive scripting layer with minimal runtime deps |
+| Documentation | `docs/` | Centralized knowledge base and runbooks |
+| Configuration | `config/` | All .json/.yaml/.env in one location |
+| Deployment | `deploy/` | Container images, binaries, archives |
+| Tests | `tests/` | Parallel structure to code for maintainability |
+| UI/CLI | `interface/`, `native_app/` | User-facing layer (C CLI + Rust GUI) |
+| Runtime outputs | `data/logs/` | Generated during execution, never committed |
+
+**Constitution § IV Binding Requirements Met**:
+
+✓ **Loose files eliminated** – All non-canonical files organized by type (md→docs, py→scripts, config→config)  
+✓ **Canonical structure** – Directories match the binding specification  
+✓ **No deep nesting** – Maximum depth is 3 (backend/cpu/misc/)  
+✓ **Modular independence** – Each directory can be understood and evolved independently  
+✓ **Build system preserved** – CMakeLists.txt, Cargo.toml, Makefile stay in root  
+✓ **Predictable locations** – New developers find code immediately  
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on where to place new files.
+
+---
+
 ### Run Your First Simulation
 
 ```bash
