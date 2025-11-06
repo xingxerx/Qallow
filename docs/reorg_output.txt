@@ -1,0 +1,167 @@
+[0;34m[INFO][0m ===============================================
+[0;34m[INFO][0m Qallow Codebase Reorganization Started
+[0;34m[INFO][0m Repository Root: /home/xing/Qallow
+[0;34m[INFO][0m Dry Run: false
+[0;34m[INFO][0m Verbose: true
+[0;34m[INFO][0m ===============================================
+
+[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[0;34m  QALLOW CODEBASE REORGANIZATION[0m
+[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+
+Repository: /home/xing/Qallow
+Dry Run: false
+Log File: /home/xing/Qallow/reorg.log
+
+
+[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[0;34m  PHASE 1: Scanning Root Directory[0m
+[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+
+[0;34mℹ[0m Found 18 loose files
+[0;34m[INFO][0m Found 18 loose files
+
+Files to reorganize (by category):
+
+  DOCS                 → docs                           [2 files]
+  SOURCE_C             → backend/cpu/misc               [1 files]
+  ASSETS_BINARY        → deploy                         [1 files]
+  ASSETS_ARCHIVE       → deploy                         [1 files]
+  MISC                 → misc                           [2 files]
+  BUILD_CONFIG         → ROOT (keep)                    [11 files]
+
+[0;34m[INFO][0m File inventory complete: 18 total files
+CMakeLists.txt Qallow.code-workspace ncu README.md reorg_output.txt SCALING_ROADMAP_SUMMARY.txt setup.bat LICENSE Cargo.toml Dockerfile bootstrap.sh ask reorg.log cuda-keyring_1.1-1_all.deb Cargo.lock qallow.tar.gz Makefile phase4_demo.c
+
+[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[0;34m  PHASE 2: Creating Target Directories[0m
+[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+
+[0;34mℹ[0m Directory already exists: docs/
+[0;34m[INFO][0m Directory already exists: docs/
+[0;34mℹ[0m Directory already exists: scripts/
+[0;34m[INFO][0m Directory already exists: scripts/
+[0;34mℹ[0m Directory already exists: config/
+[0;34m[INFO][0m Directory already exists: config/
+[0;32m✓[0m Created directory: backend/cpu/misc/
+[0;34m[SUCCESS][0m Created directory: backend/cpu/misc/
+[0;34mℹ[0m Directory already exists: src/
+[0;34m[INFO][0m Directory already exists: src/
+[0;34mℹ[0m Directory already exists: deploy/
+[0;34m[INFO][0m Directory already exists: deploy/
+[0;32m✓[0m Created directory: public/assets/
+[0;34m[SUCCESS][0m Created directory: public/assets/
+[0;32m✓[0m Created directory: misc/
+[0;34m[SUCCESS][0m Created directory: misc/
+
+
+[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[0;34m  PHASE 3: Moving Files by Category[0m
+[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+
+[0;34mℹ[0m Keeping in root: CMakeLists.txt (build config)
+[0;34m[INFO][0m Keeping in root: CMakeLists.txt (build config)
+[0;34mℹ[0m Keeping in root: Qallow.code-workspace (build config)
+[0;34m[INFO][0m Keeping in root: Qallow.code-workspace (build config)
+[0;34mℹ[0m Keeping in root: README.md (build config)
+[0;34m[INFO][0m Keeping in root: README.md (build config)
+[0;34mℹ[0m Keeping in root: setup.bat (build config)
+[0;34m[INFO][0m Keeping in root: setup.bat (build config)
+[0;34mℹ[0m Keeping in root: LICENSE (build config)
+[0;34m[INFO][0m Keeping in root: LICENSE (build config)
+[0;34mℹ[0m Keeping in root: Cargo.toml (build config)
+[0;34m[INFO][0m Keeping in root: Cargo.toml (build config)
+[0;34mℹ[0m Keeping in root: Dockerfile (build config)
+[0;34m[INFO][0m Keeping in root: Dockerfile (build config)
+[0;34mℹ[0m Keeping in root: bootstrap.sh (build config)
+[0;34m[INFO][0m Keeping in root: bootstrap.sh (build config)
+[0;34mℹ[0m Keeping in root: reorg.log (build config)
+[0;34m[INFO][0m Keeping in root: reorg.log (build config)
+[0;34mℹ[0m Keeping in root: Cargo.lock (build config)
+[0;34m[INFO][0m Keeping in root: Cargo.lock (build config)
+[0;34mℹ[0m Keeping in root: Makefile (build config)
+[0;34m[INFO][0m Keeping in root: Makefile (build config)
+
+[1;33mMoving MISC files → misc/[0m
+[0;32m✓[0m Moved: ncu → misc/
+[0;34m[SUCCESS][0m Moved: ncu → misc/
+[0;32m✓[0m Moved: ask → misc/
+[0;34m[SUCCESS][0m Moved: ask → misc/
+
+[1;33mMoving ASSETS_BINARY files → deploy/[0m
+[0;32m✓[0m Moved: cuda-keyring_1.1-1_all.deb → deploy/
+[0;34m[SUCCESS][0m Moved: cuda-keyring_1.1-1_all.deb → deploy/
+
+[1;33mMoving ASSETS_ARCHIVE files → deploy/[0m
+[0;32m✓[0m Moved: qallow.tar.gz → deploy/
+[0;34m[SUCCESS][0m Moved: qallow.tar.gz → deploy/
+
+[1;33mMoving DOCS files → docs/[0m
+[0;32m✓[0m Moved: reorg_output.txt → docs/
+[0;34m[SUCCESS][0m Moved: reorg_output.txt → docs/
+[0;32m✓[0m Moved: SCALING_ROADMAP_SUMMARY.txt → docs/
+[0;34m[SUCCESS][0m Moved: SCALING_ROADMAP_SUMMARY.txt → docs/
+
+[1;33mMoving SOURCE_C files → backend/cpu/misc/[0m
+[0;32m✓[0m Moved: phase4_demo.c → backend/cpu/misc/
+[0;34m[SUCCESS][0m Moved: phase4_demo.c → backend/cpu/misc/
+
+[0;34m[INFO][0m Moved 7 files
+
+[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[0;34m  PHASE 4: Committing Changes (by category)[0m
+[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+
+
+[0;34m[INFO][0m Created 0 git commits
+
+[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[0;34m  PHASE 5: Validating Reorganization[0m
+[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+
+[0;32m✓[0m No loose files found in root directory
+[0;34m[SUCCESS][0m No loose files found in root directory
+[0;32m✓[0m Directory docs/ contains 370 file(s)
+[0;34m[SUCCESS][0m Directory docs/ contains 370 file(s)
+[0;32m✓[0m Directory scripts/ contains 84 file(s)
+[0;34m[SUCCESS][0m Directory scripts/ contains 84 file(s)
+[0;32m✓[0m Directory config/ contains 10 file(s)
+[0;34m[SUCCESS][0m Directory config/ contains 10 file(s)
+[0;32m✓[0m Directory deploy/ contains 4 file(s)
+[0;34m[SUCCESS][0m Directory deploy/ contains 4 file(s)
+[0;32m✓[0m Directory backend/cpu/misc/ contains 1 file(s)
+[0;34m[SUCCESS][0m Directory backend/cpu/misc/ contains 1 file(s)
+[0;32m✓[0m Directory src/ contains 26 file(s)
+[0;34m[SUCCESS][0m Directory src/ contains 26 file(s)
+
+[0;34m[INFO][0m Validation complete
+
+[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+[0;34m  SUMMARY REPORT[0m
+[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m
+
+Reorganization Status: ✓ SUCCESS
+
+Root directory now contains only:
+  - Build configuration files (CMakeLists.txt, Cargo.toml, etc.)
+  - Documentation (README.md, LICENSE)
+  - Setup scripts (bootstrap.sh, setup.bat)
+
+Organized directories:
+  - misc
+  - config
+  - deploy
+  - docs
+  - misc
+  - assets
+  - scripts
+  - src
+
+See /home/xing/Qallow/reorg.log for detailed operation log
+
+[0;34m[INFO][0m Reorganization Summary:
+[0;34m[INFO][0m   - Loose files scanned and categorized
+[0;34m[INFO][0m   - Files moved to dedicated directories
+[0;34m[INFO][0m   - Changes committed to git (per category)
+[0;34m[INFO][0m   - Validation passed
+[0;34m[INFO][0m Reorganization completed successfully
