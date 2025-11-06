@@ -9,7 +9,8 @@
 
 set -u  # Exit on undefined variable
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+# Navigate up two levels from scripts/ to project root
+PROJECT_ROOT="$(dirname "$(dirname "$SCRIPT_DIR")")"
 LOG_FILE="${PROJECT_ROOT}/reorg.log"
 ERROR_LOG="${PROJECT_ROOT}/reorg_errors.log"
 
