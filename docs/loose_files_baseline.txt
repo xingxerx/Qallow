@@ -1,0 +1,8 @@
+./.env.example
+./.wslrun
+./COMPLETION_SUMMARY.md
+./GETTING_STARTED.md
+./MULTIAGENT_DELIVERY.md
+./README_MULTIAGENT.md
+./loose_files_baseline.txt
+./reorganization_report.txt
