@@ -1,23 +1,23 @@
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] #!/usr/bin/env python3
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] """CI guard ensuring a human has explicitly approved the latest changes."""
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] from datetime import datetime, timezone
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] from pathlib import Path
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] from typing import NoReturn
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] CONFIG_PATH = Path("config/human_approval.json")
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] PLACEHOLDER_VALUES = {"", "CHANGE_ME", "PENDING", "TBD", "UNASSIGNED", "CODEX", "AI"}
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] MAX_DEFAULT_DAYS = 30
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] def _fail(message: str) -> NoReturn:
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     """Print a consistent error message and exit."""
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     print(f"[HUMAN-APPROVAL] {message}", file=sys.stderr)
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     sys.exit(1)
+#!/usr/bin/env python3
+"""CI guard ensuring a human has explicitly approved the latest changes."""
+
+
+
+
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import NoReturn
+
+
+CONFIG_PATH = Path("config/human_approval.json")
+PLACEHOLDER_VALUES = {"", "CHANGE_ME", "PENDING", "TBD", "UNASSIGNED", "CODEX", "AI"}
+MAX_DEFAULT_DAYS = 30
+
+
+def _fail(message: str) -> NoReturn:
+    """Print a consistent error message and exit."""
+    print(f"[HUMAN-APPROVAL] {message}", file=sys.stderr)
+    sys.exit(1)
 
 
 def _load_config() -> dict:
@@ -62,7 +62,7 @@ def main() -> None:
     approved_by = str(data.get("approved_by", "")).strip()
     if not approved_by:
         _fail("Field 'approved_by' must contain the approving human's name")
-# [REVIEWED] # [REVIEWED] # [REVIEWED]     if approved_by.upper() in PLACEHOLDER_VALUES or "TODO" in approved_by.upper():
+    if approved_by.upper() in PLACEHOLDER_VALUES or "TODO" in approved_by.upper():
         _fail("Field 'approved_by' contains a placeholder; replace with the human approver's name")
 
     approved_at = _parse_datetime(str(data.get("approved_at", "")))

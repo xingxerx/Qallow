@@ -1,23 +1,22 @@
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] #!/usr/bin/env python3
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] """Validate and optionally restore the canonical internal CI workflow.
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] This helper keeps `.github/workflows/internal-ci.yml` in sync with the
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] reference pipeline we maintain in-repo.  It is meant to be run in CI as
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] well as locally before pushing workflow changes.
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] """
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] from pathlib import Path
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] from typing import Sequence, List, Tuple
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] WORKFLOW_PATH = Path(".github/workflows/internal-ci.yml")
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] CANONICAL_PIPELINE_B64 = (
+#!/usr/bin/env python3
+"""Validate and optionally restore the canonical internal CI workflow.
+
+This helper keeps `.github/workflows/internal-ci.yml` in sync with the
+reference pipeline we maintain in-repo.  It is meant to be run in CI as
+well as locally before pushing workflow changes.
+"""
+
+import argparse
+import base64
+import difflib
+import sys
+import zlib
+from pathlib import Path
+from typing import Sequence, List, Tuple
+
+WORKFLOW_PATH = Path(".github/workflows/internal-ci.yml")
+
+CANONICAL_PIPELINE_B64 = (
     "eNrFWf9P20oS/52/YpRWfcBjY0JRdcqJ6gUIbVQgNEDfne5O1sbeJFucXXe/QKLX97/f7NpJ7MQOoLvT/YAa"
     "e3ZmZ2c+85nxVtApa8NXmiTyCXrCMCVoAme9nR0p2jsAqdUT9y/AUFERTZjOngAITCkXy4eYPbJEpstnxRJ"
     "GNQv2972VJAkV+2GZNu2dne9y6M1M7JQKQtNUyUeaZIaFd+izk8CAPXL2BJ+oYV6mrNAE/QI7tMJYcnTUPD"
