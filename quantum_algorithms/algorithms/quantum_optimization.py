@@ -1,4 +1,4 @@
-from bayesian_optimization import BayesianOptimization
+from bayes_opt import BayesianOptimization
 import cirq
 import numpy as np
 from datetime import datetime
@@ -6,15 +6,17 @@ from typing import List, Tuple, Dict, Any, Union
 
 
 class OptimizationResult:
-    algorithm: str
-    problem: str
-    timestamp: str
-    best_solution: Union[int, str]
-    best_energy: float
-    all_energies: List[float]
-
-circuit: str
-    metrics: Dict[str, Any]
+    def __init__(self, algorithm: str, problem: str, timestamp: str, 
+                 best_solution: Union[int, str], best_energy: float, 
+                 all_energies: List[float], circuit: str, metrics: Dict[str, Any]):
+        self.algorithm = algorithm
+        self.problem = problem
+        self.timestamp = timestamp
+        self.best_solution = best_solution
+        self.best_energy = best_energy
+        self.all_energies = all_energies
+        self.circuit = circuit
+        self.metrics = metrics
 
 
 class QuantumMaxCut:
