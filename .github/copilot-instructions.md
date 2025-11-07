@@ -18,3 +18,10 @@ applyTo: '**'
 - External surfaces: `mcp-memory-service/` is vendored—avoid modifications unless coordinating upstream. SDL-based UI (`interface/qallow_ui.c`) builds only when SDL2 + SDL2_ttf are detected; guard code with compile-time checks.
 - **MCP Memory Server Integration**: GitHub Copilot integrates with a persistent memory MCP server via `.vscode/mcp.json`. The memory server (SQLite-vec backend) runs locally and provides semantic search, memory storage, and recall tools. Configure in VS Code: open Copilot Chat, select Agent mode, click the tools icon, and the memory server tools will appear. Use `/mcp.memory.*` commands in chat to store/recall context. The server persists memories in `/root/.local/share/mcp-memory/` and supports multi-session context awareness.
 - Report back with executed build/test commands and any ethics/telemetry impacts; transparency is expected for changes touching the AGI phases.
+
+## Active Technologies
+- C (core engine) + Python 3.11 (quantum bridge) | CUDA 12.0+ (GPU optional) (004-agi-evolution)
+- JSON serialization for cognitive state (file-based persistence) (004-agi-evolution)
+
+## Recent Changes
+- 004-agi-evolution: Added C (core engine) + Python 3.11 (quantum bridge) | CUDA 12.0+ (GPU optional)

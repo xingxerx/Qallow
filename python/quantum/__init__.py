@@ -3,6 +3,8 @@
 from .adaptive_agent import QuantumAdaptiveAgent
 from .hybrid_meta_learner import HybridQuantumLearner, TrainingEpoch, ExampleSample
 from .qallow_ibm_bridge import TernaryResult, build_ternary_circuit, run_ternary_sim
+from .quantum_circuit import QuantumCircuit
+from .quantum_optimizer import QuantumOptimizer
 
 __all__ = [
     "TernaryResult",
@@ -12,4 +14,6 @@ __all__ = [
     "HybridQuantumLearner",
     "TrainingEpoch",
     "ExampleSample",
+    "QuantumCircuit",
+    "QuantumOptimizer",
 ]
