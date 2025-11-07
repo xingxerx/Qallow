@@ -107,3 +107,4 @@ if "%1"=="clean" (
 )
 
 endlocal
+pause
