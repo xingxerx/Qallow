@@ -4,6 +4,14 @@ REM Supports both CPU-only and CUDA-enabled builds
 
 setlocal enabledelayedexpansion
 
+REM Add error handling - catch any errors
+if errorlevel 1 (
+    echo.
+    echo [ERROR] Script encountered an error. See above for details.
+    pause
+    exit /b 1
+)
+
 set BUILD_TYPE=%1
 if "%BUILD_TYPE%"=="" set BUILD_TYPE=cuda
 
