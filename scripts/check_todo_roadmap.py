@@ -7,22 +7,22 @@
 # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] since the merge base are considered.
 # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] """
 # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] from __future__ import annotations
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] from dataclasses import dataclass
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] from pathlib import Path
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] from typing import Iterable, List, Sequence
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
+from __future__ import annotations
+
+import argparse
+import re
+import subprocess
+import sys
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Iterable, List, Sequence
+
 REPO_ROOT = Path(__file__).resolve().parents[1]
-# [REVIEWED] # [REVIEWED] # [REVIEWED] DEFAULT_ROADMAP = REPO_ROOT / "docs" / "TODO_ROADMAP.md"
-# [REVIEWED] # [REVIEWED] # [REVIEWED] MARKER_PATTERN = re.compile(r"\b(TODO|FIXME|XXX|HACK)\b")
+DEFAULT_ROADMAP = REPO_ROOT / "docs" / "TODO_ROADMAP.md"
+MARKER_PATTERN = re.compile(r"\b(TODO|FIXME|XXX|HACK)\b")
 INCLUDE_SUFFIXES = {".c", ".h", ".py"}
 EXCLUDE_DIRS = {"venv", ".git", "build", "__pycache__", ".mypy_cache"}
+EXCLUDE_FILES = {"scripts/check_todo_roadmap.py"}
 
 
 @dataclass
@@ -44,6 +44,8 @@ def _run_git_command(args: Sequence[str]) -> str:
 
 def _should_consider(path: Path) -> bool:
     if path.suffix not in INCLUDE_SUFFIXES:
+        return False
+    if path.as_posix() in EXCLUDE_FILES:
         return False
     return not any(part in EXCLUDE_DIRS for part in path.parts)
 
