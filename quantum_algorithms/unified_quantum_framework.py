@@ -1,23 +1,26 @@
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] #!/usr/bin/env python3
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] """
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] Unified Quantum Algorithm Framework
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] Combines all quantum algorithms (Hello Quantum, Grover's, Shor's, VQE) into one framework
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] for comprehensive testing and analysis.
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] """
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] from enum import Enum
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] from datetime import datetime
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] class AlgorithmType(Enum):
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     """Supported quantum algorithms"""
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     HELLO_QUANTUM = "hello_quantum"
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     BELL_STATE = "bell_state"
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     DEUTSCH = "deutsch"
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     GROVER = "grover"
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     SHOR = "shor"
+#!/usr/bin/env python3
+"""
+Unified Quantum Algorithm Framework
+Combines all quantum algorithms (Hello Quantum, Grover's, Shor's, VQE) into one framework
+for comprehensive testing and analysis.
+"""
+
+import cirq
+import numpy as np
+import json
+from enum import Enum
+from dataclasses import dataclass
+from datetime import datetime
+from typing import Dict, Any, List
+
+
+class AlgorithmType(Enum):
+    """Supported quantum algorithms"""
+    HELLO_QUANTUM = "hello_quantum"
+    BELL_STATE = "bell_state"
+    DEUTSCH = "deutsch"
+    GROVER = "grover"
+    SHOR = "shor"
     VQE = "vqe"
 
 

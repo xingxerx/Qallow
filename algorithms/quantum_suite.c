@@ -131,19 +131,30 @@ static const char* detect_python_binary(void) {
     if (env_python && *env_python && QALLOW_ACCESS(env_python, X_OK) == 0) {
         return env_python;
     }
-    if (QALLOW_ACCESS("./cirq-env/bin/python", X_OK) == 0) {
-        return "./cirq-env/bin/python";
-    }
-    if (QALLOW_ACCESS("./venv/bin/python", X_OK) == 0) {
-        return "./venv/bin/python";
+    // Prefer .venv over venv (hidden venv is usually more recent)
+    if (QALLOW_ACCESS("./.venv/bin/python3", X_OK) == 0) {
+        return "./.venv/bin/python3";
     }
     if (QALLOW_ACCESS("./.venv/bin/python", X_OK) == 0) {
         return "./.venv/bin/python";
     }
-    if (QALLOW_ACCESS("python3", X_OK) == 0) {
+    if (QALLOW_ACCESS("./cirq-env/bin/python3", X_OK) == 0) {
+        return "./cirq-env/bin/python3";
+    }
+    if (QALLOW_ACCESS("./cirq-env/bin/python", X_OK) == 0) {
+        return "./cirq-env/bin/python";
+    }
+    if (QALLOW_ACCESS("./venv/bin/python3", X_OK) == 0) {
+        return "./venv/bin/python3";
+    }
+    if (QALLOW_ACCESS("./venv/bin/python", X_OK) == 0) {
+        return "./venv/bin/python";
+    }
+    // Try system-wide python3 and python using 'which' command
+    if (system("which python3 > /dev/null 2>&1") == 0) {
         return "python3";
     }
-    if (QALLOW_ACCESS("python", X_OK) == 0) {
+    if (system("which python > /dev/null 2>&1") == 0) {
         return "python";
     }
     return NULL;

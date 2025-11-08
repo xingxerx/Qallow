@@ -1,18 +1,28 @@
 #!/usr/bin/env python3
 """
 Unified Backend Orchestrator for Qallow Meta-Learning
-Coordinates CPU, CUDA, CUDA-Q, and Cirq quantum backends
+Primary Backend: CUDA-Q 0.8+ (MANDATORY)
+Secondary Backends: CUDA, Cirq (optional)
+CPU Backend: Classical baseline only
+
+CRITICAL: CUDA-Q is REQUIRED for quantum acceleration.
+If CUDA-Q is not available, the orchestrator will FAIL with clear instructions.
+Cirq/CPU are fallbacks only when explicitly requested, not automatic.
 
 This module provides:
-- Automatic backend selection based on availability
-- Transparent switching between CPU/CUDA/CUDA-Q/Cirq
+- Mandatory CUDA-Q backend with explicit error handling
+- Optional Cirq/CUDA for explicitly requested alternatives
 - Integrated telemetry and performance monitoring
 - Unified interface for quantum + classical optimization
 
 Usage:
   from python.quantum.orchestrator import QuantumOrchestrator
-  orchestra = QuantumOrchestrator(preferred_backend='auto')
+  # Requires CUDA-Q to be installed
+  orchestra = QuantumOrchestrator(backend='cuda_q')  # Explicit
   result = orchestra.execute_optimization(n_qubits=4, n_iterations=100)
+  
+  # Or use auto (checks CUDA-Q first, requires explicit alternative if unavailable)
+  orchestra = QuantumOrchestrator(backend='auto')  # auto=cuda_q if available else error
 """
 
 import json
@@ -84,72 +94,101 @@ class QuantumOrchestrator:
     """
     Unified orchestrator for quantum-classical hybrid optimization
     
-    Automatically selects and manages available quantum backends,
-    falling back gracefully when backends are unavailable.
+    CUDA-Q is the PRIMARY backend and is REQUIRED.
+    Falls back to explicit alternatives only when CUDA-Q is unavailable
+    and explicitly requested.
+    
+    Backend Priority:
+    1. CUDA-Q 0.8+ (GPU quantum) - REQUIRED
+    2. CUDA (GPU accelerated) - optional alternative
+    3. Cirq (CPU simulator) - optional fallback only
+    4. CPU (classical only) - baseline
     """
 
-    def __init__(self, preferred_backend: str = "auto"):
+    def __init__(self, backend: str = "cuda_q"):
         """
         Initialize orchestrator
         
         Args:
-            preferred_backend: "auto", "cpu", "cuda", "cuda_q", "cirq"
+            backend: "cuda_q" (required), "cuda", "cirq", "cpu"
+        
+        Raises:
+            ImportError: If CUDA-Q requested but not available
+            ValueError: If backend not recognized
         """
-        self.preferred_backend = preferred_backend
+        # Validate backend choice
+        valid_backends = {"cuda_q", "cuda", "cirq", "cpu"}
+        if backend not in valid_backends:
+            raise ValueError(
+                f"Backend '{backend}' not recognized.\n"
+                f"Valid options: {', '.join(sorted(valid_backends))}"
+            )
+        
+        self.requested_backend = backend
         self.backends = {}
         self.active_backend = None
-        self.backend_priority = [
-            Backend.CUDA_Q,
-            Backend.CUDA,
-            Backend.CIRQ,
-            Backend.CPU
-        ]
         
-        # Initialize backend detection
+        # Initialize backend detection (CUDA-Q mandatory first)
         self._detect_backends()
         self._select_backend()
         
-        logger.info(f"Orchestrator initialized with backend: {self.active_backend}")
+        logger.info(f"✓ Orchestrator initialized: backend={self.active_backend}")
 
     def _detect_backends(self):
-        """Detect which backends are available"""
-        # Check CUDA-Q
+        """
+        Detect available backends with CUDA-Q as primary requirement
+        
+        CUDA-Q is checked first. If not available:
+        - If 'cuda_q' requested: FAIL with installation instructions
+        - If 'auto': attempt to use available alternative (not silent)
+        - If other backend requested: use that alternative
+        """
+        # CHECK: CUDA-Q availability (PRIMARY)
+        cudaq_available = False
+        cudaq_version = None
+        cudaq_error = None
+        
         try:
             import cudaq
-            self.backends[Backend.CUDA_Q] = BackendStatus(
+            cudaq_available = True
+            cudaq_version = getattr(cudaq, '__version__', 'unknown')
+            self.backends['cuda_q'] = BackendStatus(
                 name="CUDA-Q",
                 available=True,
-                priority=0,
-                version=getattr(cudaq, '__version__', 'unknown'),
-                device_info="GPU quantum simulation"
+                priority=0,  # Highest priority
+                version=cudaq_version,
+                device_info="NVIDIA GPU quantum simulation"
             )
-            logger.info("✓ CUDA-Q backend available")
-        except ImportError:
-            self.backends[Backend.CUDA_Q] = BackendStatus(
+            logger.info(f"✓ CUDA-Q available: v{cudaq_version}")
+        except ImportError as e:
+            cudaq_error = str(e)
+            self.backends['cuda_q'] = BackendStatus(
                 name="CUDA-Q",
                 available=False,
                 priority=999,
                 version=None,
                 device_info=None,
-                error_message="cudaq package not installed"
+                error_message=cudaq_error
             )
+            logger.warning(f"⚠️  CUDA-Q not available: {cudaq_error}")
         
-        # Check CUDA (check for CUDA runtime)
+        # CHECK: CUDA backend (optional, secondary)
         try:
             import pycuda.driver as cuda
             cuda.init()
             device = cuda.Device(0)
-            props = device.get_attributes()
-            self.backends[Backend.CUDA] = BackendStatus(
+            device_name = device.name().decode('utf-8') if isinstance(device.name(), bytes) else device.name()
+            
+            self.backends['cuda'] = BackendStatus(
                 name="CUDA",
                 available=True,
                 priority=1,
                 version=f"CUDA {cuda.get_version()}",
-                device_info=f"{device.name()}"
+                device_info=f"GPU: {device_name}"
             )
-            logger.info(f"✓ CUDA backend available: {device.name()}")
+            logger.info(f"✓ CUDA backend available: {device_name}")
         except Exception as e:
-            self.backends[Backend.CUDA] = BackendStatus(
+            self.backends['cuda'] = BackendStatus(
                 name="CUDA",
                 available=False,
                 priority=999,
@@ -158,63 +197,92 @@ class QuantumOrchestrator:
                 error_message=str(e)
             )
         
-        # Check Cirq
+        # CHECK: Cirq backend (optional, fallback)
         try:
             import cirq
-            self.backends[Backend.CIRQ] = BackendStatus(
+            self.backends['cirq'] = BackendStatus(
                 name="Cirq",
                 available=True,
                 priority=2,
                 version=getattr(cirq, '__version__', 'unknown'),
-                device_info="CPU quantum simulator"
+                device_info="CPU quantum simulator (Cirq)"
             )
-            logger.info("✓ Cirq backend available")
-        except ImportError:
-            self.backends[Backend.CIRQ] = BackendStatus(
+            logger.info(f"✓ Cirq backend available")
+        except ImportError as e:
+            self.backends['cirq'] = BackendStatus(
                 name="Cirq",
                 available=False,
                 priority=999,
                 version=None,
                 device_info=None,
-                error_message="cirq package not installed"
+                error_message=str(e)
             )
         
-        # CPU backend always available
-        self.backends[Backend.CPU] = BackendStatus(
+        # CPU backend always available (classical baseline)
+        self.backends['cpu'] = BackendStatus(
             name="CPU",
             available=True,
             priority=3,
-            version="1.0 (Classical only)",
-            device_info="CPU Bayesian optimization"
+            version="1.0",
+            device_info="Classical CPU Bayesian optimization"
         )
-        logger.info("✓ CPU backend always available")
 
     def _select_backend(self):
-        """Select active backend based on preferences and availability"""
-        if self.preferred_backend == "auto":
-            # Select highest priority available backend
-            available = [
-                (b, self.backends[b]) 
-                for b in self.backend_priority 
-                if b in self.backends and self.backends[b].available
-            ]
+        """
+        Select active backend with mandatory CUDA-Q preference
+        
+        Rules:
+        1. If 'cuda_q' requested: MUST be available or FAIL
+        2. If other backend explicitly requested: use if available
+        3. If backend unavailable: raise error with installation instructions
+        """
+        if self.requested_backend == "cuda_q":
+            # CUDA-Q explicitly requested - MUST be available
+            if not self.backends.get('cuda_q', BackendStatus('', False, 999, None, None)).available:
+                error_msg = (
+                    f"CUDA-Q is REQUIRED but not available.\n"
+                    f"Installation instructions:\n"
+                    f"  pip install cuda-quantum>=0.8.0\n"
+                    f"System check:\n"
+                    f"  - Python 3.9+: python --version\n"
+                    f"  - CUDA 12.0+: nvcc --version\n"
+                    f"  - cupy: pip install cupy-cuda12x\n"
+                    f"If CUDA-Q is not suitable, use --backend=cirq or --backend=cpu instead"
+                )
+                raise ImportError(error_msg)
             
-            if available:
-                self.active_backend = available[0][0].value
-                logger.info(f"Auto-selected backend: {self.active_backend}")
-            else:
-                self.active_backend = Backend.CPU.value
-                logger.warning("No quantum backends available, using CPU only")
+            self.active_backend = "cuda_q"
+            logger.info("✓ CUDA-Q backend selected (mandatory quantum acceleration)")
+        
+        elif self.requested_backend == "cuda":
+            # CUDA explicitly requested
+            if not self.backends.get('cuda', BackendStatus('', False, 999, None, None)).available:
+                raise ImportError(
+                    f"CUDA backend requested but not available.\n"
+                    f"Install: pip install pycuda\n"
+                    f"Or use: --backend=cuda_q (recommended) or --backend=cirq"
+                )
+            self.active_backend = "cuda"
+            logger.info("✓ CUDA backend selected")
+        
+        elif self.requested_backend == "cirq":
+            # Cirq explicitly requested (CPU simulation)
+            if not self.backends.get('cirq', BackendStatus('', False, 999, None, None)).available:
+                raise ImportError(
+                    f"Cirq backend requested but not available.\n"
+                    f"Install: pip install cirq>=1.2.0\n"
+                    f"Or use: --backend=cuda_q (recommended, requires GPU)"
+                )
+            self.active_backend = "cirq"
+            logger.info("✓ Cirq CPU simulation backend selected")
+        
+        elif self.requested_backend == "cpu":
+            # CPU-only (classical baseline)
+            self.active_backend = "cpu"
+            logger.info("✓ CPU classical backend selected (no quantum acceleration)")
+        
         else:
-            # Use requested backend
-            for b in Backend:
-                if b.value == self.preferred_backend:
-                    if self.backends[b].available:
-                        self.active_backend = b.value
-                    else:
-                        logger.warning(f"Requested backend '{self.preferred_backend}' unavailable, falling back to CPU")
-                        self.active_backend = Backend.CPU.value
-                    break
+            raise ValueError(f"Unknown backend: {self.requested_backend}")
 
     def get_backend_status(self) -> Dict[str, Any]:
         """Get status of all backends"""
@@ -412,20 +480,31 @@ class QuantumOrchestrator:
 
 
 def main():
-    """Test orchestrator"""
+    """Test orchestrator with mandatory CUDA-Q"""
     logging.basicConfig(level=logging.INFO)
     
-    # Create orchestrator
-    orchestra = QuantumOrchestrator(preferred_backend="auto")
+    print("=== Qallow Quantum Orchestrator ===\n")
+    
+    # Try to initialize with CUDA-Q (required)
+    try:
+        orchestra = QuantumOrchestrator(backend="cuda_q")
+    except ImportError as e:
+        print(f"ERROR: {e}\n")
+        print("Falling back to Cirq CPU simulation (slower, no GPU)...")
+        try:
+            orchestra = QuantumOrchestrator(backend="cirq")
+        except ImportError:
+            print("Cirq not available either, using CPU baseline (classical only)...")
+            orchestra = QuantumOrchestrator(backend="cpu")
     
     # Print backend status
-    print("\n=== Backend Status ===")
+    print("\n=== Available Backends ===")
     status = orchestra.get_backend_status()
     for backend, info in status.items():
         avail = "✓" if info['available'] else "✗"
-        print(f"{avail} {backend:10} ({info['version']})")
+        print(f"  {avail} {backend:10} v{info['version']:10} {info['device_info']}")
     
-    print(f"\nActive backend: {orchestra.active_backend}")
+    print(f"\nActive backend: {(orchestra.active_backend or '').upper()}")
     
     # Run optimization
     print("\n=== Running Optimization ===")
@@ -441,11 +520,10 @@ def main():
     print(f"  Best loss: {result.best_loss:.8f}")
     print(f"  Iterations: {result.n_iterations}")
     print(f"  Time: {result.total_time_ms:.1f} ms")
-    print(f"  Backend switches: {result.metrics['backend_switches']}")
     
     # Export JSON
     json_result = orchestra.export_result_json(result)
-    print(f"\nJSON Export:\n{json_result}")
+    print(f"\nJSON Export (first 200 chars):\n{json_result[:200]}...")
 
 
 if __name__ == "__main__":
