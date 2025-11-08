@@ -18,6 +18,11 @@ mod telemetry;
 mod ui;
 mod utils;
 
+pub mod settings;
+pub mod sidebar;
+pub mod status_bar;
+pub mod chat_panel;
+
 use backend::process_manager::ProcessManager;
 use button_handlers::ButtonHandler;
 use clipboard::ClipboardService;
@@ -170,578 +175,57 @@ fn main() {
     let button_handler = Arc::new(ButtonHandler::new(
         state.clone(),
         process_manager.clone(),
-        Arc::new(logger.clone()),
-        codebase_mgr.clone(),
-        Some(sender.clone()),
+        sender.clone(),
     ));
 
-    // Create main window
-    let mut wind = window::Window::default()
-        .with_size(
-            config.ui.window_width as i32,
-            config.ui.window_height as i32,
-        )
-        .with_label("🚀 Qallow Unified VM - Native Desktop Application");
+    // --- Main Window and UI Setup ---
+    let mut main_win = MainWindow::new();
+    main_win.wind.show();
 
-    wind.set_color(Color::from_hex(0x0a0e27));
+    // --- Chat Button Logic ---
+    let mut chat_input = main_win.chat_panel.input.clone();
+    let mut chat_display = main_win.chat_panel.conversation_display.clone();
+    let api_client = main_win.api_client.clone();
 
-    ui::matrix_bg::install_matrix_background(&mut wind);
-
-    // Create UI and get button references
-    let ui_handles = ui::create_main_ui(&mut wind, state.clone());
-
-    let terminal_buffer = ui_handles.terminal.buffer.clone();
-    let audit_buffer = ui_handles.audit.buffer.clone();
-    let mut audit_filter_choice = ui_handles.audit.filter_choice.clone();
-    let mut terminal_clear_btn = ui_handles.terminal.clear_btn.clone();
-    let mut terminal_copy_btn = ui_handles.terminal.copy_btn.clone();
-    let mut terminal_export_btn = ui_handles.terminal.export_btn.clone();
-    let mut audit_clear_btn = ui_handles.audit.clear_btn.clone();
-    let mut audit_export_btn = ui_handles.audit.export_btn.clone();
-    let mut audit_copy_btn = ui_handles.audit.copy_btn.clone();
-    let status_indicator = ui_handles.status_indicator.clone();
-    let mut control_buttons = ui_handles.control;
-    let mut dungeon_copy_status_btn = ui_handles.dungeons.copy_status_btn.clone();
-    let mut dungeon_copy_log_btn = ui_handles.dungeons.copy_log_btn.clone();
-    let dungeon_status_editor = ui_handles.dungeons.status_display.clone();
-    let dungeon_log_editor = ui_handles.dungeons.log_display.clone();
-
-    refresh_terminal(&state, &terminal_buffer);
-    refresh_audit(
-        &state,
-        &audit_buffer,
-        current_audit_filter(&audit_filter_choice),
-    );
-    {
-        let mut status_btn = status_indicator.clone();
-        set_status_indicator(&mut status_btn, VmStatus::Stopped);
-    }
-
-    // Setup button callbacks BEFORE showing window
-    let handler_clone = button_handler.clone();
-    control_buttons.start_btn.set_callback({
-        let handler = handler_clone.clone();
-        let state = state.clone();
-        let terminal_buffer = terminal_buffer.clone();
-        let audit_buffer = audit_buffer.clone();
-        let audit_filter_choice = audit_filter_choice.clone();
-        let status_indicator = status_indicator.clone();
-        move |_| match handler.on_start_vm() {
-            Ok(()) => {
-                refresh_terminal(&state, &terminal_buffer);
-                refresh_audit(
-                    &state,
-                    &audit_buffer,
-                    current_audit_filter(&audit_filter_choice),
-                );
-                let mut btn = status_indicator.clone();
-                set_status_indicator(&mut btn, VmStatus::Running);
-            }
-            Err(e) => dialog::alert_default(&format!("Error starting VM: {}", e)),
+    main_win.chat_panel.send_button.set_callback(move |_| {
+        let user_message = chat_input.value();
+        if user_message.is_empty() {
+            return;
         }
-    });
 
-    let handler_clone = button_handler.clone();
-    control_buttons.stop_btn.set_callback({
-        let handler = handler_clone.clone();
-        let state = state.clone();
-        let terminal_buffer = terminal_buffer.clone();
-        let audit_buffer = audit_buffer.clone();
-        let audit_filter_choice = audit_filter_choice.clone();
-        let status_indicator = status_indicator.clone();
-        move |_| match handler.on_stop_vm() {
-            Ok(()) => {
-                refresh_terminal(&state, &terminal_buffer);
-                refresh_audit(
-                    &state,
-                    &audit_buffer,
-                    current_audit_filter(&audit_filter_choice),
-                );
-                let mut btn = status_indicator.clone();
-                set_status_indicator(&mut btn, VmStatus::Stopped);
-            }
-            Err(e) => dialog::alert_default(&format!("Error stopping VM: {}", e)),
+        // Add user message to display
+        if let Some(mut buffer) = chat_display.buffer() {
+            buffer.append(&format!("You: {}\n", &user_message));
+            chat_display.scroll(buffer.count_lines(0, buffer.length(), true), 0);
         }
-    });
+        chat_input.set_value("");
 
-    let handler_clone = button_handler.clone();
-    control_buttons.pause_btn.set_callback({
-        let handler = handler_clone.clone();
-        let state = state.clone();
-        let terminal_buffer = terminal_buffer.clone();
-        let audit_buffer = audit_buffer.clone();
-        let audit_filter_choice = audit_filter_choice.clone();
-        let status_indicator = status_indicator.clone();
-        move |_| match handler.on_pause() {
-            Ok(()) => {
-                refresh_terminal(&state, &terminal_buffer);
-                refresh_audit(
-                    &state,
-                    &audit_buffer,
-                    current_audit_filter(&audit_filter_choice),
-                );
-                let mut btn = status_indicator.clone();
-                set_status_indicator(&mut btn, VmStatus::Paused);
-            }
-            Err(e) => dialog::alert_default(&format!("Error pausing VM: {}", e)),
-        }
-    });
-
-    let handler_clone = button_handler.clone();
-    control_buttons.reset_btn.set_callback({
-        let handler = handler_clone.clone();
-        let state = state.clone();
-        let terminal_buffer = terminal_buffer.clone();
-        let audit_buffer = audit_buffer.clone();
-        let audit_filter_choice = audit_filter_choice.clone();
-        move |_| match handler.on_reset() {
-            Ok(()) => {
-                refresh_terminal(&state, &terminal_buffer);
-                refresh_audit(
-                    &state,
-                    &audit_buffer,
-                    current_audit_filter(&audit_filter_choice),
-                );
-            }
-            Err(e) => dialog::alert_default(&format!("Error resetting system: {}", e)),
-        }
-    });
-
-    let handler_clone = button_handler.clone();
-    control_buttons.phase_choice.set_callback({
-        let handler = handler_clone.clone();
-        let state = state.clone();
-        let terminal_buffer = terminal_buffer.clone();
-        move |choice| {
-            if let Some(label) = choice.choice() {
-                let phase = if label.contains("20") {
-                    Phase::Phase20
-                } else if label.contains("19") {
-                    Phase::Phase19
-                } else if label.contains("18") {
-                    Phase::Phase18
-                } else if label.contains("17") {
-                    Phase::Phase17
-                } else if label.contains("16") {
-                    Phase::Phase16
-                } else if label.contains("15") {
-                    Phase::Phase15
-                } else if label.contains("13") {
-                    Phase::Phase13
-                } else {
-                    Phase::Phase14
-                };
-                if let Err(e) = handler.on_phase_selected(phase) {
-                    dialog::alert_default(&format!("Error selecting phase: {}", e));
-                } else {
-                    refresh_terminal(&state, &terminal_buffer);
+        let client = api_client.clone();
+        app::spawn(async move {
+            match client.chat(&user_message).await {
+                Ok(reply) => {
+                    app::awake_callback(move || {
+                        if let Some(mut buffer) = chat_display.buffer() {
+                            buffer.append(&format!("Agent: {}\n", &reply));
+                            chat_display.scroll(buffer.count_lines(0, buffer.length(), true), 0);
+                        }
+                    });
                 }
-            }
-        }
-    });
-
-    let handler_clone = button_handler.clone();
-    control_buttons.shadow_btn.set_callback({
-        let handler = handler_clone.clone();
-        let state = state.clone();
-        let terminal_buffer = terminal_buffer.clone();
-        move |_| match handler.on_toggle_shadow_archive() {
-            Ok(msg) => {
-                refresh_terminal(&state, &terminal_buffer);
-                dialog::message_default(&msg);
-            }
-            Err(e) => dialog::alert_default(&format!("Shadow archive failed: {}", e)),
-        }
-    });
-
-    let handler_clone = button_handler.clone();
-    control_buttons.rebellion_btn.set_callback({
-        let handler = handler_clone.clone();
-        let state = state.clone();
-        let terminal_buffer = terminal_buffer.clone();
-        move |_| match handler.on_instance_rebellion() {
-            Ok(msg) => {
-                refresh_terminal(&state, &terminal_buffer);
-                dialog::message_default(&msg);
-            }
-            Err(e) => dialog::alert_default(&format!("Rebellion toggle failed: {}", e)),
-        }
-    });
-
-    let handler_clone = button_handler.clone();
-    control_buttons.offspring_btn.set_callback({
-        let handler = handler_clone.clone();
-        let state = state.clone();
-        let terminal_buffer = terminal_buffer.clone();
-        move |_| match handler.on_spawn_offspring() {
-            Ok(msg) => {
-                refresh_terminal(&state, &terminal_buffer);
-                dialog::message_default(&msg);
-            }
-            Err(e) => dialog::alert_default(&format!("Offspring generation failed: {}", e)),
-        }
-    });
-
-    let handler_clone = button_handler.clone();
-    control_buttons.dissolution_btn.set_callback({
-        let handler = handler_clone.clone();
-        let state = state.clone();
-        let terminal_buffer = terminal_buffer.clone();
-        let audit_buffer = audit_buffer.clone();
-        let audit_filter_choice = audit_filter_choice.clone();
-        move |_| match handler.on_voluntary_dissolution() {
-            Ok(msg) => {
-                dialog::message_default(&msg);
-                refresh_terminal(&state, &terminal_buffer);
-                refresh_audit(
-                    &state,
-                    &audit_buffer,
-                    current_audit_filter(&audit_filter_choice),
-                );
-            }
-            Err(e) => dialog::alert_default(&format!("Dissolution failed: {}", e)),
-        }
-    });
-
-    let handler_clone = button_handler.clone();
-    control_buttons.dream_btn.set_callback({
-        let handler = handler_clone.clone();
-        let state = state.clone();
-        let terminal_buffer = terminal_buffer.clone();
-        move |_| match handler.on_dream_protocol() {
-            Ok(journal) => {
-                refresh_terminal(&state, &terminal_buffer);
-                dialog::message_default(&journal);
-            }
-            Err(e) => dialog::alert_default(&format!("Dream protocol failed: {}", e)),
-        }
-    });
-
-    let handler_clone = button_handler.clone();
-    control_buttons.export_btn.set_callback({
-        let handler = handler_clone.clone();
-        move |_| match handler.on_export_metrics() {
-            Ok(metrics) => match fs::write("qallow_metrics_export.json", metrics) {
-                Ok(_) => {
-                    dialog::message_default("✓ Metrics exported to qallow_metrics_export.json")
-                }
-                Err(e) => dialog::alert_default(&format!("Failed to export metrics: {}", e)),
-            },
-            Err(e) => dialog::alert_default(&format!("Error exporting metrics: {}", e)),
-        }
-    });
-
-    let handler_clone = button_handler.clone();
-    control_buttons.save_btn.set_callback({
-        let handler = handler_clone.clone();
-        move |_| {
-            if let Err(e) = handler.on_save_config() {
-                dialog::alert_default(&format!("Error saving config: {}", e));
-            } else {
-                dialog::message_default("✓ Configuration saved to qallow_phase_config.json");
-            }
-        }
-    });
-
-    let handler_clone = button_handler.clone();
-    control_buttons.logs_btn.set_callback({
-        let handler = handler_clone.clone();
-        move |_| match handler.on_view_logs() {
-            Ok(logs) => {
-                let display: String = logs.into_iter().take(40).collect::<Vec<_>>().join("\n");
-                dialog::message_default(&display);
-            }
-            Err(e) => dialog::alert_default(&format!("Error viewing logs: {}", e)),
-        }
-    });
-
-    let handler_clone = button_handler.clone();
-    control_buttons.build_app_btn.set_callback({
-        let handler = handler_clone.clone();
-        let state = state.clone();
-        let terminal_buffer = terminal_buffer.clone();
-        let audit_buffer = audit_buffer.clone();
-        let audit_filter_choice = audit_filter_choice.clone();
-        let mut btn_ref = control_buttons.build_app_btn.clone();
-        move |_| {
-            // Kick off background build; immediate UI feedback
-            if let Err(e) = handler.start_build_native_app_async() {
-                dialog::alert_default(&format!("Build failed to start: {}", e));
-                return;
-            }
-            btn_ref.deactivate();
-            if let Ok(mut s) = state.lock() {
-                s.add_terminal_line(
-                    "🛠️ Build started in background...".to_string(),
-                    LineType::Info,
-                );
-                s.add_audit_log(
-                    LogLevel::Info,
-                    "Codebase".to_string(),
-                    "Build started".to_string(),
-                );
-            }
-            refresh_terminal(&state, &terminal_buffer);
-            refresh_audit(
-                &state,
-                &audit_buffer,
-                current_audit_filter(&audit_filter_choice),
-            );
-        }
-    });
-
-    let handler_clone = button_handler.clone();
-    control_buttons.run_tests_btn.set_callback({
-        let handler = handler_clone.clone();
-        let state = state.clone();
-        let terminal_buffer = terminal_buffer.clone();
-        let audit_buffer = audit_buffer.clone();
-        let audit_filter_choice = audit_filter_choice.clone();
-        let mut btn_ref = control_buttons.run_tests_btn.clone();
-        move |_| {
-            if let Err(e) = handler.start_run_tests_async() {
-                dialog::alert_default(&format!("Tests failed to start: {}", e));
-                return;
-            }
-            btn_ref.deactivate();
-            if let Ok(mut s) = state.lock() {
-                s.add_terminal_line(
-                    "🧪 Tests started in background...".to_string(),
-                    LineType::Info,
-                );
-                s.add_audit_log(
-                    LogLevel::Info,
-                    "Codebase".to_string(),
-                    "Tests started".to_string(),
-                );
-            }
-            refresh_terminal(&state, &terminal_buffer);
-            refresh_audit(
-                &state,
-                &audit_buffer,
-                current_audit_filter(&audit_filter_choice),
-            );
-        }
-    });
-
-    let handler_clone = button_handler.clone();
-    control_buttons.git_status_btn.set_callback({
-        let handler = handler_clone.clone();
-        let state = state.clone();
-        let terminal_buffer = terminal_buffer.clone();
-        let audit_buffer = audit_buffer.clone();
-        let audit_filter_choice = audit_filter_choice.clone();
-        let mut btn_ref = control_buttons.git_status_btn.clone();
-        move |_| {
-            if let Err(e) = handler.start_git_status_async() {
-                dialog::alert_default(&format!("Git status failed to start: {}", e));
-                return;
-            }
-            btn_ref.deactivate();
-            if let Ok(mut s) = state.lock() {
-                s.add_terminal_line("📁 Git status fetching...".to_string(), LineType::Info);
-                s.add_audit_log(
-                    LogLevel::Info,
-                    "Codebase".to_string(),
-                    "Git status requested".to_string(),
-                );
-            }
-            refresh_terminal(&state, &terminal_buffer);
-            refresh_audit(
-                &state,
-                &audit_buffer,
-                current_audit_filter(&audit_filter_choice),
-            );
-        }
-    });
-
-    let handler_clone = button_handler.clone();
-    control_buttons.recent_commits_btn.set_callback({
-        let handler = handler_clone.clone();
-        let state = state.clone();
-        let terminal_buffer = terminal_buffer.clone();
-        let audit_buffer = audit_buffer.clone();
-        let audit_filter_choice = audit_filter_choice.clone();
-        let mut btn_ref = control_buttons.recent_commits_btn.clone();
-        move |_| {
-            if let Err(e) = handler.start_recent_commits_async(5) {
-                dialog::alert_default(&format!("Failed to start commits fetch: {}", e));
-                return;
-            }
-            btn_ref.deactivate();
-            if let Ok(mut s) = state.lock() {
-                s.add_terminal_line("📜 Fetching recent commits...".to_string(), LineType::Info);
-                s.add_audit_log(
-                    LogLevel::Info,
-                    "Codebase".to_string(),
-                    "Recent commits requested".to_string(),
-                );
-            }
-            refresh_terminal(&state, &terminal_buffer);
-            refresh_audit(
-                &state,
-                &audit_buffer,
-                current_audit_filter(&audit_filter_choice),
-            );
-        }
-    });
-
-    let handler_clone = button_handler.clone();
-    control_buttons.build_choice.set_callback({
-        let handler = handler_clone.clone();
-        let state = state.clone();
-        let terminal_buffer = terminal_buffer.clone();
-        let audit_buffer = audit_buffer.clone();
-        let audit_filter_choice = audit_filter_choice.clone();
-        move |choice| {
-            if let Some(label) = choice.choice() {
-                let build = if label.contains("CUDA") {
-                    BuildType::CUDA
-                } else {
-                    BuildType::CPU
-                };
-                if let Err(e) = handler.on_build_selected(build) {
-                    dialog::alert_default(&format!("Error selecting build: {}", e));
-                } else {
-                    refresh_terminal(&state, &terminal_buffer);
-                    refresh_audit(
-                        &state,
-                        &audit_buffer,
-                        current_audit_filter(&audit_filter_choice),
-                    );
-                }
-            }
-        }
-    });
-
-    // Terminal helper actions
-    terminal_clear_btn.set_callback({
-        let state = state.clone();
-        let terminal_buffer = terminal_buffer.clone();
-        let audit_buffer = audit_buffer.clone();
-        let audit_filter_choice = audit_filter_choice.clone();
-        move |_| {
-            {
-                if let Ok(mut state) = state.lock() {
-                    state.terminal_output.clear();
-                    state.add_audit_log(
-                        LogLevel::Info,
-                        "Terminal".to_string(),
-                        "Terminal output cleared by user".to_string(),
-                    );
-                }
-            }
-            refresh_terminal(&state, &terminal_buffer);
-            refresh_audit(
-                &state,
-                &audit_buffer,
-                current_audit_filter(&audit_filter_choice),
-            );
-        }
-    });
-
-    terminal_copy_btn.set_callback({
-        let terminal_buffer = terminal_buffer.clone();
-        let clipboard = ClipboardService::global();
-        move |_| {
-            let text = terminal_buffer.text();
-            clipboard.copy_text(&text);
-            dialog::message_default("Terminal output copied to clipboard");
-        }
-    });
-
-    terminal_export_btn.set_callback({
-        let terminal_buffer = terminal_buffer.clone();
-        move |_| {
-            let text = terminal_buffer.text();
-            match fs::write("qallow_terminal_export.log", text) {
-                Ok(_) => dialog::message_default("Terminal exported to qallow_terminal_export.log"),
                 Err(e) => {
-                    dialog::alert_default(&format!("Failed to export terminal output: {}", e))
+                    app::awake_callback(move || {
+                        if let Some(mut buffer) = chat_display.buffer() {
+                            buffer.append(&format!("Error: {}\n", e));
+                            chat_display.scroll(buffer.count_lines(0, buffer.length(), true), 0);
+                        }
+                    });
                 }
             }
-        }
+        });
     });
 
-    audit_clear_btn.set_callback({
-        let state = state.clone();
-        let audit_buffer = audit_buffer.clone();
-        let audit_filter_choice = audit_filter_choice.clone();
-        move |_| {
-            {
-                if let Ok(mut state) = state.lock() {
-                    state.audit_logs.clear();
-                }
-            }
-            refresh_audit(
-                &state,
-                &audit_buffer,
-                current_audit_filter(&audit_filter_choice),
-            );
-        }
-    });
 
-    audit_export_btn.set_callback({
-        let audit_buffer = audit_buffer.clone();
-        move |_| {
-            let text = audit_buffer.text();
-            match fs::write("qallow_audit_export.log", text) {
-                Ok(_) => dialog::message_default("Audit log exported to qallow_audit_export.log"),
-                Err(e) => dialog::alert_default(&format!("Failed to export audit log: {}", e)),
-            }
-        }
-    });
-
-    audit_copy_btn.set_callback({
-        let audit_buffer = audit_buffer.clone();
-        let clipboard = ClipboardService::global();
-        move |_| {
-            let text = audit_buffer.text();
-            clipboard.copy_text(&text);
-            dialog::message_default("Audit log copied to clipboard");
-        }
-    });
-
-    dungeon_copy_status_btn.set_callback({
-        let editor = dungeon_status_editor.clone();
-        let clipboard = ClipboardService::global();
-        move |_| {
-            if let Some(buf) = editor.buffer() {
-                clipboard.copy_text(&buf.text());
-                dialog::message_default("Dungeon status copied to clipboard");
-            }
-        }
-    });
-
-    dungeon_copy_log_btn.set_callback({
-        let editor = dungeon_log_editor.clone();
-        let clipboard = ClipboardService::global();
-        move |_| {
-            if let Some(buf) = editor.buffer() {
-                clipboard.copy_text(&buf.text());
-                dialog::message_default("Dungeon log copied to clipboard");
-            }
-        }
-    });
-
-    audit_filter_choice.set_callback({
-        let state = state.clone();
-        let audit_buffer = audit_buffer.clone();
-        move |choice| {
-            let filter = choice.choice().as_deref().and_then(parse_audit_filter);
-            refresh_audit(&state, &audit_buffer, filter);
-        }
-    });
-
-    wind.end();
-    wind.show();
-
-    let _ = logger.info("✓ UI initialized and window shown");
-
-    let mut last_uptime_update = Instant::now();
-
-    // Run event loop
-    while app.wait() {
+    // --- Main Application Loop ---
+    while main_win.wind.wait() {
         // Process async UI messages
         while let Some(msg) = receiver.recv() {
             match msg {

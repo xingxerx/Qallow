@@ -1,4 +1,6 @@
+use serde::{Deserialize, Serialize};
 use serde_json::json;
+use std::sync::{Arc, Mutex};
 
 // ...existing code...
 #[derive(Clone)]
@@ -62,10 +64,36 @@ impl ApiClient {
         // Placeholder for API call to export metrics
         Ok(format!("Metrics exported as {}", format))
     }
+
+    pub async fn chat(&self, message: &str) -> Result<String, reqwest::Error> {
+        let client = reqwest::Client::new();
+        let request = ChatRequest {
+            message: message.to_string(),
+        };
+
+        let res = client
+            .post("http://127.0.0.1:8008/chat")
+            .json(&request)
+            .send()
+            .await?;
+
+        let chat_response: ChatResponse = res.json().await?;
+        Ok(chat_response.reply)
+    }
 }
 
 impl Default for ApiClient {
     fn default() -> Self {
         Self::new("http://localhost:5000")
     }
+}
+
+#[derive(Serialize, Deserialize)]
+struct ChatRequest {
+    message: String,
+}
+
+#[derive(Serialize, Deserialize)]
+struct ChatResponse {
+    reply: String,
 }
