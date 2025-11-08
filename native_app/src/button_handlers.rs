@@ -1,3 +1,4 @@
+use crate::backend::api_client::ApiClient;
 use crate::backend::process_manager::ProcessManager;
 use crate::codebase_manager::CodebaseManager;
 use crate::control_commands::ControlCommandSender;
@@ -18,11 +19,12 @@ use std::time::Duration;
 
 /// Handles all button click events and connects them to backend functionality
 pub struct ButtonHandler {
-    state: Arc<Mutex<AppState>>,
+    pub state: Arc<Mutex<AppState>>,
     process_manager: Arc<Mutex<ProcessManager>>,
     logger: Arc<AppLogger>,
     codebase_manager: Option<Arc<CodebaseManager>>,
     ui_sender: Option<Sender<UiMessage>>,
+    pub api_client: ApiClient,
 }
 
 impl ButtonHandler {
@@ -44,6 +46,7 @@ impl ButtonHandler {
             logger,
             codebase_manager,
             ui_sender,
+            api_client: ApiClient::new("http://127.0.0.1:8008"),
         }
     }
 

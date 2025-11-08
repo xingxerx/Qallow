@@ -1,8 +1,10 @@
 pub mod audit_log;
+pub mod chat_panel;
 pub mod control_panel;
 pub mod dashboard;
 pub mod dungeons;
 pub mod help;
+pub mod main_window;
 pub mod matrix_bg;
 pub mod metrics;
 pub mod settings;

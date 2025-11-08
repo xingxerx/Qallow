@@ -1,6 +1,5 @@
 use serde::{Deserialize, Serialize};
 use serde_json::json;
-use std::sync::{Arc, Mutex};
 
 // ...existing code...
 #[derive(Clone)]

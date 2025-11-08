@@ -348,6 +348,8 @@ int qallow_phase14_runner(int argc, char** argv) {
     int tune_qaoa = 0;
     int qaoa_n = 16;
     int qaoa_p = 2;
+    int agent_ollama = 0;
+    const char* ollama_model = "llama2:70b";
 
 
     for (int i = 2; i < argc; ++i) {
@@ -383,6 +385,10 @@ int qallow_phase14_runner(int argc, char** argv) {
         } else if (strncmp(arg, "--qaoa_p=", 9) == 0) {
             qaoa_p = atoi(arg + 9);
             if (qaoa_p < 1) qaoa_p = 1;
+        } else if (strcmp(arg, "--agent-ollama") == 0) {
+            agent_ollama = 1;
+        } else if (strncmp(arg, "--ollama-model=", 15) == 0) {
+            ollama_model = arg + 15;
         }
     }
 
@@ -400,10 +406,37 @@ int qallow_phase14_runner(int argc, char** argv) {
     if (tune_qaoa) {
         printf("[PHASE14] tune_qaoa enabled (N=%d, p=%d)\n", qaoa_n, qaoa_p);
     }
+    if (agent_ollama) {
+        printf("[PHASE14] agent-ollama enabled (model=%s)\n", ollama_model);
+    }
 
 
     double fidelity = 0.95; // f0
     double alpha_base = -1.0;
+
+    // Run Ollama agent for autonomous QAOA optimization
+    if (agent_ollama) {
+        printf("[PHASE14] Running Ollama agent for QAOA optimization...\n");
+        const char* py = detect_python_binary();
+        char cmd[512];
+        int written = snprintf(cmd, sizeof(cmd),
+            "\"%s\" -m python.agents.qallow_agent_ollama --task qaoa_optimize --model \"%s\" --nodes %d --target %.3f",
+            py, ollama_model, nodes, target_fidelity);
+
+        if (written > 0 && written < (int)sizeof(cmd)) {
+            printf("[PHASE14] Executing: %s\n", cmd);
+            int rc = system(cmd);
+            if (rc == 0) {
+                printf("[PHASE14] ✓ Ollama agent completed successfully\n");
+                // Agent writes to data/quantum/ollama_gain.json
+                gain_json_path = "data/quantum/ollama_gain.json";
+            } else {
+                fprintf(stderr, "[PHASE14] Warning: Ollama agent failed (code=%d)\n", rc);
+            }
+        } else {
+            fprintf(stderr, "[PHASE14] Warning: command buffer overflow\n");
+        }
+    }
 
 
     if (jcsv) {
