@@ -101,7 +101,20 @@
 
 ### 🟢 **MEDIUM** - Nice-to-Have Improvements
 
-#### 7. **CUDA-Q Integration**
+#### 7. **Gaussian Process Matrix Operations**
+- **File:** `src/mind/quantum_learn.c` (Line 195)
+- **Issue:** TODO: Implement matrix-vector product with K_inv
+- **Impact:** Gaussian Process predictions incomplete
+- **Effort:** 2-4 hours
+- **Status:** ⏳ Planned
+- **Details:**
+  - Implement matrix-vector multiplication for K_inv
+  - Complete GP mean prediction calculation
+  - Add variance calculation
+  - Test with sample data
+- **Owners:** ML team
+
+#### 8. **CUDA-Q Integration**
 - **File:** `python/agi_cuda_accelerator.py`
 - **Issue:** CUDA kernel calls via ctypes not fully implemented
 - **Impact:** Can use CUDA-Q when available
@@ -113,7 +126,7 @@
   - Benchmark against Cirq backend
 - **Owners:** Quantum team
 
-#### 8. **Performance Telemetry**
+#### 9. **Performance Telemetry**
 - **Files:** Multiple analysis files
 - **Issue:** No systematic profiling for phases 13-15
 - **Impact:** Can't track optimization opportunities
@@ -126,7 +139,7 @@
   - Generate comparison reports
 - **Owners:** Performance team
 
-#### 9. **Multi-GPU Support**
+#### 10. **Multi-GPU Support**
 - **File:** `CMakeLists.txt` and CUDA backend
 - **Issue:** Only single GPU supported (no `CUDA_VISIBLE_DEVICES` orchestration)
 - **Impact:** 4-8x scaling potential on multi-GPU systems
@@ -139,7 +152,7 @@
   - Test on 4-GPU system
 - **Owners:** CUDA team
 
-#### 10. **Error Handling Standardization**
+#### 11. **Error Handling Standardization**
 - **Files:** Multiple modules
 - **Issue:** Error codes and propagation not uniformly structured
 - **Impact:** Inconsistent error messages, harder debugging
@@ -156,7 +169,7 @@
 
 ### 💬 **LOW** - Documentation & Polish
 
-#### 11. **Code Comments in Profiling Sections**
+#### 12. **Code Comments in Profiling Sections**
 - **Files:** `sections/*.py` (IssueSlotUtilization, LaunchStatistics, TheoreticalOccupancy, RequestedMetrics)
 - **Issue:** TODO comments suggest improvements for multi-launch workloads
 - **Effort:** 2-3 hours
@@ -167,7 +180,7 @@
   - Add examples for multi-launch scenarios
 - **Owners:** Documentation team
 
-#### 12. **CI/CD Dashboard**
+#### 13. **CI/CD Dashboard**
 - **Issue:** No visualization of build/test metrics
 - **Effort:** 6-8 hours
 - **Status:** ⏳ Future nice-to-have
@@ -186,9 +199,9 @@
 |----------|-------|-----------|----------|
 | Critical | 3 | 20-34 | 🔴 |
 | High | 3 | 14-22 | 🟡 |
-| Medium | 4 | 22-34 | 🟢 |
+| Medium | 5 | 24-38 | 🟢 |
 | Low | 2 | 8-11 | 💬 |
-| **Total** | **12** | **64-101** | — |
+| **Total** | **13** | **66-105** | — |
 
 ---
 
