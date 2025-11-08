@@ -25,6 +25,11 @@ from pathlib import Path
 from enum import Enum
 import numpy as np
 
+# Ensure project root is importable when running as a script
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
 # Configure logging
 logger = logging.getLogger(__name__)
 
