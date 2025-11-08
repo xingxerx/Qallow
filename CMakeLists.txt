@@ -1,6 +1,13 @@
 
 cmake_minimum_required(VERSION 3.20)
 
+if(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
+    set(default_build_type "Debug")
+    message(STATUS "No build type selected, defaulting to ${default_build_type}")
+    set(CMAKE_BUILD_TYPE "${default_build_type}" CACHE STRING "Choose the type of build" FORCE)
+endif()
+set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "RelWithDebInfo" "MinSizeRel")
+
 option(QALLOW_ENABLE_CUDA "Enable CUDA backend" ON)
 
 if(QALLOW_ENABLE_CUDA)
