@@ -1,13 +1,14 @@
 use serde_json::json;
 
-pub struct ApiClient {
-    base_url: String,
-}
+// ...existing code...
+#[derive(Clone)]
+pub struct ApiClient;
 
 impl ApiClient {
-    pub fn new(base_url: String) -> Self {
-        Self { base_url }
+    pub fn new(_base_url: &str) -> Self {
+        ApiClient
     }
+// ...existing code...
 
     pub async fn get_metrics(&self) -> Result<serde_json::Value, String> {
         // Placeholder for API call to web dashboard
@@ -65,6 +66,6 @@ impl ApiClient {
 
 impl Default for ApiClient {
     fn default() -> Self {
-        Self::new("http://localhost:5000".to_string())
+        Self::new("http://localhost:5000")
     }
 }
