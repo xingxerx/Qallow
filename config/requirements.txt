@@ -34,3 +34,6 @@ seaborn>=0.13.0
 click>=8.1.0
 tqdm>=4.66.0
 Pillow>=10.0.0
+
+# Governance & Safety
+uptrain>=0.6.0  # Hallucination detection and LLM validation
