@@ -52,8 +52,7 @@ impl ChatPanel {
     // ... existing code ...
     pub fn add_message(&mut self, author: &str, text: &str) {
         if let Some(mut buffer) = self.conversation_display.buffer() {
-            let formatted_message = format!("{}: {}
-", author, text);
+            let formatted_message = format!("{}: {}\n", author, text);
             buffer.append(&formatted_message);
             self.conversation_display.scroll(
                 buffer.count_lines(0, buffer.length()),
@@ -61,5 +60,5 @@ impl ChatPanel {
             );
         }
     }
-}
+
 }

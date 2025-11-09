@@ -3,7 +3,11 @@ use fltk::enums::Color;
 use fltk::{prelude::*, *};
 use std::sync::{Arc, Mutex};
 
-pub fn create_dashboard(tabs: &mut group::Tabs, _state: Arc<Mutex<AppState>>) {
+pub struct Dashboard {
+    pub uptime_value: text::TextDisplay,
+}
+
+pub fn create_dashboard(tabs: &mut group::Tabs, _state: Arc<Mutex<AppState>>) -> Dashboard {
     let mut group = group::Group::default().with_label("📊 Dashboard");
     group.set_color(Color::from_hex(0x0a0e27));
     group.begin();
@@ -49,8 +53,12 @@ pub fn create_dashboard(tabs: &mut group::Tabs, _state: Arc<Mutex<AppState>>) {
     create_metric_card(
         &mut metrics_flex,
         "System Status",
-        "GPU: NVIDIA RTX 5080\nCUDA: 12.0\nMemory: 15.9 GB\nUptime: 2h 34m",
+        "GPU: NVIDIA RTX 5080
+CUDA: 12.0
+Memory: 15.9 GB
+Uptime: 2h 34m",
     );
+    let uptime_value = text::TextDisplay::default();
 
     metrics_flex.end();
     flex.add(&metrics_flex);
@@ -103,6 +111,7 @@ pub fn create_dashboard(tabs: &mut group::Tabs, _state: Arc<Mutex<AppState>>) {
     flex.end();
     group.end();
     tabs.add(&group);
+    Dashboard { uptime_value }
 }
 
 fn create_metric_card(flex: &mut group::Flex, title: &str, content: &str) {

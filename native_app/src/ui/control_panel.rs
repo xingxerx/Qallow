@@ -1,3 +1,4 @@
+use crate::button_handlers::ButtonHandler;
 use crate::models::AppState;
 use crate::ui::{
     COLOR_BG_ACCENT, COLOR_BG_DARK, COLOR_DANGER, COLOR_MUTED, COLOR_PRIMARY, COLOR_SUCCESS,
@@ -6,6 +7,11 @@ use crate::ui::{
 use fltk::enums::Color;
 use fltk::{prelude::*, *};
 use std::sync::{Arc, Mutex};
+
+pub struct ControlPanel {
+    pub flex: group::Flex,
+    pub buttons: ControlPanelButtons,
+}
 
 pub struct ControlPanelButtons {
     pub start_btn: button::Button,
@@ -30,8 +36,8 @@ pub struct ControlPanelButtons {
 
 pub fn create_control_panel(
     tabs: &mut group::Tabs,
-    _state: Arc<Mutex<AppState>>,
-) -> ControlPanelButtons {
+    _button_handler: Arc<ButtonHandler>,
+) -> ControlPanel {
     let mut group = group::Group::default().with_label("⚙️ Control");
     group.set_color(Color::from_hex(COLOR_BG_DARK));
     group.begin();
@@ -228,7 +234,7 @@ pub fn create_control_panel(
     group.end();
     tabs.add(&group);
 
-    ControlPanelButtons {
+    let buttons = ControlPanelButtons {
         start_btn,
         stop_btn,
         pause_btn,
@@ -247,5 +253,7 @@ pub fn create_control_panel(
         run_tests_btn,
         git_status_btn,
         recent_commits_btn,
-    }
+    };
+
+    ControlPanel { flex, buttons }
 }
