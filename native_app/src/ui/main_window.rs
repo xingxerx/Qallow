@@ -31,9 +31,11 @@ impl MainWindow {
 
         let mut tabs = group::Tabs::default();
         tabs.set_tab_align(enums::Align::Left);
+
+        let tabs_clone = tabs.clone();
         tabs.handle(move |_, ev| {
             if ev == enums::Event::Push {
-                if app::event_x() > tabs.x() + tabs.width() - 30 {
+                if app::event_x() > tabs_clone.x() + tabs_clone.width() - 30 {
                     return true;
                 }
             }
@@ -51,7 +53,7 @@ impl MainWindow {
         tabs.end();
         main_flex.add(&tabs);
 
-        let control_panel = control_panel::create_control_panel(&mut tabs, button_handler.clone());
+        let control_panel = control_panel::create_control_panel(&mut tabs, button_handler.state.clone());
         main_flex.add(&control_panel.flex);
         main_flex.fixed(&control_panel.flex, 200);
 

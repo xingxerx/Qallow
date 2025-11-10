@@ -23,23 +23,21 @@ use button_handlers::ButtonHandler;
 use codebase_manager::CodebaseManager;
 use config::{AppConfig, ConfigManager};
 use fltk::enums::Color;
-use fltk::{app, prelude::*, window::Window};
-use models::{AppState, BuildType, LineType, LogLevel, Phase};
-use native_app::{
-    backend::api_client::ApiClient,
+use fltk::{app, button, dialog, prelude::*};
+use models::AppState;
+use std::sync::{Arc, Mutex};
+use tokio::runtime::Runtime;
+use crate::{
     logging::AppLogger,
     messaging::UiMessage,
+    shutdown::ShutdownManager,
 };
-
-use shutdown::ShutdownManager;
 use std::env;
-use std::io::{self, Write};
+use std::io;
 use std::panic;
 use std::path::Path;
 use std::process::{Command, Stdio};
-use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
-use tokio::runtime::Runtime;
 use tokio::spawn;
 
 #[cfg(unix)]
@@ -116,25 +114,6 @@ fn main() {
         }
     };
 
-    if !display_available() {
-        let _ = logger.warn(
-            "No graphical display detected (missing DISPLAY/WAYLAND_DISPLAY). Launching CLI control shell.",
-        );
-        if let Err(e) = run_cli_interface(
-            initial_state.clone(),
-            &config,
-            &logger,
-            codebase_mgr.clone(),
-            &shutdown_mgr,
-        ) {
-            let _ = logger.error(&format!("CLI control shell failed: {}", e));
-            eprintln!("Headless execution failed: {}", e);
-            std::process::exit(1);
-        }
-        let _ = logger.info("CLI control session ended.");
-        return;
-    }
-
     // Initialize FLTK (with graceful fallback when display cannot be opened)
     let app = match panic::catch_unwind(app::App::default) {
         Ok(app) => app,
@@ -142,11 +121,9 @@ fn main() {
             let _ = logger
                 .warn("FLTK failed to open the display. Launching CLI control shell instead.");
             if let Err(e) = run_cli_interface(
-                initial_state.clone(),
-                &config,
-                &logger,
-                codebase_mgr.clone(),
-                &shutdown_mgr,
+                Arc::new(Mutex::new(initial_state.clone())),
+                logger.clone(),
+                shutdown_mgr.clone(),
             ) {
                 let _ = logger.error(&format!("CLI control shell failed: {}", e));
                 eprintln!("Headless execution failed: {}", e);
@@ -174,7 +151,7 @@ fn main() {
     let button_handler = Arc::new(ButtonHandler::new(
         state.clone(),
         process_manager.clone(),
-        logger.clone(),
+        Arc::new(logger.clone()),
         codebase_mgr.clone(),
         Some(sender.clone()),
     ));
@@ -186,7 +163,7 @@ fn main() {
     // --- Chat Button Logic ---
     main_win.chat_panel.send_button.set_callback({
         let mut chat_input = main_win.chat_panel.input.clone();
-        let mut chat_view = main_win.chat_panel.display.clone();
+        let chat_view = main_win.chat_panel.conversation_display.clone();
         let api_client = main_win.button_handler.api_client.clone();
         let logger = logger.clone();
 
@@ -200,12 +177,14 @@ fn main() {
 
             let api_client = api_client.clone();
             let logger = logger.clone();
+            let chat_view_clone = chat_view.clone();
             spawn(async move {
                 match api_client.chat(&message).await {
                     Ok(response) => {
                         // Make sure to update UI in the main thread
+                        let chat_view_for_callback = chat_view_clone.clone();
                         fltk::app::awake_callback(move || {
-                            chat_view
+                            chat_view_for_callback
                                 .buffer()
                                 .unwrap()
                                 .append(&format!("Agent: {}\n", response));
@@ -213,8 +192,9 @@ fn main() {
                     }
                     Err(e) => {
                         let _ = logger.error(&format!("API Error: {}", e));
+                        let chat_view_for_callback = chat_view_clone.clone();
                         fltk::app::awake_callback(move || {
-                            chat_view
+                            chat_view_for_callback
                                 .buffer()
                                 .unwrap()
                                 .append("Agent: Sorry, I encountered an error.\n");
@@ -227,23 +207,23 @@ fn main() {
 
     // --- Main Application Loop ---
     let mut last_uptime_update = Instant::now();
-    while main_win.wind.wait() {
+    while app.wait() {
         // Process async UI messages
-        if let Ok(msg) = receiver.try_recv() {
+        if let Some(msg) = receiver.recv() {
             match msg {
                 UiMessage::BuildDone(res) => {
                     match res {
                         Ok(message) => dialog::message_default(&format!("✓ {}", message)),
                         Err(e) => dialog::alert_default(&format!("Build failed: {}", e)),
                     }
-                    main_win.control_panel.build_app_btn.activate();
+                    main_win.control_panel.buttons.build_app_btn.activate();
                 }
                 UiMessage::TestsDone(res) => {
                     match res {
                         Ok(message) => dialog::message_default(&format!("✓ {}", message)),
                         Err(e) => dialog::alert_default(&format!("Tests failed: {}", e)),
                     }
-                    main_win.control_panel.run_tests_btn.activate();
+                    main_win.control_panel.buttons.run_tests_btn.activate();
                 }
                 UiMessage::GitStatusDone(res) => {
                     match res {
@@ -254,7 +234,7 @@ fn main() {
                             dialog::alert_default(&format!("Failed to fetch git status: {}", e))
                         }
                     }
-                    main_win.control_panel.git_status_btn.activate();
+                    main_win.control_panel.buttons.git_status_btn.activate();
                 }
                 UiMessage::CommitsDone(res) => {
                     match res {
@@ -268,13 +248,7 @@ fn main() {
                         }
                         Err(e) => dialog::alert_default(&format!("Failed to fetch commits: {}", e)),
                     }
-                    main_win.control_panel.recent_commits_btn.activate();
-                }
-                UiMessage::UpdateVmStatus(status) => {
-                    update_vm_status_indicator(&mut main_win.control_panel.vm_status_button, status);
-                }
-                UiMessage::UpdateAll => {
-                    // This logic is now handled by the respective views
+                    main_win.control_panel.buttons.recent_commits_btn.activate();
                 }
             }
         }
@@ -309,10 +283,10 @@ fn main() {
 
 // This function is kept as a placeholder for future CLI implementation.
 fn run_cli_interface(
-    _state: AppState,
-    _config: &AppConfig,
-    _logger: &AppLogger,
-) -> Result<(), String> {
+    _app_state: Arc<Mutex<AppState>>,
+    _logger: AppLogger,
+    _shutdown_mgr: ShutdownManager,
+) -> Result<(), io::Error> {
     println!("CLI mode is not yet fully implemented.");
     Ok(())
 }

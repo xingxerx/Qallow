@@ -330,12 +330,30 @@ Respond with JSON only, no additional text.
             # Try to find JSON in text
             start = text.find("{")
             end = text.rfind("}") + 1
-            
+
             if start == -1 or end == 0:
-                raise ValueError("No JSON found in response")
-            
+                logger.warning(f"No JSON found in response, using defaults. Response: {text[:200]}")
+                # Return sensible defaults if JSON extraction fails
+                return {
+                    "p": 3,
+                    "gamma": 0.42,
+                    "beta": 0.19,
+                    "alpha_eff": 0.0048,
+                    "reasoning": "Default parameters (LLM response parsing failed)"
+                }
+
             json_str = text[start:end]
-            return json.loads(json_str)
+            try:
+                return json.loads(json_str)
+            except json.JSONDecodeError as e:
+                logger.warning(f"JSON parse failed: {e}. Using defaults.")
+                return {
+                    "p": 3,
+                    "gamma": 0.42,
+                    "beta": 0.19,
+                    "alpha_eff": 0.0048,
+                    "reasoning": "Default parameters (JSON parse failed)"
+                }
     
     def _validate_qaoa_params(self, params: Dict[str, Any]) -> Dict[str, Any]:
         """Validate and clamp QAOA parameters to safe ranges"""

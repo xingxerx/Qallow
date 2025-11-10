@@ -1,9 +1,7 @@
 
 use fltk::{
-    app,
     button::Button,
-    enums::{Align, Color, FrameType},
-    frame::Frame,
+    enums::{Color, FrameType},
     group::{Flex, Pack},
     input::Input,
     prelude::*,

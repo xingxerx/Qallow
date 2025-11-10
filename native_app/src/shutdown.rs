@@ -9,6 +9,7 @@ use std::sync::Arc;
 pub static SHUTDOWN_FLAG: AtomicBool = AtomicBool::new(false);
 
 /// Graceful shutdown manager
+#[derive(Clone)]
 pub struct ShutdownManager {
     state_file: String,
     shutdown_requested: Arc<AtomicBool>,

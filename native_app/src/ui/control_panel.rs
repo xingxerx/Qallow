@@ -1,4 +1,3 @@
-use crate::button_handlers::ButtonHandler;
 use crate::models::AppState;
 use crate::ui::{
     COLOR_BG_ACCENT, COLOR_BG_DARK, COLOR_DANGER, COLOR_MUTED, COLOR_PRIMARY, COLOR_SUCCESS,
@@ -36,7 +35,7 @@ pub struct ControlPanelButtons {
 
 pub fn create_control_panel(
     tabs: &mut group::Tabs,
-    _button_handler: Arc<ButtonHandler>,
+    _state: Arc<Mutex<AppState>>,
 ) -> ControlPanel {
     let mut group = group::Group::default().with_label("⚙️ Control");
     group.set_color(Color::from_hex(COLOR_BG_DARK));

@@ -60,7 +60,7 @@ pub fn create_main_ui(_wind: &mut window::Window, state: Arc<Mutex<AppState>>) -
     let audit_view = audit_log::create_audit_log(&mut tabs, state.clone());
 
     // Control Panel tab
-    let control_buttons = control_panel::create_control_panel(&mut tabs, state.clone());
+    let control_panel = control_panel::create_control_panel(&mut tabs, state.clone());
 
     // Dungeons tab
     let dungeons_view = dungeons::create_dungeons_tab(&mut tabs, state.clone());
@@ -79,7 +79,7 @@ pub fn create_main_ui(_wind: &mut window::Window, state: Arc<Mutex<AppState>>) -
     flex.end();
 
     MainUiHandles {
-        control: control_buttons,
+        control: control_panel.buttons,
         terminal: terminal_view,
         audit: audit_view,
         status_indicator,
