@@ -5,6 +5,7 @@ use crate::ui::{
 use fltk::{prelude::*, *};
 use std::sync::Arc;
 
+#[derive(Clone)]
 pub struct MainWindow {
     pub wind: window::Window,
     pub dashboard_panel: dashboard::Dashboard,

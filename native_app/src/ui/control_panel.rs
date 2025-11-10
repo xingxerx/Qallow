@@ -7,11 +7,13 @@ use fltk::enums::Color;
 use fltk::{prelude::*, *};
 use std::sync::{Arc, Mutex};
 
+#[derive(Clone)]
 pub struct ControlPanel {
     pub flex: group::Flex,
     pub buttons: ControlPanelButtons,
 }
 
+#[derive(Clone)]
 pub struct ControlPanelButtons {
     pub start_btn: button::Button,
     pub stop_btn: button::Button,

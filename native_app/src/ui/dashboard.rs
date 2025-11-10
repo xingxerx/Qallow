@@ -3,6 +3,7 @@ use fltk::enums::Color;
 use fltk::{prelude::*, *};
 use std::sync::{Arc, Mutex};
 
+#[derive(Clone)]
 pub struct Dashboard {
     pub uptime_value: text::TextDisplay,
 }

@@ -27,6 +27,7 @@ use fltk::{app, button, dialog, prelude::*};
 use models::AppState;
 use std::sync::{Arc, Mutex};
 use tokio::runtime::Runtime;
+use tokio::spawn;
 use crate::{
     logging::AppLogger,
     messaging::UiMessage,
@@ -34,11 +35,9 @@ use crate::{
 };
 use std::env;
 use std::io;
-use std::panic;
 use std::path::Path;
 use std::process::{Command, Stdio};
 use std::time::{Duration, Instant};
-use tokio::spawn;
 
 #[cfg(unix)]
 use std::os::unix::net::UnixStream;
@@ -114,25 +113,8 @@ fn main() {
         }
     };
 
-    // Initialize FLTK (with graceful fallback when display cannot be opened)
-    let app = match panic::catch_unwind(app::App::default) {
-        Ok(app) => app,
-        Err(_) => {
-            let _ = logger
-                .warn("FLTK failed to open the display. Launching CLI control shell instead.");
-            if let Err(e) = run_cli_interface(
-                Arc::new(Mutex::new(initial_state.clone())),
-                logger.clone(),
-                shutdown_mgr.clone(),
-            ) {
-                let _ = logger.error(&format!("CLI control shell failed: {}", e));
-                eprintln!("Headless execution failed: {}", e);
-                std::process::exit(1);
-            }
-            let _ = logger.info("CLI control session ended.");
-            return;
-        }
-    };
+    // Initialize FLTK
+    let app = app::App::default();
     // UI message channel for background tasks
     let (sender, receiver) = app::channel::<UiMessage>();
 
@@ -166,6 +148,7 @@ fn main() {
         let chat_view = main_win.chat_panel.conversation_display.clone();
         let api_client = main_win.button_handler.api_client.clone();
         let logger = logger.clone();
+        let sender = sender.clone();
 
         move |_| {
             let message = chat_input.value();
@@ -177,28 +160,16 @@ fn main() {
 
             let api_client = api_client.clone();
             let logger = logger.clone();
-            let chat_view_clone = chat_view.clone();
+            let sender_clone = sender.clone();
+            
             spawn(async move {
                 match api_client.chat(&message).await {
                     Ok(response) => {
-                        // Make sure to update UI in the main thread
-                        let chat_view_for_callback = chat_view_clone.clone();
-                        fltk::app::awake_callback(move || {
-                            chat_view_for_callback
-                                .buffer()
-                                .unwrap()
-                                .append(&format!("Agent: {}\n", response));
-                        });
+                        sender_clone.send(UiMessage::ChatMessage(format!("Agent: {}\n", response)));
                     }
                     Err(e) => {
                         let _ = logger.error(&format!("API Error: {}", e));
-                        let chat_view_for_callback = chat_view_clone.clone();
-                        fltk::app::awake_callback(move || {
-                            chat_view_for_callback
-                                .buffer()
-                                .unwrap()
-                                .append("Agent: Sorry, I encountered an error.\n");
-                        });
+                        sender_clone.send(UiMessage::ChatMessage("Agent: Sorry, I encountered an error.\n".to_string()));
                     }
                 }
             });
@@ -206,77 +177,77 @@ fn main() {
     });
 
     // --- Main Application Loop ---
-    let mut last_uptime_update = Instant::now();
-    while app.wait() {
-        // Process async UI messages
+    let mut main_win_clone = main_win.clone();
+    let logger_clone = logger.clone();
+    app::add_idle3(move |_| {
         if let Some(msg) = receiver.recv() {
             match msg {
                 UiMessage::BuildDone(res) => {
+                    main_win_clone.terminal_panel.buffer.append(&format!("[BUILD] {}\n", match &res {
+                        Ok(s) => s,
+                        Err(e) => e,
+                    }));
                     match res {
                         Ok(message) => dialog::message_default(&format!("✓ {}", message)),
                         Err(e) => dialog::alert_default(&format!("Build failed: {}", e)),
                     }
-                    main_win.control_panel.buttons.build_app_btn.activate();
+                    main_win_clone.control_panel.buttons.build_app_btn.activate();
                 }
                 UiMessage::TestsDone(res) => {
+                     main_win_clone.terminal_panel.buffer.append(&format!("[TEST] {}\n", match &res {
+                        Ok(s) => s,
+                        Err(e) => e,
+                    }));
                     match res {
                         Ok(message) => dialog::message_default(&format!("✓ {}", message)),
                         Err(e) => dialog::alert_default(&format!("Tests failed: {}", e)),
                     }
-                    main_win.control_panel.buttons.run_tests_btn.activate();
+                    main_win_clone.control_panel.buttons.run_tests_btn.activate();
                 }
                 UiMessage::GitStatusDone(res) => {
-                    match res {
-                        Ok(status) => {
-                            dialog::message_default(&format!("📁 Git Status:\n{}", status))
-                        }
-                        Err(e) => {
-                            dialog::alert_default(&format!("Failed to fetch git status: {}", e))
-                        }
-                    }
-                    main_win.control_panel.buttons.git_status_btn.activate();
+                    let status_text = match res {
+                        Ok(status) => format!("📁 Git Status:\n{}", status),
+                        Err(e) => format!("Failed to fetch git status: {}", e),
+                    };
+                    main_win_clone.audit_panel.buffer.append(&status_text);
+                    main_win_clone.control_panel.buttons.git_status_btn.activate();
                 }
                 UiMessage::CommitsDone(res) => {
-                    match res {
+                    let commit_text = match res {
                         Ok(commits) => {
-                            let content = if commits.is_empty() {
-                                "No commits available".to_string()
-                            } else {
-                                commits.join("\n")
-                            };
-                            dialog::message_default(&format!("📜 Recent Commits:\n{}", content));
-                        }
-                        Err(e) => dialog::alert_default(&format!("Failed to fetch commits: {}", e)),
-                    }
-                    main_win.control_panel.buttons.recent_commits_btn.activate();
+                            if commits.is_empty() { "No commits available".to_string() }
+                            else { commits.join("\n") }
+                        },
+                        Err(e) => format!("Failed to fetch commits: {}", e),
+                    };
+                    main_win_clone.audit_panel.buffer.append(&format!("📜 Recent Commits:\n{}", commit_text));
+                    main_win_clone.control_panel.buttons.recent_commits_btn.activate();
+                }
+                UiMessage::ChatMessage(msg) => {
+                    main_win_clone.chat_panel.conversation_display.buffer().unwrap().append(&msg);
                 }
             }
         }
 
-        if last_uptime_update.elapsed() >= Duration::from_millis(500) {
-            if let Ok(mut state_guard) = state.lock() {
-                state_guard.update_uptime();
-            }
-            last_uptime_update = Instant::now();
-        }
-
-        // Update uptime display in the dashboard
-        if let Ok(state_guard) = state.lock() {
+        if let Ok(mut state_guard) = state.lock() {
+            state_guard.update_uptime();
             let uptime = state_guard.metrics.uptime_seconds;
             let uptime_str = format!("{} seconds", uptime);
-            main_win.dashboard_panel.uptime_value.set_label(&uptime_str);
+            main_win_clone.dashboard_panel.uptime_value.set_label(&uptime_str);
         }
 
-        // Check for shutdown signal
         if shutdown::SHUTDOWN_FLAG.load(std::sync::atomic::Ordering::SeqCst) {
-            let _ = logger.info("⚠ Shutdown signal received, saving state...");
+            let _ = logger_clone.info("⚠ Shutdown signal received, saving state...");
             if let Ok(state_guard) = state.lock() {
                 let _ = shutdown_mgr.save_state(&state_guard);
             }
             let _ = shutdown_mgr.cleanup();
-            break;
+            app::quit();
         }
-    }
+        app::sleep(0.1);
+        app::awake();
+    });
+    app.run().unwrap();
 
     let _ = logger.info("✓ Application exiting gracefully");
 }

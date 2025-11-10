@@ -1,4 +1,3 @@
-
 use fltk::{
     button::Button,
     enums::{Color, FrameType},
@@ -8,6 +7,7 @@ use fltk::{
     text::{TextBuffer, TextDisplay},
 };
 
+#[derive(Clone)]
 pub struct ChatPanel {
     pub pack: Pack,
     pub conversation_display: TextDisplay,
@@ -47,7 +47,6 @@ impl ChatPanel {
         }
     }
 
-    // ... existing code ...
     pub fn add_message(&mut self, author: &str, text: &str) {
         if let Some(mut buffer) = self.conversation_display.buffer() {
             let formatted_message = format!("{}: {}\n", author, text);
