@@ -338,8 +338,30 @@ impl ProcessManager {
         }
     }
 
-    pub fn is_running(&self) -> bool {
-        self.process.is_some()
+    pub fn is_running(&mut self) -> bool {
+        if let Some(ref mut child) = self.process {
+            // Check if the process has actually finished
+            match child.try_wait() {
+                Ok(Some(_)) => {
+                    // Process has finished, clean up
+                    self.process = None;
+                    self.metadata = None;
+                    false
+                }
+                Ok(None) => {
+                    // Process is still running
+                    true
+                }
+                Err(_) => {
+                    // Error checking process status, assume it's not running
+                    self.process = None;
+                    self.metadata = None;
+                    false
+                }
+            }
+        } else {
+            false
+        }
     }
 
     pub fn get_output(&self) -> Option<String> {

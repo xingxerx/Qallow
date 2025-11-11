@@ -10,6 +10,7 @@ use std::sync::{Arc, Mutex};
 #[derive(Clone)]
 pub struct MatrixView {
     pub table: table::Table,
+    #[allow(dead_code)]
     data: Arc<Mutex<Vec<Vec<f32>>>>,
 }
 

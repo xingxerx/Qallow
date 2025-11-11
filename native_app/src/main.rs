@@ -163,7 +163,6 @@ fn main() {
     main_win.wind.show();
 
     // --- Main Application Loop ---
-    let main_win_clone = main_win.clone();
     let logger_clone = logger.clone();
 
     // Use the standard FLTK event loop.

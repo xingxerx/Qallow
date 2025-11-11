@@ -1,8 +1,7 @@
 use fltk::{
     app,
     draw::{self},
-    enums::{Align, Color, Font, FrameType},
-    frame,
+    enums::{Align, Color, Font},
     prelude::*,
     window,
 };

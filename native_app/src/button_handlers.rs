@@ -58,6 +58,7 @@ impl ButtonHandler {
 
         let mut pm = self.process_manager.lock().map_err(|e| format!("PM lock error: {}", e))?;
 
+        // Check if a process is actually running (this also cleans up finished processes)
         if pm.is_running() {
             return Err("A process is already running.".to_string());
         }
