@@ -6,9 +6,26 @@ Demonstrates: Roblox Game Creation + AI Research + Self-Improvement
 
 import asyncio
 import sys
+import subprocess
+
 sys.path.append("..")
 
 from qallow.master_orchestrator import QallowMasterAgent
+
+def start_mock_server():
+    """Starts the mock Roblox server intelligently."""
+    print("🤖 Checking and starting mock Roblox server if needed...")
+    script_path = "scripts/start_mock_server_intelligent.sh"
+    try:
+        # Make sure the script is executable
+        subprocess.run(["chmod", "+x", script_path], check=True)
+        # Run the script and capture output
+        result = subprocess.run([f"./{script_path}"], check=True, capture_output=True, text=True, shell=True)
+        print(result.stdout)
+    except (subprocess.CalledProcessError, FileNotFoundError) as e:
+        print(f"❌ Failed to start mock server: {e}")
+        print("Please ensure the script exists and you have necessary permissions.")
+        sys.exit(1)
 
 async def main():
     """
@@ -19,6 +36,8 @@ async def main():
     4. Test the complete game
     5. Store all learnings in memory
     """
+    
+    start_mock_server()
     
     print("="*60)
     print("🚀 QALLOW AGI - FULL INTEGRATION DEMO")

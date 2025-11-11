@@ -206,21 +206,21 @@ fi
 print_status "Build successful"
 
 ################################################################################
-# Phase 4: Run Recursive Improvement Engine
+# Phase 4: Run Unified Improvement Orchestrator
 ################################################################################
 
-print_header "PHASE 4: Recursive Improvement Engine"
-print_status "Starting improvement loop with $ITERATIONS iterations"
+print_header "PHASE 4: Unified Improvement Orchestrator"
+print_status "Starting recursive improvement loop with $ITERATIONS iterations"
 print_status "Phase ticks: $TICKS"
 
 cd "$PROJECT_ROOT"
 
-# Run the Python engine
-python3 recursive_improvement_engine.py \
+# Run the unified orchestrator
+python3 "$PROJECT_ROOT/scripts/unified_improvement_orchestrator.py" \
+    --workspace "$PROJECT_ROOT" \
     --iterations $ITERATIONS \
-    --ticks $TICKS \
-    $([ "$USE_CUDA" = true ] && echo "--cuda") \
-    2>&1 | tee "$LOG_DIR/improvement_${TIMESTAMP}.log"
+    --analyze-code \
+    2>&1 | tee "$LOG_DIR/orchestrator_${TIMESTAMP}.log"
 
 ENGINE_EXIT_CODE=$?
 

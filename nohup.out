@@ -1,0 +1,110 @@
+INFO:     Started server process [37332]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8745 (Press CTRL+C to quit)
+Starting Mock Roblox Studio Server on http://localhost:8745...
+Mock Server: Received request to create game with data: {'name': 'QallowAGI_Created_Game'}
+Mock Server: Generated gameId: rbx-game-ad251107-0fed-47f1-896d-86c4d784b447
+INFO:     127.0.0.1:41462 - "POST /create-game HTTP/1.1" 200 OK
+Mock Server: Received request to create levels for game rbx-game-ad251107-0fed-47f1-896d-86c4d784b447 with data: {'level_number': 1, 'jump_power': 50, 'platform_speed': 5.5, 'platform_count': 10}
+INFO:     127.0.0.1:41478 - "POST /games/rbx-game-ad251107-0fed-47f1-896d-86c4d784b447/levels HTTP/1.1" 200 OK
+Mock Server: Received request to create levels for game rbx-game-ad251107-0fed-47f1-896d-86c4d784b447 with data: {'level_number': 2, 'jump_power': 50, 'platform_speed': 6.0, 'platform_count': 12}
+INFO:     127.0.0.1:41478 - "POST /games/rbx-game-ad251107-0fed-47f1-896d-86c4d784b447/levels HTTP/1.1" 200 OK
+Mock Server: Received request to create levels for game rbx-game-ad251107-0fed-47f1-896d-86c4d784b447 with data: {'level_number': 3, 'jump_power': 50, 'platform_speed': 6.5, 'platform_count': 14}
+INFO:     127.0.0.1:41478 - "POST /games/rbx-game-ad251107-0fed-47f1-896d-86c4d784b447/levels HTTP/1.1" 200 OK
+Mock Server: Received request to create levels for game rbx-game-ad251107-0fed-47f1-896d-86c4d784b447 with data: {'level_number': 4, 'jump_power': 50, 'platform_speed': 7.0, 'platform_count': 16}
+INFO:     127.0.0.1:41478 - "POST /games/rbx-game-ad251107-0fed-47f1-896d-86c4d784b447/levels HTTP/1.1" 200 OK
+Mock Server: Received request to create levels for game rbx-game-ad251107-0fed-47f1-896d-86c4d784b447 with data: {'level_number': 5, 'jump_power': 50, 'platform_speed': 7.5, 'platform_count': 18}
+INFO:     127.0.0.1:41478 - "POST /games/rbx-game-ad251107-0fed-47f1-896d-86c4d784b447/levels HTTP/1.1" 200 OK
+Mock Server: Received request to create levels for game rbx-game-ad251107-0fed-47f1-896d-86c4d784b447 with data: {'level_number': 6, 'jump_power': 50, 'platform_speed': 8.0, 'platform_count': 20}
+INFO:     127.0.0.1:41478 - "POST /games/rbx-game-ad251107-0fed-47f1-896d-86c4d784b447/levels HTTP/1.1" 200 OK
+Mock Server: Received request to create levels for game rbx-game-ad251107-0fed-47f1-896d-86c4d784b447 with data: {'level_number': 7, 'jump_power': 50, 'platform_speed': 8.5, 'platform_count': 22}
+INFO:     127.0.0.1:41478 - "POST /games/rbx-game-ad251107-0fed-47f1-896d-86c4d784b447/levels HTTP/1.1" 200 OK
+Mock Server: Received request to create levels for game rbx-game-ad251107-0fed-47f1-896d-86c4d784b447 with data: {'level_number': 8, 'jump_power': 50, 'platform_speed': 9.0, 'platform_count': 24}
+INFO:     127.0.0.1:41478 - "POST /games/rbx-game-ad251107-0fed-47f1-896d-86c4d784b447/levels HTTP/1.1" 200 OK
+Mock Server: Received request to create levels for game rbx-game-ad251107-0fed-47f1-896d-86c4d784b447 with data: {'level_number': 9, 'jump_power': 50, 'platform_speed': 9.5, 'platform_count': 26}
+INFO:     127.0.0.1:41478 - "POST /games/rbx-game-ad251107-0fed-47f1-896d-86c4d784b447/levels HTTP/1.1" 200 OK
+Mock Server: Received request to create levels for game rbx-game-ad251107-0fed-47f1-896d-86c4d784b447 with data: {'level_number': 10, 'jump_power': 50, 'platform_speed': 10.0, 'platform_count': 28}
+INFO:     127.0.0.1:41478 - "POST /games/rbx-game-ad251107-0fed-47f1-896d-86c4d784b447/levels HTTP/1.1" 200 OK
+Mock Server: Received request to create NPCs for game rbx-game-ad251107-0fed-47f1-896d-86c4d784b447 with data: {'behavior': 'basic_follow', 'count': 5}
+INFO:     127.0.0.1:41482 - "POST /games/rbx-game-ad251107-0fed-47f1-896d-86c4d784b447/npcs HTTP/1.1" 200 OK
+Mock Server: Received request to create game with data: {'name': 'QallowAGI_Created_Game'}
+Mock Server: Generated gameId: rbx-game-c144781f-76df-4a7c-a63b-0ff930ff605d
+INFO:     127.0.0.1:41498 - "POST /create-game HTTP/1.1" 200 OK
+Mock Server: Received request to create levels for game rbx-game-c144781f-76df-4a7c-a63b-0ff930ff605d with data: {'level_number': 1, 'jump_power': 50, 'platform_speed': 5.5, 'platform_count': 10}
+INFO:     127.0.0.1:41514 - "POST /games/rbx-game-c144781f-76df-4a7c-a63b-0ff930ff605d/levels HTTP/1.1" 200 OK
+Mock Server: Received request to create levels for game rbx-game-c144781f-76df-4a7c-a63b-0ff930ff605d with data: {'level_number': 2, 'jump_power': 50, 'platform_speed': 6.0, 'platform_count': 12}
+INFO:     127.0.0.1:41514 - "POST /games/rbx-game-c144781f-76df-4a7c-a63b-0ff930ff605d/levels HTTP/1.1" 200 OK
+Mock Server: Received request to create levels for game rbx-game-c144781f-76df-4a7c-a63b-0ff930ff605d with data: {'level_number': 3, 'jump_power': 50, 'platform_speed': 6.5, 'platform_count': 14}
+INFO:     127.0.0.1:41514 - "POST /games/rbx-game-c144781f-76df-4a7c-a63b-0ff930ff605d/levels HTTP/1.1" 200 OK
+Mock Server: Received request to create levels for game rbx-game-c144781f-76df-4a7c-a63b-0ff930ff605d with data: {'level_number': 4, 'jump_power': 50, 'platform_speed': 7.0, 'platform_count': 16}
+INFO:     127.0.0.1:41514 - "POST /games/rbx-game-c144781f-76df-4a7c-a63b-0ff930ff605d/levels HTTP/1.1" 200 OK
+Mock Server: Received request to create levels for game rbx-game-c144781f-76df-4a7c-a63b-0ff930ff605d with data: {'level_number': 5, 'jump_power': 50, 'platform_speed': 7.5, 'platform_count': 18}
+INFO:     127.0.0.1:41514 - "POST /games/rbx-game-c144781f-76df-4a7c-a63b-0ff930ff605d/levels HTTP/1.1" 200 OK
+Mock Server: Received request to create levels for game rbx-game-c144781f-76df-4a7c-a63b-0ff930ff605d with data: {'level_number': 6, 'jump_power': 50, 'platform_speed': 8.0, 'platform_count': 20}
+INFO:     127.0.0.1:41514 - "POST /games/rbx-game-c144781f-76df-4a7c-a63b-0ff930ff605d/levels HTTP/1.1" 200 OK
+Mock Server: Received request to create levels for game rbx-game-c144781f-76df-4a7c-a63b-0ff930ff605d with data: {'level_number': 7, 'jump_power': 50, 'platform_speed': 8.5, 'platform_count': 22}
+INFO:     127.0.0.1:41514 - "POST /games/rbx-game-c144781f-76df-4a7c-a63b-0ff930ff605d/levels HTTP/1.1" 200 OK
+Mock Server: Received request to create levels for game rbx-game-c144781f-76df-4a7c-a63b-0ff930ff605d with data: {'level_number': 8, 'jump_power': 50, 'platform_speed': 9.0, 'platform_count': 24}
+INFO:     127.0.0.1:41514 - "POST /games/rbx-game-c144781f-76df-4a7c-a63b-0ff930ff605d/levels HTTP/1.1" 200 OK
+Mock Server: Received request to create levels for game rbx-game-c144781f-76df-4a7c-a63b-0ff930ff605d with data: {'level_number': 9, 'jump_power': 50, 'platform_speed': 9.5, 'platform_count': 26}
+INFO:     127.0.0.1:41514 - "POST /games/rbx-game-c144781f-76df-4a7c-a63b-0ff930ff605d/levels HTTP/1.1" 200 OK
+Mock Server: Received request to create levels for game rbx-game-c144781f-76df-4a7c-a63b-0ff930ff605d with data: {'level_number': 10, 'jump_power': 50, 'platform_speed': 10.0, 'platform_count': 28}
+INFO:     127.0.0.1:41514 - "POST /games/rbx-game-c144781f-76df-4a7c-a63b-0ff930ff605d/levels HTTP/1.1" 200 OK
+Mock Server: Received request to create NPCs for game rbx-game-c144781f-76df-4a7c-a63b-0ff930ff605d with data: {'behavior': 'basic_follow', 'count': 5}
+INFO:     127.0.0.1:41522 - "POST /games/rbx-game-c144781f-76df-4a7c-a63b-0ff930ff605d/npcs HTTP/1.1" 200 OK
+Mock Server: Received request to create game with data: {'name': 'QallowAGI_Created_Game'}
+Mock Server: Generated gameId: rbx-game-5c40073a-69cd-4739-bbdd-77e12cfdecaa
+INFO:     127.0.0.1:56822 - "POST /create-game HTTP/1.1" 200 OK
+Mock Server: Received request to create levels for game rbx-game-5c40073a-69cd-4739-bbdd-77e12cfdecaa with data: {'level_number': 1, 'jump_power': 50, 'platform_speed': 5.5, 'platform_count': 10}
+INFO:     127.0.0.1:56828 - "POST /games/rbx-game-5c40073a-69cd-4739-bbdd-77e12cfdecaa/levels HTTP/1.1" 200 OK
+Mock Server: Received request to create levels for game rbx-game-5c40073a-69cd-4739-bbdd-77e12cfdecaa with data: {'level_number': 2, 'jump_power': 50, 'platform_speed': 6.0, 'platform_count': 12}
+INFO:     127.0.0.1:56828 - "POST /games/rbx-game-5c40073a-69cd-4739-bbdd-77e12cfdecaa/levels HTTP/1.1" 200 OK
+Mock Server: Received request to create levels for game rbx-game-5c40073a-69cd-4739-bbdd-77e12cfdecaa with data: {'level_number': 3, 'jump_power': 50, 'platform_speed': 6.5, 'platform_count': 14}
+INFO:     127.0.0.1:56828 - "POST /games/rbx-game-5c40073a-69cd-4739-bbdd-77e12cfdecaa/levels HTTP/1.1" 200 OK
+Mock Server: Received request to create levels for game rbx-game-5c40073a-69cd-4739-bbdd-77e12cfdecaa with data: {'level_number': 4, 'jump_power': 50, 'platform_speed': 7.0, 'platform_count': 16}
+INFO:     127.0.0.1:56828 - "POST /games/rbx-game-5c40073a-69cd-4739-bbdd-77e12cfdecaa/levels HTTP/1.1" 200 OK
+Mock Server: Received request to create levels for game rbx-game-5c40073a-69cd-4739-bbdd-77e12cfdecaa with data: {'level_number': 5, 'jump_power': 50, 'platform_speed': 7.5, 'platform_count': 18}
+INFO:     127.0.0.1:56828 - "POST /games/rbx-game-5c40073a-69cd-4739-bbdd-77e12cfdecaa/levels HTTP/1.1" 200 OK
+Mock Server: Received request to create levels for game rbx-game-5c40073a-69cd-4739-bbdd-77e12cfdecaa with data: {'level_number': 6, 'jump_power': 50, 'platform_speed': 8.0, 'platform_count': 20}
+INFO:     127.0.0.1:56828 - "POST /games/rbx-game-5c40073a-69cd-4739-bbdd-77e12cfdecaa/levels HTTP/1.1" 200 OK
+Mock Server: Received request to create levels for game rbx-game-5c40073a-69cd-4739-bbdd-77e12cfdecaa with data: {'level_number': 7, 'jump_power': 50, 'platform_speed': 8.5, 'platform_count': 22}
+INFO:     127.0.0.1:56828 - "POST /games/rbx-game-5c40073a-69cd-4739-bbdd-77e12cfdecaa/levels HTTP/1.1" 200 OK
+Mock Server: Received request to create levels for game rbx-game-5c40073a-69cd-4739-bbdd-77e12cfdecaa with data: {'level_number': 8, 'jump_power': 50, 'platform_speed': 9.0, 'platform_count': 24}
+INFO:     127.0.0.1:56828 - "POST /games/rbx-game-5c40073a-69cd-4739-bbdd-77e12cfdecaa/levels HTTP/1.1" 200 OK
+Mock Server: Received request to create levels for game rbx-game-5c40073a-69cd-4739-bbdd-77e12cfdecaa with data: {'level_number': 9, 'jump_power': 50, 'platform_speed': 9.5, 'platform_count': 26}
+INFO:     127.0.0.1:56828 - "POST /games/rbx-game-5c40073a-69cd-4739-bbdd-77e12cfdecaa/levels HTTP/1.1" 200 OK
+Mock Server: Received request to create levels for game rbx-game-5c40073a-69cd-4739-bbdd-77e12cfdecaa with data: {'level_number': 10, 'jump_power': 50, 'platform_speed': 10.0, 'platform_count': 28}
+INFO:     127.0.0.1:56828 - "POST /games/rbx-game-5c40073a-69cd-4739-bbdd-77e12cfdecaa/levels HTTP/1.1" 200 OK
+Mock Server: Received request to create NPCs for game rbx-game-5c40073a-69cd-4739-bbdd-77e12cfdecaa with data: {'behavior': 'basic_follow', 'count': 5}
+INFO:     127.0.0.1:56834 - "POST /games/rbx-game-5c40073a-69cd-4739-bbdd-77e12cfdecaa/npcs HTTP/1.1" 200 OK
+Mock Server: Received request to create game with data: {'name': 'QallowAGI_Created_Game'}
+Mock Server: Generated gameId: rbx-game-3c1be2e2-4e7f-4b36-a6b9-0a26e41c8178
+INFO:     127.0.0.1:56848 - "POST /create-game HTTP/1.1" 200 OK
+Mock Server: Received request to create levels for game rbx-game-3c1be2e2-4e7f-4b36-a6b9-0a26e41c8178 with data: {'level_number': 1, 'jump_power': 50, 'platform_speed': 5.5, 'platform_count': 10}
+INFO:     127.0.0.1:56864 - "POST /games/rbx-game-3c1be2e2-4e7f-4b36-a6b9-0a26e41c8178/levels HTTP/1.1" 200 OK
+Mock Server: Received request to create levels for game rbx-game-3c1be2e2-4e7f-4b36-a6b9-0a26e41c8178 with data: {'level_number': 2, 'jump_power': 50, 'platform_speed': 6.0, 'platform_count': 12}
+INFO:     127.0.0.1:56864 - "POST /games/rbx-game-3c1be2e2-4e7f-4b36-a6b9-0a26e41c8178/levels HTTP/1.1" 200 OK
+Mock Server: Received request to create levels for game rbx-game-3c1be2e2-4e7f-4b36-a6b9-0a26e41c8178 with data: {'level_number': 3, 'jump_power': 50, 'platform_speed': 6.5, 'platform_count': 14}
+INFO:     127.0.0.1:56864 - "POST /games/rbx-game-3c1be2e2-4e7f-4b36-a6b9-0a26e41c8178/levels HTTP/1.1" 200 OK
+Mock Server: Received request to create levels for game rbx-game-3c1be2e2-4e7f-4b36-a6b9-0a26e41c8178 with data: {'level_number': 4, 'jump_power': 50, 'platform_speed': 7.0, 'platform_count': 16}
+INFO:     127.0.0.1:56864 - "POST /games/rbx-game-3c1be2e2-4e7f-4b36-a6b9-0a26e41c8178/levels HTTP/1.1" 200 OK
+Mock Server: Received request to create levels for game rbx-game-3c1be2e2-4e7f-4b36-a6b9-0a26e41c8178 with data: {'level_number': 5, 'jump_power': 50, 'platform_speed': 7.5, 'platform_count': 18}
+INFO:     127.0.0.1:56864 - "POST /games/rbx-game-3c1be2e2-4e7f-4b36-a6b9-0a26e41c8178/levels HTTP/1.1" 200 OK
+Mock Server: Received request to create levels for game rbx-game-3c1be2e2-4e7f-4b36-a6b9-0a26e41c8178 with data: {'level_number': 6, 'jump_power': 50, 'platform_speed': 8.0, 'platform_count': 20}
+INFO:     127.0.0.1:56864 - "POST /games/rbx-game-3c1be2e2-4e7f-4b36-a6b9-0a26e41c8178/levels HTTP/1.1" 200 OK
+Mock Server: Received request to create levels for game rbx-game-3c1be2e2-4e7f-4b36-a6b9-0a26e41c8178 with data: {'level_number': 7, 'jump_power': 50, 'platform_speed': 8.5, 'platform_count': 22}
+INFO:     127.0.0.1:56864 - "POST /games/rbx-game-3c1be2e2-4e7f-4b36-a6b9-0a26e41c8178/levels HTTP/1.1" 200 OK
+Mock Server: Received request to create levels for game rbx-game-3c1be2e2-4e7f-4b36-a6b9-0a26e41c8178 with data: {'level_number': 8, 'jump_power': 50, 'platform_speed': 9.0, 'platform_count': 24}
+INFO:     127.0.0.1:56864 - "POST /games/rbx-game-3c1be2e2-4e7f-4b36-a6b9-0a26e41c8178/levels HTTP/1.1" 200 OK
+Mock Server: Received request to create levels for game rbx-game-3c1be2e2-4e7f-4b36-a6b9-0a26e41c8178 with data: {'level_number': 9, 'jump_power': 50, 'platform_speed': 9.5, 'platform_count': 26}
+INFO:     127.0.0.1:56864 - "POST /games/rbx-game-3c1be2e2-4e7f-4b36-a6b9-0a26e41c8178/levels HTTP/1.1" 200 OK
+Mock Server: Received request to create levels for game rbx-game-3c1be2e2-4e7f-4b36-a6b9-0a26e41c8178 with data: {'level_number': 10, 'jump_power': 50, 'platform_speed': 10.0, 'platform_count': 28}
+INFO:     127.0.0.1:56864 - "POST /games/rbx-game-3c1be2e2-4e7f-4b36-a6b9-0a26e41c8178/levels HTTP/1.1" 200 OK
+Mock Server: Received request to create NPCs for game rbx-game-3c1be2e2-4e7f-4b36-a6b9-0a26e41c8178 with data: {'behavior': 'basic_follow', 'count': 5}
+INFO:     127.0.0.1:56876 - "POST /games/rbx-game-3c1be2e2-4e7f-4b36-a6b9-0a26e41c8178/npcs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38368 - "GET / HTTP/1.1" 404 Not Found
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [37332]
