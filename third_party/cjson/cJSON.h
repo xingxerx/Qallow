@@ -192,8 +192,8 @@ cJSON_API cJSON_bool cJSON_IsObject(const cJSON * const item);
 cJSON_API cJSON_bool cJSON_IsRaw(const cJSON * const item);
 
 /* These functions check the type of an item */
-#define cJSON_IsReference(item) (((item) != NULL) && ((item)->type & cJSON_IsReference))
-#define cJSON_StringIsConst(item) (((item) != NULL) && ((item)->type & cJSON_StringIsConst))
+#define cJSON_IsRef(item) (((item) != NULL) && ((item)->type & cJSON_IsReference))
+#define cJSON_StringIsCnst(item) (((item) != NULL) && ((item)->type & cJSON_StringIsConst))
 
 /* Create basic types: */
 cJSON_API cJSON *cJSON_CreateNull(void);
