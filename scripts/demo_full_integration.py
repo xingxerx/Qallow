@@ -28,6 +28,9 @@ async def main():
     # Initialize AGI
     agi = QallowMasterAgent()
     
+    # Ensure Qdrant collection is ready
+    await agi.memory.initialize_collection_if_needed()
+    
     # Execute complex multi-agent task
     result = await agi.execute("""
         Create a Roblox obby game with the following specifications:
