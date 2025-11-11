@@ -74,14 +74,14 @@ impl ProcessManager {
         }
 
         let binary_path = match build {
-            BuildType::CPU => "/root/Qallow/build/qallow",
+            BuildType::CPU => "../build/qallow",
             BuildType::CUDA => {
-                if Path::new("/root/Qallow/build/qallow_unified_cuda").exists() {
-                    "/root/Qallow/build/qallow_unified_cuda"
-                } else if Path::new("/root/Qallow/build/qallow_unified").exists() {
-                    "/root/Qallow/build/qallow_unified"
-                } else if Path::new("/root/Qallow/build/qallow_unified_cpu").exists() {
-                    "/root/Qallow/build/qallow_unified_cpu"
+                if Path::new("../build/qallow_unified_cuda").exists() {
+                    "../build/qallow_unified_cuda"
+                } else if Path::new("../build/qallow_unified").exists() {
+                    "../build/qallow_unified"
+                } else if Path::new("../build/qallow_unified_cpu").exists() {
+                    "../build/qallow_unified_cpu"
                 } else {
                     return Err(
                         "Could not find CUDA unified binary (expected qallow_unified_cuda)".into(),
@@ -90,12 +90,7 @@ impl ProcessManager {
             }
         };
 
-        let phase_arg = match phase {
-            Phase::Phase13 => "13",
-            Phase::Phase14 => "14",
-            Phase::Phase15 => "15",
-            _ => todo!(),
-        };
+        let phase_arg = phase.to_str();
 
         let ticks_arg = format!("--ticks={}", ticks);
 
@@ -171,14 +166,14 @@ impl ProcessManager {
         }
 
         let binary_path = match build {
-            BuildType::CPU => "/root/Qallow/build/qallow",
+            BuildType::CPU => "../build/qallow",
             BuildType::CUDA => {
-                if Path::new("/root/Qallow/build/qallow_unified_cuda").exists() {
-                    "/root/Qallow/build/qallow_unified_cuda"
-                } else if Path::new("/root/Qallow/build/qallow_unified").exists() {
-                    "/root/Qallow/build/qallow_unified"
-                } else if Path::new("/root/Qallow/build/qallow_unified_cpu").exists() {
-                    "/root/Qallow/build/qallow_unified_cpu"
+                if Path::new("../build/qallow_unified_cuda").exists() {
+                    "../build/qallow_unified_cuda"
+                } else if Path::new("../build/qallow_unified").exists() {
+                    "../build/qallow_unified"
+                } else if Path::new("../build/qallow_unified_cpu").exists() {
+                    "../build/qallow_unified_cpu"
                 } else {
                     return Err(
                         "Could not find CUDA unified binary (expected qallow_unified_cuda)".into(),

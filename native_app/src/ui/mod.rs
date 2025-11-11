@@ -9,6 +9,8 @@ pub mod matrix_bg;
 pub mod metrics;
 pub mod settings;
 pub mod terminal;
+pub mod matrix_view;
+pub mod telemetry_panel;
 
 use crate::models::AppState;
 use fltk::enums::Color;
@@ -60,7 +62,7 @@ pub fn create_main_ui(_wind: &mut window::Window, state: Arc<Mutex<AppState>>) -
     let audit_view = audit_log::create_audit_log(&mut tabs, state.clone());
 
     // Control Panel tab
-    let control_panel = control_panel::create_control_panel(&mut tabs, state.clone());
+    let control_panel = control_panel::create_control_panel(state.clone());
 
     // Dungeons tab
     let dungeons_view = dungeons::create_dungeons_tab(&mut tabs, state.clone());

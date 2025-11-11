@@ -5,7 +5,7 @@ import argparse
 import json
 from typing import List
 
-from .qallow_ibm_bridge import run_ternary_sim
+from .qallow_cirq_bridge import run_ternary_sim
 
 
 def parse_states(raw: str) -> List[int]:

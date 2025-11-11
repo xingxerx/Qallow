@@ -153,7 +153,7 @@ def _counts_from_measurements(measurements, shot_count: int) -> Dict[str, float]
 
 
 def _execute_on_engine(
-    circuit: cirq.Circuit,
+    circuit: "cirq.Circuit",
     shots: int,
     project_id: str,
     processor_id: str,
@@ -242,13 +242,13 @@ def run_ternary_sim(
     token: Optional[str] = None,
 ) -> TernaryResult:
     """
-    Execute a ternary-to-qubit circuit using IBM Quantum hardware with Aer fallback.
+    Execute a ternary-to-qubit circuit using Google Quantum hardware with Cirq simulator fallback.
 
     Args:
         ternary_states: Iterable containing ternary (-1, 0, 1) values derived from Qallow.
         shots: Number of measurements to request.
         prefer_hardware: When True, attempt to route jobs to real hardware first.
-        token: Optional IBM Quantum token override (otherwise use env or saved credentials).
+        require_hardware: If True, fail if hardware is not available.
 
     Returns:
         TernaryResult with normalized counts, backend information, and execution source.
@@ -274,12 +274,9 @@ def run_ternary_sim(
 
     if circuit is not None:
         try:
-            qubit_count = float(circuit.num_qubits())
-        except AttributeError:
-            try:
-                qubit_count = float(len(circuit.all_qubits()))
-            except (AttributeError, TypeError):
-                qubit_count = float(len(logical_states) * block_size)
+            qubit_count = float(len(circuit.all_qubits()))
+        except (AttributeError, TypeError):
+            qubit_count = float(len(logical_states) * block_size)
     else:
         qubit_count = float(len(logical_states) * block_size or 1)
 

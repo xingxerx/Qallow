@@ -50,6 +50,39 @@ impl ButtonHandler {
         }
     }
 
+    pub fn on_run_phase(&self, phase: Phase) -> Result<(), String> {
+        let (build, ticks) = {
+            let state = self.state.lock().map_err(|e| format!("State lock error: {}", e))?;
+            (state.selected_build, state.phase_config.ticks)
+        };
+
+        let mut pm = self.process_manager.lock().map_err(|e| format!("PM lock error: {}", e))?;
+
+        if pm.is_running() {
+            return Err("A process is already running.".to_string());
+        }
+
+        let result = if phase == Phase::Unified {
+            pm.start_vm_unified(build, ticks)
+        } else {
+            pm.start_vm(build, phase, ticks)
+        };
+
+        match result {
+            Ok(()) => {
+                let mut state = self.state.lock().map_err(|e| format!("State lock error: {}", e))?;
+                state.set_running(true);
+                state.add_terminal_line(format!("🚀 Started {:?} with {:?} build", phase, build), LineType::Info);
+                Ok(())
+            }
+            Err(e) => {
+                let mut state = self.state.lock().map_err(|e| format!("State lock error: {}", e))?;
+                state.add_terminal_line(format!("❌ Failed to start {:?}: {}", phase, e), LineType::Error);
+                Err(e)
+            }
+        }
+    }
+
     /// Handle Start VM button click - Runs unified system (all phases 13, 14, 15)
     pub fn on_start_vm(&self) -> Result<(), String> {
         let button_label = "▶️ Start";

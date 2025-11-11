@@ -23,11 +23,10 @@ use button_handlers::ButtonHandler;
 use codebase_manager::CodebaseManager;
 use config::{AppConfig, ConfigManager};
 use fltk::enums::Color;
-use fltk::{app, button, dialog, prelude::*};
+use fltk::{app, button, prelude::*};
 use models::AppState;
 use std::sync::{Arc, Mutex};
 use tokio::runtime::Runtime;
-use tokio::spawn;
 use crate::{
     logging::AppLogger,
     messaging::UiMessage,
@@ -139,44 +138,32 @@ fn main() {
 
     // --- Main Window and UI Setup ---
     let mut main_win = ui::main_window::MainWindow::new(button_handler.clone());
-    main_win.wind.show();
 
-    // --- Chat Button Logic ---
-    main_win.chat_panel.send_button.set_callback({
-        let mut chat_input = main_win.chat_panel.input.clone();
-        let chat_view = main_win.chat_panel.conversation_display.clone();
-        let api_client = main_win.button_handler.api_client.clone();
-        let logger = logger.clone();
-        let sender = sender.clone();
-
-        move |_| {
-            let message = chat_input.value();
-            if message.is_empty() {
-                return;
-            }
-            chat_input.set_value("");
-            chat_view.buffer().unwrap().append(&format!("You: {}\n", message));
-
-            let api_client = api_client.clone();
-            let logger = logger.clone();
-            let sender_clone = sender.clone();
-            
-            spawn(async move {
-                match api_client.chat(&message).await {
-                    Ok(response) => {
-                        sender_clone.send(UiMessage::ChatMessage(format!("Agent: {}\n", response)));
-                    }
-                    Err(e) => {
-                        let _ = logger.error(&format!("API Error: {}", e));
-                        sender_clone.send(UiMessage::ChatMessage("Agent: Sorry, I encountered an error.\n".to_string()));
-                    }
+    for i in 0..15 {
+        let phase = models::Phase::from_index(i).unwrap();
+        main_win.control_panel.buttons.phase_buttons[i].set_callback({
+            let handler = main_win.button_handler.clone();
+            move |_| {
+                if let Err(e) = handler.on_run_phase(phase) {
+                    println!("Error running phase: {}", e);
                 }
-            });
+            }
+        });
+    }
+
+    main_win.control_panel.buttons.unified_button.set_callback({
+        let handler = main_win.button_handler.clone();
+        move |_| {
+            if let Err(e) = handler.on_run_phase(models::Phase::Unified) {
+                println!("Error running unified: {}", e);
+            }
         }
     });
 
-        // --- Main Application Loop ---
-    let mut main_win_clone = main_win.clone();
+    main_win.wind.show();
+
+    // --- Main Application Loop ---
+    let main_win_clone = main_win.clone();
     let logger_clone = logger.clone();
 
     // Use the standard FLTK event loop.
@@ -185,59 +172,13 @@ fn main() {
         // Handle messages from background threads
         if let Some(msg) = receiver.recv() {
             match msg {
-                UiMessage::BuildDone(res) => {
-                    main_win_clone.terminal_panel.buffer.append(&format!("[BUILD] {}\n", match &res {
-                        Ok(s) => s,
-                        Err(e) => e,
-                    }));
-                    match res {
-                        Ok(message) => dialog::message_default(&format!("✓ {}", message)),
-                        Err(e) => dialog::alert_default(&format!("Build failed: {}", e)),
-                    }
-                    main_win_clone.control_panel.buttons.build_app_btn.activate();
-                }
-                UiMessage::TestsDone(res) => {
-                     main_win_clone.terminal_panel.buffer.append(&format!("[TEST] {}\n", match &res {
-                        Ok(s) => s,
-                        Err(e) => e,
-                    }));
-                    match res {
-                        Ok(message) => dialog::message_default(&format!("✓ {}", message)),
-                        Err(e) => dialog::alert_default(&format!("Tests failed: {}", e)),
-                    }
-                    main_win_clone.control_panel.buttons.run_tests_btn.activate();
-                }
-                UiMessage::GitStatusDone(res) => {
-                    let status_text = match res {
-                        Ok(status) => format!("📁 Git Status:\n{}", status),
-                        Err(e) => format!("Failed to fetch git status: {}", e),
-                    };
-                    main_win_clone.audit_panel.buffer.append(&status_text);
-                    main_win_clone.control_panel.buttons.git_status_btn.activate();
-                }
-                UiMessage::CommitsDone(res) => {
-                    let commit_text = match res {
-                        Ok(commits) => {
-                            if commits.is_empty() { "No commits available".to_string() }
-                            else { commits.join("\n") }
-                        },
-                        Err(e) => format!("Failed to fetch commits: {}", e),
-                    };
-                    main_win_clone.audit_panel.buffer.append(&format!("📜 Recent Commits:\n{}", commit_text));
-                    main_win_clone.control_panel.buttons.recent_commits_btn.activate();
-                }
-                UiMessage::ChatMessage(msg) => {
-                    main_win_clone.chat_panel.conversation_display.buffer().unwrap().append(&msg);
-                }
+                _ => {}
             }
         }
 
         // Update UI elements that need periodic refresh
         if let Ok(mut state_guard) = state.lock() {
             state_guard.update_uptime();
-            let uptime = state_guard.metrics.uptime_seconds;
-            let uptime_str = format!("{} seconds", uptime);
-            main_win_clone.dashboard_panel.uptime_value.set_label(&uptime_str);
         }
 
         // Check for global shutdown signal

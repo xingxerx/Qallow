@@ -1,18 +1,14 @@
 use crate::button_handlers::ButtonHandler;
-use crate::ui::{
-    audit_log, control_panel, dashboard, dungeons, help, matrix_bg, metrics, settings, terminal,
-};
+use crate::ui::{control_panel, matrix_view, telemetry_panel};
 use fltk::{prelude::*, *};
 use std::sync::Arc;
 
 #[derive(Clone)]
 pub struct MainWindow {
     pub wind: window::Window,
-    pub dashboard_panel: dashboard::Dashboard,
+    pub matrix_view: matrix_view::MatrixView,
+    pub telemetry_panel: telemetry_panel::TelemetryPanel,
     pub control_panel: control_panel::ControlPanel,
-    pub terminal_panel: terminal::TerminalView,
-    pub audit_panel: audit_log::AuditLogView,
-    pub chat_panel: super::chat_panel::ChatPanel,
     pub button_handler: Arc<ButtonHandler>,
 }
 
@@ -24,9 +20,6 @@ impl MainWindow {
         wind.set_color(enums::Color::from_hex(0x0a0e27));
         wind.begin();
 
-        // Install matrix background animation
-        matrix_bg::install_matrix_background(&mut wind);
-
         let mut root_flex = group::Flex::default_fill().column();
         root_flex.set_margin(8);
         root_flex.set_spacing(5);
@@ -35,40 +28,21 @@ impl MainWindow {
         main_flex.set_margin(5);
         main_flex.set_spacing(5);
 
-        let mut tabs = group::Tabs::default();
-        tabs.set_tab_align(enums::Align::Left);
+        let matrix_view = matrix_view::MatrixView::new();
+        main_flex.add(&matrix_view.table);
 
-        let tabs_clone = tabs.clone();
-        tabs.handle(move |_, ev| {
-            if ev == enums::Event::Push {
-                if app::event_x() > tabs_clone.x() + tabs_clone.width() - 30 {
-                    return true;
-                }
-            }
-            false
-        });
-
-        let dashboard_panel = dashboard::create_dashboard(&mut tabs, button_handler.state.clone());
-        let terminal_panel = terminal::create_terminal(&mut tabs, button_handler.state.clone());
-        let audit_panel = audit_log::create_audit_log(&mut tabs, button_handler.state.clone());
-        let _metrics_panel = metrics::create_metrics(&mut tabs, button_handler.state.clone());
-        let _dungeons_panel = dungeons::create_dungeons_tab(&mut tabs, button_handler.state.clone());
-        let _settings_panel = settings::create_settings_panel(&mut tabs, button_handler.state.clone());
-        let _help_panel = help::create_help_panel(&mut tabs, button_handler.state.clone());
-
-        tabs.end();
-        main_flex.add(&tabs);
-
-        let control_panel = control_panel::create_control_panel(&mut tabs, button_handler.state.clone());
-        main_flex.add(&control_panel.flex);
-        main_flex.fixed(&control_panel.flex, 200);
+        let mut right_flex = group::Flex::default().column();
+                let control_panel = control_panel::create_control_panel(button_handler.state.clone());
+        let telemetry_panel = telemetry_panel::TelemetryPanel::new();
+        right_flex.add(&control_panel.flex);
+        right_flex.add(&telemetry_panel.display);
+        right_flex.end();
+        
+        main_flex.add(&right_flex);
+        main_flex.fixed(&right_flex, 200);
 
         main_flex.end();
         root_flex.add(&main_flex);
-
-        let chat_panel = super::chat_panel::ChatPanel::new();
-        root_flex.add(&chat_panel.pack);
-        root_flex.fixed(&chat_panel.pack, 200);
 
         root_flex.end();
         wind.end();
@@ -81,11 +55,9 @@ impl MainWindow {
 
         Self {
             wind,
-            dashboard_panel,
+            matrix_view,
+            telemetry_panel,
             control_panel,
-            terminal_panel,
-            audit_panel,
-            chat_panel,
             button_handler,
         }
     }
