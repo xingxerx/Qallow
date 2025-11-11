@@ -13,8 +13,9 @@ import argparse
 import json
 import os
 import sys
+from math import gcd
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Sequence
 
 import numpy as np
 import pandas as pd
@@ -27,7 +28,7 @@ except ImportError as exc:
     ) from exc
 
 
-def build_ansatz(qubits: List[cirq.Qid], params: np.ndarray) -> cirq.Circuit:
+def build_ansatz(qubits: Sequence[cirq.Qid], params: np.ndarray) -> cirq.Circuit:
     """Build a parameterized quantum ansatz circuit.
     
     Args:

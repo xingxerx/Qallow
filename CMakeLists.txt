@@ -49,7 +49,10 @@ set(QALLOW_INCLUDE_DIRS
 )
 
 add_library(qallow_core INTERFACE)
-target_include_directories(qallow_core INTERFACE ${QALLOW_INCLUDE_DIRS})
+target_include_directories(qallow_core INTERFACE
+    ${QALLOW_INCLUDE_DIRS}
+    ${CMAKE_CURRENT_SOURCE_DIR}/third_party/cjson
+)
 
 set(QALLOW_ALGORITHM_SOURCES
     algorithms/ethics_core.c
@@ -178,6 +181,11 @@ if(QALLOW_ENABLE_CUDA)
     find_package(CUDAToolkit REQUIRED)
     target_link_libraries(qallow_backend_cuda PUBLIC CUDA::cudart)
     set_target_properties(qallow_backend_cuda PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+
+    # Prevent GCC/Clang flags from being passed to NVCC
+    # NVCC doesn't support -Wall, -Wextra, and other GCC-specific flags
+    target_compile_options(qallow_backend_cuda PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:-O3;--use_fast_math>)
+
     add_custom_target(cudaq DEPENDS qallow_backend_cuda)
 endif()
 

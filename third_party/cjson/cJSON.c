@@ -98,20 +98,28 @@ void cJSON_AddItemToArray(cJSON* array, cJSON* item) {
     cjson_append_child(array, item);
 }
 
-void cJSON_AddStringToObject(cJSON* object, const char* name, const char* string) {
-    cJSON_AddItemToObject(object, name, cJSON_CreateString(string));
+cJSON* cJSON_AddStringToObject(cJSON* const object, const char* const name, const char* const string) {
+    cJSON* item = cJSON_CreateString(string);
+    cJSON_AddItemToObject(object, name, item);
+    return item;
 }
 
-void cJSON_AddNumberToObject(cJSON* object, const char* name, double number) {
-    cJSON_AddItemToObject(object, name, cJSON_CreateNumber(number));
+cJSON* cJSON_AddNumberToObject(cJSON* const object, const char* const name, const double number) {
+    cJSON* item = cJSON_CreateNumber(number);
+    cJSON_AddItemToObject(object, name, item);
+    return item;
 }
 
-void cJSON_AddBoolToObject(cJSON* object, const char* name, int bool_value) {
-    cJSON_AddItemToObject(object, name, cJSON_CreateBool(bool_value));
+cJSON* cJSON_AddBoolToObject(cJSON* const object, const char* const name, const cJSON_bool boolean) {
+    cJSON* item = cJSON_CreateBool(boolean);
+    cJSON_AddItemToObject(object, name, item);
+    return item;
 }
 
-void cJSON_AddNullToObject(cJSON* object, const char* name) {
-    cJSON_AddItemToObject(object, name, cJSON_CreateNull());
+cJSON* cJSON_AddNullToObject(cJSON* const object, const char* const name) {
+    cJSON* item = cJSON_CreateNull();
+    cJSON_AddItemToObject(object, name, item);
+    return item;
 }
 
 typedef struct {

@@ -1,0 +1,124 @@
+# Qallow Memory System Configuration
+# Based on AGI Agent Blueprint Chapter 3, Section 3.3
+
+# Qdrant Vector Database Configuration
+qdrant:
+  # URL of Qdrant instance
+  url: "http://localhost:6333"
+  
+  # Collection name for agent experiences
+  collection_name: "agent_experience_memory"
+  
+  # Vector dimension (must match embedding model)
+  vector_dimension: 384
+  
+  # Distance metric for similarity search
+  distance_metric: "cosine"
+  
+  # Timeout for operations (seconds)
+  timeout: 30
+
+# Embedding Configuration
+embeddings:
+  # Model for generating embeddings
+  model: "all-MiniLM-L6-v2"
+  
+  # Dimension of embeddings
+  dimension: 384
+  
+  # Batch size for embedding generation
+  batch_size: 32
+  
+  # Device for embedding (cpu, cuda, mps)
+  device: "cpu"
+
+# Memory Retrieval Configuration
+retrieval:
+  # Default number of experiences to retrieve
+  default_limit: 5
+  
+  # Maximum experiences per query
+  max_limit: 100
+  
+  # Similarity threshold (0-1)
+  similarity_threshold: 0.5
+  
+  # Enable role-based filtering
+  enable_role_filtering: true
+
+# ContReAct Loop Configuration
+react_loop:
+  # Maximum iterations per problem
+  max_iterations: 10
+  
+  # Timeout per iteration (seconds)
+  iteration_timeout: 60
+  
+  # Enable tracing
+  enable_tracing: true
+  
+  # Trace export interval (seconds)
+  trace_export_interval: 5
+
+# OpenTelemetry Configuration
+telemetry:
+  # Enable telemetry
+  enabled: true
+  
+  # Service name
+  service_name: "qallow-agent"
+  
+  # OTLP gRPC endpoint
+  otlp_endpoint: "http://localhost:4317"
+  
+  # Batch size for span export
+  batch_size: 512
+  
+  # Export interval (seconds)
+  export_interval: 5
+
+# Logging Configuration
+logging:
+  # Log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+  level: "INFO"
+  
+  # Log file path
+  file: "logs/memory.log"
+  
+  # Maximum log file size (MB)
+  max_size: 100
+  
+  # Number of backup log files
+  backup_count: 5
+
+# Experience Storage Configuration
+storage:
+  # Enable persistence
+  persist: true
+  
+  # Persistence directory
+  persist_dir: "data/memory"
+  
+  # Backup interval (seconds)
+  backup_interval: 3600
+  
+  # Maximum experiences to keep in memory
+  max_in_memory: 10000
+
+# Agent Roles
+agent_roles:
+  - "Code_Verifier"
+  - "Optimizer"
+  - "Evaluator"
+  - "Planner"
+  - "Executor"
+  - "Monitor"
+
+# Outcome Status Categories
+outcome_statuses:
+  - "Success"
+  - "Failure"
+  - "Partial"
+  - "Timeout"
+  - "Error"
+
