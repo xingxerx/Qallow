@@ -17,3 +17,15 @@ opentelemetry-exporter-otlp>=1.25.0
 asyncio
 dataclasses
 uuid
+
+# Kimi-K2 Integration (Local Inference)
+openai>=1.0.0              # OpenAI-compatible API for local inference
+vllm>=0.10.0               # vLLM inference engine (recommended)
+sglang>=0.1.0              # SGLang inference engine (alternative)
+transformers>=4.30.0       # For tokenizers and model loading
+peft>=0.4.0                # Parameter-efficient fine-tuning (optional)
+
+# Chat Server
+fastapi>=0.104.0
+uvicorn>=0.24.0
+pyyaml>=6.0

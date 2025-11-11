@@ -26,6 +26,14 @@ except ImportError:
     OLLAMA_AVAILABLE = False
     logging.warning("Ollama agent not available")
 
+# Try to import Kimi-K2 agent (may not be available)
+try:
+    from python.agents.kimi_k2_agent import KimiK2Agent, KimiK2Config
+    KIMI_K2_AVAILABLE = True
+except ImportError:
+    KIMI_K2_AVAILABLE = False
+    logging.warning("Kimi-K2 agent not available")
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -42,8 +50,9 @@ app = FastAPI(
 
 # --- Agent Initialization ---
 # Backend selection from environment or default to mock
-BACKEND = os.getenv("QALLOW_CHAT_BACKEND", "mock")  # mock, ollama, deepseek
+BACKEND = os.getenv("QALLOW_CHAT_BACKEND", "mock")  # mock, ollama, deepseek, kimi_k2
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama2:70b")
+KIMI_K2_BASE_URL = os.getenv("KIMI_K2_BASE_URL", "http://localhost:8000/v1")
 
 logger.info(f"Initializing chat server with backend: {BACKEND}")
 
@@ -60,6 +69,17 @@ if BACKEND == "ollama" and OLLAMA_AVAILABLE:
         logger.info(f"✓ Ollama agent initialized with model: {OLLAMA_MODEL}")
     except Exception as e:
         logger.error(f"Failed to initialize Ollama agent: {e}")
+        logger.info("Falling back to DeepSeek mock backend")
+
+# Initialize Kimi-K2 agent if available and requested
+kimi_k2_agent: Optional[KimiK2Agent] = None
+if BACKEND == "kimi_k2" and KIMI_K2_AVAILABLE:
+    try:
+        kimi_k2_config = KimiK2Config(base_url=KIMI_K2_BASE_URL)
+        kimi_k2_agent = KimiK2Agent(kimi_k2_config)
+        logger.info(f"✓ Kimi-K2 agent initialized at {KIMI_K2_BASE_URL}")
+    except Exception as e:
+        logger.error(f"Failed to initialize Kimi-K2 agent: {e}")
         logger.info("Falling back to DeepSeek mock backend")
 
 # --- API Models ---
@@ -95,6 +115,7 @@ async def chat_with_agent(request: ChatRequest):
     - mock: Fast mock responses (default)
     - ollama: Local Ollama inference (requires setup)
     - deepseek: DeepSeek API (requires API key)
+    - kimi_k2: Local Kimi-K2 inference (no API key needed)
     """
     logger.info(f"Chat request: '{request.message[:50]}...' (session={request.session_id})")
 
@@ -102,7 +123,13 @@ async def chat_with_agent(request: ChatRequest):
     backend = request.backend or BACKEND
 
     try:
-        if backend == "ollama" and ollama_agent:
+        if backend == "kimi_k2" and kimi_k2_agent:
+            # Use Kimi-K2 agent for local inference
+            system_prompt = "You are Kimi, an AI assistant created by Moonshot AI. Be helpful and concise."
+            reply_text = kimi_k2_agent.chat(request.message, system_prompt=system_prompt)
+            model_used = "Kimi-K2-Instruct"
+
+        elif backend == "ollama" and ollama_agent:
             # Use Ollama agent for more sophisticated responses
             # For now, use a simple prompt wrapper
             system_prompt = "You are Qallow, an AI assistant for quantum computing. Be concise and helpful."
@@ -213,6 +240,67 @@ def read_root():
     }
 
 
+class ToolCallRequest(BaseModel):
+    message: str
+    tools: Optional[list] = Field(None, description="List of tool definitions")
+    session_id: str = "default"
+
+class ToolCallResponse(BaseModel):
+    reply: str
+    session_id: str
+    backend: str
+    model: Optional[str] = None
+    tool_calls_made: int = 0
+
+
+@app.post("/chat/tools", response_model=ToolCallResponse)
+async def chat_with_tools(request: ToolCallRequest):
+    """
+    Chat with tool calling support (Kimi-K2 only)
+
+    Requires:
+    - Kimi-K2 backend enabled
+    - Tool definitions in request
+    """
+    logger.info(f"Tool call request: '{request.message[:50]}...' (session={request.session_id})")
+
+    if not kimi_k2_agent:
+        raise HTTPException(
+            status_code=503,
+            detail="Kimi-K2 agent not available. Set QALLOW_CHAT_BACKEND=kimi_k2"
+        )
+
+    if not request.tools:
+        raise HTTPException(
+            status_code=400,
+            detail="Tools must be provided for tool calling"
+        )
+
+    try:
+        # Simple tool map for demonstration
+        tool_map = {}
+
+        system_prompt = "You are Kimi, an AI assistant created by Moonshot AI. Use tools when appropriate."
+        reply = kimi_k2_agent.chat_with_tools(
+            request.message,
+            tools=request.tools,
+            tool_map=tool_map,
+            system_prompt=system_prompt
+        )
+
+        return ToolCallResponse(
+            reply=reply,
+            session_id=request.session_id,
+            backend="kimi_k2",
+            model="Kimi-K2-Instruct",
+            tool_calls_made=0
+        )
+
+    except Exception as e:
+        logger.error(f"Tool calling error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @app.get("/health")
 def health_check():
     """Health check endpoint"""
@@ -221,7 +309,9 @@ def health_check():
         "backend": BACKEND,
         "ollama_available": OLLAMA_AVAILABLE,
         "ollama_active": ollama_agent is not None,
-        "model": OLLAMA_MODEL if ollama_agent else None
+        "kimi_k2_available": KIMI_K2_AVAILABLE,
+        "kimi_k2_active": kimi_k2_agent is not None,
+        "model": OLLAMA_MODEL if ollama_agent else ("Kimi-K2-Instruct" if kimi_k2_agent else None)
     }
 
 
@@ -230,13 +320,17 @@ if __name__ == "__main__":
     import uvicorn
 
     logger.info("╔════════════════════════════════════════════════════════════╗")
-    logger.info("║  Qallow Agent Chat Server v2.0                            ║")
+    logger.info("║  Qallow Agent Chat Server v2.1 (with Kimi-K2)            ║")
     logger.info("╚════════════════════════════════════════════════════════════╝")
     logger.info(f"Backend:         {BACKEND}")
     logger.info(f"Ollama:          {'✓ Available' if OLLAMA_AVAILABLE else '✗ Not available'}")
     logger.info(f"Ollama Active:   {'✓ Yes' if ollama_agent else '✗ No'}")
+    logger.info(f"Kimi-K2:         {'✓ Available' if KIMI_K2_AVAILABLE else '✗ Not available'}")
+    logger.info(f"Kimi-K2 Active:  {'✓ Yes' if kimi_k2_agent else '✗ No'}")
     if ollama_agent:
-        logger.info(f"Model:           {OLLAMA_MODEL}")
+        logger.info(f"Ollama Model:    {OLLAMA_MODEL}")
+    if kimi_k2_agent:
+        logger.info(f"Kimi-K2 URL:     {KIMI_K2_BASE_URL}")
     logger.info("")
     logger.info("Starting server on http://127.0.0.1:8008")
     logger.info("API docs: http://127.0.0.1:8008/docs")
