@@ -1,0 +1,36 @@
+# Qallow AGI Configuration
+memory:
+  qdrant_url: "http://localhost:6333"
+  collection: "agent_experience_memory"
+  embedding_model: "all-MiniLM-L6-v2"
+
+agents:
+  Roblox_Agent:
+    tools:
+      - roblox_studio
+      - physics_simulator
+      - ui_builder
+    success_threshold: 0.9
+    max_retries: 3
+  
+  Research_Agent:
+    tools:
+      - arxiv_search
+      - paper_analyzer
+    max_papers_per_search: 5
+    min_impact_threshold: 0.05  # 5% improvement minimum
+  
+  SelfAnalysis_Agent:
+    review_schedule: "daily"
+    auto_apply_improvements: true
+    human_approval_required: false
+
+tracing:
+  enabled: true
+  collector_endpoint: "http://localhost:4317"
+  service_name: "qallow-agi"
+
+evaluation:
+  test_suite_path: "./tests/agent_e2e"
+  traceability_score_threshold: 0.85
+  tool_success_threshold: 0.95

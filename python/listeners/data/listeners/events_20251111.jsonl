@@ -1,0 +1,5 @@
+{"event_type": "performance_issue", "timestamp": "2025-11-11T00:41:09.047126", "user_id": "system", "message": "The system is running slowly on large datasets", "metadata": {"dataset_size": "1GB", "processing_time": "45s"}, "priority": 3}
+{"event_type": "feature_request", "timestamp": "2025-11-11T00:41:09.047246", "user_id": "system", "message": "Please add support for GPU acceleration", "metadata": {"feature": "GPU_SUPPORT"}, "priority": 2}
+{"event_type": "error_report", "timestamp": "2025-11-11T00:41:11.066852", "user_id": "system", "message": "Error: CUDA kernel failed with code 1", "metadata": {"error_code": 1, "component": "cuda_backend"}, "priority": 5}
+{"event_type": "telemetry_anomaly", "timestamp": "2025-11-11T00:41:11.066936", "user_id": "monitor", "message": "Detected anomaly in telemetry: CPU usage spike", "metadata": {"anomaly": "cpu_spike", "value": 95}, "priority": 3}
+{"event_type": "configuration_change", "timestamp": "2025-11-11T00:41:11.066967", "user_id": "user1", "message": "set learning_rate = 0.001", "metadata": {"param": "learning_rate", "old_value": 0.01, "new_value": 0.001}, "priority": 2}

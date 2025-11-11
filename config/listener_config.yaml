@@ -1,0 +1,188 @@
+# Qallow User Listener System Configuration
+# Location: config/listener_config.yaml
+# Purpose: Configure the user listener and auto-updater behavior
+
+listener:
+  # Enable/disable the listener system
+  enabled: true
+  
+  # Data directory for storing events and logs
+  data_dir: "data/listeners"
+  
+  # Maximum size of the event queue
+  max_queue_size: 1000
+  
+  # Event processing timeout (seconds)
+  event_timeout: 5
+  
+  # Enable logging
+  logging_enabled: true
+  
+  # Log level: DEBUG, INFO, WARNING, ERROR
+  log_level: "INFO"
+
+updater:
+  # Enable/disable automatic updates
+  enabled: true
+  
+  # Repository root for applying updates
+  repo_root: "."
+  
+  # Minimum priority to trigger automatic updates (1-5)
+  # 1 = low, 5 = critical
+  auto_update_min_priority: 3
+  
+  # Enable dry-run mode (don't actually apply updates)
+  dry_run: false
+  
+  # Backup configuration files before updating
+  backup_before_update: true
+
+strategies:
+  # Configuration update strategy
+  configuration_change:
+    enabled: true
+    pattern: "set\\s+(\\w+)\\s*=\\s*(.+)"
+    action_type: "config_update"
+    target_file: "qallow_config.json"
+    auto_apply: false
+  
+  # Performance tuning strategy
+  performance_issue:
+    enabled: true
+    pattern: "slow|performance|speed|optimize"
+    action_type: "parameter_tune"
+    target_file: "config/weights.json"
+    auto_apply: true
+    tuning_factor: 1.05
+  
+  # Error patch strategy
+  error_report:
+    enabled: true
+    pattern: "error|fail|crash|bug"
+    action_type: "error_patch"
+    target_file: "data/listeners/error_patches.json"
+    auto_apply: true
+
+event_types:
+  # User feedback events
+  user_feedback:
+    enabled: true
+    priority_default: 1
+    auto_process: true
+  
+  # Performance issue events
+  performance_issue:
+    enabled: true
+    priority_default: 3
+    auto_process: true
+  
+  # Error report events
+  error_report:
+    enabled: true
+    priority_default: 5
+    auto_process: true
+  
+  # Feature request events
+  feature_request:
+    enabled: true
+    priority_default: 2
+    auto_process: false
+  
+  # Configuration change events
+  configuration_change:
+    enabled: true
+    priority_default: 2
+    auto_process: false
+  
+  # Telemetry anomaly events
+  telemetry_anomaly:
+    enabled: true
+    priority_default: 4
+    auto_process: true
+  
+  # Manual trigger events
+  manual_trigger:
+    enabled: true
+    priority_default: 3
+    auto_process: true
+
+integration:
+  # Enable integration with Qallow components
+  enabled: true
+  
+  # Integrate with telemetry system
+  telemetry_integration: true
+  
+  # Integrate with memory system
+  memory_integration: true
+  
+  # Integrate with agent system
+  agent_integration: true
+  
+  # Integrate with configuration system
+  config_integration: true
+
+monitoring:
+  # Enable monitoring and metrics
+  enabled: true
+  
+  # Metrics collection interval (seconds)
+  metrics_interval: 60
+  
+  # Store metrics in
+  metrics_file: "data/listeners/metrics.jsonl"
+  
+  # Enable performance profiling
+  profiling_enabled: false
+
+callbacks:
+  # Custom callbacks for event processing
+  # Format: event_type: [list of callback functions]
+  user_feedback: []
+  performance_issue: []
+  error_report: []
+  feature_request: []
+  configuration_change: []
+  telemetry_anomaly: []
+  manual_trigger: []
+
+# Priority levels and their meanings
+priority_levels:
+  1: "Low - Informational"
+  2: "Normal - Standard feedback"
+  3: "Medium - Should be addressed"
+  4: "High - Needs attention"
+  5: "Critical - Immediate action required"
+
+# Audit trail settings
+audit:
+  # Enable audit trail
+  enabled: true
+  
+  # Store audit trail in
+  audit_file: "data/listeners/audit_trail.jsonl"
+  
+  # Include user information in audit trail
+  include_user_info: true
+  
+  # Include metadata in audit trail
+  include_metadata: true
+
+# Retention policies
+retention:
+  # Keep event history for (days)
+  event_history_days: 30
+  
+  # Keep update history for (days)
+  update_history_days: 90
+  
+  # Keep error logs for (days)
+  error_log_days: 180
+  
+  # Archive old logs
+  archive_old_logs: true
+  
+  # Archive directory
+  archive_dir: "data/listeners/archive"
+

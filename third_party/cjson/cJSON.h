@@ -213,6 +213,10 @@ cJSON_API cJSON *cJSON_CreateFloatArray(const float *numbers, int count);
 cJSON_API cJSON *cJSON_CreateDoubleArray(const double *numbers, int count);
 cJSON_API cJSON *cJSON_CreateStringArray(const char *const *strings, int count);
 
+/* Helpers for extracting primitive values without manual type checks. */
+cJSON_API char *cJSON_GetStringValue(const cJSON * const item);
+cJSON_API double cJSON_GetNumberValue(const cJSON * const item);
+
 /* Append item to the specified array/object. */
 cJSON_API void cJSON_AddItemToArray(cJSON *array, cJSON *item);
 cJSON_API void cJSON_AddItemToObject(cJSON *object, const char *string, cJSON *item);

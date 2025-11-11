@@ -1,18 +1,19 @@
-cirq>=1.2.0
-cirq-google>=1.2.0
-sentence-transformers>=3.0
-numpy>=1.26
-pandas>=2.2
-
-# Memory System Dependencies (AGI Agent Blueprint)
+# Core AGI Framework
 qdrant-client>=1.11.0
+sentence-transformers>=2.7.0
+arxiv>=2.1.0
+httpx>=0.27.0
+
+# Agent Orchestration
+langgraph>=0.2.0
 pydantic>=2.0.0
 python-dotenv>=1.0.0
 
-# Optional: OpenTelemetry for tracing
-opentelemetry-api>=1.25.0
+# Tracing & Observability
 opentelemetry-sdk>=1.25.0
-opentelemetry-exporter-otlp>=0.46b0
+opentelemetry-exporter-otlp>=1.25.0
 
-# Optional: LangGraph for advanced orchestration
-langgraph>=0.2.0
+# Utilities
+asyncio
+dataclasses
+uuid

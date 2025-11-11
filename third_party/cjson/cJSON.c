@@ -579,7 +579,7 @@ static cJSON_bool print_number(const cJSON * const item, printbuffer * const p)
 /* Parse the input text into an unescaped cinput, and populate item. */
 static const unsigned char *parse_string(cJSON * const item, parse_buffer * const buffer)
 {
-    const unsigned char * const input_ptr = get_and_check_read_ptr(buffer, 1);
+    const unsigned char *input_ptr = get_and_check_read_ptr(buffer, 1);
     const unsigned char *input_end = get_and_check_read_ptr(buffer, 1);
     unsigned char *output_ptr = NULL;
     unsigned char *output = NULL;
