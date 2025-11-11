@@ -254,6 +254,15 @@ if(QALLOW_ENABLE_CUDA)
     target_compile_definitions(qallow_unified PRIVATE QALLOW_ENABLE_CUDA)
     set_target_properties(qallow_unified PROPERTIES OUTPUT_NAME "qallow_unified_cuda")
 else()
+    add_library(qallow_backend_cuda_fallback STATIC
+        backend/cpu/fallback/photonic_fallback.c
+        backend/cpu/fallback/quantum_fallback.c
+        backend/cpu/fallback/phase16_meta_introspect_fallback.c
+        backend/cpu/fallback/phase14_gain_fallback.c
+    )
+    target_link_libraries(qallow_backend_cuda_fallback PUBLIC qallow_core)
+    target_include_directories(qallow_backend_cuda_fallback PUBLIC ${QALLOW_INCLUDE_DIRS})
+    target_link_libraries(qallow_unified PRIVATE qallow_backend_cuda_fallback)
     set_target_properties(qallow_unified PROPERTIES OUTPUT_NAME "qallow_unified_cpu")
 endif()
 

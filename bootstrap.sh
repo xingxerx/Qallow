@@ -108,9 +108,11 @@ if [ "$NO_PYTHON" = false ]; then
     pip install --upgrade pip setuptools wheel 2>&1 | tail -3
     
     # Install base requirements
+    echo "Installing Python dependencies..."
     if [ -f "requirements.txt" ]; then
-        echo "Installing Python dependencies (requirements.txt)..."
         pip install -r requirements.txt 2>&1 | tail -10
+    else
+        echo "requirements.txt not found, skipping pip install."
     fi
     
     # Install optional dependencies
