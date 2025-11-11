@@ -93,7 +93,6 @@ def main() -> int:
         runner_path = Path(args.runner)
         if not runner_path.exists():
             raise FileNotFoundError(f"Runner not found: {runner_path}")
-        os.environ.setdefault("QALLOW_QISKIT", "1")
         baseline_metrics = read_latest_telemetry(telemetry_path)
         print(f"[demo] Using runner {runner_path}")
 

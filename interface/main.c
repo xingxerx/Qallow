@@ -472,33 +472,9 @@ int qallow_phase14_runner(int argc, char** argv) {
 
     double alpha_used = alpha_base;
     if (tune_qaoa) {
-        const char* py = detect_python_binary();
-        char cmd[256];
-        int written = snprintf(cmd, sizeof(cmd), "\"%s\" qiskit_tuner.py %d %d", py, qaoa_n, qaoa_p);
-        if (written > 0 && written < (int)sizeof(cmd)) {
-            FILE* pp = popen(cmd, "r");
-            if (pp) {
-                char outbuf[4096];
-                size_t rn = fread(outbuf, 1, sizeof(outbuf)-1, pp);
-                outbuf[rn] = '\0';
-                pclose(pp);
-                const char* key = "\"alpha_eff\"";
-                char* p = strstr(outbuf, key);
-                if (p) {
-                    p += strlen(key);
-                    while (*p && (*p == ' ' || *p == '\t' || *p == ':' )) p++;
-                    double parsed = atof(p);
-                    if (parsed > 0.0) {
-                        alpha_used = parsed;
-                        printf("[PHASE14] alpha from QAOA tuner = %.8f\n", alpha_used);
-                    }
-                } else {
-                    fprintf(stderr, "[PHASE14] QAOA tuner did not return alpha_eff; raw: %.*s\n", 200, outbuf);
-                }
-            } else {
-                fprintf(stderr, "[PHASE14] Failed to invoke QAOA tuner via %s\n", py);
-            }
-        }
+        // QAOA tuner support (Cirq-based)
+        // Note: Tuner script not yet implemented; using closed-form alpha
+        printf("[PHASE14] QAOA tuner not available; using closed-form alpha\n");
     }
     if (gain_json_path && *gain_json_path) {
         FILE* jf = fopen(gain_json_path, "rb");

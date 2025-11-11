@@ -150,20 +150,18 @@ impl MatrixState {
 }
 
 pub fn install_matrix_background(wind: &mut window::Window) {
-    let mut frame = frame::Frame::new(0, 0, wind.width(), wind.height(), "");
-    frame.set_frame(FrameType::NoBox);
-    frame.clear_visible_focus();
-
     let state = Rc::new(RefCell::new(MatrixState::new(wind.width(), wind.height())));
 
-    frame.draw({
+    // Set the window's draw callback to render the matrix background
+    wind.draw({
         let state = state.clone();
-        move |f| {
+        move |w| {
             let matrix = state.borrow();
 
-            draw::push_clip(f.x(), f.y(), f.width(), f.height());
+            // Draw black background
             draw::set_draw_color(Color::Black);
-            draw::draw_rectf(f.x(), f.y(), f.width(), f.height());
+            draw::draw_rectf(w.x(), w.y(), w.width(), w.height());
+
             draw::set_font(Font::Courier, FONT_SIZE);
 
             let mut buf = [0u8; 4];
@@ -184,8 +182,8 @@ pub fn install_matrix_background(wind: &mut window::Window) {
 
                     draw::set_draw_color(color);
                     let text = cell.ch.encode_utf8(&mut buf);
-                    let x = f.x() + (col as i32) * FONT_SIZE;
-                    let y = f.y() + ((row + 1) as i32) * FONT_SIZE;
+                    let x = w.x() + (col as i32) * FONT_SIZE;
+                    let y = w.y() + ((row + 1) as i32) * FONT_SIZE;
                     draw::draw_text2(
                         text,
                         x,
@@ -196,36 +194,32 @@ pub fn install_matrix_background(wind: &mut window::Window) {
                     );
                 }
             }
-
-            draw::pop_clip();
         }
     });
 
-    frame.handle(|_, _| false);
-    wind.add(&frame);
-
+    // Handle window resize
     {
         let state = state.clone();
-        let mut frame_clone = frame.clone();
+        let mut wind_clone = wind.clone();
         wind.resize_callback(move |_, _, _, w, h| {
-            frame_clone.resize(0, 0, w, h);
             {
                 let mut matrix = state.borrow_mut();
                 matrix.resize(w, h);
             }
-            frame_clone.redraw();
+            wind_clone.redraw();
         });
     }
 
+    // Animate the matrix background
     {
         let state = state.clone();
-        let mut frame_clone = frame.clone();
+        let mut wind_clone = wind.clone();
         app::add_timeout3(0.033, move |handle| {
             {
                 let mut matrix = state.borrow_mut();
                 matrix.tick();
             }
-            frame_clone.redraw();
+            wind_clone.redraw();
             app::repeat_timeout3(0.033, handle);
         });
     }

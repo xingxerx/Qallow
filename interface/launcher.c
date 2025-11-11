@@ -1249,9 +1249,6 @@ run_parse_done:
             integrate_phase13 = true;
             integrate_phase14 = true;
             integrate_phase15 = true;
-            if (qallow_env_truthy_flag(getenv("QALLOW_QISKIT"))) {
-                integrate_phase11 = true;
-            }
         }
 
         if (integrate_phase11) {
@@ -1802,7 +1799,7 @@ static void qallow_print_run_help(void) {
     printf("  --dashboard=<N|off> Control dashboard frequency (ticks) or disable output\n");
     printf("  --integrate [list]  Run sequential phases (defaults: 12-15, ticks=120/120, lattice=64)\n");
     printf("                      Overrides: --integrate-phase12-ticks=NN --integrate-phase13-k=VAL --integrate-ticks=NN\n");
-    printf("                      Add phase11 via `--integrate phase11` (requires QALLOW_QISKIT=1 for the bridge)\n");
+    printf("                      Add phase11 via `--integrate phase11` (uses Cirq quantum simulator)\n");
     printf("                      Additional flags: --no-split --integrate-no-summary --integrate-phase11-hardware\n");
     printf("  --self-audit        Enable phase16 meta-introspect logging\n");
     printf("  --self-audit-path <DIR> Override auditor log directory (implies --self-audit)\n");

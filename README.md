@@ -136,7 +136,7 @@ Qallow/
 │   └── include/                # Core data structures and interfaces
 │
 ├── python/                     # Python integrations
-│   ├── quantum/                # Quantum bridges (Qiskit, Phase 11)
+│   ├── quantum/                # Quantum bridges (Cirq, Phase 11)
 │   ├── analytics/              # Telemetry parsing and dashboards
 │   └── [scripts]               # Utility scripts
 │
@@ -144,7 +144,7 @@ Qallow/
 │   ├── reorganize.sh           # Codebase organization (Feature 001)
 │   ├── validate.sh             # Post-reorganization validation
 │   ├── build_all.sh            # Build orchestrator
-│   ├── run_phase11.py          # Phase 11 Qiskit bridge
+│   ├── run_phase11.py          # Phase 11 Cirq bridge
 │   └── [utilities]             # CI/CD, testing, helpers
 │
 ├── docs/                       # Documentation and reports
@@ -232,7 +232,7 @@ python examples/quantum_adaptive_demo.py --episodes 5 --simulate
 | Example | Purpose | Command |
 |---------|---------|---------|
 | Phase 7 harmonic governance | Inspect baseline photonic control loop | `./build/phase07_demo --ticks=100` |
-| Phase 11 hardware bridge | Validate coherence bridge with Qiskit | `./build/qallow run --phase=11 --ticks=64 --states=-1,0,1` |
+| Phase 11 coherence bridge | Validate coherence bridge with Cirq | `./build/qallow run --phase=11 --ticks=64 --states=-1,0,1` |
 | Throughput benchmark | Profile CPU/CUDA runtime | `cmake --build build --target qallow_throughput_bench && ./build/qallow_throughput_bench` |
 | Quantum adaptive demo | Run hybrid adaptive policy search | `python examples/quantum_adaptive_demo.py --episodes 5 --simulate` |
 | Unified AGI pipeline | Execute end-to-end integration | `./scripts/run_unified_agi.sh` |
@@ -377,7 +377,7 @@ The quantum adaptive loop demonstrates end-to-end integration:
 
 ```bash
 # Install dependencies
-pip install qiskit qiskit-aer
+pip install cirq cirq-web
 
 # Simulation-only run
 python examples/quantum_adaptive_demo.py --episodes 5 --simulate
@@ -389,7 +389,7 @@ python examples/quantum_adaptive_demo.py --runner ./build/qallow_unified --episo
 The script:
 1. Instantiates `QuantumAdaptiveAgent` (see `python/quantum/adaptive_agent.py`)
 2. Feeds telemetry into a two-qubit policy circuit
-3. Launches phases 14–16 based on Qiskit measurement outcomes
+3. Launches phases 14–16 based on Cirq measurement outcomes
 4. Updates circuit parameters using reward deltas from refreshed telemetry
 
 ## 📊 Phase Overview
@@ -504,7 +504,7 @@ Notes:
 
 ### Quantum Integration
 
-✅ **Hybrid quantum bridge** – export `QALLOW_QISKIT=1` (and optionally `QALLOW_QISKIT_BACKEND`) to feed Phase 11 topology samples through `scripts/qiskit_bridge.py`, which in turn invokes Qiskit (IBM Runtime or Aer) before reintegrating the coherence metric into the overlay loop.
+✅ **Hybrid quantum bridge** – Phase 11 uses Google Cirq for quantum circuit simulation. Use `--integrate phase11` to include it in the unified pipeline, or run directly with `python python/quantum/cirq_phase11.py --simulator=ideal --ticks=64`.
 
 ✅ **Phase 14/15 seeding** – `run_phase14_16.sh` now primes the Rust `qallow_quantum` pipeline; generated metrics land in `data/quantum/phase14_metrics.json` and `data/quantum/phase15_metrics.json`, which are auto-consumed by the C runtime via `QALLOW_PHASE14_METRICS` / `QALLOW_PHASE15_METRICS`.
 
@@ -557,17 +557,18 @@ python scripts/train_small_model.py
 ### Hybrid Execution
 
 ```bash
-# Run with CUDA + Qiskit
+# Run with CUDA + Cirq quantum bridge
 ./scripts/build_wrapper.sh CUDA
-./scripts/run_auto.sh --cuda --with-qiskit
+./scripts/run_auto.sh --cuda --integrate phase11
 
 # One-shot rebuild + run
-./scripts/run_latest.sh --cuda --with-qiskit
+./scripts/run_latest.sh --cuda --integrate phase11
 ```
 
-**Bridge Options:**
-- `--qiskit-backend` – specify Qiskit backend
-- `--qiskit-bridge` – custom bridge configuration
+**Phase 11 Options:**
+- `--integrate-phase11-ticks=N` – override Phase 11 tick count
+- `--integrate-phase11-states=S` – specify ternary states (e.g., "-1,0,1")
+- `--integrate-phase11-hardware` – attempt hardware execution (requires Google Cloud credentials)
 
 ## Quantum ML Integration
 
@@ -607,7 +608,7 @@ To exercise the quantum workloads and the unified runtime in one go:
 
 ```bash
 # Install dependencies
-pip install qiskit-aer qiskit-machine-learning scikit-learn
+pip install cirq cirq-web scikit-learn
 
 # Run unified pipeline
 ./scripts/run_unified_agi.sh

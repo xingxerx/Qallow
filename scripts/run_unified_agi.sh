@@ -4,7 +4,7 @@
 # This orchestrates the major quantum + classical steps we prepared:
 #   1. QSVM Iris workload (GPU by default, falls back to CPU; use --skip-qsvm to disable)
 #   2. IBM Quantum Bell-state workload (records job ID; use --skip-ibm to disable)
-#   3. Qallow unified binary (with Qiskit bridge enabled by default)
+#   3. Qallow unified binary (with Cirq bridge enabled by default)
 #
 # Usage:
 #   ./scripts/run_unified_agi.sh [options]
@@ -124,13 +124,12 @@ except Exception:
     sys.exit(1)
 PY
   then
-    die "Python module '${module}' not installed in ./venv. Install dependencies via: pip install qiskit-aer qiskit-machine-learning scikit-learn"
+    die "Python module '${module}' not installed in ./venv. Install dependencies via: pip install cirq cirq-web scikit-learn"
   fi
 }
 
 if (( ! DRY_RUN )); then
-  check_python_module "qiskit_aer"
-  check_python_module "qiskit_machine_learning"
+  check_python_module "cirq"
   check_python_module "sklearn"
 fi
 
@@ -189,9 +188,9 @@ separator
 
 if (( RUN_QALLOW )); then
   info "Step 3/3: Launching Qallow unified runtime"
-  QALLOW_CMD=("${SCRIPT_DIR}/run_auto.sh" "--with-qiskit")
+  QALLOW_CMD=("${SCRIPT_DIR}/run_auto.sh" "--integrate" "phase11")
   if [[ -n "${BACKEND}" ]]; then
-    QALLOW_CMD+=("--qiskit-backend=${BACKEND}")
+    QALLOW_CMD+=("--integrate-phase11-simulator=${BACKEND}")
   fi
   if [[ ${#QALLOW_EXTRA_ARGS[@]} -gt 0 ]]; then
     QALLOW_CMD+=("${QALLOW_EXTRA_ARGS[@]}")

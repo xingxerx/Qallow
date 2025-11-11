@@ -1,6 +1,6 @@
 use crate::button_handlers::ButtonHandler;
 use crate::ui::{
-    audit_log, control_panel, dashboard, dungeons, help, metrics, settings, terminal,
+    audit_log, control_panel, dashboard, dungeons, help, matrix_bg, metrics, settings, terminal,
 };
 use fltk::{prelude::*, *};
 use std::sync::Arc;
@@ -24,11 +24,16 @@ impl MainWindow {
         wind.set_color(enums::Color::from_hex(0x0a0e27));
         wind.begin();
 
+        // Install matrix background animation
+        matrix_bg::install_matrix_background(&mut wind);
+
         let mut root_flex = group::Flex::default_fill().column();
-        root_flex.set_margin(5);
+        root_flex.set_margin(8);
+        root_flex.set_spacing(5);
 
         let mut main_flex = group::Flex::default().row();
         main_flex.set_margin(5);
+        main_flex.set_spacing(5);
 
         let mut tabs = group::Tabs::default();
         tabs.set_tab_align(enums::Align::Left);
@@ -63,11 +68,16 @@ impl MainWindow {
 
         let chat_panel = super::chat_panel::ChatPanel::new();
         root_flex.add(&chat_panel.pack);
-        root_flex.fixed(&chat_panel.pack, 150);
+        root_flex.fixed(&chat_panel.pack, 200);
 
         root_flex.end();
         wind.end();
         wind.make_resizable(true);
+        wind.set_callback(|_| {
+            if app::event() == enums::Event::Close {
+                app::quit();
+            }
+        });
 
         Self {
             wind,

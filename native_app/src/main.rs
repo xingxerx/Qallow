@@ -37,7 +37,6 @@ use std::env;
 use std::io;
 use std::path::Path;
 use std::process::{Command, Stdio};
-use std::time::{Duration, Instant};
 
 #[cfg(unix)]
 use std::os::unix::net::UnixStream;
@@ -176,10 +175,14 @@ fn main() {
         }
     });
 
-    // --- Main Application Loop ---
+        // --- Main Application Loop ---
     let mut main_win_clone = main_win.clone();
     let logger_clone = logger.clone();
-    app::add_idle3(move |_| {
+
+    // Use the standard FLTK event loop.
+    // `app.wait()` will block here until the window is closed.
+    while app.wait() {
+        // Handle messages from background threads
         if let Some(msg) = receiver.recv() {
             match msg {
                 UiMessage::BuildDone(res) => {
@@ -229,6 +232,7 @@ fn main() {
             }
         }
 
+        // Update UI elements that need periodic refresh
         if let Ok(mut state_guard) = state.lock() {
             state_guard.update_uptime();
             let uptime = state_guard.metrics.uptime_seconds;
@@ -236,20 +240,23 @@ fn main() {
             main_win_clone.dashboard_panel.uptime_value.set_label(&uptime_str);
         }
 
+        // Check for global shutdown signal
         if shutdown::SHUTDOWN_FLAG.load(std::sync::atomic::Ordering::SeqCst) {
             let _ = logger_clone.info("⚠ Shutdown signal received, saving state...");
             if let Ok(state_guard) = state.lock() {
-                let _ = shutdown_mgr.save_state(&state_guard);
+                 if let Err(e) = shutdown_mgr.save_state(&state_guard) {
+                    let _ = logger_clone.error(&format!("Failed to save state: {}", e));
+                }
             }
             let _ = shutdown_mgr.cleanup();
-            app::quit();
+            app.quit();
         }
-        app::sleep(0.1);
-        app::awake();
-    });
-    app.run().unwrap();
+    }
 
     let _ = logger.info("✓ Application exiting gracefully");
+
+    // Explicitly drop the runtime to wait for background tasks.
+    drop(rt);
 }
 
 // This function is kept as a placeholder for future CLI implementation.
