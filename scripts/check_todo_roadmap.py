@@ -21,7 +21,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_ROADMAP = REPO_ROOT / "docs" / "TODO_ROADMAP.md"
 MARKER_PATTERN = re.compile(r"\b(TODO|FIXME|XXX|HACK)\b")
 INCLUDE_SUFFIXES = {".c", ".h", ".py"}
-EXCLUDE_DIRS = {"venv", ".git", "build", "__pycache__", ".mypy_cache"}
+EXCLUDE_DIRS = {"venv", ".venv", ".git", "build", "__pycache__", ".mypy_cache", "target", "node_modules"}
 EXCLUDE_FILES = {"scripts/check_todo_roadmap.py"}
 
 

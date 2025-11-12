@@ -84,6 +84,20 @@
   - Profile before/after allocation patterns
 - **Owners:** Performance team
 
+#### 5a. **O(n^2) Runtime in cJSON Object Comparison**
+- **File:** `third_party/cjson/cJSON.c` (Line 2705)
+- **Issue:** Object comparison has O(n^2) runtime complexity
+- **Impact:** Performance degradation with large JSON objects
+- **Effort:** 2-4 hours
+- **Status:** ⏳ High priority
+- **Details:**
+  - Location: `cJSON_Compare` function performs nested lookups
+  - Current approach: Linear search for each element (O(n) per element)
+  - Suggested fix: Use hash maps or indexed lookup for O(n) total time
+  - Alternative: Cache object keys or use sorted comparison
+  - Test with large JSON objects (1000+ keys)
+- **Owners:** Performance team
+
 #### 6. **Unit Test Expansion**
 - **Current:** 6 tests (ethics, DL, CUDA, gray code, kernels, alg_ccc)
 - **Gap:** Missing tests for quantum algorithms, CLI, integration flows
@@ -198,10 +212,10 @@
 | Category | Count | Est. Hours | Priority |
 |----------|-------|-----------|----------|
 | Critical | 3 | 20-34 | 🔴 |
-| High | 3 | 14-22 | 🟡 |
+| High | 4 | 16-26 | 🟡 |
 | Medium | 5 | 24-38 | 🟢 |
 | Low | 2 | 8-11 | 💬 |
-| **Total** | **13** | **66-105** | — |
+| **Total** | **14** | **68-109** | — |
 
 ---
 

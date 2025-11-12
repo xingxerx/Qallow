@@ -10,18 +10,18 @@
 #   ./scripts/run_unified_agi.sh [options]
 #
 # Options:
-#   --skip-qsvm            Skip the QSVM Iris classifier step
-#   --skip-ibm             Skip the IBM Quantum workload submission
-#   --skip-qallow          Skip launching the qallow unified runtime
-#   --channel=CHANNEL      IBM Quantum channel (default: ibm_cloud)
-#   --backend=NAME         IBM Quantum backend (passes to workloads)
-#   --shots=N              Shots for runtime workloads (default: 4000)
-#   --resilience=LEVEL     Resilience level for runtime workloads (default: 1)
-#   --qallow-args="..."    Extra args passed to run_auto.sh
-#   --dry-run              Print the commands without executing them
+# --skip-qsvm            Skip the QSVM Iris classifier step
+# --skip-ibm             Skip the IBM Quantum workload submission
+# --skip-qallow          Skip launching the qallow unified runtime
+# --channel=CHANNEL      IBM Quantum channel (default: ibm_cloud)
+# --backend=NAME         IBM Quantum backend (passes to workloads)
+# --shots=N              Shots for runtime workloads (default: 4000)
+# --resilience=LEVEL     Resilience level for runtime workloads (default: 1)
+# --qallow-args="..."    Extra args passed to run_auto.sh
+# --dry-run              Print the commands without executing them
 #
 # Prerequisites:
-#   - Python virtual environment in ./venv (used for the Python workloads)
+#   - Python virtual environment in ./.venv (used for the Python workloads)
 #   - Qallow binaries built (CPU or CUDA) so run_auto.sh can locate them
 #   - IBM Quantum credentials stored via scripts/ibm_quantum_workload.py or .env
 
@@ -29,10 +29,10 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(dirname "${SCRIPT_DIR}")"
-VENV_BIN="${ROOT_DIR}/venv/bin"
+VENV_BIN="${ROOT_DIR}/.venv/bin"
 
-RUN_QSVM=1
-RUN_IBM=1
+RUN_QSVM=0
+RUN_IBM=0
 RUN_QALLOW=1
 CHANNEL="ibm_cloud"
 BACKEND=""
@@ -50,13 +50,14 @@ info() {
   echo "[INFO] $*"
 }
 
+# Simple CLI parsing
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --skip-qsvm)
-      RUN_QSVM=0
+    --run-qsvm)
+      RUN_QSVM=1
       ;;
-    --skip-ibm)
-      RUN_IBM=0
+    --run-ibm)
+      RUN_IBM=1
       ;;
     --skip-qallow)
       RUN_QALLOW=0
@@ -129,8 +130,12 @@ PY
 }
 
 if (( ! DRY_RUN )); then
-  check_python_module "cirq"
-  check_python_module "sklearn"
+  if (( RUN_QSVM )); then
+    check_python_module "sklearn"
+  fi
+  if (( RUN_IBM || RUN_QSVM )); then
+    check_python_module "cirq"
+  fi
 fi
 
 run_cmd() {
