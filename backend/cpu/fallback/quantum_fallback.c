@@ -1,7 +1,7 @@
 // Fallback for backend/cuda/quantum.cu
-#include "qallow/runtime.h"
+#include "qallow/logging.h"
 
-void quantum_simulation_fallback(qallow_state_t* state) {
+void quantum_simulation_fallback(void) {
     // CPU implementation or empty stub
-    qallow_log(state, LOG_LEVEL_WARN, "CUDA not available. Quantum simulation running in fallback mode.");
+    qallow_log_warn("quantum_fallback", "CUDA not available. Quantum simulation running in fallback mode.");
 }
