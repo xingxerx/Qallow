@@ -2,6 +2,8 @@
 
 <div align="center">
 
+![Qallow Docker Logo](.devcontainer/qallow-docker-logo.png)
+
 **Experimental Quantum-Photonic Computing Platform**
 
 [![Build](https://github.com/xingxerx/Qallow/actions/workflows/internal-ci.yml/badge.svg)](https://github.com/xingxerx/Qallow/actions/workflows/internal-ci.yml)

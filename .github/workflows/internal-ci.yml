@@ -74,6 +74,13 @@ jobs:
             echo "WARNING: Less than 5GB available"
           fi
 
+      - name: Ensure minimum disk space
+        run: |
+          source scripts/disk_space_recovery.sh
+          print_disk_status || true
+          ensure_disk_space
+          echo "Disk space guard completed."
+
       - name: Install system dependencies
         run: |
           sudo apt-get update
@@ -131,16 +138,17 @@ jobs:
         run: |
           set -eux
 
+          source scripts/disk_space_recovery.sh
+
           # Function to check and free disk space
           check_disk_space() {
-            AVAILABLE=$(df / | awk 'NR==2 {print $4}')
-            echo "Available disk space: ${AVAILABLE}KB"
-            if [ "$AVAILABLE" -lt 2097152 ]; then
-              echo "WARNING: Less than 2GB available, attempting cleanup..."
-              rm -rf ~/.ccache || true
-              rm -rf /tmp/* || true
-              docker system prune -af || true
+            print_disk_status || true
+            if ! ensure_disk_space; then
+              echo "ERROR: Unable to reclaim sufficient disk space"
+              df -h
+              exit 1
             fi
+            df -h /
           }
 
           # Clean previous configure cache (if any)
@@ -297,6 +305,13 @@ jobs:
           echo "=== Final disk usage ==="
           df -h
 
+      - name: Ensure minimum disk space
+        run: |
+          source scripts/disk_space_recovery.sh
+          print_disk_status || true
+          ensure_disk_space
+          echo "Disk space guard completed."
+
       - name: Install system dependencies
         run: |
           sudo apt-get update
@@ -340,16 +355,17 @@ jobs:
         run: |
           set -eux
 
+          source scripts/disk_space_recovery.sh
+
           # Function to check and free disk space
           check_disk_space() {
-            AVAILABLE=$(df / | awk 'NR==2 {print $4}')
-            echo "Available disk space: ${AVAILABLE}KB"
-            if [ "$AVAILABLE" -lt 2097152 ]; then
-              echo "WARNING: Less than 2GB available, attempting cleanup..."
-              rm -rf ~/.ccache || true
-              rm -rf /tmp/* || true
-              docker system prune -af || true
+            print_disk_status || true
+            if ! ensure_disk_space; then
+              echo "ERROR: Unable to reclaim sufficient disk space"
+              df -h
+              exit 1
             fi
+            df -h /
           }
 
           # Clean previous configure cache

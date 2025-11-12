@@ -1,9 +1,6 @@
 {
   "name": "qallow-dev",
-  "build": {
-    "dockerfile": "Dockerfile",
-    "context": ".."
-  },
+  "image": "qallow-dev:latest",
   "runArgs": [
     "--gpus=all"
   ],
