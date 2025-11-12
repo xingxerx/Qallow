@@ -2,7 +2,7 @@
   "name": "qallow-dev",
   "build": {
     "dockerfile": "Dockerfile",
-    "context": "."
+    "context": ".."
   },
   "runArgs": [
     "--gpus=all"

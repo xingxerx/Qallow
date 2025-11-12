@@ -35,5 +35,6 @@ ENV PATH="/opt/venv/bin:${PATH}"
 WORKDIR /workspaces/Qallow
 
 # Pre-install Python dependencies into the venv so the container is ready immediately.
+# Build context is now parent directory, so requirements.txt is accessible
 COPY requirements.txt ./
 RUN pip install -r requirements.txt || true
