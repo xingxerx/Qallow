@@ -244,6 +244,18 @@ if(QALLOW_ENABLE_CUDA)
     target_compile_definitions(qallow PRIVATE QALLOW_ENABLE_CUDA)
 endif()
 
+# Test executable for recursive thinking
+add_executable(test_recursive_thinking test_recursive_thinking.c)
+target_link_libraries(test_recursive_thinking
+    PRIVATE
+        qallow_interface_base
+        qallow_algorithms
+        qallow_runtime
+        m
+        pthread
+)
+
+
 # Unified runner executable
 add_executable(qallow_unified ${QALLOW_INTERFACE_SOURCES})
 set_source_files_properties(${QALLOW_INTERFACE_SOURCES} PROPERTIES LANGUAGE C)

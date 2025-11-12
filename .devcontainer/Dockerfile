@@ -21,9 +21,19 @@ RUN apt-get update && \
         libffi-dev && \
     rm -rf /var/lib/apt/lists/*
 
+# Allow pip to install even in externally managed environments (PEP 668)
+ENV PIP_BREAK_SYSTEM_PACKAGES=1
+
+# Create and activate a virtual environment for all Python tooling
+RUN python3 -m venv /opt/venv \
+ && /opt/venv/bin/pip install --upgrade pip
+
+# Ensure venv is the default Python/pip on PATH
+ENV VIRTUAL_ENV=/opt/venv
+ENV PATH="/opt/venv/bin:${PATH}"
+
 WORKDIR /workspaces/Qallow
 
-# Pre-install Python dependencies so the container is ready immediately.
-COPY requirements.txt .
-RUN python3 -m pip install --upgrade pip && \
-    python3 -m pip install -r requirements.txt
+# Pre-install Python dependencies into the venv so the container is ready immediately.
+COPY requirements.txt ./
+RUN pip install -r requirements.txt || true

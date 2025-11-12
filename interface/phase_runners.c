@@ -20,60 +20,43 @@
 /* Forward declarations for external phase binaries */
 static int execute_phase_binary(int phase_num, int argc, char** argv);
 
-/* Phase 11: Coherence Bridge */
-int qallow_phase11_runner(int argc, char** argv) {
-    qallow_log_info("PHASE11", "Coherence bridge runner");
-    printf("[PHASE11] Coherence bridge execution\n");
-    return 0;
-}
+/* Note: Phase 11, 14-15 runners are implemented in interface/main.c */
 
 /* Phase 12: Elasticity Simulation */
 int qallow_phase12_runner(int argc, char** argv) {
-    int ticks = 500;
-    const char* audit_tag = "phase12";
-    
-    // Parse command-line args if provided
-    for (int i = 2; i < argc; ++i) {
-        if (strncmp(argv[i], "--ticks=", 8) == 0) {
-            ticks = atoi(argv[i] + 8);
+    qallow_log_info("BENCHMARK", "Calling real: qallow_phase12_runner");
+    const char* audit_tag = "benchmark_p12";
+    int ticks = 1000;
+
+    for (int i = 1; i < argc; ++i) {
+        if (strcmp(argv[i], "--audit-tag") == 0 && i + 1 < argc) {
+            audit_tag = argv[++i];
+        } else if (strcmp(argv[i], "--ticks") == 0 && i + 1 < argc) {
+            ticks = atoi(argv[++i]);
         }
     }
-    
-    qallow_log_info("BENCHMARK", "Calling real: qallow_phase12_runner");
+
     return run_phase12_elasticity(audit_tag, NULL, ticks, 0.1f);
 }
 
 /* Phase 13: Harmonic Propagation */
 int qallow_phase13_runner(int argc, char** argv) {
-    int ticks = 500;
-    int num_nodes = 256;
-    const char* audit_tag = "phase13";
-    
-    // Parse command-line args if provided
-    for (int i = 2; i < argc; ++i) {
-        if (strncmp(argv[i], "--ticks=", 8) == 0) {
-            ticks = atoi(argv[i] + 8);
-        } else if (strncmp(argv[i], "--nodes=", 8) == 0) {
-            num_nodes = atoi(argv[i] + 8);
+    qallow_log_info("BENCHMARK", "Calling real: qallow_phase13_runner");
+    const char* audit_tag = "benchmark_p13";
+    int ticks = 2000;
+    int pockets = 128;
+
+    for (int i = 1; i < argc; ++i) {
+        if (strcmp(argv[i], "--audit-tag") == 0 && i + 1 < argc) {
+            audit_tag = argv[++i];
+        } else if (strcmp(argv[i], "--ticks") == 0 && i + 1 < argc) {
+            ticks = atoi(argv[++i]);
+        } else if (strcmp(argv[i], "--pockets") == 0 && i + 1 < argc) {
+            pockets = atoi(argv[++i]);
         }
     }
-    
-    qallow_log_info("BENCHMARK", "Calling real: qallow_phase13_runner");
-    return run_phase13_harmonic(audit_tag, NULL, num_nodes, ticks, 0.5f);
-}
 
-/* Phase 14: Coherence-Lattice Integration */
-int qallow_phase14_runner(int argc, char** argv) {
-    qallow_log_info("PHASE14", "Coherence-lattice integration");
-    printf("[PHASE14] Coherence-lattice integration execution\n");
-    return 0;
-}
-
-/* Phase 15: Convergence & Lock-in */
-int qallow_phase15_runner(int argc, char** argv) {
-    qallow_log_info("PHASE15", "Convergence and lock-in");
-    printf("[PHASE15] Convergence and lock-in execution\n");
-    return 0;
+    return run_phase13_harmonic(audit_tag, NULL, pockets, ticks, 0.5f);
 }
 
 /* Helper function to execute external phase binaries */
