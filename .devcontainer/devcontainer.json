@@ -1,0 +1,30 @@
+{
+  "name": "qallow-dev",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "runArgs": [
+    "--gpus=all"
+  ],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.cpptools",
+        "ms-vscode.cmake-tools",
+        "ms-python.python",
+        "ms-azuretools.vscode-docker",
+        "streetsidesoftware.code-spell-checker"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/bin/python3",
+        "cmake.configureOnOpen": false,
+        "files.associations": {
+          "CMakeLists.txt": "cmake",
+          "*.cmake": "cmake"
+        }
+      }
+    }
+  },
+  "postCreateCommand": "python3 -m pip install -r requirements.txt"
+}
