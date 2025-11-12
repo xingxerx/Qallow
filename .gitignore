@@ -72,6 +72,7 @@ __pycache__/
 *.pyc
 *.pyo
 venv/
+.venv/
 
 # Node.js / Electron
 node_modules/

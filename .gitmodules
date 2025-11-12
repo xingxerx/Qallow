@@ -7,3 +7,6 @@
 [submodule "third_party/cuda-quantum"]
     path = third_party/cuda-quantum
     url = https://github.com/NVIDIA/cuda-quantum.git
+[submodule "third_party/vllm-recipes"]
+	path = third_party/vllm-recipes
+	url = https://github.com/vllm-project/recipes
