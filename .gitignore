@@ -73,6 +73,7 @@ __pycache__/
 *.pyo
 venv/
 .venv/
+.venv/
 
 # Node.js / Electron
 node_modules/
@@ -84,6 +85,9 @@ app/build/
 # Rust build artifacts
 native_app/target/
 Cargo.lock
+
+# Third-party dependencies
+third_party/vllm-recipes/
 
 # Large files
 *.exe
