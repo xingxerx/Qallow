@@ -25,6 +25,13 @@ extern ql_status mod_conflict_resolution(ql_state *S);
 extern ql_status mod_fairness_monitor(ql_state *S);
 extern ql_status mod_multi_objective_opt(ql_state *S);
 extern ql_status mod_safety_projection(ql_state *S);
+// Recursive thinking modules
+extern ql_status mod_store_thinking_output(ql_state *S);
+extern ql_status mod_load_thinking_input(ql_state *S);
+extern ql_status mod_extract_strategy_patterns(ql_state *S);
+extern ql_status mod_generate_updated_strategy(ql_state *S);
+extern ql_status mod_recursive_thinking_cycle(ql_state *S);
+extern ql_status mod_export_thinking_metrics(ql_state *S);
 
 
 static ql_status mod_model(ql_state *S){
@@ -131,6 +138,12 @@ static const ql_module MODS[] = {
   {"fairness",        mod_fairness_monitor},
   {"multi_opt",       mod_multi_objective_opt},
   {"safety_proj",     mod_safety_projection},
+  {"rec_think_cycle", mod_recursive_thinking_cycle},
+  {"store_thinking",  mod_store_thinking_output},
+  {"load_thinking",   mod_load_thinking_input},
+  {"extract_patterns",mod_extract_strategy_patterns},
+  {"gen_strategy",    mod_generate_updated_strategy},
+  {"think_metrics",   mod_export_thinking_metrics},
 };
 
 const ql_module *ql_get_mind_modules(size_t *count){

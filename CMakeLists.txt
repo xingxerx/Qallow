@@ -193,6 +193,7 @@ endif()
 set(QALLOW_INTERFACE_SOURCES
     interface/main.c
     interface/launcher.c
+    interface/phase_runners.c
     src/mind/registry.c
     src/mind/attention.c
     src/mind/memory.c
@@ -212,6 +213,7 @@ set(QALLOW_INTERFACE_BASE_SOURCES
     src/mind/memory.c
     src/mind/quantum_bridge.c
     src/mind/optimizer.c
+    src/mind/recursive_thinking.c
     src/distributed/federated_learn.c
     src/ethics/multi_stakeholder.c
     src/runtime/telemetry_outputs.c

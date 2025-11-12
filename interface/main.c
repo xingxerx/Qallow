@@ -264,13 +264,16 @@ static int qallow_vm_run_hardware(void) {
     return rc;
 }
 
-
-void qallow_phase12_runner(int ticks, int num_nodes, const char* audit_tag) {
-    // Implementation for phase 12 runner
+int qallow_phase12_runner(int argc, char** argv) {
+    // Phase 12: Elasticity runner - delegates to core implementation
+    fprintf(stderr, "[PHASE12] Not yet implemented\n");
+    return 1;
 }
 
-void qallow_phase13_runner(int ticks, int num_nodes, const char* audit_tag) {
-    // Implementation for phase 13 runner
+int qallow_phase13_runner(int argc, char** argv) {
+    // Phase 13: Listener systems runner
+    fprintf(stderr, "[PHASE13] Not yet implemented\n");
+    return 1;
 }
 
 int qallow_phase14_runner(int argc, char** argv) {
