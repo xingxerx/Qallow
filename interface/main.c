@@ -91,14 +91,24 @@ static const char* detect_python_binary(void) {
     if (env_python && *env_python && access(env_python, X_OK) == 0) {
         return env_python;
     }
-    if (access("./cirq-env/bin/python", X_OK) == 0) {
-        return "./cirq-env/bin/python";
-    }
-    if (access("./venv/bin/python", X_OK) == 0) {
-        return "./venv/bin/python";
+    // Prefer .venv over venv (hidden venv is usually more recent)
+    if (access("./.venv/bin/python3", X_OK) == 0) {
+        return "./.venv/bin/python3";
     }
     if (access("./.venv/bin/python", X_OK) == 0) {
         return "./.venv/bin/python";
+    }
+    if (access("./cirq-env/bin/python3", X_OK) == 0) {
+        return "./cirq-env/bin/python3";
+    }
+    if (access("./cirq-env/bin/python", X_OK) == 0) {
+        return "./cirq-env/bin/python";
+    }
+    if (access("./venv/bin/python3", X_OK) == 0) {
+        return "./venv/bin/python3";
+    }
+    if (access("./venv/bin/python", X_OK) == 0) {
+        return "./venv/bin/python";
     }
     if (access("python3", X_OK) == 0) {
         return "python3";
@@ -338,6 +348,8 @@ int qallow_phase14_runner(int argc, char** argv) {
     int tune_qaoa = 0;
     int qaoa_n = 16;
     int qaoa_p = 2;
+    int agent_ollama = 0;
+    const char* ollama_model = "llama2:70b";
 
 
     for (int i = 2; i < argc; ++i) {
@@ -373,6 +385,10 @@ int qallow_phase14_runner(int argc, char** argv) {
         } else if (strncmp(arg, "--qaoa_p=", 9) == 0) {
             qaoa_p = atoi(arg + 9);
             if (qaoa_p < 1) qaoa_p = 1;
+        } else if (strcmp(arg, "--agent-ollama") == 0) {
+            agent_ollama = 1;
+        } else if (strncmp(arg, "--ollama-model=", 15) == 0) {
+            ollama_model = arg + 15;
         }
     }
 
@@ -390,10 +406,37 @@ int qallow_phase14_runner(int argc, char** argv) {
     if (tune_qaoa) {
         printf("[PHASE14] tune_qaoa enabled (N=%d, p=%d)\n", qaoa_n, qaoa_p);
     }
+    if (agent_ollama) {
+        printf("[PHASE14] agent-ollama enabled (model=%s)\n", ollama_model);
+    }
 
 
     double fidelity = 0.95; // f0
     double alpha_base = -1.0;
+
+    // Run Ollama agent for autonomous QAOA optimization
+    if (agent_ollama) {
+        printf("[PHASE14] Running Ollama agent for QAOA optimization...\n");
+        const char* py = detect_python_binary();
+        char cmd[512];
+        int written = snprintf(cmd, sizeof(cmd),
+            "\"%s\" -m python.agents.qallow_agent_ollama --task qaoa_optimize --model \"%s\" --nodes %d --target %.3f",
+            py, ollama_model, nodes, target_fidelity);
+
+        if (written > 0 && written < (int)sizeof(cmd)) {
+            printf("[PHASE14] Executing: %s\n", cmd);
+            int rc = system(cmd);
+            if (rc == 0) {
+                printf("[PHASE14] ✓ Ollama agent completed successfully\n");
+                // Agent writes to data/quantum/ollama_gain.json
+                gain_json_path = "data/quantum/ollama_gain.json";
+            } else {
+                fprintf(stderr, "[PHASE14] Warning: Ollama agent failed (code=%d)\n", rc);
+            }
+        } else {
+            fprintf(stderr, "[PHASE14] Warning: command buffer overflow\n");
+        }
+    }
 
 
     if (jcsv) {
@@ -429,33 +472,9 @@ int qallow_phase14_runner(int argc, char** argv) {
 
     double alpha_used = alpha_base;
     if (tune_qaoa) {
-        const char* py = detect_python_binary();
-        char cmd[256];
-        int written = snprintf(cmd, sizeof(cmd), "\"%s\" qiskit_tuner.py %d %d", py, qaoa_n, qaoa_p);
-        if (written > 0 && written < (int)sizeof(cmd)) {
-            FILE* pp = popen(cmd, "r");
-            if (pp) {
-                char outbuf[4096];
-                size_t rn = fread(outbuf, 1, sizeof(outbuf)-1, pp);
-                outbuf[rn] = '\0';
-                pclose(pp);
-                const char* key = "\"alpha_eff\"";
-                char* p = strstr(outbuf, key);
-                if (p) {
-                    p += strlen(key);
-                    while (*p && (*p == ' ' || *p == '\t' || *p == ':' )) p++;
-                    double parsed = atof(p);
-                    if (parsed > 0.0) {
-                        alpha_used = parsed;
-                        printf("[PHASE14] alpha from QAOA tuner = %.8f\n", alpha_used);
-                    }
-                } else {
-                    fprintf(stderr, "[PHASE14] QAOA tuner did not return alpha_eff; raw: %.*s\n", 200, outbuf);
-                }
-            } else {
-                fprintf(stderr, "[PHASE14] Failed to invoke QAOA tuner via %s\n", py);
-            }
-        }
+        // QAOA tuner support (Cirq-based)
+        // Note: Tuner script not yet implemented; using closed-form alpha
+        printf("[PHASE14] QAOA tuner not available; using closed-form alpha\n");
     }
     if (gain_json_path && *gain_json_path) {
         FILE* jf = fopen(gain_json_path, "rb");

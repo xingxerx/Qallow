@@ -6,4 +6,5 @@ pub enum UiMessage {
     TestsDone(Result<String, String>),
     GitStatusDone(Result<String, String>),
     CommitsDone(Result<Vec<String>, String>),
+    ChatMessage(String),
 }

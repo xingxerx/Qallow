@@ -1,13 +1,15 @@
+use serde::{Deserialize, Serialize};
 use serde_json::json;
 
-pub struct ApiClient {
-    base_url: String,
-}
+// ...existing code...
+#[derive(Clone)]
+pub struct ApiClient;
 
 impl ApiClient {
-    pub fn new(base_url: String) -> Self {
-        Self { base_url }
+    pub fn new(_base_url: &str) -> Self {
+        ApiClient
     }
+// ...existing code...
 
     pub async fn get_metrics(&self) -> Result<serde_json::Value, String> {
         // Placeholder for API call to web dashboard
@@ -61,10 +63,36 @@ impl ApiClient {
         // Placeholder for API call to export metrics
         Ok(format!("Metrics exported as {}", format))
     }
+
+    pub async fn chat(&self, message: &str) -> Result<String, reqwest::Error> {
+        let client = reqwest::Client::new();
+        let request = ChatRequest {
+            message: message.to_string(),
+        };
+
+        let res = client
+            .post("http://127.0.0.1:8008/chat")
+            .json(&request)
+            .send()
+            .await?;
+
+        let chat_response: ChatResponse = res.json().await?;
+        Ok(chat_response.reply)
+    }
 }
 
 impl Default for ApiClient {
     fn default() -> Self {
-        Self::new("http://localhost:5000".to_string())
+        Self::new("http://localhost:5000")
     }
+}
+
+#[derive(Serialize, Deserialize)]
+struct ChatRequest {
+    message: String,
+}
+
+#[derive(Serialize, Deserialize)]
+struct ChatResponse {
+    reply: String,
 }

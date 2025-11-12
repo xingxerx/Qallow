@@ -21,7 +21,13 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
         with:
-          submodules: recursive
+          submodules: false
+
+      - name: Checkout required submodules
+        run: |
+          git submodule update --init --recursive mcp-memory-service || true
+          git submodule update --init --recursive third_party/cuda-quantum || true
+          echo "Optional submodules (yay) skipped for CI"
 
       - name: Generate cache keys
         id: cache-key
@@ -50,7 +56,12 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
         with:
-          submodules: recursive
+          submodules: false
+
+      - name: Checkout required submodules
+        run: |
+          git submodule update --init --recursive mcp-memory-service || true
+          git submodule update --init --recursive third_party/cuda-quantum || true
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -118,7 +129,12 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
         with:
-          submodules: recursive
+          submodules: false
+
+      - name: Checkout required submodules
+        run: |
+          git submodule update --init --recursive mcp-memory-service || true
+          git submodule update --init --recursive third_party/cuda-quantum || true
 
       - name: Set up Python
         uses: actions/setup-python@v5

@@ -479,6 +479,7 @@ typedef enum {
     ACTION_BUILD_CUDA,
     ACTION_RUN_BINARY,
     ACTION_RUN_ACCELERATOR,
+    ACTION_PHASE_11,
     ACTION_PHASE_14,
     ACTION_PHASE_15,
     ACTION_PHASE_16,
@@ -716,7 +717,7 @@ static void parse_arguments(int argc, char **argv, ui_config_t *cfg) {
     memset(cfg, 0, sizeof(*cfg));
     strncpy(cfg->telemetry_path, "data/logs/telemetry_stream.csv", sizeof(cfg->telemetry_path) - 1);
     strncpy(cfg->pocket_metrics_path, "data/telemetry/pocket_metrics.json", sizeof(cfg->pocket_metrics_path) - 1);
-    cfg->font_path = "/usr/share/fonts/TTF/DejaVuSans.ttf";
+    cfg->font_path = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf";
     cfg->refresh_interval_ms = 750;
     cfg->pocket_refresh_ms = 1200;
 
@@ -1172,7 +1173,7 @@ static void render_status(SDL_Renderer *renderer, TTF_Font *font, ui_state_t *st
     draw_text(renderer, font, status_color, 20, WINDOW_HEIGHT - 60, status_copy);
 
     SDL_Color hint_color = {180, 190, 220, 255};
-    draw_text(renderer, font, hint_color, 20, WINDOW_HEIGHT - 30, "Keys: [B] Build CUDA  [R] Run Binary  [A] Run Accelerator  [1-3] Phases  [S] Stop  [Esc] Quit");
+    draw_text(renderer, font, hint_color, 20, WINDOW_HEIGHT - 30, "Keys: [B] Build CUDA  [R] Run Binary  [A] Run Accelerator  [0] Phase 11  [1-3] Phases  [S] Stop  [Esc] Quit");
 }
 
 static void render_ui(SDL_Renderer *renderer, TTF_Font *font, ui_state_t *state, const button_t *buttons, size_t button_count, action_t active_action) {
@@ -1246,6 +1247,14 @@ static bool trigger_action(action_t action, const ui_config_t *cfg, ui_state_t *
             build_command_request(&request, "Running accelerator…", cfg->repo_root, 4, argv);
             break;
         }
+        case ACTION_PHASE_11: {
+            argv[0] = "python3";
+            argv[1] = "python/quantum/cirq_phase11.py";
+            argv[2] = "--ticks=64";
+            argv[3] = "--simulator=ideal";
+            build_command_request(&request, "Executing Phase 11 (Cirq)…", cfg->repo_root, 4, argv);
+            break;
+        }
         case ACTION_PHASE_14:
         case ACTION_PHASE_15:
         case ACTION_PHASE_16: {
@@ -1289,6 +1298,7 @@ static void setup_buttons(button_t *buttons, size_t *count) {
         {ACTION_BUILD_CUDA, "Build CUDA"},
         {ACTION_RUN_BINARY, "Run Binary"},
         {ACTION_RUN_ACCELERATOR, "Run Accelerator"},
+        {ACTION_PHASE_11, "Phase 11 (Cirq)"},
         {ACTION_PHASE_14, "Phase 14"},
         {ACTION_PHASE_15, "Phase 15"},
         {ACTION_PHASE_16, "Phase 16"},
@@ -1415,6 +1425,8 @@ int main(int argc, char **argv) {
                     trigger_action(ACTION_RUN_BINARY, &config, &state, &runner);
                 } else if (key == SDLK_a) {
                     trigger_action(ACTION_RUN_ACCELERATOR, &config, &state, &runner);
+                } else if (key == SDLK_0) {
+                    trigger_action(ACTION_PHASE_11, &config, &state, &runner);
                 } else if (key == SDLK_1) {
                     trigger_action(ACTION_PHASE_14, &config, &state, &runner);
                 } else if (key == SDLK_2) {

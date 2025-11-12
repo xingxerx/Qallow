@@ -1,24 +1,22 @@
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] #!/usr/bin/env python3
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] """
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] Quantum Optimization Algorithms
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] QAOA (Quantum Approximate Optimization Algorithm) for solving optimization problems
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] """
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] from datetime import datetime
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] @dataclass
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] class OptimizationResult:
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     """Result from optimization algorithm"""
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     algorithm: str
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     problem: str
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     timestamp: str
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     best_solution: int
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     best_energy: float
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     all_energies: List[float]
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     circuit: str
-    metrics: Dict[str, Any]
+from bayes_opt import BayesianOptimization
+import cirq
+import numpy as np
+from datetime import datetime
+from typing import List, Tuple, Dict, Any, Union
+
+
+class OptimizationResult:
+    def __init__(self, algorithm: str, problem: str, timestamp: str, 
+                 best_solution: Union[int, str], best_energy: float, 
+                 all_energies: List[float], circuit: str, metrics: Dict[str, Any]):
+        self.algorithm = algorithm
+        self.problem = problem
+        self.timestamp = timestamp
+        self.best_solution = best_solution
+        self.best_energy = best_energy
+        self.all_energies = all_energies
+        self.circuit = circuit
+        self.metrics = metrics
 
 
 class QuantumMaxCut:

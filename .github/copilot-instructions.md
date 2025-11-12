@@ -3,18 +3,95 @@ applyTo: '**'
 ---
 
 # Qallow Agent Playbook
-- Core runtime is C/CUDA: orchestration in `interface/launcher.c` + `interface/main.c`, CPU phases in `backend/cpu/`, GPU mirrors in `backend/cuda/`, shared contracts in `core/include/` and `include/qallow/`. Change a struct once, update both backends and the orchestrator.
-- Phase flow: ingest/adaptive → ethics (8–10) → quantum bridge (11) → elasticity/harmonics (12–13) → lattice convergence (14–15). The CLI (`qallow run`) now exposes `--integrate` to execute these sequentially; use overrides like `--integrate-phase13-ticks=400` or `--integrate-ticks=256`.
-- Phase 11 runs through `python/quantum/run_phase11_bridge.py`; it expects a Qiskit environment (set `QALLOW_QISKIT=1` and ensure the selected backend exposes `Circuit.num_qubits()`).
-- Telemetry funnels through `src/runtime/telemetry_outputs.c` into `data/logs/`. Use `qallow_log_*`/`QALLOW_PROFILE_SCOPE` around hot paths; raw `printf` is reserved for the CLI layer.
-- Ethics math (`E = S + C + H`) lives in `algorithms/ethics_*.c`; any metric addition must ripple into `ethics_state_t`, exporters, and the CSV/JSON summaries that dashboards consume.
-- Build paths: `./scripts/build_all.sh [--cpu|--cuda]` is the maintainer workflow; manual alternative is `cmake -S . -B build -DQALLOW_ENABLE_CUDA=ON && cmake --build build --parallel`. Scripts such as `build_unified_linux.sh` or `scripts/build_unified_ethics.sh` are legacy—prefer the CMake build.
-- Main binaries: `build/qallow` (phase runner CLI) and `build/qallow_unified_cpu|cuda` (packaged run). Rust native app lives in `native_app/` and runs with `cargo run`.
-- Native app (Rust/FLTK): entry `native_app/src/main.rs`; UI under `native_app/src/ui/**`. Use FLTK `app::channel` + `UiMessage` (`native_app/src/messaging.rs`) for non-blocking tasks; start work in threads from `button_handlers.rs` (`start_*_async`) and handle results in the main loop. Process launching is in `native_app/src/backend/process_manager.rs`.
-- Typical end-to-end run: `./build/qallow run unified` (defaults to phases 12–15 with ticks=120/120 and lattice ticks=64). Add overrides like `--integrate-phase13-k=0.003` after `unified` when needed. Phase 11 joins automatically once `QALLOW_QISKIT=1` is set and the bridge matches the active Qiskit release.
- - Direct phase runs: `./build/qallow phase 13|14|15 --ticks=...` (phase "1" is invalid). Use `--integrate-*` flags only with the integrated runner.
-- Testing: run `ctest --test-dir build --output-on-failure` after C/CUDA changes. Use `tests/sequential_phase_benchmark.sh` to time phases 1–13 and regenerate `data/logs/sequential_benchmark.csv`. CUDA edits should also run `ctest -R cuda` plus Nsight profiling if performance is touched.
-- Docs & conventions: follow the patterns in `README.md` and `docs/ARCHITECTURE_SPEC.md`. Logging schema changes or CLI flag updates must be reflected there and in `scripts/` wrappers.
-- External surfaces: `mcp-memory-service/` is vendored—avoid modifications unless coordinating upstream. SDL-based UI (`interface/qallow_ui.c`) builds only when SDL2 + SDL2_ttf are detected; guard code with compile-time checks.
-- **MCP Memory Server Integration**: GitHub Copilot integrates with a persistent memory MCP server via `.vscode/mcp.json`. The memory server (SQLite-vec backend) runs locally and provides semantic search, memory storage, and recall tools. Configure in VS Code: open Copilot Chat, select Agent mode, click the tools icon, and the memory server tools will appear. Use `/mcp.memory.*` commands in chat to store/recall context. The server persists memories in `/root/.local/share/mcp-memory/` and supports multi-session context awareness.
-- Report back with executed build/test commands and any ethics/telemetry impacts; transparency is expected for changes touching the AGI phases.
+
+This document provides essential guidelines for AI agents contributing to the Qallow project. Adhering to these patterns is critical for maintaining codebase stability and architectural integrity.
+
+## 1. Core Architecture & Philosophy
+
+Qallow is a hybrid quantum-classical AGI platform. Its architecture is designed for high-performance, reproducible research into quantum ethics and cognition.
+
+-   **C/CUDA Core Engine**: The performance-critical logic resides in C and CUDA.
+    -   **CPU Implementations**: `backend/cpu/`
+    -   **GPU (CUDA) Implementations**: `backend/cuda/`
+    -   **Shared Data Structures**: `core/include/` and `include/qallow/`. Any change to a core data structure like `CognitiveState` must be propagated across both C and CUDA backends.
+-   **Python Orchestration Layer**: Python is used for high-level orchestration, bridging to quantum libraries, and running experiments.
+    -   **Main Orchestrator**: `python/quantum/orchestrator.py` is the primary entry point for quantum workflows.
+    -   **Quantum Bridges**: `python/quantum/cuda_q_bridge.py` and `python/quantum/cirq_bridge.py` interface with quantum SDKs.
+-   **Mandatory CUDA-Q Backend**: The `CudaQBridge` is **not optional**. The primary `QuantumOrchestrator` is hard-wired to use it and will raise an error if the `cudaq` library is not available. Fallback mechanisms to Cirq or other simulators have been removed from the production path to ensure accuracy and testability.
+
+## 2. Key Technologies
+
+-   **Core Languages**: C, C++ (for CUDA), Python 3.11+
+-   **GPU Acceleration**: CUDA 12.0+
+-   **Quantum SDK**: **NVIDIA CUDA-Q** (mandatory for core quantum tasks). Cirq is present for comparison/testing only.
+-   **Build System**: CMake (`CMakeLists.txt`) is the source of truth for building all C/CUDA components.
+-   **Testing**:
+    -   C/CUDA tests are run with `ctest`.
+    -   Python tests are run with `pytest`.
+-   **AI Baseline**: The `DeepSeek-1` model is used for cognitive and ethics auditing, integrated via `python/deepseek_baseline.py`.
+
+## 3. Build, Run, and Test Workflows
+
+Follow these procedures to build, run, and validate changes. Avoid using legacy scripts (`build_all.sh`, `build_unified_linux.sh`).
+
+### Build (CMake)
+
+The standard workflow is a CMake out-of-source build.
+
+```bash
+# 1. Configure CMake (from project root)
+# For CUDA-enabled builds:
+cmake -S . -B build -DQALLOW_ENABLE_CUDA=ON
+
+# For CPU-only builds:
+cmake -S . -B build -DQALLOW_ENABLE_CUDA=OFF
+
+# 2. Build the binaries
+cmake --build build --parallel
+```
+
+Main binaries will be located in the `build/` directory (e.g., `build/qallow`, `build/qallow_unified_cuda`).
+
+### Run
+
+-   **Integrated Run (Recommended)**: Use the `unified` command to run the primary sequence of phases.
+    ```bash
+    ./build/qallow run unified
+    ```
+-   **Direct Phase Run**: Execute a specific phase.
+    ```bash
+    ./build/qallow phase 14 --ticks=600 --nodes=256
+    ```
+
+### Test
+
+-   **C/CUDA Tests**: Run `ctest` from the build directory.
+    ```bash
+    ctest --test-dir build --output-on-failure
+    ```
+    To run only CUDA-related tests: `ctest -R cuda --test-dir build`.
+
+-   **Python Tests**: Run `pytest` from the root directory.
+    ```bash
+    pytest
+    ```
+
+## 4. Development Patterns & Conventions
+
+-   **Synchronized Backends**: When modifying a data structure or algorithm, ensure changes are reflected in both the C (`backend/cpu`) and CUDA (`backend/cuda`) implementations.
+-   **Orchestrator is King**: All high-level quantum workflows **must** go through `python/quantum/orchestrator.py`. Do not directly instantiate quantum bridges.
+-   **Testing with Mocks**: Because CUDA-Q is a hard dependency, Python tests that touch the orchestration layer must be runnable in environments without the full CUDA-Q SDK (e.g., CI/CD). Use the `mock_cudaq_backend` fixture from `tests/conftest.py` to patch the `cudaq` import.
+    ```python
+    # in tests/meta_learning/integration/test_orchestrator.py
+    def test_orchestrator_initialization(mock_cudaq_backend):
+        # Your test code here...
+        # The 'cudaq' module is mocked for this test.
+    ```
+-   **Telemetry**: Use the `qallow_log_*` macros in C/CUDA for structured logging. Raw `printf` should be avoided outside of the immediate CLI interface layer (`interface/`). Logs are written to `data/logs/`.
+-   **Ethics Module**: The core ethics math (`E = S + C + H`) is in `algorithms/ethics_*.c`. Any changes to metrics must be reflected in the `ethics_state_t` struct and its associated data exporters.
+-   **Native App (Rust)**: The Rust-based desktop GUI lives in `native_app/`. It is built and run separately with `cargo run`. It communicates with the C/CUDA backend via the `process_manager.rs`.
+
+## 5. Reporting
+
+-   Report back with executed build and test commands to demonstrate validation.
+-   Clearly state any impacts on telemetry or the ethics module. Transparency is required for any changes touching the core AGI phases.

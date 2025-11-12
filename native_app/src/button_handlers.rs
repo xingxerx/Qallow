@@ -1,3 +1,4 @@
+use crate::backend::api_client::ApiClient;
 use crate::backend::process_manager::ProcessManager;
 use crate::codebase_manager::CodebaseManager;
 use crate::control_commands::ControlCommandSender;
@@ -18,11 +19,12 @@ use std::time::Duration;
 
 /// Handles all button click events and connects them to backend functionality
 pub struct ButtonHandler {
-    state: Arc<Mutex<AppState>>,
+    pub state: Arc<Mutex<AppState>>,
     process_manager: Arc<Mutex<ProcessManager>>,
     logger: Arc<AppLogger>,
     codebase_manager: Option<Arc<CodebaseManager>>,
     ui_sender: Option<Sender<UiMessage>>,
+    pub api_client: ApiClient,
 }
 
 impl ButtonHandler {
@@ -44,6 +46,41 @@ impl ButtonHandler {
             logger,
             codebase_manager,
             ui_sender,
+            api_client: ApiClient::new("http://127.0.0.1:8008"),
+        }
+    }
+
+    pub fn on_run_phase(&self, phase: Phase) -> Result<(), String> {
+        let (build, ticks) = {
+            let state = self.state.lock().map_err(|e| format!("State lock error: {}", e))?;
+            (state.selected_build, state.phase_config.ticks)
+        };
+
+        let mut pm = self.process_manager.lock().map_err(|e| format!("PM lock error: {}", e))?;
+
+        // Check if a process is actually running (this also cleans up finished processes)
+        if pm.is_running() {
+            return Err("A process is already running.".to_string());
+        }
+
+        let result = if phase == Phase::Unified {
+            pm.start_vm_unified(build, ticks)
+        } else {
+            pm.start_vm(build, phase, ticks)
+        };
+
+        match result {
+            Ok(()) => {
+                let mut state = self.state.lock().map_err(|e| format!("State lock error: {}", e))?;
+                state.set_running(true);
+                state.add_terminal_line(format!("🚀 Started {:?} with {:?} build", phase, build), LineType::Info);
+                Ok(())
+            }
+            Err(e) => {
+                let mut state = self.state.lock().map_err(|e| format!("State lock error: {}", e))?;
+                state.add_terminal_line(format!("❌ Failed to start {:?}: {}", phase, e), LineType::Error);
+                Err(e)
+            }
         }
     }
 

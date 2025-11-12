@@ -1,23 +1,27 @@
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] #!/usr/bin/env python3
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] """
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] Unified Quantum Algorithm Framework
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] Combines all quantum algorithms (Hello Quantum, Grover's, Shor's, VQE) into one framework
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] for comprehensive testing and analysis.
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] """
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] from enum import Enum
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] from datetime import datetime
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] class AlgorithmType(Enum):
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     """Supported quantum algorithms"""
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     HELLO_QUANTUM = "hello_quantum"
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     BELL_STATE = "bell_state"
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     DEUTSCH = "deutsch"
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     GROVER = "grover"
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     SHOR = "shor"
+#!/usr/bin/env python3
+"""
+Unified Quantum Algorithm Framework
+Combines all quantum algorithms (Hello Quantum, Grover's, Shor's, VQE) into one framework
+for comprehensive testing and analysis.
+"""
+
+import cirq
+import numpy as np
+import json
+from enum import Enum
+from dataclasses import dataclass
+from datetime import datetime
+from typing import Dict, Any, List, Sequence, Optional
+from math import gcd
+
+
+class AlgorithmType(Enum):
+    """Supported quantum algorithms"""
+    HELLO_QUANTUM = "hello_quantum"
+    BELL_STATE = "bell_state"
+    DEUTSCH = "deutsch"
+    GROVER = "grover"
+    SHOR = "shor"
     VQE = "vqe"
 
 
@@ -30,7 +34,7 @@ class AlgorithmResult:
     circuit: str
     measurements: Dict[str, Any]
     metrics: Dict[str, float]
-    error: str = None
+    error: Optional[str] = None
 
 
 class QuantumAlgorithmFramework:
@@ -195,7 +199,7 @@ class QuantumAlgorithmFramework:
     
     # ==================== GROVER'S ALGORITHM ====================
     
-    def grover_oracle(self, qubits: List[cirq.Qid], marked_state: int) -> cirq.Circuit:
+    def grover_oracle(self, qubits: Sequence[cirq.Qid], marked_state: int) -> cirq.Circuit:
         """Create oracle that marks the target state"""
         circuit = cirq.Circuit()
         n = len(qubits)
@@ -217,7 +221,7 @@ class QuantumAlgorithmFramework:
         
         return circuit
     
-    def grover_diffusion(self, qubits: List[cirq.Qid]) -> cirq.Circuit:
+    def grover_diffusion(self, qubits: Sequence[cirq.Qid]) -> cirq.Circuit:
         """Create diffusion operator (inversion about average)"""
         circuit = cirq.Circuit()
         n = len(qubits)
@@ -360,7 +364,7 @@ class QuantumAlgorithmFramework:
     
     # ==================== VQE ALGORITHM ====================
     
-    def ansatz_circuit(self, qubits: List[cirq.Qid], params: np.ndarray) -> cirq.Circuit:
+    def ansatz_circuit(self, qubits: Sequence[cirq.Qid], params: np.ndarray) -> cirq.Circuit:
         """Parameterized ansatz circuit for VQE"""
         circuit = cirq.Circuit()
         
@@ -376,7 +380,7 @@ class QuantumAlgorithmFramework:
         
         return circuit
     
-    def hamiltonian_expectation(self, circuit: cirq.Circuit, qubits: List[cirq.Qid]) -> float:
+    def hamiltonian_expectation(self, circuit: cirq.Circuit, qubits: Sequence[cirq.Qid]) -> float:
         """Calculate expectation value of Hamiltonian"""
         full_circuit = circuit.copy()
         full_circuit.append(cirq.measure(*qubits, key='result'))

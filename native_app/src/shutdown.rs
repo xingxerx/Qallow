@@ -9,6 +9,7 @@ use std::sync::Arc;
 pub static SHUTDOWN_FLAG: AtomicBool = AtomicBool::new(false);
 
 /// Graceful shutdown manager
+#[derive(Clone)]
 pub struct ShutdownManager {
     state_file: String,
     shutdown_requested: Arc<AtomicBool>,
@@ -61,9 +62,17 @@ impl ShutdownManager {
                     eprintln!("[SHUTDOWN] State saved to {}", self.state_file);
                     Ok(())
                 }
-                Err(e) => Err(format!("Failed to write state file: {}", e)),
+                Err(e) => {
+                    let err_msg = format!("Failed to write state file: {}", e);
+                    eprintln!("[SHUTDOWN] ERROR: {}", err_msg);
+                    Err(err_msg)
+                }
             },
-            Err(e) => Err(format!("Failed to serialize state: {}", e)),
+            Err(e) => {
+                let err_msg = format!("Failed to serialize state: {}", e);
+                eprintln!("[SHUTDOWN] ERROR: {}", err_msg);
+                Err(err_msg)
+            }
         }
     }
 

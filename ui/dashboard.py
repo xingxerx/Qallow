@@ -18,10 +18,21 @@
 # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] try:
 # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     from flask_cors import CORS
 # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] except ImportError:  # pragma: no cover - fallback for missing dependency
-    def CORS(app, *_, **__):
-        """Graceful fallback when flask_cors is unavailable."""
-        print("Warning: flask_cors is not installed; continuing without CORS support.")
-        return app
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     def CORS(app, *_, **__):
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]         """Graceful fallback when flask_cors is unavailable."""
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]         print("Warning: flask_cors is not installed; continuing without CORS support.")
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]         return app
+
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] from flask import Flask, render_template, jsonify
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] import os
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] import subprocess
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] import threading
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] import time
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] import shlex
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] import csv
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] import json
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] import glob
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] from collections import deque
 
 app = Flask(__name__)
 CORS(app)

@@ -1,0 +1,117 @@
+# Kimi-K2 Configuration
+# Local inference setup without API keys
+# Supports vLLM, SGLang, KTransformers, and TensorRT-LLM
+
+kimi_k2:
+  # Model configuration
+  model_name: "moonshotai/Kimi-K2-Instruct"
+  model_path: null  # Set to local path if using local weights
+  
+  # Inference engine selection
+  # Options: vllm, sglang, ktransformers, tensorrt_llm
+  engine: "vllm"
+  
+  # Server configuration
+  base_url: "http://localhost:8000/v1"
+  api_key: "not-needed"  # Placeholder for local inference
+  
+  # Model parameters
+  temperature: 0.6  # Recommended for Kimi-K2
+  max_tokens: 4096
+  top_p: 0.95
+  
+  # Tool calling configuration
+  enable_tools: true
+  tool_call_parser: "kimi_k2"
+  
+  # Timeout settings
+  timeout: 300  # 5 minutes
+  
+  # Data directories
+  data_dir: "data/kimi_k2"
+  log_dir: "data/logs"
+  output_file: "data/kimi_k2/output.jsonl"
+
+# vLLM deployment configuration
+vllm:
+  # Tensor parallelism for multi-GPU
+  tensor_parallel_size: 1
+  
+  # GPU memory utilization
+  gpu_memory_utilization: 0.9
+  
+  # Batch settings
+  max_num_batched_tokens: 8192
+  max_num_seqs: 256
+  
+  # Tool calling
+  enable_auto_tool_choice: true
+  tool_call_parser: "kimi_k2"
+  
+  # Performance
+  trust_remote_code: true
+  dtype: "auto"
+
+# SGLang deployment configuration
+sglang:
+  # Tensor parallelism
+  tp: 1
+  
+  # Batch settings
+  max_running_requests: 1024
+  
+  # Tool calling
+  tool_call_parser: "kimi_k2"
+  
+  # Performance
+  trust_remote_code: true
+
+# KTransformers deployment configuration
+ktransformers:
+  # Cache length for context
+  cache_lens: 30000
+  
+  # AMX optimization (for Intel CPUs)
+  enable_amx: false
+  optimize_config_path: null
+
+# TensorRT-LLM deployment configuration
+tensorrt_llm:
+  # Tensor parallelism
+  tp_size: 1
+  
+  # Expert parallelism (for MoE models)
+  ep_size: 1
+  
+  # KV cache settings
+  kv_cache_free_gpu_memory_fraction: 0.95
+  
+  # Batch settings
+  max_batch_size: 128
+  max_num_tokens: 4096
+
+# Environment variables for deployment
+environment:
+  # vLLM
+  VLLM_ATTENTION_BACKEND: "flash_attn"
+  
+  # SGLang
+  SGLANG_DISAGGREGATION_HEARTBEAT_INTERVAL: "10000000"
+  
+  # General
+  CUDA_VISIBLE_DEVICES: "0"  # Adjust based on your GPUs
+  PYTHONUNBUFFERED: "1"
+
+# Logging configuration
+logging:
+  level: "INFO"
+  format: "[%(asctime)s] [%(name)s] [%(levelname)s] %(message)s"
+  file: "data/logs/kimi_k2.log"
+
+# Feature flags
+features:
+  tool_calling: true
+  streaming: true
+  batch_processing: true
+  multi_gpu: false  # Set to true for multi-GPU setup
+

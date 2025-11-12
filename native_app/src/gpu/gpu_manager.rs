@@ -7,7 +7,7 @@
 //! - Performance monitoring
 
 use super::{ConsciousnessSOA, GPUCapability, GPUError, GPUResult};
-use log::{debug, info, warn};
+use log::{debug, warn};
 
 /// GPU Manager for consciousness state acceleration
 pub struct GPUManager {

@@ -44,6 +44,18 @@ pub enum BuildType {
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq)]
 pub enum Phase {
+    Phase1,
+    Phase2,
+    Phase3,
+    Phase4,
+    Phase5,
+    Phase6,
+    Phase7,
+    Phase8,
+    Phase9,
+    Phase10,
+    Phase11,
+    Phase12,
     Phase13,
     Phase14,
     Phase15,
@@ -52,6 +64,62 @@ pub enum Phase {
     Phase18,
     Phase19,
     Phase20,
+    Unified,
+}
+
+impl Phase {
+    pub fn from_index(index: usize) -> Option<Self> {
+        match index {
+            0 => Some(Phase::Phase1),
+            1 => Some(Phase::Phase2),
+            2 => Some(Phase::Phase3),
+            3 => Some(Phase::Phase4),
+            4 => Some(Phase::Phase5),
+            5 => Some(Phase::Phase6),
+            6 => Some(Phase::Phase7),
+            7 => Some(Phase::Phase8),
+            8 => Some(Phase::Phase9),
+            9 => Some(Phase::Phase10),
+            10 => Some(Phase::Phase11),
+            11 => Some(Phase::Phase12),
+            12 => Some(Phase::Phase13),
+            13 => Some(Phase::Phase14),
+            14 => Some(Phase::Phase15),
+            15 => Some(Phase::Phase16),
+            16 => Some(Phase::Phase17),
+            17 => Some(Phase::Phase18),
+            18 => Some(Phase::Phase19),
+            19 => Some(Phase::Phase20),
+            20 => Some(Phase::Unified),
+            _ => None,
+        }
+    }
+
+    pub fn to_str(&self) -> &'static str {
+        match self {
+            Phase::Phase1 => "1",
+            Phase::Phase2 => "2",
+            Phase::Phase3 => "3",
+            Phase::Phase4 => "4",
+            Phase::Phase5 => "5",
+            Phase::Phase6 => "6",
+            Phase::Phase7 => "7",
+            Phase::Phase8 => "8",
+            Phase::Phase9 => "9",
+            Phase::Phase10 => "10",
+            Phase::Phase11 => "11",
+            Phase::Phase12 => "12",
+            Phase::Phase13 => "13",
+            Phase::Phase14 => "14",
+            Phase::Phase15 => "15",
+            Phase::Phase16 => "16",
+            Phase::Phase17 => "17",
+            Phase::Phase18 => "18",
+            Phase::Phase19 => "19",
+            Phase::Phase20 => "20",
+            Phase::Unified => "unified",
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

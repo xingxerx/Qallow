@@ -1,6 +1,13 @@
 
 cmake_minimum_required(VERSION 3.20)
 
+if(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
+    set(default_build_type "Debug")
+    message(STATUS "No build type selected, defaulting to ${default_build_type}")
+    set(CMAKE_BUILD_TYPE "${default_build_type}" CACHE STRING "Choose the type of build" FORCE)
+endif()
+set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "RelWithDebInfo" "MinSizeRel")
+
 option(QALLOW_ENABLE_CUDA "Enable CUDA backend" ON)
 
 if(QALLOW_ENABLE_CUDA)
@@ -13,6 +20,7 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 if(QALLOW_ENABLE_CUDA)
     include(CheckLanguage)
@@ -41,7 +49,10 @@ set(QALLOW_INCLUDE_DIRS
 )
 
 add_library(qallow_core INTERFACE)
-target_include_directories(qallow_core INTERFACE ${QALLOW_INCLUDE_DIRS})
+target_include_directories(qallow_core INTERFACE
+    ${QALLOW_INCLUDE_DIRS}
+    ${CMAKE_CURRENT_SOURCE_DIR}/third_party/cjson
+)
 
 set(QALLOW_ALGORITHM_SOURCES
     algorithms/ethics_core.c
@@ -170,6 +181,11 @@ if(QALLOW_ENABLE_CUDA)
     find_package(CUDAToolkit REQUIRED)
     target_link_libraries(qallow_backend_cuda PUBLIC CUDA::cudart)
     set_target_properties(qallow_backend_cuda PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+
+    # Prevent GCC/Clang flags from being passed to NVCC
+    # NVCC doesn't support -Wall, -Wextra, and other GCC-specific flags
+    target_compile_options(qallow_backend_cuda PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:-O3;--use_fast_math>)
+
     add_custom_target(cudaq DEPENDS qallow_backend_cuda)
 endif()
 
@@ -246,6 +262,15 @@ if(QALLOW_ENABLE_CUDA)
     target_compile_definitions(qallow_unified PRIVATE QALLOW_ENABLE_CUDA)
     set_target_properties(qallow_unified PROPERTIES OUTPUT_NAME "qallow_unified_cuda")
 else()
+    add_library(qallow_backend_cuda_fallback STATIC
+        backend/cpu/fallback/photonic_fallback.c
+        backend/cpu/fallback/quantum_fallback.c
+        backend/cpu/fallback/phase16_meta_introspect_fallback.c
+        backend/cpu/fallback/phase14_gain_fallback.c
+    )
+    target_link_libraries(qallow_backend_cuda_fallback PUBLIC qallow_core)
+    target_include_directories(qallow_backend_cuda_fallback PUBLIC ${QALLOW_INCLUDE_DIRS})
+    target_link_libraries(qallow_unified PRIVATE qallow_backend_cuda_fallback)
     set_target_properties(qallow_unified PROPERTIES OUTPUT_NAME "qallow_unified_cpu")
 endif()
 

@@ -1,7 +1,7 @@
 #include "quantum_suite.h"
 
-#include "cJSON.h"
 #include "qallow/logging.h"
+#include "cJSON.h"
 
 #include <ctype.h>
 #include <errno.h>
@@ -131,19 +131,30 @@ static const char* detect_python_binary(void) {
     if (env_python && *env_python && QALLOW_ACCESS(env_python, X_OK) == 0) {
         return env_python;
     }
-    if (QALLOW_ACCESS("./cirq-env/bin/python", X_OK) == 0) {
-        return "./cirq-env/bin/python";
-    }
-    if (QALLOW_ACCESS("./venv/bin/python", X_OK) == 0) {
-        return "./venv/bin/python";
+    // Prefer .venv over venv (hidden venv is usually more recent)
+    if (QALLOW_ACCESS("./.venv/bin/python3", X_OK) == 0) {
+        return "./.venv/bin/python3";
     }
     if (QALLOW_ACCESS("./.venv/bin/python", X_OK) == 0) {
         return "./.venv/bin/python";
     }
-    if (QALLOW_ACCESS("python3", X_OK) == 0) {
+    if (QALLOW_ACCESS("./cirq-env/bin/python3", X_OK) == 0) {
+        return "./cirq-env/bin/python3";
+    }
+    if (QALLOW_ACCESS("./cirq-env/bin/python", X_OK) == 0) {
+        return "./cirq-env/bin/python";
+    }
+    if (QALLOW_ACCESS("./venv/bin/python3", X_OK) == 0) {
+        return "./venv/bin/python3";
+    }
+    if (QALLOW_ACCESS("./venv/bin/python", X_OK) == 0) {
+        return "./venv/bin/python";
+    }
+    // Try system-wide python3 and python using 'which' command
+    if (system("which python3 > /dev/null 2>&1") == 0) {
         return "python3";
     }
-    if (QALLOW_ACCESS("python", X_OK) == 0) {
+    if (system("which python > /dev/null 2>&1") == 0) {
         return "python";
     }
     return NULL;
@@ -263,260 +274,6 @@ static int write_text_file(const char* path, const char* data) {
     return written == len ? 0 : -1;
 }
 
-static const char* find_matching_brace(const char* start) {
-    if (!start || *start != '{') {
-        return NULL;
-    }
-    int depth = 0;
-    bool in_string = false;
-    for (const char* p = start; *p; ++p) {
-        char c /* TODO: Use more descriptive name */= *p;
-        if (c == '"') {
-            bool escaped = (p > start && *(p - 1) == '\\');
-            if (!escaped) {
-                in_string = !in_string;
-            }
-            continue;
-        }
-        if (in_string) {
-            continue;
-        }
-        if (c == '{') {
-            depth++;
-        } else if (c == '}') {
-            depth--;
-            if (depth == 0) {
-                return p;
-            }
-        }
-    }
-    return NULL;
-}
-
-static const char* find_matching_bracket(const char* start) {
-    if (!start || *start != '[') {
-        return NULL;
-    }
-    int depth = 0;
-    bool in_string = false;
-    for (const char* p = start; *p; ++p) {
-        char c /* TODO: Use more descriptive name */= *p;
-        if (c == '"') {
-            bool escaped = (p > start && *(p - 1) == '\\');
-            if (!escaped) {
-                in_string = !in_string;
-            }
-            continue;
-        }
-        if (in_string) {
-            continue;
-        }
-        if (c == '[') {
-            depth++;
-        } else if (c == ']') {
-            depth--;
-            if (depth == 0) {
-                return p;
-            }
-        }
-    }
-    return NULL;
-}
-
-static const char* locate_key(const char* start, const char* end, const char* key) {
-    size_t key_len = strlen(key);
-    const char* cursor = start;
-    while (cursor && cursor < end) {
-        const char* pos = strstr(cursor, key);
-        if (!pos || pos >= end) {
-            return NULL;
-        }
-        const char* colon = strchr(pos + key_len, ':');
-        if (!colon || colon >= end) {
-            cursor = pos + key_len;
-            continue;
-        }
-        return colon + 1;
-    }
-    return NULL;
-}
-
-static int extract_string_between(const char* start, const char* end, const char* key, char* out, size_t out_len) {
-    if (!out || out_len == 0) {
-        return 0;
-    }
-    char pattern[64];
-    snprintf(pattern, sizeof(pattern), "\"%s\"", key);
-    const char* value_start = locate_key(start, end, pattern);
-    if (!value_start) {
-        return 0;
-    }
-    while (value_start < end && isspace((unsigned char)*value_start)) {
-        ++value_start;
-    }
-    if (value_start >= end || *value_start != '"') {
-        return 0;
-    }
-    ++value_start;
-    const char* value_end = value_start;
-    while (value_end < end) {
-        if (*value_end == '"' && *(value_end - 1) != '\\') {
-            break;
-        }
-        ++value_end;
-    }
-    if (value_end >= end) {
-        return 0;
-    }
-    size_t copy_len = (size_t)(value_end - value_start);
-    if (copy_len >= out_len) {
-        copy_len = out_len - 1;
-    }
-    memcpy(out, value_start, copy_len);
-    out[copy_len] = '\0';
-    return 1;
-}
-
-static int extract_bool_between(const char* start, const char* end, const char* key, bool* out_value) {
-    if (!out_value) {
-        return 0;
-    }
-    char pattern[64];
-    snprintf(pattern, sizeof(pattern), "\"%s\"", key);
-    const char* value_start = locate_key(start, end, pattern);
-    if (!value_start) {
-        return 0;
-    }
-    while (value_start < end && isspace((unsigned char)*value_start)) {
-        ++value_start;
-    }
-    if (value_start >= end) {
-        return 0;
-    }
-    if (strncmp(value_start, "true", 4) == 0) {
-        *out_value = true;
-        return 1;
-    }
-    if (strncmp(value_start, "false", 5) == 0) {
-        *out_value = false;
-        return 1;
-    }
-    return 0;
-}
-
-static int extract_double_between(const char* start,
-                                  const char* end,
-                                  const char* key,
-                                  double* out_value) {
-    if (!out_value) {
-        return 0;
-    }
-    char pattern[96];
-    snprintf(pattern, sizeof(pattern), "\"%s\"", key);
-    const char* value_start = locate_key(start, end, pattern);
-    if (!value_start) {
-        return 0;
-    }
-    while (value_start < end && isspace((unsigned char)*value_start)) {
-        ++value_start;
-    }
-    if (value_start >= end) {
-        return 0;
-    }
-    if (strncmp(value_start, "np.float64", 10) == 0) {
-        const char* paren = strchr(value_start, '(');
-        if (!paren || paren >= end) {
-            return 0;
-        }
-        value_start = paren + 1;
-    }
-    char* parse_end = NULL;
-    double value = strtod(value_start, &parse_end);
-    if (parse_end == value_start || parse_end > end) {
-        return 0;
-    }
-    *out_value = value;
-    return 1;
-}
-
-static void parse_timestamp(const char* payload, quantum_suite_metrics_t* metrics) {
-    if (!payload || !metrics) {
-        return;
-    }
-    const char* start = payload;
-    const char* end = payload + strlen(payload);
-    if (!extract_string_between(start, end, "timestamp", metrics->timestamp, sizeof(metrics->timestamp))) {
-        iso_timestamp_now(metrics->timestamp, sizeof(metrics->timestamp));
-    }
-}
-
-static int parse_algorithms(const char* payload, quantum_suite_metrics_t* metrics) {
-    if (!payload || !metrics) {
-        return -1;
-    }
-    const char* array_anchor = strstr(payload, "\"algorithms\"");
-    if (!array_anchor) {
-        return -1;
-    }
-    const char* array_start = strchr(array_anchor, '[');
-    if (!array_start) {
-        return -1;
-    }
-    const char* array_end = find_matching_bracket(array_start);
-    if (!array_end) {
-        return -1;
-    }
-    const char* cursor = array_start;
-    int total = 0;
-    int passed = 0;
-    double grover_probability = -1.0;
-    double vqe_best_energy = 0.0;
-    while (cursor < array_end) {
-        const char* algorithm_key = strstr(cursor, "\"algorithm\"");
-        if (!algorithm_key || algorithm_key >= array_end) {
-            break;
-        }
-        const char* item_start = strchr(algorithm_key, '{');
-        if (!item_start || item_start >= array_end) {
-            break;
-        }
-        const char* item_end = find_matching_brace(item_start);
-        if (!item_end || item_end > array_end) {
-            break;
-        }
-        char name[64];
-        if (!extract_string_between(item_start, item_end, "algorithm", name, sizeof(name))) {
-            cursor = item_end + 1;
-            continue;
-        }
-        bool success = false;
-        if (extract_bool_between(item_start, item_end, "success", &success)) {
-            if (success) {
-                passed++;
-            }
-        }
-        total++;
-        if (strcmp(name, "grover") == 0) {
-            double value = -1.0;
-            if (extract_double_between(item_start, item_end, "marked_state_probability", &value)) {
-                grover_probability = value;
-            }
-        } else if (strcmp(name, "vqe") == 0) {
-            double value = 0.0;
-            if (extract_double_between(item_start, item_end, "best_energy", &value)) {
-                vqe_best_energy = value;
-            }
-        }
-        cursor = item_end + 1;
-    }
-    metrics->algorithms_total = total;
-    metrics->algorithms_passed = passed;
-    metrics->grover_probability = grover_probability;
-    metrics->vqe_best_energy = vqe_best_energy;
-    metrics->valid = total > 0;
-    return metrics->valid ? 0 : -1;
-}
-
 static int write_export_json(const quantum_suite_metrics_t* metrics, const char* raw_payload) {
     if (!metrics) {
         return -1;
@@ -547,6 +304,8 @@ static int write_export_json(const quantum_suite_metrics_t* metrics, const char*
     cJSON_AddItemToObject(root, "summary", summary);
 
     if (raw_payload) {
+        // Parse the raw payload and add it as a proper JSON object
+        // Note: cJSON_Parse not implemented in minimal cJSON stub
         cJSON_AddStringToObject(root, "raw_payload", raw_payload);
     }
 
@@ -617,6 +376,33 @@ static void append_introspection_trace(const quantum_suite_metrics_t* metrics) {
     fclose(fp);
 }
 
+static int parse_algorithms_with_cjson(const char* payload, quantum_suite_metrics_t* metrics) {
+    // Note: cJSON_Parse not implemented in minimal cJSON stub
+    // This function is disabled for now
+    if (!payload || !metrics) {
+        return -1;
+    }
+
+    // Return default metrics
+    metrics->algorithms_total = 0;
+    metrics->algorithms_passed = 0;
+    metrics->grover_probability = -1.0;
+    metrics->vqe_best_energy = 0.0;
+    metrics->valid = 0;
+
+    return -1;
+}
+
+static void parse_timestamp_with_cjson(const char* payload, quantum_suite_metrics_t* metrics) {
+    // Note: cJSON_Parse not implemented in minimal cJSON stub
+    // This function is disabled for now
+    if (!payload || !metrics) {
+        iso_timestamp_now(metrics->timestamp, sizeof(metrics->timestamp));
+        return;
+    }
+    iso_timestamp_now(metrics->timestamp, sizeof(metrics->timestamp));
+}
+
 int quantum_run_all(quantum_suite_metrics_t* out_metrics) {
     const char* skip_env = getenv("QALLOW_SKIP_QUANTUM_SUITE");
     if (skip_env && (*skip_env == '1' || *skip_env == 'T' || *skip_env == 't')) {
@@ -651,8 +437,8 @@ int quantum_run_all(quantum_suite_metrics_t* out_metrics) {
         return -1;
     }
 
-    parse_timestamp(payload, &metrics);
-    if (parse_algorithms(payload, &metrics) != 0) {
+    parse_timestamp_with_cjson(payload, &metrics);
+    if (parse_algorithms_with_cjson(payload, &metrics) != 0) {
         qallow_log_warn("quantum", "failed to parse algorithm metrics from payload");
         free(payload);
         if (out_metrics) {

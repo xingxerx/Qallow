@@ -7,13 +7,21 @@ scipy>=1.10.0
 pandas>=2.0.0
 
 # Quantum Computing Frameworks
-cirq>=1.2.0
+cirq>=1.4.0
+cirq-web>=1.4.0
 pennylane>=0.31.0
 
 # Deep Learning & ML
 tensorflow>=2.13.0
 torch>=2.0.0
 scikit-learn>=1.3.0
+bayesian-optimization>=1.4.0
+
+# AI Baselines (Feature 004: AGI Evolution)
+openai>=1.0.0              # For DeepSeek API + OpenAI-compatible inference
+ollama>=0.6.0              # For local DeepSeek inference
+transformers>=4.30.0       # For Hugging Face model loading
+peft>=0.4.0                # Parameter-efficient fine-tuning (future)
 
 # API & Communication
 requests>=2.31.0
