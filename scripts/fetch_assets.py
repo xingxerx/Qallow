@@ -10,8 +10,13 @@
 #
 ################################################################################
 
+import hashlib
+import json
+import shutil
+import sys
+import urllib.request
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, Optional
 
 # Configuration
 ASSETS_DIR = Path(__file__).parent.parent / "data" / "assets"

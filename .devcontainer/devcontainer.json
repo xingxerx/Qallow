@@ -5,16 +5,17 @@
     "context": ".."
   },
   "runArgs": [
-    "--gpus=all"
+    "--gpus=all",
+    "--memory=8g",
+    "--memory-swap=12g",
+    "--shm-size=2g"
   ],
   "customizations": {
     "vscode": {
       "extensions": [
         "ms-vscode.cpptools",
         "ms-vscode.cmake-tools",
-        "ms-python.python",
-        "ms-azuretools.vscode-docker",
-        "streetsidesoftware.code-spell-checker"
+        "ms-python.python"
       ],
       "settings": {
         "python.defaultInterpreterPath": "/usr/bin/python3",
@@ -26,5 +27,5 @@
       }
     }
   },
-  "postCreateCommand": "bash -lc 'pip install -r requirements.txt || true'"
+  "postCreateCommand": "bash -lc 'pip list | grep -q sentence-transformers || pip install --no-cache-dir -r requirements.txt'"
 }

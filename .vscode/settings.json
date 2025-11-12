@@ -12,6 +12,7 @@
     },
     "chat.agent.maxRequests": 999999999,
     "chat.agent.enabled": true,
-    "chat.allowAnonymousAccess": true
+    "chat.allowAnonymousAccess": true,
+    "remote.autoForwardPortsFallback": 0
 }
 

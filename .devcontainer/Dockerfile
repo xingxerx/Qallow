@@ -1,5 +1,5 @@
-# Devcontainer image for Qallow development on Ubuntu
-FROM mcr.microsoft.com/devcontainers/base:ubuntu
+# Devcontainer image for Qallow development on Debian (lighter than Ubuntu)
+FROM mcr.microsoft.com/devcontainers/base:debian
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -34,7 +34,4 @@ ENV PATH="/opt/venv/bin:${PATH}"
 
 WORKDIR /workspaces/Qallow
 
-# Pre-install Python dependencies into the venv so the container is ready immediately.
-# Build context is now parent directory, so requirements.txt is accessible
-COPY requirements.txt ./
-RUN pip install -r requirements.txt || true
+# Python dependencies will be installed by postCreateCommand to speed up initial build
