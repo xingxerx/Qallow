@@ -24,7 +24,7 @@ main.py (CLI Router)
     ↓
 qaoa_spsa.py (Quantum Algorithm)
     ↓
-Qiskit/AerSimulator
+cirq/AerSimulator
     ↓
 /var/qallow/qaoa_gain.json (Output)
 ```
@@ -43,7 +43,7 @@ Qiskit/AerSimulator
 - **Role**: Dependency management
 - **Responsibilities**:
   - Check Python version (3.8+)
-  - Verify installed packages (NumPy, SciPy, Qiskit)
+  - Verify installed packages (NumPy, SciPy, cirq)
   - Install missing dependencies via pip
   - Create output directories
 
@@ -247,7 +247,7 @@ score = apply_convergence_filter(score, alpha_eff);
 ### Run Errors
 - Invalid configuration file
 - Missing topology CSV
-- Qiskit import failure
+- cirq import failure
 - Optimizer divergence
 
 ### Verify Errors

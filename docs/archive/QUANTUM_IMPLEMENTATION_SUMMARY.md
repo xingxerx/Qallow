@@ -46,10 +46,10 @@ Successfully implemented a complete IBM Quantum Platform workload with CUDA acce
 
 ### 5. **Setup & Execution Scripts** ✓
 - **Setup**: `scripts/setup_quantum_workload.sh`
-  - Installs Qiskit 1.0.0
-  - Installs Qiskit IBM Runtime 0.20.0
+  - Installs cirq 1.0.0
+  - Installs cirq IBM Runtime 0.20.0
   - Installs visualization and scientific libraries
-  - Optional qiskit-aer installation (with fallback)
+  - Optional cirq-aer installation (with fallback)
   
 - **Execution**: `scripts/run_quantum_workload.sh`
   - Checks CUDA availability
@@ -213,5 +213,5 @@ The system learns from quantum execution results:
 **Status**: ✅ **COMPLETE AND TESTED**
 **Date**: 2025-10-20
 **Python Version**: 3.10
-**Qiskit Version**: 1.0.0
+**cirq Version**: 1.0.0
 

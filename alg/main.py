@@ -25,7 +25,7 @@
 Usage: alg <command> [options]
 
 Commands:
-  build       Install dependencies (Qiskit, Cirq, NumPy, SciPy)
+  build       Install dependencies (cirq, Cirq, NumPy, SciPy)
   run         Execute all quantum algorithms + QAOA optimizer
   test        Run validation suite (Bell, Grover, VQE)
   verify      Validate results and JSON integrity

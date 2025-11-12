@@ -139,7 +139,7 @@ pip install --upgrade pip setuptools wheel
 
 ```bash
 # Core quantum packages
-pip install qiskit qiskit-aer cirq numpy scipy
+pip install cirq cirq-aer cirq numpy scipy
 
 # Data analysis
 pip install pandas matplotlib seaborn
@@ -265,7 +265,7 @@ cmake -S . -B build -DENABLE_UI=OFF
 | CMake | 3.20+ | 3.20 | Latest |
 | GCC | 11.0+ | 11.0 | Latest |
 | Python | 3.10+ | 3.10 | 3.12 |
-| Qiskit | 0.43+ | 0.40 | Latest |
+| cirq | 0.43+ | 0.40 | Latest |
 | CUDA | 12.0+ | 12.0 | Latest |
 | SDL2 | 2.24+ | 2.20 | Latest |
 
@@ -278,7 +278,7 @@ cmake -S . -B build -DENABLE_UI=OFF
 pip install --upgrade pip
 
 # Update specific package
-pip install --upgrade qiskit
+pip install --upgrade cirq
 
 # Update from requirements
 pip install --upgrade -r requirements.txt
@@ -362,7 +362,7 @@ bash scripts/build_all.sh --cpu
 pip list
 
 # Downgrade package
-pip install qiskit==0.40.0
+pip install cirq==0.40.0
 
 # Or use requirements file
 pip install -r requirements-pinned.txt
@@ -408,11 +408,11 @@ cmake -S . -B build -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
 
 ```bash
 # Use minimal Python environment
-pip install --no-deps qiskit
+pip install --no-deps cirq
 
 # Or use conda for better dependency resolution
 conda create -n qallow python=3.10
-conda install -c conda-forge qiskit
+conda install -c conda-forge cirq
 ```
 
 ## Support

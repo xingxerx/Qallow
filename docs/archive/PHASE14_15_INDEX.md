@@ -131,7 +131,7 @@ qallow (unified entry)
 |------|---------|
 | `interface/launcher.c` | Phase group dispatcher (already integrated) |
 | `interface/main.c` | Phase-14 & Phase-15 runners with adaptive gain |
-| `qiskit_tuner.py` | QAOA tuner for learning couplings |
+| `cirq_tuner.py` | QAOA tuner for learning couplings |
 
 ## 🧪 Verification
 
@@ -155,7 +155,7 @@ cmake -S . -B build && cmake --build build --parallel
 ## 🎓 Learning Resources
 
 - **Closed-form α**: See `PHASE14_15_UNIFIED_INTEGRATION.md` section "Phase-14: Coherence-Lattice Integration"
-- **QAOA tuner**: See `qiskit_tuner.py` for implementation
+- **QAOA tuner**: See `cirq_tuner.py` for implementation
 - **Convergence**: See `PHASE14_15_UNIFIED_INTEGRATION.md` section "Phase-15: Convergence & Lock-In"
 - **Gain priority**: See `PHASE14_15_COMMANDS.md` section "Gain Priority (Phase-14)"
 

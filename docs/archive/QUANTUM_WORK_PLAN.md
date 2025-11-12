@@ -213,7 +213,7 @@ Unified quantum algorithm framework is complete with 6 algorithms implemented an
 **Impact**: Run on real quantum hardware
 
 **Deliverables**:
-- [ ] IBM Qiskit integration
+- [ ] IBM cirq integration
 - [ ] Circuit transpilation
 - [ ] Hardware mapping
 - [ ] Error mitigation

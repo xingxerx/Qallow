@@ -69,7 +69,7 @@ class HybridQuantumLearner:
         total_params = layers * num_qubits
         self._params = rng.uniform(-math.pi, math.pi, size=total_params)
 
-        # Use Cirq simulator instead of Qiskit
+        # Use Cirq simulator instead of cirq
         self._simulator = cirq.Simulator(seed=seed)
         self._rng = rng
 

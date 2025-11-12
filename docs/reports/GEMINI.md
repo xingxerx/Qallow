@@ -8,7 +8,7 @@ The project is built with a mix of technologies:
 
 *   **C/C++:** The core runtime, including the CPU and CUDA backends, is written in C/C++. It uses CMake for building.
 *   **CUDA:** The project supports CUDA for GPU acceleration of the photonic and quantum simulations.
-*   **Python:** Python is used for scripting, examples, and integration with Qiskit.
+*   **Python:** Python is used for scripting, examples, and integration with cirq.
 *   **Rust:** A native GUI application is built with Rust and the FLTK toolkit. There is also a `quantum_optimizer` crate, which provides lightweight, hybrid quantum-classical optimization helpers, including a simple simulator for QAOA.
 *   **Docker:** The project includes a `Dockerfile` and `docker-compose.yaml` for building and running the application in a containerized environment.
 

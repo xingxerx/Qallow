@@ -140,7 +140,7 @@ cargo run --release
 
 ### Quantum Algorithms Setup
 ```bash
-pip install qiskit>=0.43.0 cirq>=1.2.0 pennylane>=0.31.0
+pip install cirq>=0.43.0 cirq>=1.2.0 pennylane>=0.31.0
 python3 alg/main.py run --quick
 ```
 
@@ -175,7 +175,7 @@ VERBOSE=true
 - [ ] Python 3.10+ installed: `python3 --version`
 - [ ] pip working: `pip --version`
 - [ ] Virtual environment active: `which python3` shows venv path
-- [ ] Core packages installed: `python3 -c "import numpy, scipy, qiskit; print('OK')"`
+- [ ] Core packages installed: `python3 -c "import numpy, scipy, cirq; print('OK')"`
 - [ ] Project runs: `python3 run_qallow.py`
 - [ ] Tests pass: `python3 test_quantum_complete.py`
 
@@ -190,11 +190,11 @@ sudo apt-get install -y liblapack-dev libblas-dev gfortran
 pip install --force-reinstall numpy scipy
 ```
 
-### Issue: Failed to build qiskit
+### Issue: Failed to build cirq
 **Solution:**
 ```bash
 pip install --upgrade setuptools wheel
-pip install --upgrade qiskit qiskit-machine-learning
+pip install --upgrade cirq cirq-machine-learning
 ```
 
 ### Issue: Permission denied for /var/qallow

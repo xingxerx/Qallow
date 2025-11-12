@@ -12,7 +12,7 @@
 - **Professional Implementation**: Production-ready code quality with comprehensive error handling and memory management
 
 ### Technical Capabilities
-- **Quantum Integration**: Qiskit bridges, photonic propagation algorithms, and QAOA optimization
+- **Quantum Integration**: cirq bridges, photonic propagation algorithms, and QAOA optimization
 - **Safety Systems**: HallucinationShield module for LLM output validation and constraint satisfaction
 - **Performance**: Hardware acceleration with CUDA optimization and CPU fallback
 - **Monitoring**: Deterministic telemetry with structured CSV/JSON logging

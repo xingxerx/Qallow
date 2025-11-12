@@ -82,7 +82,7 @@ Telemetry & Monitoring
 ### Key Integration Points
 - **Phase 14**: Deterministic alpha tuning with QAOA
 - **Phase 15**: Convergence & lock-in
-- **Quantum Bridge**: Qiskit integration
+- **Quantum Bridge**: cirq integration
 - **Telemetry**: CSV/JSON structured logs
 - **Ethics**: Sustainability + Compassion + Harmony
 

@@ -16,7 +16,7 @@ This reveals how quantum systems scramble information - a key metric for quantum
 ### 1. Install Dependencies
 
 ```bash
-pip install --break-system-packages numpy qiskit qiskit-aer
+pip install --break-system-packages numpy cirq cirq-aer
 ```
 
 ### 2. Run the Demo

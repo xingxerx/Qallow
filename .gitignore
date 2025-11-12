@@ -46,7 +46,7 @@ data/snapshots/
 .env
 .env.local
 .env.*.local
-*.qiskitrc
+*.cirqrc
 .continue/config.json
 .continue/config.local.json
 claude_desktop_config.json

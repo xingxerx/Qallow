@@ -145,7 +145,7 @@ sudo apt-get install -y libjson-c-dev
 ### **Python Quantum Framework Warnings**
 ```bash
 source .venv/bin/activate  # If using venv
-pip install --upgrade cycler matplotlib cirq qiskit
+pip install --upgrade cycler matplotlib cirq cirq
 ```
 
 ### **Permission Denied**

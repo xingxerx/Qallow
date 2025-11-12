@@ -73,7 +73,7 @@ Remember these build commands:
 Remember the Qallow phase flow:
 - Phases 1-7: Ingest and adaptive processing
 - Phases 8-10: Ethics evaluation (E = S + C + H)
-- Phase 11: Quantum bridge (Qiskit)
+- Phase 11: Quantum bridge (cirq)
 - Phases 12-13: Elasticity and harmonics
 - Phases 14-15: Lattice convergence
 ```
@@ -94,13 +94,13 @@ Memories persist across VS Code sessions. Store important context once, recall i
 
 ### Semantic Search
 The memory server uses vector embeddings. Similar concepts are found even with different wording:
-- "quantum" finds memories about "Qiskit"
+- "quantum" finds memories about "cirq"
 - "UI" finds memories about "FLTK"
 - "compilation" finds memories about "build"
 
 ### Memory Organization
 Store memories with clear context:
-- ✅ "Remember that phase 11 requires QALLOW_QISKIT=1 environment variable"
+- ✅ "Remember that phase 11 requires QALLOW_cirq=1 environment variable"
 - ❌ "Remember phase 11"
 
 ### Clearing Old Memories

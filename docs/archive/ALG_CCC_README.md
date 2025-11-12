@@ -19,7 +19,7 @@ alg_ccc/
 │   └── ccc.hpp                 # Header with GPU entrypoints
 ├── hamiltonian.cu              # Hamiltonian assembly kernels
 ├── koopman_cuda.cu             # Koopman operator & Lyapunov estimation
-├── qaoa_constraint.py          # QAOA circuit generator (Qiskit)
+├── qaoa_constraint.py          # QAOA circuit generator (cirq)
 └── tests/
     └── test_gray.cpp           # Gray code unit tests
 ```
@@ -47,7 +47,7 @@ alg_ccc/
 - Ethics scoring via neural network
 
 #### 4. **QAOA Circuit: `qaoa_constraint.py`**
-- Generates Qiskit quantum circuits
+- Generates cirq quantum circuits
 - Layers: initialization → ethics projector → cost → mixer → measurement
 - Exports circuit and parameters to JSON
 - Integrates with Qallow via Python bridge
@@ -58,7 +58,7 @@ alg_ccc/
 - CUDA 13.0+
 - CMake 3.22+
 - C++20 compiler
-- Python 3.10+ with Qiskit
+- Python 3.10+ with cirq
 
 ### Build Steps
 
@@ -184,7 +184,7 @@ Quantum Bridge (src/mind/quantum_bridge.c)
   ↓
 CCC QAOA Generator (Python)
   ↓
-Qiskit Simulator / Real Hardware
+cirq Simulator / Real Hardware
   ↓
 Results → Qallow Ethics Module
 ```
@@ -193,7 +193,7 @@ Results → Qallow Ethics Module
 
 1. **Qallow** calls CCC via Python subprocess
 2. **CCC** generates QAOA circuit with current parameters
-3. **Qiskit** simulates or runs on real quantum hardware
+3. **cirq** simulates or runs on real quantum hardware
 4. **Results** fed back to Qallow for ethics evaluation
 5. **Feedback** updates parameters for next iteration
 
@@ -262,8 +262,8 @@ python3 alg_ccc/qaoa_constraint.py --dump-circuit
 # Verify JSON export
 python3 -m json.tool data/logs/ccc_plan.json
 
-# Check Qiskit integration
-python3 -c "from qiskit import QuantumCircuit; print('Qiskit OK')"
+# Check cirq integration
+python3 -c "from cirq import QuantumCircuit; print('cirq OK')"
 ```
 
 ## Troubleshooting
@@ -285,11 +285,11 @@ grep "add_subdirectory(alg_ccc)" CMakeLists.txt
 
 ### Runtime Issues
 
-**Error**: `ModuleNotFoundError: No module named 'qiskit'`
+**Error**: `ModuleNotFoundError: No module named 'cirq'`
 ```bash
-# Solution: Install Qiskit
+# Solution: Install cirq
 source venv/bin/activate
-pip install qiskit qiskit-aer
+pip install cirq cirq-aer
 ```
 
 **Error**: `Gray code test fails`
@@ -311,7 +311,7 @@ print(gray2int(0b011))  # Should be 2
 - **Gray Codes**: https://en.wikipedia.org/wiki/Gray_code
 - **QAOA**: https://arxiv.org/abs/1411.4028
 - **Koopman Operators**: https://arxiv.org/abs/1710.00564
-- **Qiskit**: https://qiskit.org/
+- **cirq**: https://cirq.org/
 - **Qallow**: https://github.com/xingxerx/Qallow
 
 ## Contributing

@@ -79,7 +79,7 @@ Automatically initialized:
 
 **GPU** (`requirements-gpu.txt`):
 - torch/tensorflow (ML acceleration)
-- qiskit (quantum bridge for Phase 11)
+- cirq (quantum bridge for Phase 11)
 
 **Web** (`requirements-web.txt`):
 - flask, werkzeug (telemetry dashboard)

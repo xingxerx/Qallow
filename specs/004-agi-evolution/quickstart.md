@@ -120,7 +120,7 @@ tail -5 data/logs/my_first_ml.csv
 
 ```bash
 # Check CUDA-Q availability
-export QALLOW_QISKIT=1
+export QALLOW_cirq=1
 ./build/qallow meta-learning --backends-available
 # Expected output shows: CUDA_Q=yes or CUDA_Q=no
 

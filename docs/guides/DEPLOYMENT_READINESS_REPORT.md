@@ -171,7 +171,7 @@ qallow phase14 --help
 1. **Version Control:** Commit cleanup changes with message: "chore: cleanup redundant files and consolidate documentation"
 2. **CI/CD:** Update build pipeline to use primary `build/` directory only
 3. **Documentation:** Keep `docs/archive/` for historical reference
-4. **Python Environments:** Consider removing `venv/`, `qiskit-env/`, and `mcp-memory-service/.venv/` from repository (use `.gitignore`)
+4. **Python Environments:** Consider removing `venv/`, `cirq-env/`, and `mcp-memory-service/.venv/` from repository (use `.gitignore`)
 
 ---
 

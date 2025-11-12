@@ -23,7 +23,7 @@ chmod +x bootstrap.sh
 **What this does:**
 - Initializes git submodules
 - Creates Python virtual environment (.venv)
-- Installs all dependencies (PyTorch, Qiskit, Cirq, CUDA support)
+- Installs all dependencies (PyTorch, cirq, Cirq, CUDA support)
 - Downloads optional assets (~500MB)
 - Builds C/CUDA binaries with CMake
 - Runs verification tests
@@ -321,7 +321,7 @@ source .venv/bin/activate
 python -c "import cirq; print(cirq.__version__)"
 
 # If missing, reinstall
-pip install cirq qiskit
+pip install cirq cirq
 
 # Verify environment variable
 echo $QALLOW_CIRQ  # Should be 1

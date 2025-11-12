@@ -96,7 +96,7 @@ deploy/                           # Kubernetes, Docker (separate from scripts/)
 ### 🔴 CRITICAL (This Week)
 
 1. **Create `DEPENDENCY_MANIFEST.md`**
-   - Inventory all external dependencies (CMake, gcc, CUDA, Python packages, Qiskit)
+   - Inventory all external dependencies (CMake, gcc, CUDA, Python packages, cirq)
    - For each: document § III rationale (why needed, transitive depth check)
    - Example:
      ```
@@ -104,7 +104,7 @@ deploy/                           # Kubernetes, Docker (separate from scripts/)
      - **CMake ≥3.20**: Build orchestration (no alternative; standard practice)
      - **gcc ≥11 | clang ≥15**: C compilation (no third-party alternative viable)
      - **CUDA 12.0+**: GPU acceleration (optional; feature flag for CPU-only)
-     - **Qiskit**: Quantum circuit execution (optional; only loaded when QALLOW_QISKIT=1)
+     - **cirq**: Quantum circuit execution (optional; only loaded when QALLOW_cirq=1)
      ```
 
 2. **Audit Root Directory**

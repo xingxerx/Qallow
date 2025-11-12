@@ -153,7 +153,7 @@ qallow phase 11 --ticks=400 --states=-1,0,1 --hardware-only  # IBM Quantum
 **Options:**
 - `--ticks=N` - Number of shots (default: 400)
 - `--states=S` - Quantum states to prepare (default: -1,0,1)
-- `--hardware-only` - Use real quantum hardware (requires QALLOW_QISKIT=1)
+- `--hardware-only` - Use real quantum hardware (requires QALLOW_cirq=1)
 
 #### Phase 12 (Elasticity)
 
@@ -274,7 +274,7 @@ qallow run vm --integrate \
 qallow run vm --integrate --no-split
 
 # Run phase 11 (quantum bridge) + phases 12-15
-export QALLOW_QISKIT=1
+export QALLOW_cirq=1
 qallow run vm --integrate phase11 --integrate-phase11-ticks=100
 ```
 
@@ -347,7 +347,7 @@ qallow phase12 --ticks=100  # -> qallow phase 12 --ticks=100
 
 ```bash
 # Quantum integration
-export QALLOW_QISKIT=1          # Enable Phase 11 quantum bridge
+export QALLOW_cirq=1          # Enable Phase 11 quantum bridge
 export QALLOW_PHASE11_SHOTS=1024  # Override Phase 11 shots
 export QALLOW_PHASE11_STATES="-1,0,1"  # Override Phase 11 states
 
@@ -444,8 +444,8 @@ qallow run vm --integrate --integrate-ticks=500 --dashboard=off
 ### Hardware Quantum Integration
 
 ```bash
-# Enable Qiskit/IBM Quantum
-export QALLOW_QISKIT=1
+# Enable cirq/IBM Quantum
+export QALLOW_cirq=1
 
 # Run Phase 11 on real hardware
 qallow phase 11 --ticks=400 --hardware-only
@@ -508,8 +508,8 @@ cat data/logs/phase13.csv
 ### Quantum Integration Issues
 
 ```bash
-# Verify Qiskit installation
-python3 -c "import qiskit; print(qiskit.__version__)"
+# Verify cirq installation
+python3 -c "import cirq; print(cirq.__version__)"
 
 # Check Python binary detection
 export QALLOW_PYTHON=/path/to/python3

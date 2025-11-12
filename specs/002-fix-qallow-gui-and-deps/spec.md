@@ -89,12 +89,12 @@ The system's ethics layer actively prevents the execution of a critical phase if
 -   **FR-001**: The system MUST provide a `bootstrap.sh` script that installs all required system (`apt`), Python (`pip`), and Rust (`cargo`) dependencies.
 -   **FR-002**: All GUI buttons in the `native_app` MUST be wired to trigger the corresponding `qallow` backend phase via a CLI subprocess call.
 -   **FR-003**: The build system (CMake) MUST correctly link all C/CUDA components, resolving any undefined symbols or linkage errors.
--   **FR-004**: A `requirements.txt` file MUST exist and contain all necessary Python packages, including `qiskit`, `qiskit-aer`, and `sentence-transformers`.
+-   **FR-004**: A `requirements.txt` file MUST exist and contain all necessary Python packages, including `cirq`, `cirq-aer`, and `sentence-transformers`.
 -   **FR-005**: All phases that have a CUDA implementation MUST provide a CPU-only fallback path for systems without a compatible GPU.
 -   **FR-006**: The application MUST create the `data/logs/` directory on its first run if it is not already present.
 -   **FR-007**: The GUI MUST include a status bar or telemetry panel that displays the tailed output of the latest log file in `data/logs/`.
 -   **FR-008**: The system MUST prevent the execution of Phase 13 if an ethics model has not been loaded, and provide feedback to the user.
--   **FR-009**: Broken phase links for Phase 11 (Qiskit bridge) and Phase 14 (QAOA tuner) MUST be repaired and made functional.
+-   **FR-009**: Broken phase links for Phase 11 (cirq bridge) and Phase 14 (QAOA tuner) MUST be repaired and made functional.
 
 ### Key Entities *(include if feature involves data)*
 

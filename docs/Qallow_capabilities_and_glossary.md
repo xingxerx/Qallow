@@ -31,7 +31,7 @@
 - **CLI execution**: `./build/qallow` for focused phases, `./build/qallow_unified` for orchestrating multiple phases and continuous runs; `interface/main.c` coordinates parsing and routing.
 - **Scripts**: `scripts/build_all.sh` (auto CPU/CUDA builds + ctest), `run_qallow_unified.sh` and `run_phase14_16.sh` for guided demos, `scripts/check_dependencies.sh` for environment validation.
 - **Examples & demos**: Phase demos under `build/phase##_demo`, quantum adaptive loop via `examples/quantum_adaptive_demo.py`, and SDL visualizer (`interface/qallow_ui.c`) when SDL2 is available.
-- **Python bridge**: `python/quantum/run_phase11_bridge.py` integrates Qiskit (`QALLOW_QISKIT` env) for hybrid quantum runs; additional utilities in `python/` and `alg/` for hyperparameter search.
+- **Python bridge**: `python/quantum/run_phase11_bridge.py` integrates cirq (`QALLOW_cirq` env) for hybrid quantum runs; additional utilities in `python/` and `alg/` for hyperparameter search.
 - **Testing**: CTest-based suites (`unit_ethics_core`, `unit_dl_integration`, `unit_cuda_parallel`), smoke harness `tests/smoke/test_modules.sh`, integration tests under `tests/integration/`.
 
 ## Module Responsibilities
@@ -54,9 +54,9 @@
 
 ## Integration Points
 - **Ethics pipeline**: Phases 8–13 enforce ethics metrics, with hooks for operator feedback and audit trails.
-- **Quantum acceleration**: Phase 11 drives QAOA through CUDA kernels or the Python/Qiskit bridge; Rust helper `qallow_quantum_rust/` exports phase metrics consumed later.
+- **Quantum acceleration**: Phase 11 drives QAOA through CUDA kernels or the Python/cirq bridge; Rust helper `qallow_quantum_rust/` exports phase metrics consumed later.
 - **Telemetry dashboards**: CSV metrics feed monitoring under `monitoring/` and documentation in `docs/` for post-run analysis.
-- **External dependencies**: FetchContent-managed `spdlog`, optional SDL2/SDL2_ttf, CUDA Toolkit ≥ 12, Python packages `qiskit`, `sentence-transformers` for advanced features.
+- **External dependencies**: FetchContent-managed `spdlog`, optional SDL2/SDL2_ttf, CUDA Toolkit ≥ 12, Python packages `cirq`, `sentence-transformers` for advanced features.
 
 ## Glossary (A–Z)
 - **Adaptive Chronometrics** – Phase 4’s time-series forecasting step that stabilizes tick pacing against historical latency.
@@ -71,7 +71,7 @@
 - **Hyperparameter Optimizer** – Python tooling in `algos/qaoa_hparam.py` that converts search spaces into QUBO problems for Phase 11 QAOA sweeps.
 - **Multi-Pocket Routing (PPAI)** – Phase 5 router that assigns workloads across multiple agent pockets using overlay graphs.
 - **Nsight Profiling Hook** – `QALLOW_PROFILE_SCOPE` instrumentation enabling GPU/CPU profiling capture for performance regression analysis.
-- **Quantum Bridge** – Phase 11 hardware/software interface that leverages Qiskit (`python/quantum/run_phase11_bridge.py`) to feed coherence data back into the C runtime.
+- **Quantum Bridge** – Phase 11 hardware/software interface that leverages cirq (`python/quantum/run_phase11_bridge.py`) to feed coherence data back into the C runtime.
 - **QUBO Payload** – Quadratic unconstrained binary optimization instance supplied to the quantum pipeline for QAOA-based decision making.
 - **SDL Visualizer** – Optional interface (`interface/qallow_ui.c`) providing runtime visualization when SDL2 dependencies are present.
 - **Telemetry Stream** – Continuous CSV feed (`qallow_stream.csv`) reflecting live phase state for dashboards and anomaly detection.

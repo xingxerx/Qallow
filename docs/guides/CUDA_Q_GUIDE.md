@@ -35,7 +35,7 @@ cmake --build . --target cudaq --parallel
 
 ```bash
 # Activate your environment
-source /root/Qallow/qiskit-env/bin/activate
+source /root/Qallow/cirq-env/bin/activate
 
 # Install CUDA-Q Python package
 pip install cuda-quantum

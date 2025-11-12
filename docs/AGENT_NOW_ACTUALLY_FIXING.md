@@ -108,7 +108,7 @@ git show <commit-hash>
 ✅ **Agent NOW ACTIVELY FIXES CODE**
 ✅ **Changes ARE BEING COMMITTED** 
 ✅ **Daemon running on 10-second cycles**
-✅ **Using Cirq (not Qiskit)**
+✅ **Using Cirq (not cirq)**
 ✅ **CUDA enabled for acceleration**
 
 ---

@@ -119,11 +119,11 @@ deploy/                                → Kubernetes, Docker manifests (separat
 - **CMake ≥3.20**: Build orchestration (standard, no alternative)
 - **gcc ≥11 | clang ≥15**: C compilation (required for performance)
 - **CUDA 12.0+**: GPU acceleration (OPTIONAL; feature flag; CPU fallback available)
-- **Qiskit**: Quantum circuit execution (OPTIONAL; only loaded with QALLOW_QISKIT=1)
+- **cirq**: Quantum circuit execution (OPTIONAL; only loaded with QALLOW_cirq=1)
 - **Python 3.10+**: Runtime (requirement justified by phase modules)
 
 Transitive Analysis:
-- Qiskit → depends on: qiskit-aer, numpy, scipy
+- cirq → depends on: cirq-aer, numpy, scipy
   * Depth: 2 | Justification: Must accept transitive for quantum simulation
   * Risk: Lock versions in requirements-gpu.txt to prevent surprise breaks
 ```

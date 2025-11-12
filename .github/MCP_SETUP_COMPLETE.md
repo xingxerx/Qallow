@@ -171,7 +171,7 @@ Remember that Qallow uses a three-layer architecture:
 Remember the Qallow phase flow:
 - Phases 1-7: Ingest and adaptive processing
 - Phases 8-10: Ethics evaluation (E = S + C + H)
-- Phase 11: Quantum bridge (Qiskit)
+- Phase 11: Quantum bridge (cirq)
 - Phases 12-13: Elasticity and harmonics
 - Phases 14-15: Lattice convergence
 ```

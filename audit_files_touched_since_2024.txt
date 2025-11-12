@@ -654,7 +654,7 @@ CCC_PHASE2_SUMMARY.md
 CIRQ_C_INTEGRATION_GUIDE.md
 CIRQ_FRAMEWORK_SUMMARY.md
 CIRQ_INTEGRATION_GUIDE.md
-CIRQ_vs_QISKIT_BENCHMARK_REPORT.md
+CIRQ_vs_cirq_BENCHMARK_REPORT.md
 CI_BOOTSTRAP_INTEGRATION.md
 CI_BUILD_FIX_SUMMARY.md
 CI_FIX_COMPLETE.md
@@ -881,11 +881,11 @@ QHIL_DOCUMENTATION.md
 QHIL_FINAL_SUMMARY.md
 QHIL_INDEX.md
 QHIL_INTEGRATION_GUIDE.md
-QISKIT_C_API_HPC_COMPLETE_SETUP.md
-QISKIT_C_API_HPC_SETUP.sh
-QISKIT_C_API_INSTALLATION_SUMMARY.txt
-QISKIT_C_API_README.md
-QISKIT_REMOVAL_SUMMARY.md
+cirq_C_API_HPC_COMPLETE_SETUP.md
+cirq_C_API_HPC_SETUP.sh
+cirq_C_API_INSTALLATION_SUMMARY.txt
+cirq_C_API_README.md
+cirq_REMOVAL_SUMMARY.md
 QML_EXECUTIVE_SUMMARY.md
 QML_IMPLEMENTATION_COMPLETE.md
 QML_INDEX.md
@@ -3642,7 +3642,7 @@ docs/guides/NATIVE_APP_SETUP.md
 docs/guides/NATIVE_GUI_GUIDE.md
 docs/guides/PROFILING_SECTIONS_GUIDE.md
 docs/guides/PROJECT_SETUP_COMPLETE.md
-docs/guides/QISKIT_C_API_HPC_COMPLETE_SETUP.md
+docs/guides/cirq_C_API_HPC_COMPLETE_SETUP.md
 docs/guides/QUANTUM_ALGORITHMS_GUIDE.md
 docs/guides/QUANTUM_ALGORITHM_BUILDER.md
 docs/guides/QUANTUM_BUILD_INDEX.md
@@ -3702,7 +3702,7 @@ docs/reports/BUTTON_FIX_REPORT.md
 docs/reports/BUTTON_INTEGRATION_COMPLETE.md
 docs/reports/CARGO_RUN_FIX.md
 docs/reports/CIRQ_FRAMEWORK_SUMMARY.md
-docs/reports/CIRQ_vs_QISKIT_BENCHMARK_REPORT.md
+docs/reports/CIRQ_vs_cirq_BENCHMARK_REPORT.md
 docs/reports/CLEANUP_COMPLETION_SUMMARY.md
 docs/reports/COMPLETE_BUTTON_CODES.md
 docs/reports/COMPLETION_REPORT.md
@@ -3749,7 +3749,7 @@ docs/reports/PYTHON_CONSOLIDATION_PLAN.md
 docs/reports/PYTHON_TO_C_CONVERSION_COMPLETE.md
 docs/reports/QALLOW_CHEATSHEET.md
 docs/reports/QALLOW_LIGHTNING_INTEGRATION.md
-docs/reports/QISKIT_C_API_README.md
+docs/reports/cirq_C_API_README.md
 docs/reports/QUANTUM_ALGORITHMS_SUMMARY.md
 docs/reports/QUANTUM_ECHOES_TEST_SUMMARY.md
 docs/reports/QUANTUM_ENTANGLEMENT_IMPLEMENTATION_SUMMARY.md
@@ -3831,10 +3831,10 @@ examples/phase_demos/phase_demo_common.cuh
 examples/qallow_ethics_integration
 examples/qallow_ethics_integration.c
 examples/qgan_torch_gaussian.py
-examples/qiskit_bell_state.py
-examples/qiskit_c_embed/README.md
-examples/qiskit_c_embed/main.c
-examples/qiskit_ibm_runtime.py
+examples/cirq_bell_state.py
+examples/cirq_c_embed/README.md
+examples/cirq_c_embed/main.c
+examples/cirq_ibm_runtime.py
 examples/qsvc_synthetic_demo.py
 examples/quantum_adaptive_demo.py
 examples/quantum_bandit_policy.py
@@ -4843,7 +4843,7 @@ qallow_vm/modules/qcp.c
 qallow_vm/modules/qcp.cu
 qallow_vm/overlays/overlay.c
 qallow_vm/sandbox/pocket_dimension.c
-qiskit_tuner.py
+cirq_tuner.py
 qml_integration.py
 qml_verification.py
 quantum_algorithms/QUANTUM_ALGORITHM_SUITE.py
@@ -4875,7 +4875,7 @@ quantum_algorithms/quantum_clustering/tests/test_dataset.py
 quantum_algorithms/quantum_clustering/tests/test_sparse_encoder.py
 quantum_algorithms/setup.sh
 quantum_algorithms/unified_quantum_framework.py
-quantum_algorithms/unified_quantum_framework_qiskit.py
+quantum_algorithms/unified_quantum_framework_cirq.py
 quantum_algorithms/unified_quantum_framework_real_hardware.py
 quantum_human_loop.py
 quantum_human_loop_demo.py
@@ -4917,7 +4917,7 @@ run_phase14_16.sh
 run_qallow.py
 run_qallow_cuda.sh
 run_qallow_unified.sh
-run_qiskit_c_api_demo.sh
+run_cirq_c_api_demo.sh
 run_recursive_improvement.sh
 run_with_improvement.sh
 runtime/cuda_parallel.cu
@@ -4979,7 +4979,7 @@ scripts/ibm_quantum_workload.py
 scripts/install_quantum_optimizer_deps.sh
 scripts/monitor_live.py
 scripts/pre_build_cleanup.sh
-scripts/qiskit_bridge.py
+scripts/cirq_bridge.py
 scripts/qsvm_iris_workload.py
 scripts/quick_start_ollama.sh
 scripts/real_cuda_processor.py
@@ -5914,7 +5914,7 @@ verify_continue_setup.sh
 verify_cuda.sh
 verify_implementation.sh
 verify_mcp_setup.sh
-verify_qiskit_c_api.sh
+verify_cirq_c_api.sh
 virtual_computer/README.md
 virtual_computer/__init__.py
 virtual_computer/agent_tasks.py

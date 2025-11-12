@@ -16,7 +16,7 @@
 
 ### Quantum Computing
 - ✅ Full quantum simulation framework (QAOA, VQE, Grover)
-- ✅ Multiple backend support (Cirq, Qiskit, IBM Quantum)
+- ✅ Multiple backend support (Cirq, cirq, IBM Quantum)
 - ✅ Quantum machine learning (QSVM, VQC, qGAN)
 
 ### Infrastructure

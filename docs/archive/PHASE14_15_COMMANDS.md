@@ -195,7 +195,7 @@ When multiple gain sources are available:
 - Check previous phase output
 
 ### QAOA tuner fails
-- Ensure qiskit is installed
+- Ensure cirq is installed
 - Check Python path
 - Falls back to closed-form automatically
 

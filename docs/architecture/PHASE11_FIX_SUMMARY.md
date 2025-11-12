@@ -2,7 +2,7 @@
 
 **Date**: 2025-10-27  
 **Status**: ✅ FIXED  
-**Issue**: AttributeError in Qiskit/Cirq bridge
+**Issue**: AttributeError in cirq/Cirq bridge
 
 ---
 
@@ -14,7 +14,7 @@ When running `./run_all_phases.sh --build cuda --loop`, Phase 11 (Quantum Cohere
 AttributeError: 'Circuit' object has no attribute 'num_qubits'. Did you mean: 'all_qubits'?
 ```
 
-**Root Cause**: The code was using Qiskit API (`circuit.num_qubits()`) but the circuit object was a Cirq circuit, which uses `all_qubits()` instead.
+**Root Cause**: The code was using cirq API (`circuit.num_qubits()`) but the circuit object was a Cirq circuit, which uses `all_qubits()` instead.
 
 ---
 
@@ -22,10 +22,10 @@ AttributeError: 'Circuit' object has no attribute 'num_qubits'. Did you mean: 'a
 
 **File Modified**: `/root/Qallow/python/quantum/qallow_ibm_bridge.py`
 
-**Change**: Added fallback logic to handle both Qiskit and Cirq circuits:
+**Change**: Added fallback logic to handle both cirq and Cirq circuits:
 
 ```python
-# Get qubit count - handle both Qiskit and Cirq circuits
+# Get qubit count - handle both cirq and Cirq circuits
 try:
     qubit_count = float(circuit.num_qubits())
 except AttributeError:
@@ -49,7 +49,7 @@ AttributeError: 'Circuit' object has no attribute 'num_qubits'
 
 **After Fix**:
 ```
-[PHASE11] Invoking bridge via ./qiskit-env/bin/python
+[PHASE11] Invoking bridge via ./cirq-env/bin/python
 {
   "backend": "cirq_simulator",
   "source": "simulator",
@@ -120,7 +120,7 @@ The script will now:
 ## 📝 Files Modified
 
 1. **qallow_ibm_bridge.py**
-   - Added Qiskit/Cirq compatibility layer
+   - Added cirq/Cirq compatibility layer
    - Fallback qubit counting logic
 
 2. **run_all_phases.sh**

@@ -15,7 +15,7 @@ All components for the Quantum Echoes algorithm (Phase 11: Quantum-Coherence Pip
 - **run_quantum_echoes_demo()**: High-level demo function with telemetry
 - **CLI interface**: Command-line argument parsing
 - **Features**:
-  - Qiskit-based quantum simulation
+  - cirq-based quantum simulation
   - OTOC fidelity calculation
   - Phase 14 readiness detection (≥0.981 threshold)
   - CSV telemetry logging
@@ -192,12 +192,12 @@ python3 -m unittest tests.unit.test_quantum_echoes.TestQuantumEchoesEngine.test_
 ## 🔧 Dependencies
 
 - **numpy** - Numerical computations
-- **qiskit** - Quantum circuit framework
-- **qiskit-aer** - Quantum simulator backend
+- **cirq** - Quantum circuit framework
+- **cirq-aer** - Quantum simulator backend
 
 Install:
 ```bash
-pip install --break-system-packages numpy qiskit qiskit-aer
+pip install --break-system-packages numpy cirq cirq-aer
 ```
 
 ## 📈 Performance

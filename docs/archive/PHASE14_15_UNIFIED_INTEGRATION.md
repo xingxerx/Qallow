@@ -157,7 +157,7 @@ qallow phase 15 --ticks=800 --eps=5e-6 --export=/tmp/phase15.json
 
 - **Unified CLI**: `launcher.c` dispatches all phases through `qallow_handle_phase_group()`
 - **Phase Runners**: `main.c` contains `qallow_phase14_runner()` and `qallow_phase15_runner()`
-- **QAOA Tuner**: `qiskit_tuner.py` runs inline when `--tune_qaoa` is set
+- **QAOA Tuner**: `cirq_tuner.py` runs inline when `--tune_qaoa` is set
 - **Shared Engine**: All phases operate on the same underlying quantum simulation engine
 
 ## Build & Run

@@ -29,7 +29,7 @@ All phases (11-15) are now unified under a single `qallow phase` command group w
 |------|---------|
 | `interface/launcher.c` | Phase group dispatcher (already integrated) |
 | `interface/main.c` | Phase-14 & Phase-15 runners with adaptive gain |
-| `qiskit_tuner.py` | QAOA tuner for learning couplings |
+| `cirq_tuner.py` | QAOA tuner for learning couplings |
 
 ## Build Status
 

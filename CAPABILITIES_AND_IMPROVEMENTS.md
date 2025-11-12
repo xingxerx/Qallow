@@ -20,7 +20,7 @@
 - ✅ Quantum simulation with photonic propagation control
 - ✅ QAOA (Quantum Approximate Optimization Algorithm) implementation
 - ✅ Cirq quantum framework integration
-- ✅ Qiskit/Aer backend support
+- ✅ cirq/Aer backend support
 - ✅ Real hardware quantum computer support (IBM Quantum Platform)
 - ✅ Variational Quantum Eigensolver (VQE)
 - ✅ Grover's algorithm implementation

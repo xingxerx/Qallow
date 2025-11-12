@@ -1,15 +1,15 @@
-# 🚀 QISKIT C API + HPC SETUP - COMPLETE GUIDE
+# 🚀 cirq C API + HPC SETUP - COMPLETE GUIDE
 
 ## ✅ INSTALLATION STATUS: COMPLETE
 
-The Qiskit C API + HPC framework has been successfully installed and built on your system!
+The cirq C API + HPC framework has been successfully installed and built on your system!
 
 ### 📊 Build Summary
 
 ```
 ✅ System Dependencies: Installed (BLAS, LAPACK, OpenMPI, Eigen3, Boost)
 ✅ Rust: v1.89.0 (already installed)
-✅ Qiskit C Extension: Built successfully
+✅ cirq C Extension: Built successfully
 ✅ QRMI Service: Built successfully (Rust)
 ✅ C API Demo: Built successfully (6.5MB executable)
 ```
@@ -17,9 +17,9 @@ The Qiskit C API + HPC framework has been successfully installed and built on yo
 ### 📁 Installation Locations
 
 ```
-Repository:  /root/Qallow/qiskit-c-api-demo/
-Executable:  /root/Qallow/qiskit-c-api-demo/build/c-api-demo
-Data Files:  /root/Qallow/qiskit-c-api-demo/data/
+Repository:  /root/Qallow/cirq-c-api-demo/
+Executable:  /root/Qallow/cirq-c-api-demo/build/c-api-demo
+Data Files:  /root/Qallow/cirq-c-api-demo/data/
 ```
 
 ---
@@ -38,12 +38,12 @@ Data Files:  /root/Qallow/qiskit-c-api-demo/data/
 
 ```bash
 # Option 1: Temporary (current session only)
-export QISKIT_IBM_TOKEN="your_api_key_here"
-export QISKIT_IBM_INSTANCE="your_crn_here"
+export cirq_IBM_TOKEN="your_api_key_here"
+export cirq_IBM_INSTANCE="your_crn_here"
 
 # Option 2: Permanent (add to ~/.bashrc or ~/.zshrc)
-echo 'export QISKIT_IBM_TOKEN="your_api_key_here"' >> ~/.bashrc
-echo 'export QISKIT_IBM_INSTANCE="your_crn_here"' >> ~/.bashrc
+echo 'export cirq_IBM_TOKEN="your_api_key_here"' >> ~/.bashrc
+echo 'export cirq_IBM_INSTANCE="your_crn_here"' >> ~/.bashrc
 source ~/.bashrc
 ```
 
@@ -54,7 +54,7 @@ source ~/.bashrc
 ### Single Process (Local)
 
 ```bash
-cd /root/Qallow/qiskit-c-api-demo/build
+cd /root/Qallow/cirq-c-api-demo/build
 
 ./c-api-demo \
   --fcidump ../data/fcidump_Fe4S4_MO.txt \
@@ -70,7 +70,7 @@ cd /root/Qallow/qiskit-c-api-demo/build
 ### Distributed (MPI - HPC Cluster)
 
 ```bash
-cd /root/Qallow/qiskit-c-api-demo/build
+cd /root/Qallow/cirq-c-api-demo/build
 
 # Run on 96 processes
 mpirun -np 96 ./c-api-demo \
@@ -135,19 +135,19 @@ This C API + HPC framework is PERFECT for Qallow because:
 
 ## 📚 RESOURCES
 
-- **GitHub**: https://github.com/qiskit-community/qiskit-c-api-demo
-- **Qiskit C API Docs**: https://quantum.cloud.ibm.com/docs/en/api/qiskit-c
+- **GitHub**: https://github.com/cirq-community/cirq-c-api-demo
+- **cirq C API Docs**: https://quantum.cloud.ibm.com/docs/en/api/cirq-c
 - **IBM Quantum**: https://quantum.ibm.com/
-- **Qiskit Documentation**: https://docs.quantum.ibm.com/
+- **cirq Documentation**: https://docs.quantum.ibm.com/
 
 ---
 
 ## 🆘 TROUBLESHOOTING
 
-### Error: "QISKIT_IBM_TOKEN not set"
+### Error: "cirq_IBM_TOKEN not set"
 ```bash
-export QISKIT_IBM_TOKEN="your_api_key"
-export QISKIT_IBM_INSTANCE="your_crn"
+export cirq_IBM_TOKEN="your_api_key"
+export cirq_IBM_INSTANCE="your_crn"
 ```
 
 ### Error: "Cannot connect to quantum hardware"
@@ -173,7 +173,7 @@ sudo pacman -S openmpi
 
 ---
 
-**Status**: ✅ **QISKIT C API + HPC READY FOR PRODUCTION USE**
+**Status**: ✅ **cirq C API + HPC READY FOR PRODUCTION USE**
 
 Generated: 2025-10-24
 

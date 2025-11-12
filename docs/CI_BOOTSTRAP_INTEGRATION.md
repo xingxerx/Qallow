@@ -117,11 +117,11 @@ export CI_JOB_ID="build-cpu-ubuntu-22.04"
 export CI_BUILD_REF="abc123def456"
 ```
 
-### Python/Qiskit
+### Python/cirq
 
 ```bash
-# Enable Qiskit for Phase 11
-export QALLOW_QISKIT=1
+# Enable cirq for Phase 11
+export QALLOW_cirq=1
 
 # Custom Python path
 export PYTHON_EXECUTABLE="/usr/bin/python3.10"

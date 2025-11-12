@@ -138,7 +138,7 @@ pub fn phase15_run(phase14_fidelity, ticks, eps) -> Phase15Result {
 | Final fidelity | 0.981 (barely) | 0.9998 (strong) |
 | Target met? | ✓ | ✓✓ |
 
-*C QAOA tuner had Qiskit import error; used closed-form fallback
+*C QAOA tuner had cirq import error; used closed-form fallback
 
 ### Phase 15 Performance
 

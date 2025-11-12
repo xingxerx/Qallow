@@ -169,7 +169,7 @@ Output & Feedback
 - Feedback loop
 
 ### Quantum Bridge
-- Qiskit integration
+- cirq integration
 - IBM Runtime support
 - Aer simulator
 - Custom backends

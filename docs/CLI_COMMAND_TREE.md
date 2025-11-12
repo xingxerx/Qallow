@@ -209,7 +209,7 @@ qallow run vm --self-audit --export-pocket-map /tmp/pockets.json
 
 ### Quantum Integration
 ```
-export QALLOW_QISKIT=1
+export QALLOW_cirq=1
 qallow run vm --integrate phase11
 qallow phase 11 --hardware-only
 ```
@@ -220,7 +220,7 @@ qallow phase 11 --hardware-only
 
 ```bash
 # Quantum backend
-QALLOW_QISKIT=1                 Enable Qiskit/IBM Quantum
+QALLOW_cirq=1                 Enable cirq/IBM Quantum
 
 # Logging
 QALLOW_LOG_DIR=/path            Override log directory
@@ -305,7 +305,7 @@ $ qallow run unified
 
 ### Flow 3: Quantum Integration
 ```
-$ export QALLOW_QISKIT=1
+$ export QALLOW_cirq=1
 $ qallow run vm --integrate phase11 --integrate-phase11-hardware
 $ qallow phase 11 --ticks=400
 ```

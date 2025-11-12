@@ -209,7 +209,7 @@ copilot-instructions.md
 
 2. **Use Semantic Search**
    - Similar concepts are found even with different wording
-   - "quantum" finds memories about "Qiskit"
+   - "quantum" finds memories about "cirq"
    - "UI" finds memories about "FLTK"
 
 3. **Organize Memories**

@@ -270,7 +270,7 @@ cat /tmp/result.json | jq '.pipeline.success'
    - QAOA with hardware-efficient ansatz
 
 5. **Real hardware:**
-   - Qiskit-Rust bridge for IBM Quantum
+   - cirq-Rust bridge for IBM Quantum
    - Sync phase results to real quantum backend
 
 ---

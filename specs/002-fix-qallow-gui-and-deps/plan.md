@@ -26,10 +26,10 @@ This approach ensures we have a working, buildable application before adding com
 
 | Task | Component | Description |
 |------|-----------|-------------|
-| 1. Create `requirements.txt` | Python | Define all Python dependencies (`qiskit`, `sentence-transformers`, etc.). |
+| 1. Create `requirements.txt` | Python | Define all Python dependencies (`cirq`, `sentence-transformers`, etc.). |
 | 2. Enhance `bootstrap.sh` | Build | Update the main setup script to install Python deps from `requirements.txt` and other system packages. |
 | 3. Add CMake CUDA Fallback | Build | Modify `CMakeLists.txt` to allow CPU-only builds for CUDA-optional phases. |
-| 4. Fix Broken Python Phases | Python | Repair the Qiskit bridge (Phase 11) and QAOA tuner (Phase 14). |
+| 4. Fix Broken Python Phases | Python | Repair the cirq bridge (Phase 11) and QAOA tuner (Phase 14). |
 | 5. Wire GUI Buttons | Rust GUI | Connect buttons in `native_app/src/main.rs` to execute `qallow` phases as subprocesses. |
 | 6. Implement GUI Telemetry | Rust GUI | Add a panel to the GUI to tail and display logs from `data/logs/`. |
 | 7. Implement Ethics Guard | Backend/GUI | Add logic to block Phase 13 execution if the ethics model isn't loaded and show an error in the GUI. |

@@ -11,7 +11,7 @@ The ALG framework is designed as a **unified quantum computing system** that int
 │  ┌──────────────────────────────────────────────────────────┐  │
 │  │  ALG UNIFIED FRAMEWORK                                   │  │
 │  │  ├─ 6 Quantum Algorithms (Cirq-based)                   │  │
-│  │  ├─ QAOA + SPSA Optimizer (Qiskit-based)                │  │
+│  │  ├─ QAOA + SPSA Optimizer (cirq-based)                │  │
 │  │  ├─ Comprehensive Reporting (JSON + Markdown)           │  │
 │  │  └─ Validation & Verification Suite                     │  │
 │  └──────────────────────────────────────────────────────────┘  │

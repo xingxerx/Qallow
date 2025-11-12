@@ -189,7 +189,7 @@ cmake -S . -B build && cmake --build build --parallel
 |------|---------|
 | `interface/launcher.c` | Phase group dispatcher |
 | `interface/main.c` | Phase-14 & Phase-15 runners |
-| `qiskit_tuner.py` | QAOA tuner |
+| `cirq_tuner.py` | QAOA tuner |
 
 ## 🎯 Next Steps (Optional)
 

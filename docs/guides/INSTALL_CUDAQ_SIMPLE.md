@@ -19,7 +19,7 @@ The CMake build script tried to build CUDA-Q from source, but:
 
 ```bash
 # Activate your environment
-source /root/Qallow/qiskit-env/bin/activate
+source /root/Qallow/cirq-env/bin/activate
 
 # Install CUDA-Q
 pip install cuda-quantum

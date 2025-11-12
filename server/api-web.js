@@ -154,7 +154,7 @@ router.post('/vm/start', (req, res) => {
     addAuditLog('VM', `Starting unified system with all phases 1-20, build ${build}, quantum enabled`, 'Info');
 
     // Set quantum env
-    process.env.QALLOW_QISKIT = '1';
+    process.env.QALLOW_cirq = '1';
 
     const qallowPath = '/root/Qallow/build/qallow';
     if (!fs.existsSync(qallowPath)) {

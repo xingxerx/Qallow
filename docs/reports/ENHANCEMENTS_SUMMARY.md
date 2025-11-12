@@ -196,7 +196,7 @@ bash scripts/check_dependencies.sh --auto-install
 ### Supported Packages
 
 - Python ≥ 3.10
-- Qiskit, Cirq, NumPy, SciPy
+- cirq, Cirq, NumPy, SciPy
 - Flask, Pandas, Matplotlib
 - CUDA Toolkit, cuDNN
 - SDL2, SDL2_ttf

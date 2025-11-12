@@ -196,7 +196,7 @@ metrics = bridge.get_gpu_metrics()
 
 2. **Test GPU Bridge Integration**
    ```bash
-   /root/Qallow/qiskit-env/bin/python quantum_ml/cuda_quantum_nas.py
+   /root/Qallow/cirq-env/bin/python quantum_ml/cuda_quantum_nas.py
    ```
 
 3. **Benchmark Performance**

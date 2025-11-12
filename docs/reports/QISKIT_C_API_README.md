@@ -1,8 +1,8 @@
-# 🚀 Qiskit C API + HPC - Complete Installation Guide
+# 🚀 cirq C API + HPC - Complete Installation Guide
 
 ## ✅ Installation Status: COMPLETE
 
-The Qiskit C API + HPC framework has been successfully installed and is ready for production use.
+The cirq C API + HPC framework has been successfully installed and is ready for production use.
 
 ---
 
@@ -15,7 +15,7 @@ bash /root/Qallow/setup_ibm_quantum.sh
 
 ### Step 2: Run the Demo (5-120 min)
 ```bash
-bash /root/Qallow/run_qiskit_c_api_demo.sh
+bash /root/Qallow/run_cirq_c_api_demo.sh
 ```
 
 ### Step 3: Analyze Results
@@ -27,11 +27,11 @@ The demo outputs ground state energy and quantum metrics.
 
 | File | Purpose |
 |------|---------|
-| `/root/Qallow/qiskit-c-api-demo/build/c-api-demo` | Main executable (6.5MB) |
+| `/root/Qallow/cirq-c-api-demo/build/c-api-demo` | Main executable (6.5MB) |
 | `/root/Qallow/setup_ibm_quantum.sh` | Configure IBM Quantum credentials |
-| `/root/Qallow/run_qiskit_c_api_demo.sh` | Run demo with multiple modes |
-| `/root/Qallow/verify_qiskit_c_api.sh` | Verify installation |
-| `/root/Qallow/QISKIT_C_API_HPC_COMPLETE_SETUP.md` | Detailed setup guide |
+| `/root/Qallow/run_cirq_c_api_demo.sh` | Run demo with multiple modes |
+| `/root/Qallow/verify_cirq_c_api.sh` | Verify installation |
+| `/root/Qallow/cirq_C_API_HPC_COMPLETE_SETUP.md` | Detailed setup guide |
 
 ---
 
@@ -58,9 +58,9 @@ This framework enables:
 
 ## 📚 Resources
 
-- **GitHub**: https://github.com/qiskit-community/qiskit-c-api-demo
+- **GitHub**: https://github.com/cirq-community/cirq-c-api-demo
 - **IBM Quantum**: https://quantum.ibm.com/
-- **Qiskit Docs**: https://docs.quantum.ibm.com/
+- **cirq Docs**: https://docs.quantum.ibm.com/
 
 ---
 
@@ -73,12 +73,12 @@ bash /root/Qallow/setup_ibm_quantum.sh
 
 **Q: Executable not found?**
 ```bash
-bash /root/Qallow/QISKIT_C_API_HPC_SETUP.sh
+bash /root/Qallow/cirq_C_API_HPC_SETUP.sh
 ```
 
 **Q: Verify installation?**
 ```bash
-bash /root/Qallow/verify_qiskit_c_api.sh
+bash /root/Qallow/verify_cirq_c_api.sh
 ```
 
 ---

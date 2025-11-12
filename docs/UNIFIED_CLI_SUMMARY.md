@@ -152,7 +152,7 @@ qallow run bench
 
 ### Quantum Integration
 ```bash
-export QALLOW_QISKIT=1
+export QALLOW_cirq=1
 qallow phase 11 --hardware-only
 ```
 
@@ -250,7 +250,7 @@ qallow run vm --self-audit --export-pocket-map /tmp/pockets.json
 
 ### For Quantum Research
 ```bash
-export QALLOW_QISKIT=1
+export QALLOW_cirq=1
 qallow phase 11 --ticks=400 --hardware-only
 qallow run vm --integrate phase11
 ```

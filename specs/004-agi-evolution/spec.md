@@ -135,7 +135,7 @@ This specification defines Phase 1-2 implementation roadmap, with Phases 3-5 def
 
 ### Assumptions
 
-- A1: CUDA-Q 0.8+ available when `QALLOW_QISKIT=1` (Phase 11 standard)
+- A1: CUDA-Q 0.8+ available when `QALLOW_cirq=1` (Phase 11 standard)
 - A2: Cirq installed in Python venv for quantum sampling alternatives
 - A3: User-provided loss functions are well-formed (no infinite loops or NaN)
 - A4: Phase 2 (Cognitive Architecture) will be stable by Feature 005

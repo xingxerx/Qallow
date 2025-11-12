@@ -9,7 +9,7 @@
 # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     - sparse_encoder: Quantum state preparation with fidelity validation
 # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     - config: Configuration management
 # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     - metrics: Evaluation metrics (ARI, runtime profiling)
-# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     - backend: Quantum backend abstraction (Qiskit/Cirq)
+# [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     - backend: Quantum backend abstraction (cirq/Cirq)
 # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] 
 # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] Usage:
 # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED] # [REVIEWED]     from quantum_algorithms.quantum_clustering import (

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 CUDA-Accelerated Quantum Simulator Bridge
-Integrates CUDA kernels with Qiskit for high-performance quantum simulation
+Integrates CUDA kernels with cirq for high-performance quantum simulation
 """
 
 

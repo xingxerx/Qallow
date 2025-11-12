@@ -148,7 +148,7 @@ cmake -S . -B build && cmake --build build --parallel
 
 - `interface/launcher.c` — Phase group dispatcher
 - `interface/main.c` — Phase-14 & Phase-15 runners
-- `qiskit_tuner.py` — QAOA tuner for learning gains
+- `cirq_tuner.py` — QAOA tuner for learning gains
 - `PHASE14_15_UNIFIED_INTEGRATION.md` — Detailed guide
 - `PHASE14_15_QUICKSTART.md` — Quick reference
 

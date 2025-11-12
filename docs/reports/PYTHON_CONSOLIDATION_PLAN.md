@@ -53,7 +53,7 @@ python/
 quantum_algorithms/
 ├── QUANTUM_ALGORITHM_SUITE.py
 ├── unified_quantum_framework.py
-├── unified_quantum_framework_qiskit.py
+├── unified_quantum_framework_cirq.py
 ├── unified_quantum_framework_real_hardware.py
 └── algorithms/
     ├── grovers_algorithm.py

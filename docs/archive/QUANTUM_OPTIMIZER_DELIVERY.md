@@ -213,7 +213,7 @@ Build Status: ✅ SUCCESS
    - JSON export format
    - CLI-based interface
    - Works with Phase 14/15 pipeline
-   - Compatible with Qiskit, PyQuil, Cirq
+   - Compatible with cirq, PyQuil, Cirq
 
 ---
 
@@ -283,7 +283,7 @@ Trotter Coefficients:
 
 3. **Use in Workflows**
    - Export JSON circuits
-   - Import into Qiskit/PyQuil
+   - Import into cirq/PyQuil
    - Run on quantum hardware
    - Measure and validate
 

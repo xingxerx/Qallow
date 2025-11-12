@@ -268,7 +268,7 @@ python3 ui/dashboard.py
 
 ## Next Steps
 
-1. **Quantum Backend Integration**: Connect to IBM Quantum via Qiskit
+1. **Quantum Backend Integration**: Connect to IBM Quantum via cirq
 2. **Advanced Visualization**: 3D phase space visualization
 3. **Multi-node Testing**: Deploy across K8s cluster
 4. **Performance Optimization**: Profile and optimize hot paths

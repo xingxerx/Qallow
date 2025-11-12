@@ -1,11 +1,11 @@
 # Phase 13 Voice-Mode Tutorial Script
 
 This script walks a presenter through a four-particle entanglement demo using the
-new QuTiP/Qiskit bridge.
+new QuTiP/cirq bridge.
 
 1. **Intro (0:00‑0:30)**  
    - "Welcome to Qallow Phase 13. Today we'll grow a four-qubit GHZ state and show how the VM keeps coherence above 0.999."  
-   - Highlight the free-tier access: "All of this runs with open-source tools—QuTiP for modeling, Qiskit or Cirq for validation."
+   - Highlight the free-tier access: "All of this runs with open-source tools—QuTiP for modeling, cirq or Cirq for validation."
 
 2. **Baseline Run (0:30‑1:30)**  
    - Execute `./scripts/baseline_benchmark.sh`.  
@@ -15,7 +15,7 @@ new QuTiP/Qiskit bridge.
 3. **Generate Entanglement (1:30‑2:30)**  
    - Run `qallow run entangle --state=ghz --validate`.  
    - Explain the probability table (peaks at `|0000>` and `|1111>`).  
-   - Note the backend in use—"If Qiskit is installed you'll see `backend=qiskit`; otherwise we fall back to Cirq."
+   - Note the backend in use—"If cirq is installed you'll see `backend=cirq`; otherwise we fall back to Cirq."
 
 4. **Seed the VM (2:30‑3:30)**  
    - Export `QALLOW_ENTANGLEMENT_BOOTSTRAP=ghz` and rerun `qallow run vm --dashboard=10`.  

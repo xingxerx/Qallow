@@ -18,7 +18,7 @@ Successfully implemented a **quantum-algorithm-focused unified pipeline** in Rus
   ```
 - **Manual orchestration:** User must capture Phase 14 output and pass to Phase 15
 - **Scope:** General-purpose VM with 20 phases and governance layers
-- **QAOA tuner:** Python subprocess (Qiskit Estimator, had import failures)
+- **QAOA tuner:** Python subprocess (cirq Estimator, had import failures)
 - **Build:** C + CMake + optional CUDA
 
 ### Rust Quantum Pipeline (New)
@@ -251,7 +251,7 @@ Binary: `qallow_quantum` (~5 MB, static linkage available)
 ## Next Steps (Optional)
 
 1. **GPU acceleration:** Use `tch-rs` or `cudarc` to port QAOA to CUDA
-2. **Real quantum hardware:** Integrate `qiskit-rust` or `PyO3` bridge to IBM Quantum
+2. **Real quantum hardware:** Integrate `cirq-rust` or `PyO3` bridge to IBM Quantum
 3. **Extended circuits:** Add VQE, PQC, QAOA with parameterized gates
 4. **Benchmarking:** Compare Rust native vs C/CUDA baseline for performance
 5. **CI/CD:** Add GitHub Actions workflow to auto-build and test on release

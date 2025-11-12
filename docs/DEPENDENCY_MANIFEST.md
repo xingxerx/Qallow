@@ -40,7 +40,7 @@ mypy = "~= 0.910"
 [python-gpu-packages]
 torch = "~= 1.9.0"  # Optional, for ML acceleration
 tensorflow = "~= 2.6.0"  # Optional, alternative to PyTorch
-qiskit = "~= 0.27.0"  # For Phase 11 quantum bridge
+cirq = "~= 0.27.0"  # For Phase 11 quantum bridge
 
 [python-web-packages]
 flask = "~= 2.0.0"
@@ -49,5 +49,5 @@ werkzeug = "~= 2.0.0"
 
 [optional-features]
 cuda_support = { default = true, cmake_flag = "-DQALLOW_ENABLE_CUDA" }
-quantum_bridge = { default = false, requires = ["qiskit"], note = "Phase 11 quantum simulation" }
+quantum_bridge = { default = false, requires = ["cirq"], note = "Phase 11 quantum simulation" }
 web_dashboard = { default = false, requires = ["flask", "flask-cors"], note = "Telemetry dashboard" }

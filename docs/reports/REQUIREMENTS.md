@@ -12,7 +12,7 @@ This document describes all the requirements and installation files for the Qall
 
 **Included:**
 - **Scientific Computing:** numpy, scipy, pandas
-- **Quantum Frameworks:** qiskit, cirq, pennylane
+- **Quantum Frameworks:** cirq, cirq, pennylane
 - **Deep Learning:** tensorflow, torch, scikit-learn
 - **Web APIs:** requests, fastapi, uvicorn
 - **Data Formats:** pyyaml, python-dotenv, json5
@@ -215,7 +215,7 @@ cmake --version            # Should be 3.20+
 git --version              # Should be 2.0+
 
 # Python packages
-python3 -c "import numpy, scipy, qiskit; print('Core packages OK')"
+python3 -c "import numpy, scipy, cirq; print('Core packages OK')"
 python3 -c "import pytest, black, sphinx; print('Dev tools OK')"  # If installed
 python3 -c "import fastapi, flask, streamlit; print('Web tools OK')"  # If installed
 python3 -c "import cupy, numba; print('GPU support OK')"  # If CUDA installed
@@ -240,11 +240,11 @@ sudo apt-get install -y liblapack-dev libblas-dev gfortran
 pip install --force-reinstall scipy
 ```
 
-### Issue: qiskit installation hangs
+### Issue: cirq installation hangs
 **Solution:**
 ```bash
 pip install --upgrade setuptools wheel
-pip install --timeout 3600 qiskit
+pip install --timeout 3600 cirq
 ```
 
 ### Issue: CUDA not found

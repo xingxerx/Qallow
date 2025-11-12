@@ -45,7 +45,7 @@
 
 ### Multi-Language Stack
 - **C/CUDA** - Core runtime and phase implementations
-- **Python** - Quantum frameworks (Cirq, Qiskit, PennyLane)
+- **Python** - Quantum frameworks (Cirq, cirq, PennyLane)
 - **Rust** - Native application and quantum optimizer
 - **TypeScript** - Web dashboard and monitoring
 
@@ -191,7 +191,7 @@ Qallow/
 
 ### Quantum Frameworks
 - **Cirq** - Google's quantum framework
-- **Qiskit** - IBM's quantum framework
+- **cirq** - IBM's quantum framework
 - **PennyLane** - Xanadu's quantum ML
 - **CUDA Quantum** - NVIDIA's quantum framework
 

@@ -353,7 +353,7 @@ python -c "import cirq; print(cirq.__version__)"
 
 # If not found, install:
 source .venv/bin/activate
-pip install cirq qiskit
+pip install cirq cirq
 
 # Verify env var
 echo $QALLOW_CIRQ  # Should be 1

@@ -151,7 +151,7 @@ qallow phase 13 --nodes=256 --ticks=600 --audit-tag=bench
 
 ### Quantum Integration
 ```bash
-export QALLOW_QISKIT=1
+export QALLOW_cirq=1
 qallow run vm --integrate phase11 --integrate-phase11-hardware
 ```
 
@@ -189,7 +189,7 @@ qallow phase 13 --nodes=32 --ticks=400
 
 ```bash
 # Quantum
-export QALLOW_QISKIT=1
+export QALLOW_cirq=1
 
 # Logging
 export QALLOW_LOG=data/logs/telemetry.csv
@@ -248,7 +248,7 @@ qallow phase 13 --nodes=32 --ticks=600 --k=0.003
 # 4. Enable benchmarking
 qallow run bench
 
-# 5. Add quantum phase (requires QALLOW_QISKIT=1)
+# 5. Add quantum phase (requires QALLOW_cirq=1)
 qallow run vm --integrate phase11
 
 # 6. Auto-improve the codebase

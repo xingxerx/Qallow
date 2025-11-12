@@ -29,7 +29,7 @@
 
 | Category | Count | Packages |
 |----------|-------|----------|
-| Core Quantum | 23 | numpy, scipy, qiskit, cirq, tensorflow, torch, etc. |
+| Core Quantum | 23 | numpy, scipy, cirq, cirq, tensorflow, torch, etc. |
 | Development | 15 | pytest, black, flake8, sphinx, ipython, etc. |
 | Web Framework | 18 | fastapi, flask, streamlit, dash, websockets, etc. |
 | GPU Support | 8 | cupy, numba, tensorflow-gpu, jax[cuda12], etc. |
@@ -261,7 +261,7 @@ cmake --version            # Should be 3.20+
 
 # Test imports
 python3 -c "import numpy, scipy, pandas; print('✓ Core scientific')"
-python3 -c "import qiskit, cirq, pennylane; print('✓ Quantum')"
+python3 -c "import cirq, cirq, pennylane; print('✓ Quantum')"
 python3 -c "import tensorflow, torch; print('✓ Deep learning')"
 
 # Run project

@@ -1,6 +1,6 @@
 # IBM Quantum Platform Setup for Qallow
 
-This guide walks through connecting a Qallow deployment to IBM Quantum services. Follow the three stages in order—account creation, API token registration, and Qiskit integration inside the Qallow workspace.
+This guide walks through connecting a Qallow deployment to IBM Quantum services. Follow the three stages in order—account creation, API token registration, and cirq integration inside the Qallow workspace.
 
 ## 1. Create an IBM Quantum Account
 - Visit https://quantum.cloud.ibm.com and choose **Sign Up**. Register with an email address or a supported federated provider such as GitHub.
@@ -14,25 +14,25 @@ This guide walks through connecting a Qallow deployment to IBM Quantum services.
 - Recommended storage options:
   - Export an environment variable in your shell profile:
     ```bash
-    export QISKIT_IBM_TOKEN="replace_with_token"
+    export cirq_IBM_TOKEN="replace_with_token"
     ```
-  - Or persist credentials locally through Qiskit (run once):
+  - Or persist credentials locally through cirq (run once):
     ```python
-    from qiskit_ibm_runtime import QiskitRuntimeService
+    from cirq_ibm_runtime import cirqRuntimeService
 
-    QiskitRuntimeService.save_account(
+    cirqRuntimeService.save_account(
         channel="ibm_quantum",
         token="replace_with_token",
         overwrite=True,
     )
     ```
 - Regenerate the token if it is ever exposed or if you want to rotate credentials routinely (monthly rotation is recommended).
-- Quick validation: launch Python and run `from qiskit_ibm_runtime import QiskitRuntimeService; print(QiskitRuntimeService().backends())`. A populated list confirms the token works.
+- Quick validation: launch Python and run `from cirq_ibm_runtime import cirqRuntimeService; print(cirqRuntimeService().backends())`. A populated list confirms the token works.
 
-## 3. Configure Qiskit Inside Qallow
+## 3. Configure cirq Inside Qallow
 1. **Install dependencies** (Python 3.8+):
    ```bash
-   pip install qiskit qiskit-ibm-runtime qiskit-aer
+   pip install cirq cirq-ibm-runtime cirq-aer
    ```
    If you keep dependencies in a virtual environment for Qallow, activate it first.
 
@@ -40,12 +40,12 @@ This guide walks through connecting a Qallow deployment to IBM Quantum services.
    ```bash
    python examples/ibm_quantum_bell.py
    ```
-   The script loads the `QISKIT_IBM_TOKEN` environment variable (if present) or reuses saved credentials, selects the least busy hardware backend, and runs a Bell circuit. If hardware access is unavailable it automatically falls back to the Aer simulator. Expect quasi-probabilities near 0.5 for `00` and `11`.
+   The script loads the `cirq_IBM_TOKEN` environment variable (if present) or reuses saved credentials, selects the least busy hardware backend, and runs a Bell circuit. If hardware access is unavailable it automatically falls back to the Aer simulator. Expect quasi-probabilities near 0.5 for `00` and `11`.
 
-3. **Bridge Qallow Phase 11 workflows to Qiskit** using the helper module in `python/quantum/qallow_ibm_bridge.py`. The module exposes a `run_ternary_sim` function that:
+3. **Bridge Qallow Phase 11 workflows to cirq** using the helper module in `python/quantum/qallow_ibm_bridge.py`. The module exposes a `run_ternary_sim` function that:
    - Accepts ternary state estimates from Qallow (e.g., `[-1, 0, 1]`).
-   - Builds a representative circuit using Qiskit.
-   - Submits the job through `QiskitRuntimeService` with a safety fallback to the Aer simulator when hardware queues are unavailable.
+   - Builds a representative circuit using cirq.
+   - Submits the job through `cirqRuntimeService` with a safety fallback to the Aer simulator when hardware queues are unavailable.
    - Returns results suitable for telemetry ingestion.
 
    Sample usage (inside a Qallow phase driver or notebook):
@@ -67,15 +67,15 @@ This guide walks through connecting a Qallow deployment to IBM Quantum services.
    - Integrate the ethics module (Phase 9) by scoring returned distributions before they influence autonomous routines. Reject runs with scores below `0.94` and trigger token rotation if anomalies appear.
 
 ## Verification Checklist
-- [ ] `QiskitRuntimeService().backends()` returns a list without authentication errors.
+- [ ] `cirqRuntimeService().backends()` returns a list without authentication errors.
 - [ ] `python examples/ibm_quantum_bell.py` completes and prints measurement statistics.
 - [ ] `./build/qallow --phase=11 --ticks=400` emits telemetry entries that reference IBM Quantum results.
-- [ ] Tokens are stored outside version control (`.env`, shell profile, or Qiskit credential store).
+- [ ] Tokens are stored outside version control (`.env`, shell profile, or cirq credential store).
 
 ## Troubleshooting
 - **Queue delays**: Use `service.least_busy(simulator=False)` or specify `backend_name="ibmq_qasm_simulator"` during high load periods.
 - **Invalid token**: Regenerate in the dashboard, update local storage, and rerun the verification steps.
-- **Missing dependencies**: Reinstall with `pip install --upgrade qiskit qiskit-ibm-runtime`. Confirm that the active Python interpreter matches the environment used by Qallow.
+- **Missing dependencies**: Reinstall with `pip install --upgrade cirq cirq-ibm-runtime`. Confirm that the active Python interpreter matches the environment used by Qallow.
 - **Network restrictions**: Ensure outbound HTTPS to `quantum-computing.ibm.com` is permitted. If running in an isolated environment, prefetch job results from a connected host via the SDK.
 
 ## Next Steps

@@ -43,7 +43,7 @@ Install and verify dependencies
 python3 main.py build
 ```
 - Checks Python 3.8+
-- Installs Qiskit, Cirq, NumPy, SciPy
+- Installs cirq, Cirq, NumPy, SciPy
 - Creates output directories
 
 ### `alg run`

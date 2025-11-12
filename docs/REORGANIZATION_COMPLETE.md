@@ -44,7 +44,7 @@ scripts/
 ├── run_auto.sh
 ├── run_latest.sh
 ├── run_unified_agi.sh
-├── qiskit_bridge.py
+├── cirq_bridge.py
 ├── hparam_eval.py
 └── ... (26 more build/run scripts)
 

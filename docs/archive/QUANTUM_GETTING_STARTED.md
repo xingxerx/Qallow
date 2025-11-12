@@ -263,7 +263,7 @@ circuit = cirq.Circuit(
 
 ### Learning Resources
 - IBM Quantum: https://quantum-computing.ibm.com/
-- Qiskit Textbook: https://qiskit.org/textbook/
+- cirq Textbook: https://cirq.org/textbook/
 - Quantum Computing Playground: https://www.quantum-playground.com/
 
 ---

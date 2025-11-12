@@ -64,7 +64,7 @@ python3 run_qallow.py
 
 ### Core Packages (23 total)
 - **Scientific:** numpy, scipy, pandas
-- **Quantum:** qiskit, cirq, pennylane
+- **Quantum:** cirq, cirq, pennylane
 - **ML:** tensorflow, torch, scikit-learn
 - **Web APIs:** requests, fastapi, uvicorn
 - **Data:** pyyaml, python-dotenv, json5
@@ -121,7 +121,7 @@ python3 --version         # Should be 3.10+
 pip --version             # Should be 24.0+
 
 # Test core packages
-python3 -c "import numpy, scipy, qiskit; print('✓ Core OK')"
+python3 -c "import numpy, scipy, cirq; print('✓ Core OK')"
 
 # Run project
 python3 run_qallow.py

@@ -139,7 +139,7 @@ static bool qallow_run_cirq_bridge(const float* values, int count, float* cohere
         const char* token = qallow_token_from_value(values[i]);
         int written = snprintf(states + offset, sizeof(states) - offset, i == 0 ? "%s" : ",%s", token);
         if (written < 0 || (size_t)written >= sizeof(states) - offset) {
-            fprintf(stderr, "[Qallow][Qiskit] Failed to compose state token list\n");
+            fprintf(stderr, "[Qallow][cirq] Failed to compose state token list\n");
             return false;
         }
         offset += (size_t)written;

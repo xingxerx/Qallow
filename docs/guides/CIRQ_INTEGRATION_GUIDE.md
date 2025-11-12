@@ -8,7 +8,7 @@
 
 ## Overview
 
-Qallow now uses **Google Cirq** as its primary quantum computing framework, replacing Qiskit. Cirq provides:
+Qallow now uses **Google Cirq** as its primary quantum computing framework, replacing cirq. Cirq provides:
 
 - ✅ Fast local quantum simulation
 - ✅ Support for Google Quantum hardware (Sycamore)
@@ -281,13 +281,13 @@ simulator = cirq.DensityMatrixSimulator()
 
 ---
 
-## Migration from Qiskit
+## Migration from cirq
 
-### Before (Qiskit)
+### Before (cirq)
 
 ```python
-from qiskit import QuantumCircuit, QuantumRegister
-from qiskit_aer import AerSimulator
+from cirq import QuantumCircuit, QuantumRegister
+from cirq_aer import AerSimulator
 
 qr = QuantumRegister(2, 'q')
 qc = QuantumCircuit(qr)

@@ -144,7 +144,7 @@ cmake --build . --parallel $(nproc)
 ### If Python Errors Occur
 ```bash
 source .venv/bin/activate
-pip install --upgrade cycler matplotlib cirq qiskit numpy scipy
+pip install --upgrade cycler matplotlib cirq cirq numpy scipy
 ```
 
 ---

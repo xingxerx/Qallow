@@ -70,7 +70,7 @@ Copilot: [Recalls the three-layer architecture with full details]
 
 ### Semantic Search
 - Find memories by meaning, not just keywords
-- "quantum" finds memories about "Qiskit"
+- "quantum" finds memories about "cirq"
 - "UI" finds memories about "FLTK"
 - Sub-millisecond search performance
 

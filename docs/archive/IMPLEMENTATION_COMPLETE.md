@@ -73,9 +73,9 @@ Successfully implemented a **production-ready IBM Quantum Platform workload** wi
 ### 5. **Infrastructure & Scripts**
 - `setup_quantum_workload.sh`: Environment setup
 - `run_quantum_workload.sh`: Complete execution pipeline
-- Qiskit 1.0.0 installation
+- cirq 1.0.0 installation
 - IBM Runtime 0.20.0 setup
-- Optional qiskit-aer with fallback
+- Optional cirq-aer with fallback
 
 ### 6. **Documentation**
 - `QUANTUM_WORKLOAD_GUIDE.md`: 200+ lines
@@ -138,8 +138,8 @@ python3 python/quantum_learning_system.py
 
 | Component | Technology | Version |
 |-----------|-----------|---------|
-| Quantum Framework | Qiskit | 1.0.0 |
-| IBM Runtime | Qiskit IBM Runtime | 0.20.0 |
+| Quantum Framework | cirq | 1.0.0 |
+| IBM Runtime | cirq IBM Runtime | 0.20.0 |
 | Simulator | FakeTorino | 133 qubits |
 | GPU Acceleration | CUDA | 13.0 |
 | Error Correction | Surface Code | Distance 3 |

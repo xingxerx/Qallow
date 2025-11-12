@@ -140,7 +140,7 @@ Clamp: stability = max(0, stability)
 |------|---------|
 | `interface/launcher.c` | Phase group dispatcher |
 | `interface/main.c` | Phase-14 & Phase-15 runners |
-| `qiskit_tuner.py` | QAOA tuner |
+| `cirq_tuner.py` | QAOA tuner |
 
 ## Build
 

@@ -7,13 +7,13 @@
 - Gives more visibility between iterations
 - File: `agentlightning_runner.py` line 52
 
-### 2. **Switched from Qiskit to Cirq** ✅
-- Changed `QALLOW_QISKIT` environment variable to `QALLOW_CIRQ`
+### 2. **Switched from cirq to Cirq** ✅
+- Changed `QALLOW_cirq` environment variable to `QALLOW_CIRQ`
 - Updated files:
   - `agentlightning_runner.py` line 57: Now uses `QALLOW_CIRQ` env var
-  - `backend/cpu/qallow_kernel.c`: Removed Qiskit fallback, now Cirq-only
+  - `backend/cpu/qallow_kernel.c`: Removed cirq fallback, now Cirq-only
 
-- **Before**: Checked `QALLOW_QISKIT` with fallback
+- **Before**: Checked `QALLOW_cirq` with fallback
 - **After**: Only checks `QALLOW_CIRQ` - cleaner, simpler
 
 ### 3. **Git Commit Integration** ✅
@@ -42,7 +42,7 @@ Environment: QALLOW_CIRQ=1 QALLOW_ENABLE_CUDA=ON
 ✅ 10-second sleep between iterations (visible in logs)
 ✅ Cirq enabled (QALLOW_CIRQ=1)
 ✅ CUDA enabled (QALLOW_ENABLE_CUDA=ON)
-✅ No Qiskit references in agent code
+✅ No cirq references in agent code
 
 ## Example Output
 ```
@@ -86,6 +86,6 @@ pkill -f "agentlightning_runner.py"
 
 **Status: ✅ FULLY OPERATIONAL**
 - Daemon sleeping 10 seconds between iterations
-- Cirq enabled (no Qiskit)
+- Cirq enabled (no cirq)
 - Git commits happening automatically
 - 81+ iterations completed successfully

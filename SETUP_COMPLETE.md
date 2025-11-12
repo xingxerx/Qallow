@@ -314,7 +314,7 @@ ollama pull llama2:13b-q4
 ## 🎓 Learning Resources
 
 - **Ollama Docs**: https://ollama.ai/docs
-- **QAOA**: https://qiskit.org/documentation/stubs/qiskit.algorithms.QAOA.html
+- **QAOA**: https://cirq.org/documentation/stubs/cirq.algorithms.QAOA.html
 - **Qallow Architecture**: See `docs/` directory
 - **Phase 13 Ethics**: See `docs/guides/PHASE13_ETHICS_GUIDE.md`
 - **Phase 14 QAOA**: See `docs/guides/PHASE14_QAOA_GUIDE.md`

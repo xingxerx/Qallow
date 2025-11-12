@@ -19,7 +19,7 @@
 
 **Independent Test**: On a clean Ubuntu 24.04 + CUDA 12 environment, `bootstrap.sh` must succeed, and all binaries must be executable.
 
-- [ ] T001 Create `requirements.txt` with `qiskit`, `qiskit-aer`, and `sentence-transformers` at the root of the repository.
+- [ ] T001 Create `requirements.txt` with `cirq`, `cirq-aer`, and `sentence-transformers` at the root of the repository.
 - [ ] T002 [P] Modify `CMakeLists.txt` to add a CPU-only fallback for all CUDA-optional phases.
 - [ ] T003 [P] Scan the codebase for loose files, missing CMake targets, and undefined symbols, and fix them.
 - [ ] T004 Update `bootstrap.sh` to install Python dependencies from `requirements.txt` and any missing system packages.
@@ -33,7 +33,7 @@
 
 **Independent Test**: Launch the GUI, click each phase button, and verify the correct backend phase is triggered and the GUI provides feedback.
 
-- [ ] T006 [US2] Fix the broken Phase 11 Qiskit bridge in `python/quantum/run_phase11.py`.
+- [ ] T006 [US2] Fix the broken Phase 11 cirq bridge in `python/quantum/run_phase11.py`.
 - [ ] T007 [US2] Fix the broken Phase 14 QAOA tuner in `python/quantum/run_phase14.py`.
 - [ ] T008 [US2] In `native_app/src/main.rs`, wire all GUI buttons to trigger the corresponding `qallow` phase via CLI subprocess.
 - [ ] T009 [P] [US2] In `native_app/src/main.rs`, implement a status bar or telemetry panel that tails and displays the latest CSV log from `data/logs/`.

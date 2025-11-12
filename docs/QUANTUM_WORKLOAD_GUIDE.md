@@ -64,19 +64,19 @@ bash scripts/setup_quantum_workload.sh
 
 This will:
 - Create Python virtual environment
-- Install Qiskit and dependencies
+- Install cirq and dependencies
 - Install CUDA support (if available)
 - Create necessary directories
 
 ### 2. Configure IBM Quantum (Optional)
 
 ```bash
-source qiskit-env/bin/activate
+source cirq-env/bin/activate
 python3 << 'EOF'
-from qiskit_ibm_runtime import QiskitRuntimeService
+from cirq_ibm_runtime import cirqRuntimeService
 
 # Save your IBM Quantum credentials
-QiskitRuntimeService.save_account(
+cirqRuntimeService.save_account(
     channel="ibm_cloud",
     token="YOUR_API_TOKEN",
     instance="YOUR_CRN"
@@ -210,8 +210,8 @@ learner.save_learning_history()
 ### Custom Circuit
 
 ```python
-from qiskit import QuantumCircuit
-from qiskit.quantum_info import SparsePauliOp
+from cirq import QuantumCircuit
+from cirq.quantum_info import SparsePauliOp
 
 # Create custom circuit
 qc = QuantumCircuit(3)
@@ -274,7 +274,7 @@ for qc in circuits:
 ## References
 
 - **IBM Quantum**: https://quantum.cloud.ibm.com
-- **Qiskit**: https://qiskit.org
+- **cirq**: https://cirq.org
 - **CUDA**: https://developer.nvidia.com/cuda-toolkit
 - **Surface Codes**: https://arxiv.org/abs/quant-ph/9707002
 - **Error Mitigation**: https://arxiv.org/abs/2210.08763

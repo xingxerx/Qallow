@@ -214,7 +214,7 @@ grep "CUDA" agent_daemon.log
 |-------|-----|
 | **CUDA not found** | `./bootstrap.sh --cuda` |
 | **Build failed** | `rm -rf build && ./bootstrap.sh --cuda` |
-| **No Cirq** | `pip install cirq qiskit` |
+| **No Cirq** | `pip install cirq cirq` |
 | **Out of memory** | Use smaller `--nodes` or `--ticks` |
 | **Agent crashes** | Check `agent_daemon.log` |
 

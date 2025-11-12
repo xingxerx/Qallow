@@ -40,7 +40,7 @@ It implements **QAOA (Quantum Approximate Optimization Algorithm)** with **SPSA 
 
 ✅ **Easy Integration**
 - Single executable with four subcommands
-- Automatic dependency management (Qiskit, Cirq, NumPy, SciPy)
+- Automatic dependency management (cirq, Cirq, NumPy, SciPy)
 - Direct integration with Qallow Phases 14 & 15
 
 ✅ **Developer Friendly**
@@ -96,8 +96,8 @@ python3 main.py build
 [ALG BUILD] Python 3.13 OK
 [ALG BUILD] ✓ numpy 2.3.4
 [ALG BUILD] ✓ scipy 1.15.3
-[ALG BUILD] ✓ qiskit 1.4.5
-[ALG BUILD] ✓ qiskit-aer 0.17.2
+[ALG BUILD] ✓ cirq 1.4.5
+[ALG BUILD] ✓ cirq-aer 0.17.2
 [ALG BUILD] ✓ Output directory: /var/qallow
 ```
 
@@ -511,7 +511,7 @@ Output to /var/qallow/
 
 ### Issue: Missing Dependencies
 
-**Error:** `ModuleNotFoundError: No module named 'qiskit'`
+**Error:** `ModuleNotFoundError: No module named 'cirq'`
 
 **Solution:**
 ```bash

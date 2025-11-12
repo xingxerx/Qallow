@@ -120,7 +120,7 @@ All future PRs must verify:
 ## Recommended Immediate Actions (Week of Nov 6)
 
 ### Priority 1 (This Week)
-1. **Create/Audit DEPENDENCY_MANIFEST.md** – List all external deps (CMake, gcc, CUDA, Python packages, Qiskit) with § III rationale
+1. **Create/Audit DEPENDENCY_MANIFEST.md** – List all external deps (CMake, gcc, CUDA, Python packages, cirq) with § III rationale
 2. **Update README.md** – Add "Project Structure" section referencing § IV and canonical layout
 3. **Audit Root Directory** – Identify loose Python scripts (run_phase11.py, run_qallow.py, etc.) and plan migration to scripts/ or src/
 

@@ -91,8 +91,8 @@ It implements **QAOA (Quantum Approximate Optimization Algorithm)** with **SPSA 
 [ALG BUILD] Python 3.13 OK
 [ALG BUILD] ✓ numpy 2.3.4
 [ALG BUILD] ✓ scipy 1.15.3
-[ALG BUILD] ✓ qiskit 1.4.5
-[ALG BUILD] ✓ qiskit-aer 0.17.2
+[ALG BUILD] ✓ cirq 1.4.5
+[ALG BUILD] ✓ cirq-aer 0.17.2
 [ALG BUILD] ✓ Output directory: /var/qallow
 ```
 

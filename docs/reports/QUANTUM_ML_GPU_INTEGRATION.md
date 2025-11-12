@@ -211,8 +211,8 @@ if bridge:
 ### Run Quantum ML Tests
 ```bash
 cd /root/Qallow
-/root/Qallow/qiskit-env/bin/python quantum_ml/sampling_nas.py
-/root/Qallow/qiskit-env/bin/python quantum_ml/cuda_quantum_nas.py
+/root/Qallow/cirq-env/bin/python quantum_ml/sampling_nas.py
+/root/Qallow/cirq-env/bin/python quantum_ml/cuda_quantum_nas.py
 ```
 
 ### Run GPU Framework Tests

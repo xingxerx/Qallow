@@ -199,7 +199,7 @@ CSV/JSON Logs (data/logs/)
 ✅ **Quantum Integration**
 - 6 quantum algorithms implemented
 - QAOA optimization with SPSA tuning
-- Qiskit/Cirq framework integration
+- cirq/Cirq framework integration
 
 ---
 

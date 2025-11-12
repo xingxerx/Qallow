@@ -45,13 +45,13 @@ results['shor'] = framework.run_shors_algorithm()
 
 **Problem:**
 ```
-qiskit.circuit.exceptions.CircuitError: "Invalid param type <class 'numpy.ndarray'> for gate rzz."
+cirq.circuit.exceptions.CircuitError: "Invalid param type <class 'numpy.ndarray'> for gate rzz."
 TypeError: only length-1 arrays can be converted to Python scalars
 ```
 
 **Root Cause:**
 - SPSA optimizer passes numpy arrays for `gamma` and `beta` parameters
-- Qiskit gates (rzz, rx) expect float scalars, not numpy arrays
+- cirq gates (rzz, rx) expect float scalars, not numpy arrays
 - The QAOA circuit was treating gamma and beta as single values instead of arrays of layer parameters
 
 **Solution:**
@@ -91,7 +91,7 @@ Rewrote `qaoa_circuit_energy()` function to:
 
 **alg build**
 - ✅ Python 3.13 verified
-- ✅ All dependencies installed (numpy, scipy, qiskit, qiskit-aer)
+- ✅ All dependencies installed (numpy, scipy, cirq, cirq-aer)
 - ✅ Output directory created
 
 **alg run**

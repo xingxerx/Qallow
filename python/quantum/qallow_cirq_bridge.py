@@ -253,7 +253,7 @@ def run_ternary_sim(
     Returns:
         TernaryResult with normalized counts, backend information, and execution source.
     """
-    _ = token  # retained for backwards compatibility with earlier Qiskit integration
+    _ = token  # retained for backwards compatibility with earlier cirq integration
 
     logical_states = list(ternary_states)
     if not logical_states:

@@ -185,7 +185,7 @@ CMakeLists.txt                       # Updated with meta-learning targets
 
 **NEEDS CLARIFICATION Analysis**:
 - Technical Context filled: C + Python, CMake + CUDA, Linux target ✓
-- All dependencies explicit: CUDA 12.0+, Qiskit/Cirq optional ✓
+- All dependencies explicit: CUDA 12.0+, cirq/Cirq optional ✓
 - Performance goals quantified: <500ms CPU, ≥2x CUDA-Q ✓
 - Storage mechanism defined: JSON files ✓
 - Testing strategy defined: ctest + pytest ✓
@@ -523,7 +523,7 @@ make audit-constitution
   - RT3: Multi-backend fallback patterns → Auto-detect; CPU always available
   - RT4: Telemetry schema design → Extend existing src/runtime/telemetry_outputs.c
   - RT5: Constitution ethics integration → Integrate ethics_state_t into cognitive_state_t
-- ✅ All technologies validated: CMake, C, CUDA 12.0+, Python 3.11, Qiskit/Cirq optional
+- ✅ All technologies validated: CMake, C, CUDA 12.0+, Python 3.11, cirq/Cirq optional
 
 ### Phase 1: Design & Contracts (COMPLETE)
 - ✅ **data-model.md** generated (3 core entities: CognitiveState, MetaLearningState, OptimizationStep)
@@ -584,7 +584,7 @@ make audit-constitution
 
 - **Languages**: C (core) + Python 3.11 (quantum bridge)
 - **Platforms**: Linux primary, WSL2 with CUDA tested
-- **Dependencies**: CMake 3.20+, CUDA 12.0+ (optional), Qiskit/Cirq (optional)
+- **Dependencies**: CMake 3.20+, CUDA 12.0+ (optional), cirq/Cirq (optional)
 - **Storage**: JSON files (cognitive state), CSV (telemetry)
 - **Testing**: CMake ctest (C/CUDA), pytest (Python)
 - **Build System**: CMake as primary; scripts/build_all.sh orchestration

@@ -27,7 +27,7 @@ Test-Driven Development is mandatory following the Red-Green-Refactor cycle:
 
 ### III. Minimal Dependencies & Explicit Coupling
 - **Baseline only**: CMake, C compiler (gcc ≥11 or clang ≥15), Python ≥3.10
-- **Optional for GPU**: CUDA 12.0+, Qiskit (Python quantum bridge)
+- **Optional for GPU**: CUDA 12.0+, cirq (Python quantum bridge)
 - **Avoid deep dependency chains**: Use vendored code or feature flags for optional dependencies
 - **Document every external dependency** with rationale in `DEPENDENCY_MANIFEST.md`
 - **Prefer stable, narrow APIs**: No monolithic frameworks without justification

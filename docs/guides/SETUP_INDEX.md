@@ -127,7 +127,7 @@ source venv/bin/activate
 pip install -r requirements.txt
 
 # 2. Test imports
-python3 -c "import numpy, scipy, qiskit; print('✓ OK')"
+python3 -c "import numpy, scipy, cirq; print('✓ OK')"
 
 # 3. Run project
 python3 run_qallow.py
@@ -142,7 +142,7 @@ python3 test_quantum_complete.py
 
 ### Core (23 packages)
 **Scientific:** numpy, scipy, pandas  
-**Quantum:** qiskit, cirq, pennylane, qiskit-machine-learning  
+**Quantum:** cirq, cirq, pennylane, cirq-machine-learning  
 **ML:** tensorflow, torch, scikit-learn  
 **Web:** requests, fastapi, uvicorn  
 **Data:** pyyaml, python-dotenv, json5  

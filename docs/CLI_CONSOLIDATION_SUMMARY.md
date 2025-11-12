@@ -169,7 +169,7 @@ python3 recursive_improvement_engine.py
 qallow run unified
 
 # With quantum hardware integration
-export QALLOW_QISKIT=1
+export QALLOW_cirq=1
 qallow run vm --integrate phase11 --integrate-phase11-hardware
 
 # With auto-auditing and export
