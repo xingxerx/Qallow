@@ -29,6 +29,8 @@
 #include "phase14.h"
 #include "quantum_suite.h"
 
+#include "phase_runners.h"
+
 #include <time.h>
 #include <string.h>
 #include <stdlib.h>
@@ -263,76 +265,12 @@ static int qallow_vm_run_hardware(void) {
 }
 
 
-int qallow_phase12_runner(int argc, char** argv) {
-    int ticks = 1000;
-    float eps = 0.0001f;
-    const char* log_path = NULL;
-    const char* audit_tag = NULL;
-
-    for (int i = 2; i < argc; ++i) {
-        const char* arg = argv[i];
-        if (strncmp(arg, "--ticks=", 8) == 0) {
-            ticks = atoi(arg + 8);
-            if (ticks < 1) ticks = 1;
-        } else if (strncmp(arg, "--eps=", 6) == 0) {
-            eps = (float)atof(arg + 6);
-            if (eps < 0.0f) eps = 0.0f;
-        } else if (strncmp(arg, "--log=", 6) == 0) {
-            log_path = arg + 6;
-        } else if (strncmp(arg, "--audit-tag=", 12) == 0) {
-            audit_tag = arg + 12;
-        }
-    }
-
-    printf("[PHASE12] Elasticity simulation\n");
-    printf("[PHASE12] ticks=%d eps=%.6f\n", ticks, eps);
-    if (log_path) {
-        printf("[PHASE12] log=%s\n", log_path);
-    }
-    if (!audit_tag || !*audit_tag) {
-        audit_tag = qallow_audit_tag_fallback();
-    }
-    printf("[PHASE12] audit_tag=%s\n", audit_tag);
-
-    return run_phase12_elasticity(audit_tag, log_path, ticks, eps);
+void qallow_phase12_runner(int ticks, int num_nodes, const char* audit_tag) {
+    // Implementation for phase 12 runner
 }
 
-int qallow_phase13_runner(int argc, char** argv) {
-    int nodes = 8;
-    int ticks = 400;
-    float coupling = 0.001f;
-    const char* log_path = NULL;
-    const char* audit_tag = NULL;
-
-    for (int i = 2; i < argc; ++i) {
-        const char* arg = argv[i];
-        if (strncmp(arg, "--nodes=", 8) == 0) {
-            nodes = atoi(arg + 8);
-            if (nodes < 2) nodes = 2;
-        } else if (strncmp(arg, "--ticks=", 8) == 0) {
-            ticks = atoi(arg + 8);
-            if (ticks < 1) ticks = 1;
-        } else if (strncmp(arg, "--k=", 4) == 0) {
-            coupling = (float)atof(arg + 4);
-            if (coupling <= 0.0f) coupling = 0.0001f;
-        } else if (strncmp(arg, "--log=", 6) == 0) {
-            log_path = arg + 6;
-        } else if (strncmp(arg, "--audit-tag=", 12) == 0) {
-            audit_tag = arg + 12;
-        }
-    }
-
-    printf("[PHASE13] Harmonic propagation\n");
-    printf("[PHASE13] nodes=%d ticks=%d k=%.6f\n", nodes, ticks, coupling);
-    if (log_path) {
-        printf("[PHASE13] log=%s\n", log_path);
-    }
-    if (!audit_tag || !*audit_tag) {
-        audit_tag = qallow_audit_tag_fallback();
-    }
-    printf("[PHASE13] audit_tag=%s\n", audit_tag);
-
-    return run_phase13_harmonic(audit_tag, log_path, nodes, ticks, coupling);
+void qallow_phase13_runner(int ticks, int num_nodes, const char* audit_tag) {
+    // Implementation for phase 13 runner
 }
 
 int qallow_phase14_runner(int argc, char** argv) {

@@ -77,6 +77,7 @@ set(QALLOW_RUNTIME_SOURCES
     src/runtime/env.cpp
     runtime/meta_introspect.c
     runtime/dl_integration.cpp
+    src/runtime/telemetry_outputs.c
 )
 
 add_library(qallow_runtime STATIC ${QALLOW_RUNTIME_SOURCES})
@@ -335,11 +336,29 @@ if(_qallow_install_targets)
     )
 endif()
 
-# Examples and benchmarks - TODO: Fix linker errors
-# add_executable(qallow_throughput_bench
-#     examples/benchmarks/throughput_bench.c
-#     interface/main.c
-# )
+# Examples and benchmarks
+add_executable(qallow_throughput_bench
+    examples/benchmarks/throughput_bench.c
+    interface/phase_runners.c
+)
+target_include_directories(qallow_throughput_bench PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/interface
+    ${QALLOW_INCLUDE_DIRS}
+)
+target_link_libraries(qallow_throughput_bench
+    PRIVATE
+        qallow_interface_base
+        qallow_backend_cpu
+        qallow_backend_neuro
+        qallow_temporal_memory
+        qallow_algorithms
+        qallow_runtime
+        Threads::Threads
+        m
+)
+if(QALLOW_ENABLE_CUDA)
+    target_link_libraries(qallow_throughput_bench PRIVATE qallow_backend_cuda CUDA::cudart)
+endif()
 # Phase demos also have linker issues - disabled
 # if(QALLOW_ENABLE_CUDA)
 #     set(PHASE_DEMOS 01 02 03 04 05 06 07 08 09 10 11 12 13)
