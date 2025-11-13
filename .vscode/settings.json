@@ -16,6 +16,14 @@
     "remote.autoForwardPortsFallback": 0,
     "remote.autoForwardPorts": false,
     "remote.restoreForwardedPorts": false,
+    "remote.otherPortsAttributes": {
+        "onAutoForward": "ignore"
+    },
+    "remote.portsAttributes": {
+        "*": {
+            "onAutoForward": "ignore"
+        }
+    },
     "//": "Automatic Git repository detection is disabled to avoid performance issues and accidental operations on large or third-party submodules. If you need Git integration, enable this setting in your user or workspace settings.",
     "git.autoRepositoryDetection": false,
     "git.openRepositoryInParentFolders": "never",
