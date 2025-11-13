@@ -101,7 +101,7 @@ __kernel void calculate_superposition(__global const float *coherence_levels,
 __kernel void collapse_wave_function(__global const float *coherence_levels,
                                      __global float *superposition_probs,
                                      __global float *wave_real,
-                                     __global float *wave_imag,
+                                     __global float *wave_image,
                                      const int count,
                                      __global int *collapsed_idx) {
     if (count <= 0) {
@@ -130,11 +130,11 @@ __kernel void collapse_wave_function(__global const float *coherence_levels,
         if (i == max_index) {
             superposition_probs[i] = 1.0f;
             wave_real[i] = 1.0f;
-            wave_imag[i] = 0.0f;
+            wave_image[i] = 0.0f;
         } else {
             superposition_probs[i] = 0.0f;
             wave_real[i] = 0.0f;
-            wave_imag[i] = 0.0f;
+            wave_image[i] = 0.0f;
         }
     }
 
