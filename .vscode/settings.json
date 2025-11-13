@@ -13,6 +13,13 @@
     "chat.agent.maxRequests": 999999999,
     "chat.agent.enabled": true,
     "chat.allowAnonymousAccess": true,
-    "remote.autoForwardPortsFallback": 0
+    "remote.autoForwardPortsFallback": 0,
+    "git.ignoredRepositories": [
+        "/home/xing/Qallow/mcp-memory-service",
+        "/home/xing/Qallow/yay",
+        "/home/xing/Qallow/third_party/cuda-quantum",
+        "/home/xing/Qallow/third_party/vllm-recipes",
+        "/home/xing/Qallow/third_party/stim"
+    ]
 }
 
