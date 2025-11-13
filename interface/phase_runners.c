@@ -27,16 +27,20 @@ int qallow_phase12_runner(int argc, char** argv) {
     qallow_log_info("BENCHMARK", "Calling real: qallow_phase12_runner");
     const char* audit_tag = "benchmark_p12";
     int ticks = 1000;
+    float eps = 0.1f;
 
     for (int i = 1; i < argc; ++i) {
         if (strcmp(argv[i], "--audit-tag") == 0 && i + 1 < argc) {
             audit_tag = argv[++i];
         } else if (strcmp(argv[i], "--ticks") == 0 && i + 1 < argc) {
             ticks = atoi(argv[++i]);
+        } else if (strcmp(argv[i], "--eps") == 0 && i + 1 < argc) {
+            eps = (float)atof(argv[++i]);
+            if (eps < 0.0f) eps = 0.0f;
         }
     }
 
-    return run_phase12_elasticity(audit_tag, NULL, ticks, 0.1f);
+    return run_phase12_elasticity(audit_tag, NULL, ticks, eps);
 }
 
 /* Phase 13: Harmonic Propagation */

@@ -288,6 +288,10 @@ int qallow_phase14_runner(int argc, char** argv) {
         if (strncmp(arg, "--ticks=", 8) == 0) {
             ticks = atoi(arg + 8);
             if (ticks < 1) ticks = 1;
+        } else if (strncmp(arg, "--max-steps=", 12) == 0) {
+            /* Alias for ticks */
+            ticks = atoi(arg + 12);
+            if (ticks < 1) ticks = 1;
         } else if (strncmp(arg, "--nodes=", 8) == 0) {
             nodes = atoi(arg + 8);
             if (nodes < 1) nodes = 1;
@@ -437,6 +441,12 @@ int qallow_phase14_runner(int argc, char** argv) {
         if (fidelity > 1.0) fidelity = 1.0;
         if ((t % 50) == 0) {
             printf("[PHASE14][%04d] fidelity=%.6f\n", t, fidelity);
+        }
+        /* Early stopping when target is reached */
+        if (fidelity >= target_fidelity) {
+            printf("[PHASE14] Early stop at tick=%d (fidelity=%.6f >= target=%.6f)\n",
+                   t, fidelity, target_fidelity);
+            break;
         }
     }
 
