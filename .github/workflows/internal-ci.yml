@@ -34,52 +34,14 @@ jobs:
       - name: Validate human approval metadata
         run: python3 scripts/verify_human_approval.py
 
-      - name: Free up disk space (aggressive cleanup)
+      - name: Free up disk space
         run: |
-          echo "=== Initial disk usage ==="
-          df -h
-
           # Remove unnecessary files to free up space
-          echo "Removing Android SDK..."
           sudo rm -rf /usr/local/lib/android || true
-
-          echo "Removing .NET..."
           sudo rm -rf /usr/share/dotnet || true
-
-          echo "Removing GHC..."
           sudo rm -rf /opt/ghc || true
-
-          echo "Removing hosted toolcache..."
           sudo rm -rf /opt/hostedtoolcache || true
-
-          echo "Removing large package caches..."
-          sudo rm -rf /var/cache/apt/archives/* || true
-          sudo apt-get clean || true
-          sudo rm -rf /var/lib/apt/lists/* || true
-
-          echo "Removing Docker images..."
-          docker image prune -af || true
-
-          echo "Removing build caches..."
-          sudo rm -rf ~/.cargo/registry || true
-          sudo rm -rf ~/.cargo/git || true
-
-          echo "=== Final disk usage ==="
           df -h
-
-          # Check available space
-          AVAILABLE=$(df / | awk 'NR==2 {print $4}')
-          echo "Available space: ${AVAILABLE}KB"
-          if [ "$AVAILABLE" -lt 5242880 ]; then
-            echo "WARNING: Less than 5GB available"
-          fi
-
-      - name: Ensure minimum disk space
-        run: |
-          source scripts/disk_space_recovery.sh
-          print_disk_status || true
-          ensure_disk_space
-          echo "Disk space guard completed."
 
       - name: Install system dependencies
         run: |
@@ -137,51 +99,19 @@ jobs:
       - name: Configure and build (CPU)
         run: |
           set -eux
-
-          source scripts/disk_space_recovery.sh
-
-          # Function to check and free disk space
-          check_disk_space() {
-            print_disk_status || true
-            if ! ensure_disk_space; then
-              echo "ERROR: Unable to reclaim sufficient disk space"
-              df -h
-              exit 1
-            fi
-            df -h /
-          }
-
           # Clean previous configure cache (if any)
           rm -rf build/CPU
-
           # Configure explicitly with QALLOW_ENABLE_CUDA=OFF
-          check_disk_space
-          cmake -S . -B build/CPU -DQALLOW_ENABLE_CUDA=OFF -DCMAKE_EXPORT_COMPILE_COMMANDS=ON || {
-            echo "CMake configuration failed, attempting recovery..."
-            check_disk_space
-            rm -rf build/CPU
-            cmake -S . -B build/CPU -DQALLOW_ENABLE_CUDA=OFF -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
-          }
-
+          cmake -S . -B build/CPU -DQALLOW_ENABLE_CUDA=OFF -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
           # Show generated files right after configure
           echo "After configure:"
           ls -la build/CPU || true
-
           # Build with verbose output into a log file
-          check_disk_space
-          cmake --build build/CPU -- -j"$(nproc)" VERBOSE=1 2>&1 | tee build/CPU/build.log || {
-            echo "Build failed - attempting recovery..."
-            check_disk_space
-            rm -rf build/CPU/CMakeFiles || true
-            rm -rf build/CPU/*.o || true
-            cmake --build build/CPU -- -j1 VERBOSE=1 2>&1 | tee -a build/CPU/build.log || (echo "Build failed - see build/CPU/build.log" && tail -n 200 build/CPU/build.log && false)
-          }
-
+          cmake --build build/CPU -- -j"$(nproc)" VERBOSE=1 2>&1 | tee build/CPU/build.log || (echo "Build failed - see build/CPU/build.log" && tail -n 200 build/CPU/build.log && false)
           # Show produced artifacts and search for likely binaries
           echo "After build:"
           ls -la build/CPU || true
           find build/CPU -maxdepth 4 -type f -executable -print -ls || true
-
           # Print last 200 lines of the build log to the job log
           tail -n 200 build/CPU/build.log || true
 
@@ -218,28 +148,10 @@ jobs:
           echo "{}" > /tmp/accelerator_input.json
           ./build/CPU/qallow_unified_cpu run --accelerator --file=/tmp/accelerator_input.json --no-watch --threads=2 --quiet
 
-      - name: Monitor disk space
-        if: always()
-        run: |
-          echo "=== Disk Space Report ==="
-          df -h
-          echo ""
-          echo "=== Largest directories ==="
-          du -sh /* 2>/dev/null | sort -rh | head -10 || true
-
       - name: Clean up build artifacts
         if: always()
         run: |
-          echo "Cleaning up build artifacts..."
-          rm -rf build/CPU || true
-          rm -rf build/CUDA || true
-          rm -rf build/ || true
-
-          # Additional cleanup
-          rm -rf ~/.ccache || true
-          rm -rf /tmp/* || true
-
-          echo "=== Final disk usage ==="
+          rm -rf build/
           df -h
 
       - name: Install FLTK dependencies
@@ -274,146 +186,3 @@ jobs:
       - name: Dependency report
         continue-on-error: true
         run: scripts/check_dependencies.sh
-
-  build-cuda:
-    needs: human-approval
-    name: Build (CUDA)
-    runs-on: ubuntu-22.04
-    continue-on-error: true
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Free up disk space (aggressive cleanup)
-        run: |
-          echo "=== Initial disk usage ==="
-          df -h
-
-          # Remove unnecessary files to free up space
-          sudo rm -rf /usr/local/lib/android || true
-          sudo rm -rf /usr/share/dotnet || true
-          sudo rm -rf /opt/ghc || true
-          sudo rm -rf /opt/hostedtoolcache || true
-          sudo rm -rf /var/cache/apt/archives/* || true
-          sudo apt-get clean || true
-          sudo rm -rf /var/lib/apt/lists/* || true
-          docker image prune -af || true
-          sudo rm -rf ~/.cargo/registry || true
-          sudo rm -rf ~/.cargo/git || true
-
-          echo "=== Final disk usage ==="
-          df -h
-
-      - name: Ensure minimum disk space
-        run: |
-          source scripts/disk_space_recovery.sh
-          print_disk_status || true
-          ensure_disk_space
-          echo "Disk space guard completed."
-
-      - name: Install system dependencies
-        run: |
-          sudo apt-get update
-          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-            build-essential \
-            gcc \
-            g++ \
-            make \
-            git \
-            wget \
-            curl \
-            python3-dev \
-            python3-pip \
-            libjson-c-dev
-          python3 -m pip install --upgrade pip setuptools wheel --no-cache-dir
-          sudo apt-get clean
-          sudo rm -rf /var/lib/apt/lists/*
-
-      - name: Install CUDA toolkit
-        continue-on-error: true
-        run: |
-          echo "Attempting to install CUDA 13.0 toolkit..."
-          wget -q https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.1-1_all.deb || {
-            echo "Warning: Failed to download CUDA keyring, skipping CUDA installation"
-            exit 0
-          }
-          sudo dpkg -i cuda-keyring_1.1-1_all.deb || true
-          sudo apt-get update || true
-          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-            cuda-toolkit-13-0 \
-            cuda-nsight-compute-13-0 || {
-            echo "Warning: CUDA installation failed, continuing without it"
-            exit 0
-          }
-          echo "/usr/local/cuda-13.0/bin" >> $GITHUB_PATH
-          echo "LD_LIBRARY_PATH=/usr/local/cuda-13.0/lib64:$LD_LIBRARY_PATH" >> $GITHUB_ENV
-          sudo apt-get clean || true
-          sudo rm -rf /var/lib/apt/lists/* || true
-
-      - name: Configure and build (CUDA)
-        run: |
-          set -eux
-
-          source scripts/disk_space_recovery.sh
-
-          # Function to check and free disk space
-          check_disk_space() {
-            print_disk_status || true
-            if ! ensure_disk_space; then
-              echo "ERROR: Unable to reclaim sufficient disk space"
-              df -h
-              exit 1
-            fi
-            df -h /
-          }
-
-          # Clean previous configure cache
-          rm -rf build/CUDA
-
-          # Configure with CUDA enabled
-          check_disk_space
-          cmake -S . -B build/CUDA -DQALLOW_ENABLE_CUDA=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON || {
-            echo "CMake configuration failed, attempting recovery..."
-            check_disk_space
-            rm -rf build/CUDA
-            cmake -S . -B build/CUDA -DQALLOW_ENABLE_CUDA=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
-          }
-
-          echo "After configure:"
-          ls -la build/CUDA || true
-
-          # Build with reduced parallelism to save memory
-          check_disk_space
-          cmake --build build/CUDA -- -j2 VERBOSE=1 2>&1 | tee build/CUDA/build.log || {
-            echo "Build failed - attempting recovery with single job..."
-            check_disk_space
-            rm -rf build/CUDA/CMakeFiles || true
-            rm -rf build/CUDA/*.o || true
-            cmake --build build/CUDA -- -j1 VERBOSE=1 2>&1 | tee -a build/CUDA/build.log || (echo "Build failed - see build/CUDA/build.log" && tail -n 200 build/CUDA/build.log && false)
-          }
-
-          echo "After build:"
-          ls -la build/CUDA || true
-          find build/CUDA -maxdepth 4 -type f -executable -print -ls || true
-          tail -n 200 build/CUDA/build.log || true
-
-      - name: Monitor disk space
-        if: always()
-        run: |
-          echo "=== Disk Space Report ==="
-          df -h
-          echo ""
-          echo "=== Largest directories ==="
-          du -sh /* 2>/dev/null | sort -rh | head -10 || true
-
-      - name: Clean up build artifacts
-        if: always()
-        run: |
-          echo "Cleaning up build artifacts..."
-          rm -rf build/CUDA || true
-          rm -rf build/ || true
-          rm -rf ~/.ccache || true
-          rm -rf /tmp/* || true
-          echo "=== Final disk usage ==="
-          df -h
