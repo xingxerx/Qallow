@@ -444,3 +444,17 @@ add_test(NAME test_temporal_memory COMMAND qallow_test_temporal_memory)
 # endif()
 # 
 # add_test(NAME integration_vm COMMAND qallow_integration_smoke)
+
+# System Optimizer Files
+set(OPTIMIZER_SOURCES
+    interface/optimizer_main.c
+    backend/system/system_scan.c
+    backend/optimization/phase12_elasticity.c
+    backend/optimization/phase13_harmonic.c
+    backend/optimization/phase14_coherence.c
+    backend/optimization/phase15_convergence.c
+)
+
+add_executable(qallow_optimizer ${OPTIMIZER_SOURCES})
+target_link_libraries(qallow_optimizer qallow_core m pthread)
+target_include_directories(qallow_optimizer PRIVATE ${CMAKE_SOURCE_DIR}/include)

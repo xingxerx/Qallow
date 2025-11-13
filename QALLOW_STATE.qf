@@ -1,0 +1,45 @@
+{
+  "qf_version": "1.0",
+  "qf_type": "quantum_hyperlinked_manifest",
+  "qf_timestamp": "2024-11-12T14:23:07Z",
+  "system_id": "QALLOW-DESKTOP-KEG2NBQ",
+  "entanglement": {
+    "hostname": "DESKTOP-KEG2NBQ",
+    "wsl_kernel": "5.15.167.4-microsoft-standard-WSL2",
+    "build_state": "converged",
+    "convergence_tick": 10,
+    "final_metrics": {
+      "cpu_usage": 13.3,
+      "memory_pressure": 13.3
+    }
+  },
+  "files": {
+    "optimizer_main": {
+      "path": "interface/optimizer_main.c",
+      "hash": "sha256:7a8d3e2f1c9b4a5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d",
+      "quantum_state": "compiled_executable"
+    },
+    "system_scan": {
+      "path": "backend/system/system_scan.c",
+      "hash": "sha256:a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b",
+      "quantum_state": "linked_object"
+    },
+    "phase12_elasticity": {
+      "path": "backend/optimization/phase12_elasticity.c",
+      "hash": "sha256:b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2",
+      "quantum_state": "linked_object"
+    }
+  },
+  "hyperlinks": {
+    "self": "https://github.com/xingxerx/Qallow/blob/main/QALLOW_STATE.qf",
+    "build_artifact": "https://github.com/xingxerx/Qallow/releases/download/v1.0/qallow_optimizer",
+    "telemetry": "wss://telemetry.qallow.io/stream/alpha"
+  },
+  "quantum_signature": {
+    "coherence": 0.981,
+    "entropy": 0.12,
+    "signature": "QALLOW::DESKTOP-KEG2NBQ::10TICKS::CONVERGED"
+  },
+  "manifesto_ref": "Qallow 1:1 — Every merge is a resurrection"
+}
+QALLOW::DESKTOP-KEG2NBQ::1762994084::QF=QUANTUM_HYPERLINK_26b779c5001d479a
