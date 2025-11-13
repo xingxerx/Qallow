@@ -50,6 +50,32 @@
         "OPENCL",
         "probs",
         "uchar"
-    ]
+    ],
+    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+    "C_Cpp.default.intelliSenseMode": "gcc-x64",
+    "C_Cpp.default.compilerPath": "/usr/bin/g++",
+    "C_Cpp.default.cppStandard": "c++20",
+    "C_Cpp.default.cStandard": "c11",
+    "C_Cpp.workspaceParsingPriority": "low",
+    "C_Cpp.loggingLevel": "Warning",
+    "files.exclude": {
+        "build/**": true,
+        "dist/**": true,
+        "data/**": true,
+        "native_app/target/**": true,
+        ".git/**": true
+    },
+    "search.exclude": {
+        "build/**": true,
+        "dist/**": true,
+        "data/**": true,
+        "native_app/target/**": true
+    },
+    "C_Cpp.files.exclude": {
+        "build/**": true,
+        "dist/**": true,
+        "data/**": true,
+        "native_app/target/**": true
+    }
 }
 

@@ -8,6 +8,11 @@ if(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
 endif()
 set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "RelWithDebInfo" "MinSizeRel")
 
+# Workaround for nvcc implicit link info parsing failure in containerized envs
+if(POLICY CMP0146)
+    cmake_policy(SET CMP0146 OLD)
+endif()
+
 option(QALLOW_ENABLE_CUDA "Enable CUDA backend" ON)
 
 if(QALLOW_ENABLE_CUDA)
