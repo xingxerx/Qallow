@@ -41,6 +41,15 @@
         "/home/xing/Qallow/third_party/cuda-quantum",
         "/home/xing/Qallow/third_party/vllm-recipes",
         "/home/xing/Qallow/third_party/stim"
+    ],
+    "cSpell.words": [
+        "CUDA",
+        "fmax",
+        "fmin",
+        "imag",
+        "OPENCL",
+        "probs",
+        "uchar"
     ]
 }
 
