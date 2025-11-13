@@ -14,6 +14,19 @@
     "chat.agent.enabled": true,
     "chat.allowAnonymousAccess": true,
     "remote.autoForwardPortsFallback": 0,
+    "remote.autoForwardPorts": false,
+    "remote.restoreForwardedPorts": false,
+    "//": "Automatic Git repository detection is disabled to avoid performance issues and accidental operations on large or third-party submodules. If you need Git integration, enable this setting in your user or workspace settings.",
+    "git.autoRepositoryDetection": false,
+    "git.openRepositoryInParentFolders": "never",
+    "git.detectSubmodules": false,
+    "git.repositoryScanIgnoreFolders": [
+        "mcp-memory-service",
+        "yay",
+        "third_party/cuda-quantum",
+        "third_party/vllm-recipes",
+        "third_party/stim"
+    ],
     "git.ignoredRepositories": [
         "/home/xing/Qallow/mcp-memory-service",
         "/home/xing/Qallow/yay",
