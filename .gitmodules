@@ -1,15 +1,20 @@
 [submodule "mcp-memory-service"]
 	path = mcp-memory-service
 	url = https://github.com/doobidoo/mcp-memory-service
+	ignore = all
 [submodule "yay"]
 	path = yay
 	url = https://aur.archlinux.org/yay.git
+	ignore = all
 [submodule "third_party/cuda-quantum"]
     path = third_party/cuda-quantum
     url = https://github.com/NVIDIA/cuda-quantum.git
+    ignore = all
 [submodule "third_party/vllm-recipes"]
 	path = third_party/vllm-recipes
 	url = https://github.com/vllm-project/recipes
+	ignore = all
 [submodule "third_party/stim"]
 	path = third_party/stim
 	url = https://github.com/quantumlib/Stim
+	ignore = all
