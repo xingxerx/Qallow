@@ -72,6 +72,15 @@ if [[ "${ENABLE_CUDA}" == "ON" ]] && ! command -v nvcc >/dev/null 2>&1; then
     exit 1
 fi
 
+
+echo "[build_all] Running Biome coherence check"
+(
+  cd "${ROOT_DIR}" && npm run biome:check
+) || {
+  echo "[build_all] Biome check failed - code not coherent" >&2
+  exit 1
+}
+
 echo "[build_all] Configuring (CUDA=${ENABLE_CUDA})"
 cmake -S "${ROOT_DIR}" -B "${BUILD_DIR}" \
     -DQALLOW_ENABLE_CUDA="${ENABLE_CUDA}" \
