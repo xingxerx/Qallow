@@ -1,7 +1,3 @@
-[submodule "mcp-memory-service"]
-	path = mcp-memory-service
-	url = https://github.com/doobidoo/mcp-memory-service
-	ignore = all
 [submodule "yay"]
 	path = yay
 	url = https://aur.archlinux.org/yay.git

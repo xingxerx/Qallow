@@ -44,7 +44,6 @@ directories per Constitution § IV.
 - interface
 - io
 - k8s
-- mcp-memory-service
 - misc
 - monitoring
 - native_app
@@ -94,8 +93,6 @@ directories per Constitution § IV.
 
 - f2d90fcf chore: Remove broken Agent-Lightning runners
 - 5ddfa17f chore: Update subproject commit to indicate dirty state
-- 5c7c8e59 chore: Update subproject commit reference in mcp-memory-service
-- b716b3ef chore: Update subproject commit reference in mcp-memory-service
 - bc0f1542 chore: Update quantum clustering to use Cirq as default backend
 - 0d623146 feat: Enhance phase help documentation with options for phases 12 and 13
 - ce03c511 chore: remove empty .gitkeep files from logs and benchmarks directories
