@@ -21,7 +21,6 @@ cufft = { source = "cuda-toolkit", version = "11.0+", optional = true }
 cublas = { source = "cuda-toolkit", version = "11.0+", optional = true }
 
 [git-submodules]
-"mcp-memory-service" = { path = "mcp-memory-service", branch = "main", optional = true }
 
 [python-packages]
 numpy = "~= 1.21.0"

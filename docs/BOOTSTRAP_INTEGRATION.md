@@ -99,7 +99,7 @@ The bootstrap script runs 5 phases:
 ```bash
 git submodule update --init --recursive
 ```
-- Fetches vendored dependencies (e.g., `mcp-memory-service/`)
+- Fetches vendored dependencies (e.g., `third_party/cuda-quantum`)
 - One-time operation per clone
 - ~5-10 sec on typical network
 

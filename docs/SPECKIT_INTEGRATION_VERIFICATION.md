@@ -78,12 +78,6 @@
   - `/checklist` - Verify completion
 - Status: **CONFIGURED**
 
-### ✅ MCP Memory Service Integration
-- Location: `/home/xing/Qallow/mcp-memory-service/`
-- Port: 8000 (http://localhost:8000)
-- Backend: SQLite-vec with sentence-transformers
-- Model: all-MiniLM-L6-v2 (cached locally)
-- Status: **INITIALIZED AND READY**
 
 ### ✅ Network Storage Integration
 - Samba Share: `/home/xing/share/`
@@ -411,7 +405,6 @@ Next Action:
 - **Spec-Kit Repository**: https://github.com/xingxerx/spec-kit
 - **GitHub Copilot**: https://docs.github.com/en/copilot
 - **Qallow Repository**: https://github.com/xingxerx/Qallow
-- **MCP Memory Service**: `/home/xing/Qallow/mcp-memory-service/`
 
 ---
 
