@@ -1,59 +1,76 @@
-# Build artifacts
+# ── Build Artifacts ─────────────────────────────────────────
 build/
 target/
+native_app/target/
+quantum_optimizer/target/
 *.o
 *.obj
 *.a
 *.lib
 *.so
+*.so.*
 *.dylib
 *.dll
 *.exe
+*.out
+*.d
 
-# Executables
-/qallow_unified
-/qallow
-/qallow.exe
-/qallow_vm
-/qallow_vm.exe
+# ── Compiled Binaries & Releases ────────────────────────────
+dist/
+*.tar
+*.tar.gz
+*.tar.xz
+*.zip
+*.AppImage
+*.dmg
+*.deb
+*.rpm
+*.snap
 
-# Header exports
-!/include/qallow/
+# ── Python ──────────────────────────────────────────────────
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+venv/
+.venv/
+env/
+.env/
+*.egg-info/
+*.egg
+.eggs/
 
-# IDE
+# ── Rust ────────────────────────────────────────────────────
+Cargo.lock
+**/*.rs.bk
+
+# ── Node / Web ──────────────────────────────────────────────
+node_modules/
+web-app/node_modules/
+web-app/build/
+*.tsbuildinfo
+
+# ── CUDA / GPU Artifacts ─────────────────────────────────────
+*.ptx
+*.cubin
+*.fatbin
+sections/
+
+# ── IDE / Editor ─────────────────────────────────────────────
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
-
-# OS
 .DS_Store
 Thumbs.db
+*.code-workspace
 
-# Temporary files
-*.tmp
-*.log
-*.csv
-*.db
-
-# Data
-data/snapshots/
-*.json
-!config/human_approval.json
-
-# Secrets & API Keys
+# ── Secrets & Credentials ───────────────────────────────────
 .env
 .env.local
 .env.*.local
-*.cirqrc
-.continue/config.json
-.continue/config.local.json
-claude_desktop_config.json
-continue.json
-continue_config.json
-
-# API Keys & Credentials
+*.env
 *_api_key
 *_apikey
 *_secret
@@ -66,36 +83,79 @@ secrets.json
 .aws/
 .gcloud/
 .azure/
+claude_desktop_config.json
 
-# Python
-__pycache__/
-*.pyc
-*.pyo
-venv/
-.venv/
-.venv/
+# ── Logs & Telemetry ─────────────────────────────────────────
+*.log
+logs/
+data/logs/
+data/telemetry/
+telemetry/
+*.pid
+improvement_reports/
 
-# Node.js / Electron
-node_modules/
-app/node_modules/
-app/dist/
-app/build/
-*.tsbuildinfo
+# ── Databases & Runtime State ────────────────────────────────
+*.db
+*.sqlite
+*.sqlite3
+QALLOW_STATE.qf
+runtime/govern_active.cfg
 
-# Rust build artifacts
-native_app/target/
-Cargo.lock
+# ── AI Session Markdown Artifacts ────────────────────────────
+*_COMPLETE.md
+*_SUMMARY.md
+*_STATUS.md
+*_REPORT.md
+*_GUIDE.md
+*_QUICK_START.md
+*_QUICK_REFERENCE.md
+*_INDEX.md
+*_DELIVERY.md
+*_CHECKLIST.md
+EXECUTION_*.md
+BUILD_*.md
+RUN_*.md
+SETUP_*.md
+START_*.md
+TEST_*.md
+FINAL_*.md
+!README.md
+!docs/README.md
+!docs/CONSTITUTION.md
+!docs/CONTRIBUTING.md
+!docs/SECURITY.md
+!docs/TODO_ROADMAP.md
+!docs/architecture/QALLOW_SYSTEM_ARCHITECTURE.md
+!docs/tutorials/*.md
 
-# Third-party dependencies
-third_party/vllm-recipes/
+# ── Temporary & Misc ────────────────────────────────────────
+*.tmp
+*.bak
+*.backup
+tmp/
+temp/
+check_output.txt
+test_write.txt
+audit_*.txt
+*.Zone.Identifier
+yay
 
-# Large files
-*.exe
-*.dmg
-*.AppImage
+# ── Large Binary Data ────────────────────────────────────────
+*.bin
+*.safetensors
+models/
+*.jpg
+*.png
+*.gif
+!.devcontainer/qallow-docker-logo.png
+data/plots/
 
-# Snyk Security Extension - AI Rules (auto-generated)
-.github\instructions\snyk_rules.instructions.md
+# ── WSL ─────────────────────────────────────────────────────
+.wslrun
 
-# Snyk Security Extension - AI Rules (auto-generated)
+# ── Snyk ────────────────────────────────────────────────────
 .github/instructions/snyk_rules.instructions.md
+
+# ── Cleanup script backups ──────────────────────────────────
+.gitignore.bak.*
+qallow_cleanup.sh
