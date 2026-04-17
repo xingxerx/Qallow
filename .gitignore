@@ -1,161 +1,48 @@
-# ── Build Artifacts ─────────────────────────────────────────
-build/
-target/
-native_app/target/
-quantum_optimizer/target/
+```
+# Compiled and build artifacts
+*.pyc
+__pycache__/
 *.o
 *.obj
-*.a
-*.lib
-*.so
-*.so.*
-*.dylib
-*.dll
+*.class
 *.exe
+*.dll
+*.so
+*.a
 *.out
-*.d
 
-# ── Compiled Binaries & Releases ────────────────────────────
-dist/
-*.tar
-*.tar.gz
-*.tar.xz
-*.zip
-*.AppImage
-*.dmg
-*.deb
-*.rpm
-*.snap
-
-# ── Python ──────────────────────────────────────────────────
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-venv/
+# Dependencies
 .venv/
-env/
-.env/
-*.egg-info/
-*.egg
-.eggs/
-
-# ── Rust ────────────────────────────────────────────────────
-Cargo.lock
-**/*.rs.bk
-
-# ── Node / Web ──────────────────────────────────────────────
+venv/
 node_modules/
-web-app/node_modules/
-web-app/build/
-*.tsbuildinfo
+.mypy_cache/
+.pytest_cache/
+.coverage
+coverage/
+htmlcov/
 
-# ── CUDA / GPU Artifacts ─────────────────────────────────────
-*.ptx
-*.cubin
-*.fatbin
-sections/
-
-# ── IDE / Editor ─────────────────────────────────────────────
-.vscode/
-.idea/
+# Logs and temp files
+*.log
+*.tmp
 *.swp
 *.swo
-*~
-.DS_Store
-Thumbs.db
-*.code-workspace
 
-# ── Secrets & Credentials ───────────────────────────────────
+# Environment
 .env
 .env.local
-.env.*.local
-*.env
-*_api_key
-*_apikey
-*_secret
-*_token
-*.key
-*.pem
-*.p12
-credentials.json
-secrets.json
-.aws/
-.gcloud/
-.azure/
-claude_desktop_config.json
+*.env.*
 
-# ── Logs & Telemetry ─────────────────────────────────────────
-*.log
-logs/
-data/logs/
-data/telemetry/
-telemetry/
-*.pid
-improvement_reports/
+# Editors
+.vscode/
+.idea/
 
-# ── Databases & Runtime State ────────────────────────────────
-*.db
-*.sqlite
-*.sqlite3
-QALLOW_STATE.qf
-runtime/govern_active.cfg
+# Build directories
+dist/
+build/
+target/
+.gradle/
 
-# ── AI Session Markdown Artifacts ────────────────────────────
-*_COMPLETE.md
-*_SUMMARY.md
-*_STATUS.md
-*_REPORT.md
-*_GUIDE.md
-*_QUICK_START.md
-*_QUICK_REFERENCE.md
-*_INDEX.md
-*_DELIVERY.md
-*_CHECKLIST.md
-EXECUTION_*.md
-BUILD_*.md
-RUN_*.md
-SETUP_*.md
-START_*.md
-TEST_*.md
-FINAL_*.md
-!README.md
-!docs/README.md
-!docs/CONSTITUTION.md
-!docs/CONTRIBUTING.md
-!docs/SECURITY.md
-!docs/TODO_ROADMAP.md
-!docs/architecture/QALLOW_SYSTEM_ARCHITECTURE.md
-!docs/tutorials/*.md
-
-# ── Temporary & Misc ────────────────────────────────────────
-*.tmp
-*.bak
-*.backup
-tmp/
-temp/
-check_output.txt
-test_write.txt
-audit_*.txt
-*.Zone.Identifier
-yay
-
-# ── Large Binary Data ────────────────────────────────────────
-*.bin
-*.safetensors
-models/
-*.jpg
-*.png
-*.gif
-!.devcontainer/qallow-docker-logo.png
-data/plots/
-
-# ── WSL ─────────────────────────────────────────────────────
-.wslrun
-
-# ── Snyk ────────────────────────────────────────────────────
-.github/instructions/snyk_rules.instructions.md
-
-# ── Cleanup script backups ──────────────────────────────────
-.gitignore.bak.*
-qallow_cleanup.sh
+# System files
+.DS_Store
+Thumbs.db
+```
