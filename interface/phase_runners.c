@@ -1,10 +1,10 @@
 #include "phase_runners.h"
 #include "qallow/logging.h"
 #include "qallow_phase11.h"
-#include "qallow_phase12.h"
-#include "qallow_phase13.h"
-#include "qallow_phase14.h"
-#include "qallow_phase15.h"
+#include "qallow_phase1.h"
+#include "qallow_phase2.h"
+#include "qallow_phase3.h"
+#include "qallow_phase4.h"
 #include "qallow_phase16.h"
 #include "qallow_phase17.h"
 #include "qallow_phase18.h"
@@ -23,8 +23,8 @@ static int execute_phase_binary(int phase_num, int argc, char** argv);
 /* Note: Phase 11, 14-15 runners are implemented in interface/main.c */
 
 /* Phase 12: Elasticity Simulation */
-int qallow_phase12_runner(int argc, char** argv) {
-    qallow_log_info("BENCHMARK", "Calling real: qallow_phase12_runner");
+int qallow_phase1_runner(int argc, char** argv) {
+    qallow_log_info("BENCHMARK", "Calling real: qallow_phase1_runner");
     const char* audit_tag = "benchmark_p12";
     int ticks = 1000;
     float eps = 0.1f;
@@ -40,12 +40,12 @@ int qallow_phase12_runner(int argc, char** argv) {
         }
     }
 
-    return run_phase12_elasticity(audit_tag, NULL, ticks, eps);
+    return run_phase1_elasticity(audit_tag, NULL, ticks, eps);
 }
 
 /* Phase 13: Harmonic Propagation */
-int qallow_phase13_runner(int argc, char** argv) {
-    qallow_log_info("BENCHMARK", "Calling real: qallow_phase13_runner");
+int qallow_phase2_runner(int argc, char** argv) {
+    qallow_log_info("BENCHMARK", "Calling real: qallow_phase2_runner");
     const char* audit_tag = "benchmark_p13";
     int ticks = 2000;
     int pockets = 128;
@@ -60,7 +60,7 @@ int qallow_phase13_runner(int argc, char** argv) {
         }
     }
 
-    return run_phase13_harmonic(audit_tag, NULL, pockets, ticks, 0.5f);
+    return run_phase2_harmonic(audit_tag, NULL, pockets, ticks, 0.5f);
 }
 
 /* Helper function to execute external phase binaries */

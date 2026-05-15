@@ -139,7 +139,7 @@ fn main() {
     // --- Main Window and UI Setup ---
     let mut main_win = ui::main_window::MainWindow::new(button_handler.clone());
 
-    for i in 0..15 {
+    for i in 0..4 {
         let phase = models::Phase::from_index(i).unwrap();
         main_win.control_panel.buttons.phase_buttons[i].set_callback({
             let handler = main_win.button_handler.clone();
@@ -273,13 +273,13 @@ fn run_headless(config: &AppConfig, logger: &AppLogger) -> Result<(), String> {
     command.arg("run");
 
     let phase_lower = config.vm.default_phase.to_lowercase();
-    if phase_lower == "phase13" || phase_lower == "13" {
-        command.arg("--phase=13");
+    if phase_lower == "phase2" || phase_lower == "2" {
+        command.arg("--phase=2");
         command.arg(format!("--ticks={}", config.vm.default_ticks));
-    } else if phase_lower == "phase15" || phase_lower == "15" {
-        command.arg("--phase=15");
+    } else if phase_lower == "phase4" || phase_lower == "4" {
+        command.arg("--phase=4");
         command.arg(format!("--ticks={}", config.vm.default_ticks));
-    } else if phase_lower == "phase14" || phase_lower == "14" || phase_lower == "unified" {
+    } else if phase_lower == "phase3" || phase_lower == "3" || phase_lower == "unified" {
         command.arg("unified");
     } else {
         command.arg("unified");
