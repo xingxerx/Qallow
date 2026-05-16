@@ -1,6 +1,5 @@
 # Qallow 
 
-**Qallow Quantum-Photonic AGI System**
 
 Qallow is a cutting-edge cognitive runtime and physiological bridge that creates a unified feedback loop between human biological states and artificial general intelligence reasoning. By leveraging advanced physiological metrics (HRV, EEG Beta Coherence, SpO2) through the VEYN signal bridge, Qallow dynamically gates and modulates its internal processing phases.
 
