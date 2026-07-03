@@ -1,5 +1,5 @@
 use futures_util::StreamExt;
-use lmdb_rkv::{DatabaseFlags, Environment, EnvironmentFlags, WriteFlags};
+use lmdb::{DatabaseFlags, Environment, EnvironmentFlags, Transaction, WriteFlags};
 use serde::{Deserialize, Serialize};
 use std::path::Path;
 use std::sync::Arc;
@@ -18,7 +18,7 @@ pub struct VeynBridge {
 }
 
 impl VeynBridge {
-    pub fn new(db_path: &Path) -> Result<Self, lmdb_rkv::Error> {
+    pub fn new(db_path: &Path) -> Result<Self, lmdb::Error> {
         std::fs::create_dir_all(db_path).ok();
         let env = Environment::new()
             .set_flags(EnvironmentFlags::NO_SUB_DIR | EnvironmentFlags::NO_TLS)
