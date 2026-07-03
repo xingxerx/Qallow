@@ -19,7 +19,9 @@ pub struct VeynBridge {
 
 impl VeynBridge {
     pub fn new(db_path: &Path) -> Result<Self, lmdb::Error> {
-        std::fs::create_dir_all(db_path).ok();
+        if let Some(parent) = db_path.parent() {
+            std::fs::create_dir_all(parent).ok();
+        }
         let env = Environment::new()
             .set_flags(EnvironmentFlags::NO_SUB_DIR | EnvironmentFlags::NO_TLS)
             .set_max_dbs(1)
