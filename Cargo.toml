@@ -1,6 +1,7 @@
 [workspace]
 members = ["core/qallow-veyn-bridge",
     "native_app",
+    "qallow_cli",
     "quantum_optimizer",
 ]
 default-members = ["native_app"]
@@ -14,3 +15,12 @@ fltk = "1.4"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 thiserror = "1.0"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true
+
+[profile.dev]
+opt-level = 0

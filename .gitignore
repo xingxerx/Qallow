@@ -4,3 +4,9 @@
 
 
 build/
+
+# Runtime artifacts
+/data/logs/
+qallow.log
+qallow_state.json
+qallow_config.json

@@ -32,8 +32,10 @@ use crate::{
     messaging::UiMessage,
     shutdown::ShutdownManager,
 };
+#[cfg(not(any(target_os = "windows", target_os = "macos")))]
 use std::env;
 use std::io;
+#[cfg(not(any(target_os = "windows", target_os = "macos")))]
 use std::path::Path;
 use std::process::{Command, Stdio};
 

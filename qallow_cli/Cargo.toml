@@ -1,0 +1,12 @@
+[package]
+name = "qallow_cli"
+version = "0.1.0"
+edition = "2021"
+description = "Command-line runner for the Qallow C phase engines"
+
+[[bin]]
+name = "qallow"
+path = "src/main.rs"
+
+[build-dependencies]
+cc = "1"
