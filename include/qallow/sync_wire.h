@@ -8,8 +8,8 @@
  * never enter these payloads. This layer carries semantic memory
  * envelopes only.
  *
- * NOTE: envelope field contract defined here pending reconciliation
- * with local persist_lmdb.h (Task 0 not yet pushed to remote).
+ * NOTE: qsw_envelope is the merge input for qallow/persist_lmdb.h
+ * (Task 0); the wire and on-disk contracts share this one struct.
  */
 #ifndef QALLOW_SYNC_WIRE_H
 #define QALLOW_SYNC_WIRE_H
