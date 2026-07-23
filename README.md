@@ -8,6 +8,11 @@ The local LLM (Gemma 4 via Ollama) is the final reasoning surface. The C engine,
 
 VEYN integration is optional. Qallow runs fully on internal state defaults when no signal source is connected.
 
+Governance: ownership map, hard invariants, and build order for this
+repo and its siblings (DUCTEI, LIMEN, VEYN) live in
+[ATRIUM](https://github.com/xingxerx/ATRIUM) — read `AGENTS.md` there
+first.
+
 ---
 
 ## Architecture
