@@ -1,9 +1,11 @@
 //! `qallow` CLI: runs the C phase engines (elasticity, harmonic, coherence,
-//! convergence) individually or as the unified 1->2->3->4 pipeline.
+//! convergence) individually or as the unified 1->2->3->4 pipeline, and
+//! hosts the DUCTEI ingestion seam (see `ingest`).
 //!
 //! Contract (matches native_app's launcher):
 //!   qallow run --phase=N [--ticks=T]   (N in 1..=4)
 //!   qallow run unified [--ticks=T]
+//!   qallow ingest <store_dir> <frame_file>
 
 use std::ffi::CString;
 use std::os::raw::{c_char, c_float, c_int};
@@ -29,13 +31,15 @@ extern "C" {
     fn qallow_run_phase4(ticks: c_int, audit_unified: c_int) -> c_int;
 }
 
+mod ingest;
+
 const DEFAULT_TICKS: i32 = 1000;
 const DEFAULT_EPS: f32 = 0.1;
 const DEFAULT_POCKETS: i32 = 32; // C engine caps at QALLOW_PHASE2_MAX_POCKETS = 32
 const DEFAULT_COUPLING: f32 = 0.5;
 
 fn usage() -> String {
-    "Usage:\n  qallow run --phase=N [--ticks=T]   (N in 1..4)\n  qallow run unified [--ticks=T]"
+    "Usage:\n  qallow run --phase=N [--ticks=T]   (N in 1..4)\n  qallow run unified [--ticks=T]\n  qallow ingest <store_dir> <frame_file>\n  qallow get <store_dir> <key>"
         .to_string()
 }
 
@@ -81,6 +85,21 @@ fn real_main() -> Result<(), String> {
 
     if args.is_empty() {
         return Err(usage());
+    }
+    if args[0] == "ingest" {
+        if args.len() != 3 {
+            return Err(format!(
+                "Usage: qallow ingest <store_dir> <frame_file>\n{}",
+                usage()
+            ));
+        }
+        return ingest::run(&args[1], &args[2]);
+    }
+    if args[0] == "get" {
+        if args.len() != 3 {
+            return Err(format!("Usage: qallow get <store_dir> <key>\n{}", usage()));
+        }
+        return ingest::run_get(&args[1], &args[2]);
     }
     if args[0] != "run" {
         return Err(format!("Unknown command: {}\n{}", args[0], usage()));

@@ -13,6 +13,7 @@ fn main() {
         "src/runtime/meta_introspect.c",
         "qallow_cli/src/phase34_driver.c",
         "src/mind/persist_lmdb.c",
+        "src/mind/sync_wire.c",
         "third_party/lmdb/mdb.c",
         "third_party/lmdb/midl.c",
     ];
