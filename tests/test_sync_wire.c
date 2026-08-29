@@ -99,10 +99,13 @@ int main(void) {
     assert(w > 0); n += (size_t)w;
     w = qsw_encode_bye(pipe + n, sizeof pipe - n);
     assert(w > 0); n += (size_t)w;
+    /* also include an ACK from B to verify frame acceptance */
+    w = qsw_encode_hello(pipe + n, sizeof pipe - n, QSW_F_HELLO_ACK, idB, B.clock);
+    assert(w > 0); n += (size_t)w;
 
     /* --- B decodes with 1-byte drip feed (partial reads) ------- */
     uint8_t rx[4096]; size_t rxn = 0, off = 0;
-    int frames = 0, got_hello = 0, got_bye = 0;
+    int frames = 0, got_hello = 0, got_bye = 0, got_ack = 0;
     for (size_t i = 0; i < n; i++) {
         rx[rxn++] = pipe[i]; /* transport delivers one byte at a time */
         for (;;) {
@@ -117,6 +120,11 @@ int main(void) {
                 assert(f.u.hello.lamport == 7);
                 got_hello = 1;
                 break;
+            case QSW_F_HELLO_ACK:
+                assert(qsw_hello_validate(&f.u.hello) == QSW_OK);
+                assert(f.u.hello.lamport == 6);
+                got_ack = 1;
+                break;
             case QSW_F_ENVELOPE:
                 store_merge(&B, &f.u.env);
                 break;
@@ -130,7 +138,7 @@ int main(void) {
             off += used;
         }
     }
-    assert(got_hello && got_bye && frames == 6);
+    assert(got_hello && got_bye && got_ack && frames == 7);
 
     /* --- verify merge results ----------------------------------- */
     assert(!strcmp(store_get(&B, "dream/41"), "lucid:false"));
@@ -148,6 +156,13 @@ int main(void) {
         hello[5] ^= 0xFF; /* corrupt magic (body starts after 5-byte hdr) */
         assert(qsw_decode(hello, (size_t)hl, &f, &used) == QSW_OK);
         assert(qsw_hello_validate(&f.u.hello) == QSW_E_MAGIC);
+        /* corrupt an ENVELOPE body field so body size no longer matches */
+        uint8_t envbuf[256]; int32_t el;
+        el = enc_env(envbuf, sizeof envbuf, idA, 8, "k", "v");
+        /* flip one bit in key_len (offset: 5 hdr + 16 id + 8 lam + 2 sch + 2 flg) */
+        size_t key_len_off = 5 + QSW_NODE_ID_LEN + 8 + 2 + 2;
+        envbuf[key_len_off] ^= 0x1;
+        assert(qsw_decode(envbuf, (size_t)el, &f, &used) == QSW_E_MALFORMED);
     }
 
     puts("sync_wire: all tests passed (handshake, drip-feed decode, "

@@ -8,6 +8,7 @@ CPPFLAGS += -Iinclude -Ithird_party/lmdb -DMDB_MAXKEYSIZE=1024
 BUILDDIR := build
 
 TESTS := $(BUILDDIR)/test_sync_wire $(BUILDDIR)/test_persist_lmdb
+LMDB_CFLAGS := -Wno-error -Wno-unused-parameter
 
 .PHONY: test clean
 
@@ -20,7 +21,7 @@ $(BUILDDIR)/test_sync_wire: src/mind/sync_wire.c tests/test_sync_wire.c include/
 $(BUILDDIR)/test_persist_lmdb: src/mind/persist_lmdb.c tests/test_persist_lmdb.c \
 		include/qallow/persist_lmdb.h include/qallow/sync_wire.h \
 		third_party/lmdb/mdb.c third_party/lmdb/midl.c | $(BUILDDIR)
-	$(CC) $(CFLAGS) $(CPPFLAGS) src/mind/persist_lmdb.c tests/test_persist_lmdb.c \
+	$(CC) $(CFLAGS) $(LMDB_CFLAGS) $(CPPFLAGS) src/mind/persist_lmdb.c tests/test_persist_lmdb.c \
 		third_party/lmdb/mdb.c third_party/lmdb/midl.c -o $@
 
 $(BUILDDIR):
