@@ -22,14 +22,12 @@ pub trait SnapshotNotifier: Send + Sync {
 
 pub struct HttpSnapshotNotifier {
     base_url: String,
-    client: reqwest::Client,
 }
 
 impl HttpSnapshotNotifier {
     pub fn new(base_url: impl Into<String>) -> Self {
         Self {
             base_url: base_url.into(),
-            client: reqwest::Client::new(),
         }
     }
 }
@@ -37,9 +35,21 @@ impl HttpSnapshotNotifier {
 #[async_trait]
 impl SnapshotNotifier for HttpSnapshotNotifier {
     async fn trigger_snapshot(&self) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-        // Use the documented export endpoint to snapshot state
-        let url = format!("{}/export", self.base_url);
-        let _ = self.client.get(url).send().await?;
+        // Minimal HTTP GET using tokio TcpStream to avoid heavy deps
+        let base = Url::parse(&self.base_url)?;
+        let host = base.host_str().ok_or("missing host")?;
+        let port = base.port().unwrap_or_else(|| if base.scheme() == "https" { 443 } else { 80 });
+        let addr = format!("{}:{}", host, port);
+
+        let mut stream = tokio::net::TcpStream::connect(addr).await?;
+        use tokio::io::{AsyncReadExt, AsyncWriteExt};
+        let req = format!(
+            "GET {} HTTP/1.1\r\nHost: {}\r\nConnection: close\r\n\r\n",
+            "/export", host
+        );
+        stream.write_all(req.as_bytes()).await?;
+        let mut buf = Vec::new();
+        stream.read_to_end(&mut buf).await?;
         Ok(())
     }
 }
@@ -161,7 +171,6 @@ mod tests {
     use super::*;
     use std::sync::atomic::{AtomicUsize, Ordering};
     use std::sync::Arc;
-    use tokio::sync::Mutex;
 
     struct MockNotifier {
         calls: AtomicUsize,
