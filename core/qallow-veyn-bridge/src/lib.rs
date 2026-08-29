@@ -1,9 +1,12 @@
+#[cfg(feature = "ws")]
 use futures_util::StreamExt;
 use lmdb::{DatabaseFlags, Environment, EnvironmentFlags, Transaction, WriteFlags};
 use serde::{Deserialize, Serialize};
 use std::path::Path;
 use std::sync::Arc;
+#[cfg(feature = "ws")]
 use tokio_tungstenite::connect_async;
+#[cfg(feature = "ws")]
 use url::Url;
 
 use async_trait::async_trait;
@@ -36,9 +39,7 @@ impl HttpSnapshotNotifier {
 impl SnapshotNotifier for HttpSnapshotNotifier {
     async fn trigger_snapshot(&self) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         // Minimal HTTP GET using tokio TcpStream to avoid heavy deps
-        let base = Url::parse(&self.base_url)?;
-        let host = base.host_str().ok_or("missing host")?;
-        let port = base.port().unwrap_or_else(|| if base.scheme() == "https" { 443 } else { 80 });
+        let (host, port) = parse_host_port(&self.base_url)?;
         let addr = format!("{}:{}", host, port);
 
         let mut stream = tokio::net::TcpStream::connect(addr).await?;
@@ -52,6 +53,27 @@ impl SnapshotNotifier for HttpSnapshotNotifier {
         stream.read_to_end(&mut buf).await?;
         Ok(())
     }
+}
+
+fn parse_host_port(base_url: &str) -> Result<(String, u16), Box<dyn std::error::Error + Send + Sync>> {
+    let mut s = base_url.trim();
+    if let Some(rest) = s.strip_prefix("http://") {
+        s = rest;
+    } else if let Some(rest) = s.strip_prefix("https://") {
+        s = rest;
+    }
+    // strip path if present
+    let authority = s.split('/').next().unwrap_or(s);
+    let mut parts = authority.splitn(2, ':');
+    let host = parts.next().unwrap_or("").to_string();
+    if host.is_empty() {
+        return Err("missing host".into());
+    }
+    let port = parts
+        .next()
+        .and_then(|p| p.parse::<u16>().ok())
+        .unwrap_or(80);
+    Ok((host, port))
 }
 
 pub struct VeynBridge {
@@ -93,6 +115,7 @@ impl VeynBridge {
         })
     }
 
+    #[cfg(feature = "ws")]
     pub async fn run(&self) -> Result<(), Box<dyn std::error::Error>> {
         let url = Url::parse("ws://localhost:7700/stream")?;
         let (ws_stream, _) = connect_async(url).await?;
