@@ -25,5 +25,3 @@ strip = true
 [profile.dev]
 opt-level = 0
 
-[patch.crates-io]
-url = "=2.4.1"
