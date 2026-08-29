@@ -1,0 +1,30 @@
+name: Qallow C persist/sync CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+
+jobs:
+  c-persist-sync:
+    name: C persist/sync tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y make gcc
+
+      - name: Run unit tests
+        run: make test
+
+      - name: Install aarch64 cross-compiler
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-aarch64-linux-gnu libc6-dev-arm64-cross
+
+      - name: Cross-compile tests (aarch64)
+        run: make test-aarch64
